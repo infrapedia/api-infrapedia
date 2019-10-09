@@ -18,5 +18,14 @@
   "bugs": {
     "url": "https://github.com/infrapedia/api-infrapedia/issues"
   },
-  "homepage": "https://github.com/infrapedia/api-infrapedia#readme"
+  "homepage": "https://github.com/infrapedia/api-infrapedia#readme",
+  "devDependencies": {
+    "eslint": "^6.5.1",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.18.2"
+  },
+  "dependencies": {
+    "dotenv": "^8.1.0",
+    "express": "^4.17.1"
+  }
 }
