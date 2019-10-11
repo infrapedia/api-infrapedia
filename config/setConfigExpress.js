@@ -38,9 +38,9 @@ var strategy = new Auth0Strategy(
     callbackURL: process.env.AUTH0_CALLBACK_URL
   },
   function (accessToken, refreshToken, extraParams, profile, done) {
-    // console.log( accessToken );
     // console.log( extraParams );
     // console.log( profile );
+    profile.accessToken = extraParams.id_token;
     // console.log( extraParams );
     // accessToken is the token to call Auth0 API (not needed in the most cases)
     // extraParams.id_token has the JSON Web Token

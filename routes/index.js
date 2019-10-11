@@ -19,6 +19,7 @@ var routes = function( router, controllers ){
     res.send(swaggerSpec);
   });
 
+
   //
   /**
    * @swagger
@@ -111,7 +112,6 @@ var routes = function( router, controllers ){
     logoutURL.search = searchString;
     res.json({ login: "logout" } )
   });
-
   /**
    * @swagger
    * /user/login/check:
@@ -127,11 +127,50 @@ var routes = function( router, controllers ){
    *         schema:
    *           type: array
    */
-
   router.post('/user/login/check', secureMiddleware, (req, res) => {
     res.status( 200 ).json({ login: "ok" } )
   });
+  /**
+   * @swagger
+   * /user/profile:
+   *   get:
+   *     tags:
+   *       - Users
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+  router.get('/user/profile', (req, res) => {
+    controllers.users.hello( req.user.name ).then( ( r ) => {
+      res.send( r );
+    } );
+  })
+  /**
+   * @swagger
+   * /user/profile:
+   *   get:
+   *     tags:
+   *       - Users
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+  router.get('/user/profile', (req, res) => {
+    controllers.users.hello( req.user.name ).then( ( r ) => {
+      res.send( r );
+    } );
+  })
 
 
-}
+};
 module.exports = routes
