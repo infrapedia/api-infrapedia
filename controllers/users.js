@@ -1,11 +1,8 @@
 var User = require('./class/User');
 User = new User();
 module.exports = {
-  hello: ( name ) => {
-    return new Promise( ( resolve, reject ) => {
-      console.log( name );
-      resolve( name );
-    } );
-  },
-  getProfile: ( token ) => User.getProfile( token)
+  getProfile: ( token, usr ) =>  User.getProfile( token, usr ),
+  updateProfileMetaData: ( token, usr, metadata ) => User.updateProfileMetadata( token, usr, metadata ),
+  phoneNumber: ( token, user, data ) => User.updatePhoneNumber( token, user, data ),
+  updateName: ( token, user, data ) => User.updateName( token, user, data )
 }

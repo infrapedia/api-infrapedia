@@ -20,6 +20,32 @@ var routes = function( router, controllers ){
   });
 
 
+  //Response information
+
+  let response = {
+    success: ( res, answ ) => {
+      res.set( { 'Content-Type': 'application/json; charset=utf-8',  'Access-Control-Max-Age': 600, 'X-Powered-By': 'Agrimanager.app', 'X-Auth-Token': ( answ.session ) ? answ.session : 'Agrimanager'  } );
+      res.status( 200 ).json( answ );
+    },
+    err: ( req, res, answ ) => {
+      // let msgError = answ.msg.split('|');
+      // answ.msg = msgError[0];
+      // bugsnagClient.user = {
+      //   id: ( req.session.uid ) ? req.session.uid : 'Not login user',
+      //   name: ( req.session.name ) ? req.session.name : 'Not login user',
+      //   roles: ( req.session.permissions ) ? req.session.permissions : [ 'Not login user']
+      // }
+      // bugsnagClient.metaData = { company: { name: process.env._DB_NAME } };
+      // bugsnagClient.context = req.path;
+      // bugsnagClient.notify(new Error( msgError[ 1 ] ) );
+      //REPORT CLIENT
+      console.log( answ );
+      res.set( { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Max-Age': 600, 'X-Powered-By': 'Agrimanager.app' } );
+      res.status( 200 ).json( answ );
+    },
+  }
+
+
   //
   /**
    * @swagger
@@ -56,7 +82,7 @@ var routes = function( router, controllers ){
     '/user/login/linkedin',
     passport.authenticate('auth0', { scope: 'openid email profile metadata',  connection: 'linkedin' }), function (req, res) {
       res.redirect('/user/login/callback')
-  })
+    })
   /**
    * @swagger
    * /user/login/callback:
@@ -146,30 +172,192 @@ var routes = function( router, controllers ){
    *           type: array
    */
   router.get('/user/profile', (req, res) => {
-    controllers.users.hello( req.user.name ).then( ( r ) => {
-      res.send( r );
-    } );
+    controllers.users.getProfile( req.user.accessToken, req.user.id ).then( ( r ) => {  response.success( res, r ) } )
+      .catch( ( e ) => {  response.err( e ); });
   })
   /**
    * @swagger
-   * /user/profile:
-   *   get:
+   * /user/profile/update/metadata:
+   *   patch:
    *     tags:
    *       - Users
    *     description: Login
    *     produces:
    *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: companyname
+   *        description: name of the company where the person works
    *     responses:
    *       200:
    *         description: Check status of API
    *         schema:
    *           type: array
    */
-  router.get('/user/profile', (req, res) => {
-    controllers.users.hello( req.user.name ).then( ( r ) => {
-      res.send( r );
-    } );
+  router.patch('/user/profile/update/metadata', (req, res) => {
+    controllers.users.updateProfileMetaData( req.user.accessToken, req.user.id, req.body ).then( ( r ) => {  response.success( res, r ) } )
+      .catch( ( e ) => {  response.err( e ); });
   })
+  /**
+   * @swagger
+   * /user/profile/update/phone_number:
+   *   patch:
+   *     tags:
+   *       - Users
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: phone_number
+   *        description: Contact number
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+  router.patch('/user/profile/update/phone_number', (req, res) => {
+    controllers.users.phoneNumber( req.user.accessToken, req.user.id, req.body ).then( ( r ) => {  response.success( res, r ) } )
+      .catch( ( e ) => {  response.err( e ); });
+  })
+  /**
+   * @swagger
+   * /user/profile/update/name:
+   *   patch:
+   *     tags:
+   *       - Users
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *        description: FirstName
+   *      - in: formData
+   *        name: family_name
+   *        description: LastName
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+  router.patch('/user/profile/update/name', (req, res) => {
+    controllers.users.updateName( req.user.accessToken, req.user.id, req.body ).then( ( r ) => {  response.success( res, r ) } )
+      .catch( ( e ) => {  response.err( e ); });
+  })
+
+  /**
+   * @swagger
+   * /organization/add:
+   *   post:
+   *     tags:
+   *       - Organization
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *        description: FirstName
+   *      - in: formData
+   *        name: family_name
+   *        description: LastName
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+
+
+  /**
+   * @swagger
+   * /organization/edit/:id:
+   *   patch:
+   *     tags:
+   *       - Organization
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *        description: FirstName
+   *      - in: formData
+   *        name: family_name
+   *        description: LastName
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+
+  /**
+   * @swagger
+   * /organization/view/:id:
+   *   get:
+   *     tags:
+   *       - Organization
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *        description: FirstName
+   *      - in: formData
+   *        name: family_name
+   *        description: LastName
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+
+  /**
+   * @swagger
+   * /organization/all:
+   *   get:
+   *     tags:
+   *       - Organization
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *        description: FirstName
+   *      - in: formData
+   *        name: family_name
+   *        description: LastName
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+
+
+
+
 
 
 };
