@@ -4,7 +4,7 @@ const passport = require('passport');
 const util = require('util');
 const url = require('url');
 const querystring = require('querystring');
-const secureMiddleware = require('./middleware/secure')();
+const secureMiddleware = require('../lib/middleware/secure')();
 
 var routes = function( router, controllers ){
 
@@ -27,7 +27,7 @@ var routes = function( router, controllers ){
       res.set( { 'Content-Type': 'application/json; charset=utf-8',  'Access-Control-Max-Age': 600, 'X-Powered-By': 'Agrimanager.app', 'X-Auth-Token': ( answ.session ) ? answ.session : 'Agrimanager'  } );
       res.status( 200 ).json( answ );
     },
-    err: ( req, res, answ ) => {
+    err: ( res, answ ) => {
       // let msgError = answ.msg.split('|');
       // answ.msg = msgError[0];
       // bugsnagClient.user = {
@@ -39,7 +39,6 @@ var routes = function( router, controllers ){
       // bugsnagClient.context = req.path;
       // bugsnagClient.notify(new Error( msgError[ 1 ] ) );
       //REPORT CLIENT
-      console.log( answ );
       res.set( { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Max-Age': 600, 'X-Powered-By': 'Agrimanager.app' } );
       res.status( 200 ).json( answ );
     },
@@ -63,6 +62,24 @@ var routes = function( router, controllers ){
    *           type: array
    */
   router.get('/', controllers.infrapedia.ping )
+
+  /**
+   * @swagger
+   * /public/:
+   *   get:
+   *     tags:
+   *       - Public
+   *     description: Check status of API
+   *     produces:
+   *      - application/json
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+
+
   /**
    * @swagger
    * /user/login/linkedin:
@@ -78,8 +95,7 @@ var routes = function( router, controllers ){
    *         schema:
    *           type: array
    */
-  router.get(
-    '/user/login/linkedin',
+  router.get('/user/login/linkedin',
     passport.authenticate('auth0', { scope: 'openid email profile metadata',  connection: 'linkedin' }), function (req, res) {
       res.redirect('/user/login/callback')
     })
@@ -173,7 +189,7 @@ var routes = function( router, controllers ){
    */
   router.get('/user/profile', (req, res) => {
     controllers.users.getProfile( req.user.accessToken, req.user.id ).then( ( r ) => {  response.success( res, r ) } )
-      .catch( ( e ) => {  response.err( e ); });
+      .catch( ( e ) => {  response.err( res, e ); });
   })
   /**
    * @swagger
@@ -198,7 +214,7 @@ var routes = function( router, controllers ){
    */
   router.patch('/user/profile/update/metadata', (req, res) => {
     controllers.users.updateProfileMetaData( req.user.accessToken, req.user.id, req.body ).then( ( r ) => {  response.success( res, r ) } )
-      .catch( ( e ) => {  response.err( e ); });
+      .catch( ( e ) => {  response.err( res, e ); });
   })
   /**
    * @swagger
@@ -223,7 +239,7 @@ var routes = function( router, controllers ){
    */
   router.patch('/user/profile/update/phone_number', (req, res) => {
     controllers.users.phoneNumber( req.user.accessToken, req.user.id, req.body ).then( ( r ) => {  response.success( res, r ) } )
-      .catch( ( e ) => {  response.err( e ); });
+      .catch( ( e ) => {  response.err( res, e ); });
   })
   /**
    * @swagger
@@ -251,15 +267,15 @@ var routes = function( router, controllers ){
    */
   router.patch('/user/profile/update/name', (req, res) => {
     controllers.users.updateName( req.user.accessToken, req.user.id, req.body ).then( ( r ) => {  response.success( res, r ) } )
-      .catch( ( e ) => {  response.err( e ); });
+      .catch( ( e ) => {  response.err( res, e ); });
   })
 
   /**
    * @swagger
-   * /organization/add:
+   * /auth/organizations/add:
    *   post:
    *     tags:
-   *       - Organization
+   *       - Organizations
    *     description: Login
    *     produces:
    *      - application/json
@@ -268,24 +284,33 @@ var routes = function( router, controllers ){
    *     parameters:
    *      - in: formData
    *        name: name
-   *        description: FirstName
    *      - in: formData
-   *        name: family_name
-   *        description: LastName
+   *        name: notes
+   *      - in: formData
+   *        name: notes
+   *      - in: formData
+   *        name: address
+   *      - in: formData
+   *        name: premium
+   *      - in: formData
+   *        name: non_peering
    *     responses:
    *       200:
    *         description: Check status of API
    *         schema:
    *           type: array
    */
-
+  router.post('/auth/organization/add', secureMiddleware, (req, res) => {
+    controllers.organizations.add( req.user.id, req.body ).then( ( r ) => {  response.success( res, r ) } )
+      .catch( ( e ) => {  response.err( res, e ); });
+  })
 
   /**
    * @swagger
-   * /organization/edit/:id:
+   * /auth/organizations/edit/:id:
    *   patch:
    *     tags:
-   *       - Organization
+   *       - Organizations
    *     description: Login
    *     produces:
    *      - application/json
@@ -307,10 +332,10 @@ var routes = function( router, controllers ){
 
   /**
    * @swagger
-   * /organization/view/:id:
+   * /auth/organizations/view/:id:
    *   get:
    *     tags:
-   *       - Organization
+   *       - Organizations
    *     description: Login
    *     produces:
    *      - application/json
@@ -332,10 +357,10 @@ var routes = function( router, controllers ){
 
   /**
    * @swagger
-   * /organization/all:
+   * /auth/organizations/all:
    *   get:
    *     tags:
-   *       - Organization
+   *       - Organizations
    *     description: Login
    *     produces:
    *      - application/json
@@ -354,6 +379,565 @@ var routes = function( router, controllers ){
    *         schema:
    *           type: array
    */
+
+  /**
+   * @swagger
+   * /auth/organizations/delete:
+   *   delete:
+   *     tags:
+   *       - Organizations
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *        description: FirstName
+   *      - in: formData
+   *        name: family_name
+   *        description: LastName
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+
+
+  /*****/
+
+  /**
+   * @swagger
+   * /auth/networks/add:
+   *   post:
+   *     tags:
+   *       - Networks
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *      - in: formData
+   *        name: notes
+   *      - in: formData
+   *        name: notes
+   *      - in: formData
+   *        name: address
+   *      - in: formData
+   *        name: premium
+   *      - in: formData
+   *        name: non_peering
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+
+  /**
+   * @swagger
+   * /auth/networks/edit/:id:
+   *   patch:
+   *     tags:
+   *       - Networks
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *        description: FirstName
+   *      - in: formData
+   *        name: family_name
+   *        description: LastName
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+
+  /**
+   * @swagger
+   * /auth/networks/view/:id:
+   *   get:
+   *     tags:
+   *       - Networks
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *        description: FirstName
+   *      - in: formData
+   *        name: family_name
+   *        description: LastName
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+
+  /**
+   * @swagger
+   * /auth/networks/all:
+   *   get:
+   *     tags:
+   *       - Networks
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *        description: FirstName
+   *      - in: formData
+   *        name: family_name
+   *        description: LastName
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+
+  /**
+   * @swagger
+   * /auth/networks/delete:
+   *   delete:
+   *     tags:
+   *       - Networks
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *        description: FirstName
+   *      - in: formData
+   *        name: family_name
+   *        description: LastName
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+
+  /*****/
+  /**
+   * @swagger
+   * /auth/ixps/add:
+   *   post:
+   *     tags:
+   *       - IXPs
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *      - in: formData
+   *        name: notes
+   *      - in: formData
+   *        name: notes
+   *      - in: formData
+   *        name: address
+   *      - in: formData
+   *        name: premium
+   *      - in: formData
+   *        name: non_peering
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+
+  /**
+   * @swagger
+   * /auth/ixps/edit/:id:
+   *   patch:
+   *     tags:
+   *       - IXPs
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *        description: FirstName
+   *      - in: formData
+   *        name: family_name
+   *        description: LastName
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+
+  /**
+   * @swagger
+   * /auth/ixps/view/:id:
+   *   get:
+   *     tags:
+   *       - IXPs
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *        description: FirstName
+   *      - in: formData
+   *        name: family_name
+   *        description: LastName
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+
+  /**
+   * @swagger
+   * /auth/ixps/all:
+   *   get:
+   *     tags:
+   *       - IXPs
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *        description: FirstName
+   *      - in: formData
+   *        name: family_name
+   *        description: LastName
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+
+  /**
+   * @swagger
+   * /auth/ixps/delete:
+   *   delete:
+   *     tags:
+   *       - IXPs
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *        description: FirstName
+   *      - in: formData
+   *        name: family_name
+   *        description: LastName
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+
+  /*****/
+  /**
+   * @swagger
+   * /auth/cls/add:
+   *   post:
+   *     tags:
+   *       - CLS
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *      - in: formData
+   *        name: notes
+   *      - in: formData
+   *        name: notes
+   *      - in: formData
+   *        name: address
+   *      - in: formData
+   *        name: premium
+   *      - in: formData
+   *        name: non_peering
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+
+  /**
+   * @swagger
+   * /auth/cls/edit/:id:
+   *   patch:
+   *     tags:
+   *       - CLS
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *        description: FirstName
+   *      - in: formData
+   *        name: family_name
+   *        description: LastName
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+
+  /**
+   * @swagger
+   * /auth/cls/view/:id:
+   *   get:
+   *     tags:
+   *       - CLS
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *        description: FirstName
+   *      - in: formData
+   *        name: family_name
+   *        description: LastName
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+
+  /**
+   * @swagger
+   * /auth/cls/all:
+   *   get:
+   *     tags:
+   *       - CLS
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *        description: FirstName
+   *      - in: formData
+   *        name: family_name
+   *        description: LastName
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+
+  /**
+   * @swagger
+   * /auth/cls/delete:
+   *   delete:
+   *     tags:
+   *       - CLS
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *        description: FirstName
+   *      - in: formData
+   *        name: family_name
+   *        description: LastName
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+  /*****/
+  /**
+   * @swagger
+   * /auth/facilities/add:
+   *   post:
+   *     tags:
+   *       - Facilities
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *      - in: formData
+   *        name: notes
+   *      - in: formData
+   *        name: notes
+   *      - in: formData
+   *        name: address
+   *      - in: formData
+   *        name: premium
+   *      - in: formData
+   *        name: non_peering
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+
+  /**
+   * @swagger
+   * /auth/facilities/edit/:id:
+   *   patch:
+   *     tags:
+   *       - Facilities
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *        description: FirstName
+   *      - in: formData
+   *        name: family_name
+   *        description: LastName
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+
+  /**
+   * @swagger
+   * /auth/facilities/view/:id:
+   *   get:
+   *     tags:
+   *       - Facilities
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *        description: FirstName
+   *      - in: formData
+   *        name: family_name
+   *        description: LastName
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+
+  /**
+   * @swagger
+   * /auth/facilities/all:
+   *   get:
+   *     tags:
+   *       - Facilities
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *        description: FirstName
+   *      - in: formData
+   *        name: family_name
+   *        description: LastName
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+
+  /**
+   * @swagger
+   * /auth/facilities/delete:
+   *   delete:
+   *     tags:
+   *       - Facilities
+   *     description: Login
+   *     produces:
+   *      - application/json
+   *     consumes:
+   *      - application/x-www-form-urlencoded
+   *     parameters:
+   *      - in: formData
+   *        name: name
+   *        description: FirstName
+   *      - in: formData
+   *        name: family_name
+   *        description: LastName
+   *     responses:
+   *       200:
+   *         description: Check status of API
+   *         schema:
+   *           type: array
+   */
+
+
+
+
+
 
 
 

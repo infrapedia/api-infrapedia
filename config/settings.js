@@ -5,6 +5,11 @@ let information = {
     domain: process.env._RDS_DOMAIN,
     port: process.env._RDS_PORT,
     passw: process.env._RDS_PASSW
+  },
+  mongodb: {
+    domain: process.env._DB_DOMAIN,
+    port: process.env._DB_PORT,
+    name: process.env._DB_NAME
   }
 }
 

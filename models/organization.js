@@ -1,7 +1,8 @@
 var db = require( '../config/connection.js' );
 module.exports = function () {
   return new Promise( ( resolve, reject ) => {
-    db.get().createCollection( 'activities',
+    db.get().createCollection( 'organizations'
+      ,
       {
         validator: {
           $jsonSchema: {
@@ -34,9 +35,10 @@ module.exports = function () {
         validationLevel: 'off',
         validationAction: 'warn'
       }
-    ).then( function ( users ) {
-      resolve( users );
+    ).then( function ( organization ) {
+      resolve( organization );
     } ).catch( function ( err ) {
+      console.log( err );
       reject( err );
     } );
   } );

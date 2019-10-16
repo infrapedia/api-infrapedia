@@ -1,6 +1,6 @@
 module.exports = {
   ping: ( req, res ) => {
-    res.json( { status: 'ok' } )
+    res.json( { status: 'pong' } )
   },
   pong: ( req, res ) => {
     res.json( { status: 'login' } )
