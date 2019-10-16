@@ -1,9 +1,37 @@
 # Api-Infrapedia
 
 
-##Databases
+## Environment Variables
+
+```
+_PROJ_NAME = 
+_ENV = dev
+_PORT_DEV = 
+_PORT_PROD = 
+
+#AUTH0
+AUTH0_CLIENT_ID=
+AUTH0_DOMAIN=
+AUTH0_CLIENT_SECRET=
+AUTH0_CALLBACK_URL=
+
+#
+_JWT_SECRET = 
+
+#RDS
+_RDS_DOMAIN = 127.0.0.1
+_RDS_PORT = 6379
+_RDS_PASSW = ''
+
+#Mongo Db
+_DB_DOMAIN= 
+_DB_PORT = 
+_DB_NAME = 
+
+```
+
+## Databases
 - Redis: 
-- PostreSQL: 
 - MongoDB: 
 
 
