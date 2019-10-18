@@ -1,18 +1,18 @@
-//declare
-const swaggerJSDoc = require( 'swagger-jsdoc' );
+// declare
+const swaggerJSDoc = require('swagger-jsdoc');
 const passport = require('passport');
 const util = require('util');
 const url = require('url');
 const querystring = require('querystring');
 const secureMiddleware = require('../lib/middleware/secure')();
 
-var routes = function( router, controllers ){
-
-  //Swagger conf
-  var swaggerDefinition = {
-    info: { title: 'Infrapedia API ', version: '1.0.0', description: 'This is the oficial API of Infrapedia.com' }, basePath: '/'
+// eslint-disable-next-line func-names
+const routes = function (router, controllers) {
+  // Swagger conf
+  const swaggerDefinition = {
+    info: { title: 'Infrapedia API ', version: '1.0.0', description: 'This is the oficial API of Infrapedia.com' }, basePath: '/',
   };
-  var options = { swaggerDefinition: swaggerDefinition, apis: [ './routes/*.js' ] };
+  const options = { swaggerDefinition, apis: ['./routes/*.js'] };
   const swaggerSpec = swaggerJSDoc(options);
   router.get('/api-docs.json', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
@@ -20,14 +20,18 @@ var routes = function( router, controllers ){
   });
 
 
-  //Response information
+  // Response information
 
-  let response = {
-    success: ( res, answ ) => {
-      res.set( { 'Content-Type': 'application/json; charset=utf-8',  'Access-Control-Max-Age': 600, 'X-Powered-By': 'Agrimanager.app', 'X-Auth-Token': ( answ.session ) ? answ.session : 'Agrimanager'  } );
-      res.status( 200 ).json( answ );
+  const response = {
+    success: (res, answ) => {
+      res.set(
+        {
+          'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Max-Age': 600, 'X-Powered-By': 'Agrimanager.app', 'X-Auth-Token': (answ.session) ? answ.session : 'Infrapedia',
+        },
+      );
+      res.status(200).json(answ);
     },
-    err: ( res, answ ) => {
+    err: (res, answ) => {
       // let msgError = answ.msg.split('|');
       // answ.msg = msgError[0];
       // bugsnagClient.user = {
@@ -38,11 +42,11 @@ var routes = function( router, controllers ){
       // bugsnagClient.metaData = { company: { name: process.env._DB_NAME } };
       // bugsnagClient.context = req.path;
       // bugsnagClient.notify(new Error( msgError[ 1 ] ) );
-      //REPORT CLIENT
-      res.set( { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Max-Age': 600, 'X-Powered-By': 'Agrimanager.app' } );
-      res.status( 200 ).json( answ );
+      // REPORT CLIENT
+      res.set({ 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Max-Age': 600, 'X-Powered-By': 'Agrimanager.app' });
+      res.status(200).json(answ);
     },
-  }
+  };
 
 
   //
@@ -61,7 +65,7 @@ var routes = function( router, controllers ){
    *         schema:
    *           type: array
    */
-  router.get('/', controllers.infrapedia.ping )
+  router.get('/', controllers.infrapedia.ping);
 
   /**
    * @swagger
@@ -96,9 +100,9 @@ var routes = function( router, controllers ){
    *           type: array
    */
   router.get('/user/login/linkedin',
-    passport.authenticate('auth0', { scope: 'openid email profile metadata',  connection: 'linkedin' }), function (req, res) {
-      res.redirect('/user/login/callback')
-    })
+    passport.authenticate('auth0', { scope: 'openid email profile metadata', connection: 'linkedin' }), (req, res) => {
+      res.redirect('/user/login/callback');
+    });
   /**
    * @swagger
    * /user/login/callback:
@@ -114,15 +118,16 @@ var routes = function( router, controllers ){
    *         schema:
    *           type: array
    */
-  router.get('/user/login/callback', function (req, res, next) {
-    passport.authenticate('auth0', function (err, user, info) {
+  router.get('/user/login/callback', (req, res, next) => {
+    passport.authenticate('auth0', (err, user, info) => {
       if (err) { return next(err); }
-      if (!user) { return res.status( 401 ).json({ login: "failed" } ) } //res.redirect('/login');
-      req.logIn(user, function (err) {
+      if (!user) { return res.status(401).json({ login: 'failed' }); } // res.redirect('/login');
+      // eslint-disable-next-line no-shadow
+      req.logIn(user, (err) => {
         if (err) { return next(err); }
-        const returnTo = req.session.returnTo;
+        const { returnTo } = req.session;
         delete req.session.returnTo;
-        res.status( 200 ).json({ login: "success", usr: req.user } )
+        res.status(200).json({ login: 'success', usr: req.user });
       });
     })(req, res, next);
   });
@@ -143,16 +148,16 @@ var routes = function( router, controllers ){
    */
   router.post('/user/logout', (req, res) => {
     req.logout();
-    let returnTo = req.protocol + '://' + req.hostname;
-    let port = req.connection.localPort;
-    if (port !== undefined && port !== 80 && port !== 443) { returnTo += ':' + port; }
-    var logoutURL = new url.URL( util.format('https://%s/v2/logout', process.env.AUTH0_DOMAIN) )
-    var searchString = querystring.stringify({
+    let returnTo = `${req.protocol}://${req.hostname}`;
+    const port = req.connection.localPort;
+    if (port !== undefined && port !== 80 && port !== 443) { returnTo += `:${port}`; }
+    const logoutURL = new url.URL(util.format('https://%s/v2/logout', process.env.AUTH0_DOMAIN));
+    const searchString = querystring.stringify({
       client_id: process.env.AUTH0_CLIENT_ID,
-      returnTo: returnTo
+      returnTo,
     });
     logoutURL.search = searchString;
-    res.json({ login: "logout" } )
+    res.json({ login: 'logout' });
   });
   /**
    * @swagger
@@ -170,7 +175,7 @@ var routes = function( router, controllers ){
    *           type: array
    */
   router.post('/user/login/check', secureMiddleware, (req, res) => {
-    res.status( 200 ).json({ login: "ok" } )
+    res.status(200).json({ login: 'ok' });
   });
   /**
    * @swagger
@@ -188,9 +193,9 @@ var routes = function( router, controllers ){
    *           type: array
    */
   router.get('/user/profile', (req, res) => {
-    controllers.users.getProfile( req.user.accessToken, req.user.id ).then( ( r ) => {  response.success( res, r ) } )
-      .catch( ( e ) => {  response.err( res, e ); });
-  })
+    controllers.users.getProfile(req.user.accessToken, req.user.id).then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
   /**
    * @swagger
    * /user/profile/update/metadata:
@@ -213,9 +218,9 @@ var routes = function( router, controllers ){
    *           type: array
    */
   router.patch('/user/profile/update/metadata', (req, res) => {
-    controllers.users.updateProfileMetaData( req.user.accessToken, req.user.id, req.body ).then( ( r ) => {  response.success( res, r ) } )
-      .catch( ( e ) => {  response.err( res, e ); });
-  })
+    controllers.users.updateProfileMetaData(req.user.accessToken, req.user.id, req.body).then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
   /**
    * @swagger
    * /user/profile/update/phone_number:
@@ -238,9 +243,9 @@ var routes = function( router, controllers ){
    *           type: array
    */
   router.patch('/user/profile/update/phone_number', (req, res) => {
-    controllers.users.phoneNumber( req.user.accessToken, req.user.id, req.body ).then( ( r ) => {  response.success( res, r ) } )
-      .catch( ( e ) => {  response.err( res, e ); });
-  })
+    controllers.users.phoneNumber(req.user.accessToken, req.user.id, req.body).then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
   /**
    * @swagger
    * /user/profile/update/name:
@@ -266,9 +271,9 @@ var routes = function( router, controllers ){
    *           type: array
    */
   router.patch('/user/profile/update/name', (req, res) => {
-    controllers.users.updateName( req.user.accessToken, req.user.id, req.body ).then( ( r ) => {  response.success( res, r ) } )
-      .catch( ( e ) => {  response.err( res, e ); });
-  })
+    controllers.users.updateName(req.user.accessToken, req.user.id, req.body).then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
 
   /**
    * @swagger
@@ -301,9 +306,9 @@ var routes = function( router, controllers ){
    *           type: array
    */
   router.post('/auth/organization/add', secureMiddleware, (req, res) => {
-    controllers.organizations.add( req.user.id, req.body ).then( ( r ) => {  response.success( res, r ) } )
-      .catch( ( e ) => {  response.err( res, e ); });
-  })
+    controllers.organizations.add(req.user.id, req.body).then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
 
   /**
    * @swagger
@@ -406,7 +411,7 @@ var routes = function( router, controllers ){
    */
 
 
-  /*****/
+  /** ** */
 
   /**
    * @swagger
@@ -539,7 +544,7 @@ var routes = function( router, controllers ){
    *           type: array
    */
 
-  /*****/
+  /** ** */
   /**
    * @swagger
    * /auth/ixps/add:
@@ -671,7 +676,6 @@ var routes = function( router, controllers ){
    *           type: array
    */
 
-  /*****/
   /**
    * @swagger
    * /auth/cls/add:
@@ -802,7 +806,7 @@ var routes = function( router, controllers ){
    *         schema:
    *           type: array
    */
-  /*****/
+
   /**
    * @swagger
    * /auth/facilities/add:
@@ -933,16 +937,5 @@ var routes = function( router, controllers ){
    *         schema:
    *           type: array
    */
-
-
-
-
-
-
-
-
-
-
-
 };
-module.exports = routes
+module.exports = routes;
