@@ -191,7 +191,6 @@ public/
 .Python
 [Bb]in
 [Ii]nclude
-[Ll]ib
 [Ll]ib64
 [Ll]ocal
 [Ss]cripts
@@ -267,3 +266,4 @@ package-lock.json
 .idea/inspectionProfiles/Project_Default.xml
 .idea/workspace.xml
 package-lock.json
+.idea/codeStyles/
