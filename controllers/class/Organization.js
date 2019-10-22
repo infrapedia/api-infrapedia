@@ -1,5 +1,6 @@
 const luxon = require('luxon')
-var ObjectID = require('mongodb').ObjectID;
+const { ObjectID } = require('mongodb');
+
 class Organization {
   constructor() {
     // eslint-disable-next-line global-require

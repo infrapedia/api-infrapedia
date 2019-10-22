@@ -61,7 +61,7 @@ const expressConfig = function (app) {
   // session config
   app.use(session({
     secret: process.env._JWT_SECRET,
-    store: new redisStore (
+    store: new redisStore(
       {
         prefix: 'INFSSID:',
         pass: _settings.redis.passw,
@@ -86,7 +86,7 @@ const expressConfig = function (app) {
   app.use(passport.initialize());
   app.use(passport.session());
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(null, options))
-  app.use('/assets/css/', express.static(process.cwd() + '/public/css'))
+  app.use('/assets/css/', express.static(`${process.cwd()}/public/css`))
 
   // data parser
   app.use(bodyParser.json());
