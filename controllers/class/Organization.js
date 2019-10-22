@@ -4,7 +4,7 @@ const { ObjectID } = require('mongodb');
 class Organization {
   constructor() {
     // eslint-disable-next-line global-require
-    this.model = require('../../models/organization');
+    this.model = require('../../models/organization.model');
   }
 
   add(user, data) {
