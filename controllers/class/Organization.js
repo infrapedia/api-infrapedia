@@ -54,7 +54,7 @@ class Organization {
                 else resolve(data);
               });
           }).catch((e) => reject(e));
-        } else { resolve('Not user found') };
+        } else { resolve('Not user found'); }
       } catch (e) { reject(e); }
     });
   }
