@@ -17,10 +17,13 @@ module.exports = function () {
               terrestrial: { bsonType: 'bool' },
               capacity_tbps: { bsonType: 'double' },
               fiberPairs: { bsonType: 'string' },
-              status: { bsonType: 'bool' },
               notes: { bsonType: 'string' },
               facilities: { bsonType: 'array' }, // Array of object ID's
               cls: { bsonType: 'array' }, // Array of object ID's
+              geometry: { bsonType: 'object' },
+              rgDate: { bsonType: 'date' },
+              uDate: { bsonType: 'date ' },
+              status: { bsonType: 'bool' },
             },
           },
         },

@@ -10,6 +10,7 @@ module.exports = function () {
             required: ['uuid'],
             properties: {
               uuid: { bsonType: 'string' },
+              logo: { bsonType: 'string' },
               name: { bsonType: 'string' },
               notes: { bsonType: 'string' },
               address: {
