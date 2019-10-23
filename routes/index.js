@@ -271,7 +271,7 @@ const routes = function (router, controllers) {
    *           type: array
    */
   router.patch('/user/profile/update/name', (req, res) => {
-    controllers.users.updateName(req.user.accessToken, req.user.id, req.body).then((r) => { response.success(res, r); })
+    controllers.users.updateName(req.user.accessToken, req.user.id, req.body).then( (r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
 

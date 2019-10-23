@@ -23,12 +23,12 @@ class Organization {
             uDate: luxon.DateTime.utc(),
             status: false,
           }
-          organization.insertOne( data, (err, i) => {
+          organization.insertOne(data, (err, i) => {
             if (err) reject(err)
             resolve('Organization created');
           });
         }).catch((e) => { reject(e); });
-      } catch (e){ reject(e); }
+      } catch (e) { reject(e); }
     });
   }
 
@@ -37,6 +37,7 @@ class Organization {
       try {
         if (user !== undefined || user !== '') {
           this.model().then(async (organization) => {
+            const id = new ObjectID(data._id);
             data.address = JSON.parse(data.address)
             data={
               name: String(data.name),
@@ -48,7 +49,7 @@ class Organization {
             };
             // eslint-disable-next-line no-underscore-dangle
             organization.updateOne(
-              { _id: new ObjectID(data._id), uuid: String(user) }, { $set: data }, (err, u) => {
+              { _id: id, uuid: String(user) }, { $set: data }, (err, u) => {
                 if (err) reject(err)
                 else if (u.result.nModified !== 1) resolve('Not updated')
                 else resolve(data);
