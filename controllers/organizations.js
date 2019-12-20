@@ -4,4 +4,5 @@ Organization = new Organization()
 module.exports = {
   add: (usr, data) => Organization.add(usr, data),
   edit: (usr, data) => Organization.edit(usr, data),
+  list: (usr) => Organization.list(usr),
 };

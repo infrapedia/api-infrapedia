@@ -53,9 +53,33 @@ class Organization {
                 if (err) reject(err)
                 else if (u.result.nModified !== 1) resolve('Not updated')
                 else resolve(data);
-              });
+              },
+            );
           }).catch((e) => reject(e));
         } else { resolve('Not user found'); }
+      } catch (e) { reject(e); }
+    });
+  }
+
+  list(usr) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((organization) => {
+          organization.aggregate([{
+            $match: {
+              uuid: usr,
+              status: true,
+            },
+          }, {
+            $project: {
+              uuid: 0,
+              status: 0,
+            },
+          }]).toArray((err, rOrganizations) => {
+            if (err) reject(err);
+            resolve(rOrganizations);
+          });
+        });
       } catch (e) { reject(e); }
     });
   }

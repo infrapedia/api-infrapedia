@@ -1,7 +1,7 @@
 {
     "env": {
-        "es6": true,
-        "node": true
+        "browser": true,
+        "es6": true
     },
     "extends": [
         "airbnb-base"
@@ -15,5 +15,8 @@
         "sourceType": "module"
     },
     "rules": {
+        "import/no-dynamic-require":  ["off"],
+        "consistent-return": ["off"],
+        "no-shadow": ["off"]
     }
 }

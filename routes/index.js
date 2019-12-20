@@ -4,8 +4,7 @@ const passport = require('passport');
 const util = require('util');
 const url = require('url');
 const querystring = require('querystring');
-const secureMiddleware = require('../lib/middleware/secure')();
-
+// const secureMiddleware = require('../lib/middleware/secure')();
 // eslint-disable-next-line func-names
 const routes = function (router, controllers) {
   // Swagger conf
@@ -26,7 +25,7 @@ const routes = function (router, controllers) {
     success: (res, answ) => {
       res.set(
         {
-          'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Max-Age': 600, 'X-Powered-By': 'Agrimanager.app', 'X-Auth-Token': (answ.session) ? answ.session : 'Infrapedia',
+          'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Max-Age': 600, 'X-Powered-By': 'Infrapedia.com', 'X-Auth-Token': (answ.session) ? answ.session : 'Infrapedia',
         },
       );
       res.status(200).json(answ);
@@ -43,7 +42,7 @@ const routes = function (router, controllers) {
       // bugsnagClient.context = req.path;
       // bugsnagClient.notify(new Error( msgError[ 1 ] ) );
       // REPORT CLIENT
-      res.set({ 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Max-Age': 600, 'X-Powered-By': 'Agrimanager.app' });
+      res.set({ 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Max-Age': 600, 'X-Powered-By': 'Infrapedia.com' });
       res.status(200).json(answ);
     },
   };
@@ -122,7 +121,6 @@ const routes = function (router, controllers) {
     passport.authenticate('auth0', (err, user, info) => {
       if (err) { return next(err); }
       if (!user) { return res.status(401).json({ login: 'failed' }); } // res.redirect('/login');
-      // eslint-disable-next-line no-shadow
       req.logIn(user, (err) => {
         if (err) { return next(err); }
         const { returnTo } = req.session;
@@ -174,7 +172,7 @@ const routes = function (router, controllers) {
    *         schema:
    *           type: array
    */
-  router.post('/user/login/check', secureMiddleware, (req, res) => {
+  router.post('/user/login/check', (req, res) => {
     res.status(200).json({ login: 'ok' });
   });
   /**
@@ -193,7 +191,8 @@ const routes = function (router, controllers) {
    *           type: array
    */
   router.get('/user/profile', (req, res) => {
-    controllers.users.getProfile(req.user.accessToken, req.user.id).then((r) => { response.success(res, r); })
+    controllers.users.getProfile(req.user.accessToken, req.user.id)
+      .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
   /**
@@ -218,7 +217,8 @@ const routes = function (router, controllers) {
    *           type: array
    */
   router.patch('/user/profile/update/metadata', (req, res) => {
-    controllers.users.updateProfileMetaData(req.user.accessToken, req.user.id, req.body).then((r) => { response.success(res, r); })
+    controllers.users.updateProfileMetaData(req.user.accessToken, req.user.id, req.body)
+      .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
   /**
@@ -243,7 +243,8 @@ const routes = function (router, controllers) {
    *           type: array
    */
   router.patch('/user/profile/update/phone_number', (req, res) => {
-    controllers.users.phoneNumber(req.user.accessToken, req.user.id, req.body).then((r) => { response.success(res, r); })
+    controllers.users.phoneNumber(req.user.accessToken, req.user.id, req.body)
+      .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
   /**
@@ -271,10 +272,13 @@ const routes = function (router, controllers) {
    *           type: array
    */
   router.patch('/user/profile/update/name', (req, res) => {
-    controllers.users.updateName(req.user.accessToken, req.user.id, req.body).then( (r) => { response.success(res, r); })
+    controllers.users.updateName(req.user.accessToken, req.user.id, req.body)
+      .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
 
+
+  /** *********************** ORGANIZATIONS ************************ */
   /**
    * @swagger
    * /auth/organizations/add:
@@ -305,11 +309,11 @@ const routes = function (router, controllers) {
    *         schema:
    *           type: array
    */
-  router.post('/auth/organization/add', secureMiddleware, (req, res) => {
-    controllers.organizations.add(req.user.id, req.body).then((r) => { response.success(res, r); })
+  router.post('/auth/organization/add', (req, res) => {
+    controllers.organizations.list(req.user.id)
+      .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-
   /**
    * @swagger
    * /auth/organizations/edit/:id:
@@ -371,19 +375,17 @@ const routes = function (router, controllers) {
    *      - application/json
    *     consumes:
    *      - application/x-www-form-urlencoded
-   *     parameters:
-   *      - in: formData
-   *        name: name
-   *        description: FirstName
-   *      - in: formData
-   *        name: family_name
-   *        description: LastName
    *     responses:
    *       200:
    *         description: Check status of API
    *         schema:
    *           type: array
    */
+  router.get('/auth/organizations/all', (req, res) => {
+    controllers.organizations.list(req.user.id)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
 
   /**
    * @swagger

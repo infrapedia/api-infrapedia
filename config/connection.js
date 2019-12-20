@@ -24,7 +24,8 @@ module.exports = {
   get: () => state.db,
   // eslint-disable-next-line consistent-return
   close: (done) => {
-    if (state.db) state.db.close((err, result) => { state = { db: null, mode: null }; return done(result); });
-    else return false;
+    if (state.db) {
+      state.db.close((err, result) => { state = { db: null, mode: null }; return done(result); });
+    } else return false;
   },
 };

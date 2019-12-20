@@ -1,5 +1,21 @@
 # Api-Infrapedia
 
+##v.1.0.0
+
+- Connection to the database 
+- Connection to Redis Sessions
+- eslintRules
+- Organizations:
+    - Add
+    - Edit
+    - List
+
+
+## Documentation
+
+/api-docs
+
+
 
 ## Environment Variables
 
