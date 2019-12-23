@@ -67,11 +67,13 @@ const expressConfig = function (app) {
       'Authorization, Origin, X-Requested-With, Content-Length, X-Requested-With, Content-Type, Accept');
     res.header('Access-Control-Allow-Credentials', true);
     res.header('Access-Control-Expose-Headers', 'Content-Length');
+    res.header('Access-Control-Expose-Headers', 'user_id');
     res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, PATCH, OPTIONS');
     res.header('Access-Control-Max-Age', 600);
     next();
   });
   app.use(compression());
+
 
   // session config
   /*
