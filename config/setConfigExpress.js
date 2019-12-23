@@ -8,6 +8,9 @@ const Auth0Strategy = require('passport-auth0');
 const formData = require('express-form-data');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const methodOverride = require( 'method-override' );
+const compression = require( 'compression' );
+
 // swagger
 const swaggerUi = require('swagger-ui-express')
 
@@ -56,7 +59,19 @@ const strategy = new Auth0Strategy(
 
 const expressConfig = function (app) {
   // config
-  app.set('settings', _settings)
+  app.set('settings', _settings);
+  app.use(methodOverride( 'X-HTTP-Method-Override'));
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', _settings.urlCors);
+    res.header('Access-Control-Allow-Headers',
+      'Authorization, Origin, X-Requested-With, Content-Length, X-Requested-With, Content-Type, Accept');
+    res.header('Access-Control-Allow-Credentials', true);
+    res.header('Access-Control-Expose-Headers', 'Content-Length');
+    res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, PATCH, OPTIONS');
+    res.header('Access-Control-Max-Age', 600);
+    next();
+  });
+  app.use(compression());
 
   // session config
   /*
@@ -85,7 +100,7 @@ const expressConfig = function (app) {
     secret: 'infrapedia',
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: true }
+    cookie: { secure: true },
   }));
 
   // use
@@ -104,6 +119,6 @@ const expressConfig = function (app) {
   app.use(formData.format());
   app.use(formData.stream());
   app.use(formData.union());
-  app.use('/auth', (err, req, res, next) => { next() });
+  app.use('/auth', (err, req, res, next) => { next(); });
 }
 module.exports = expressConfig;
