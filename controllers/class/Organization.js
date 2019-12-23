@@ -10,25 +10,37 @@ class Organization {
   add(user, data) {
     return new Promise((resolve, reject) => {
       try {
-        this.model().then(async (organization) => {
-          data.address = JSON.parse(data.address);
-          data = {
-            uuid: String(user),
-            name: String(data.name),
-            notes: String(data.notes),
-            address: data.address,
-            premium: (data.premium === 'true' || data.premium === 'True'),
-            non_peering: (data.non_peering === 'true' || data.non_peering === 'True'),
-            rgDate: luxon.DateTime.utc(),
-            uDate: luxon.DateTime.utc(),
-            status: false,
-          }
-          organization.insertOne(data, (err, i) => {
-            if (err) reject(err)
-            resolve('Organization created');
-          });
-        }).catch((e) => { reject(e); });
-      } catch (e) { reject(e); }
+        if (data.name && user) {
+          this.model().then(async (organization) => {
+            // we need to validate if  don't have another organization with the same name
+            organization.find({ name: String(data.name) }).count((err, c) => {
+              if (err) reject({ m: err });
+              else if (c > 0) reject({ m: 'We have registered in our system more than one organization with the same name' });
+              else {
+                data.address = JSON.parse(data.address);
+                data = {
+                  uuid: String(user),
+                  name: String(data.name),
+                  notes: String(data.notes),
+                  address: data.address,
+                  premium: false,
+                  non_peering: false,
+                  rgDate: luxon.DateTime.utc(),
+                  uDate: luxon.DateTime.utc(),
+                  status: false,
+                }
+                // console.log( JSON.stringify( data ) );
+                organization.insertOne(data, (err, i) => {
+                  if (err) reject({ m: err })
+                  resolve({ m: 'Organization created' });
+                });
+              }
+            });
+          }).catch((e) => { reject(e); });
+        } else {
+          reject({ m: 'Error' });
+        }
+      } catch (e) { reject({ m: e }); }
     });
   }
 
@@ -38,26 +50,33 @@ class Organization {
         if (user !== undefined || user !== '') {
           this.model().then(async (organization) => {
             const id = new ObjectID(data._id);
-            data.address = JSON.parse(data.address)
-            data={
-              name: String(data.name),
-              notes: String(data.notes),
-              address: data.address,
-              premium: (data.premium === 'true' || data.premium === 'True'),
-              non_peering: (data.non_peering === 'true' || data.non_peering === 'True'),
-              uDate: luxon.DateTime.utc(),
-            };
-            // eslint-disable-next-line no-underscore-dangle
-            organization.updateOne(
-              { _id: id, uuid: String(user) }, { $set: data }, (err, u) => {
-                if (err) reject(err)
-                else if (u.result.nModified !== 1) resolve('Not updated')
-                else resolve(data);
-              },
-            );
+            // we need to validate if  don't have another organization with the same name
+            organization.find({
+              $and:
+                 [{ _id: { $ne: id } }, { name: String(data.name) }],
+            }).count((err, c) => {
+              if (err) reject({ m: err });
+              else if (c > 0) reject({ m: 'We have registered in our system more than one organization with the same name' });
+              else {
+                data.address = JSON.parse(data.address)
+                data = {
+                  name: String(data.name),
+                  notes: String(data.notes),
+                  address: data.address,
+                  uDate: luxon.DateTime.utc(),
+                };
+                organization.updateOne(
+                  { _id: id, uuid: String(user) }, { $set: data }, (err, u) => {
+                    if (err) reject(err)
+                    else if (u.result.nModified !== 1) resolve({ m: 'Not updated' })
+                    else resolve({ m: 'Loaded', r: data });
+                  },
+                );
+              }
+            });
           }).catch((e) => reject(e));
         } else { resolve('Not user found'); }
-      } catch (e) { reject(e); }
+      } catch (e) { reject({ m: e }); }
     });
   }
 
@@ -68,19 +87,38 @@ class Organization {
           organization.aggregate([{
             $match: {
               uuid: usr,
-              status: true,
             },
           }, {
             $project: {
               uuid: 0,
-              status: 0,
             },
           }]).toArray((err, rOrganizations) => {
             if (err) reject(err);
-            resolve(rOrganizations);
+            resolve({ m: 'Loaded', r: rOrganizations });
           });
         });
-      } catch (e) { reject(e); }
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  delete(usr, id) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((organization) => {
+          id = new ObjectID(id);
+          organization.find({ $and: [{ _id: id }, { uuid: usr }] }).count((err, c) => {
+            if (err) reject({ m: err });
+            else if (c === 0) reject({ m: 'We cannot delete your organization' });
+            else {
+              // TODO: we need verify if we have connection in another collections
+              organization.deleteOne({ _id: id }, (err, d) => {
+                if (err) reject({ m: err });
+                resolve({ m: 'Deleted' });
+              });
+            }
+          });
+        });
+      } catch (e) { reject({ m: e }); }
     });
   }
 }

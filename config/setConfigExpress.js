@@ -61,6 +61,7 @@ const expressConfig = function (app) {
   // session config
   app.use(session({
     secret: process.env._JWT_SECRET,
+    // eslint-disable-next-line new-cap
     store: new redisStore(
       {
         prefix: 'INFSSID:',

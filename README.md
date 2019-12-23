@@ -9,6 +9,9 @@
     - Add
     - Edit
     - List
+    - Deleted
+- Networks:
+    
 
 
 ## Documentation
