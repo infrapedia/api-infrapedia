@@ -18,18 +18,18 @@ const options = {
     url: '/api-docs.json',
   },
 }
-// Session confg
-const redis = require('redis');
-const redisStore = require('connect-redis')(session);
-
-const redisClient = redis.createClient(
-  {
-    // url: settings.redis.domain,
-    // tls: { ca: fs.readFileSync(__dirname + "/ssl/redisIBM.pem") }
-    // host: settings.redis.domain,
-    // port: settings.redis.port
-  },
-);
+// // Session confg
+// const redis = require('redis');
+// const redisStore = require('connect-redis')(session);
+//
+// const redisClient = redis.createClient(
+//   {
+//     // url: settings.redis.domain,
+//     // tls: { ca: fs.readFileSync(__dirname + "/ssl/redisIBM.pem") }
+//     // host: settings.redis.domain,
+//     // port: settings.redis.port
+//   },
+// );
 // tls: { ca: fs.readFileSync(__dirname + "/ssl/redisIBM.pem") }
 
 // SESSION
@@ -59,7 +59,8 @@ const expressConfig = function (app) {
   app.set('settings', _settings)
 
   // session config
-  app.use(session({
+  /*
+  {
     secret: process.env._JWT_SECRET,
     // eslint-disable-next-line new-cap
     store: new redisStore(
@@ -78,6 +79,13 @@ const expressConfig = function (app) {
       maxAge: 432000000,
       secure: false,
     },
+  }
+   */
+  app.use(session({
+    secret: 'infrapedia',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: true }
   }));
 
   // use
