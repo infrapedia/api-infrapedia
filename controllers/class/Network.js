@@ -18,11 +18,11 @@ class Network {
           data = {
             uuid: String(user),
             name: String(data.name),
-            websites: await data.websites.map((item) => new ObjectID(item)),
-            organizations: await data.organizations.map((item) => new ObjectID(item)),
-            facilities: await data.facilities.map((item) => new ObjectID(item)),
-            ixps: await data.ixps.map((item) => new ObjectID(item)),
-            cls: await data.cls.map((item) => new ObjectID(item)),
+            websites: await (data.websites.length === 0) ? [] : data.websites.map((item) => new ObjectID(item)),
+            organizations: await (data.organizations.length === 0 ) ? [] : data.organizations.map((item) => new ObjectID(item)),
+            facilities: await (data.facilities.length === 0) ? [] : data.facilities.map((item) => new ObjectID(item)),
+            ixps: await (data.ixps.length === 0) ? [] : data.ixps.map((item) => new ObjectID(item)),
+            cls: await (data.cls.length === 0) ? [] : data.cls.map((item) => new ObjectID(item)),
             rgDate: luxon.DateTime.utc(),
             uDate: luxon.DateTime.utc(),
             status: false,
@@ -50,11 +50,11 @@ class Network {
           data.cls = JSON.parse(data.cls);
           data = {
             name: String(data.name),
-            websites: await data.websites.map((item) => new ObjectID(item)),
-            organizations: await data.organizations.map((item) => new ObjectID(item)),
-            facilities: await data.facilities.map((item) => new ObjectID(item)),
-            ixps: await data.ixps.map((item) => new ObjectID(item)),
-            cls: await data.cls.map((item) => new ObjectID(item)),
+            websites: await (data.websites.length === 0) ? [] : data.websites.map((item) => new ObjectID(item)),
+            organizations: await (data.organizations.length === 0 ) ? [] : data.organizations.map((item) => new ObjectID(item)),
+            facilities: await (data.facilities.length === 0) ? [] : data.facilities.map((item) => new ObjectID(item)),
+            ixps: await (data.ixps.length === 0) ? [] : data.ixps.map((item) => new ObjectID(item)),
+            cls: await (data.cls.length === 0) ? [] : data.cls.map((item) => new ObjectID(item)),
             uDate: luxon.DateTime.utc(),
           };
           network.updateOne({ _id: id, uuid: String(user) }, { $set: data }, (err, u) => {
