@@ -30,3 +30,17 @@
 //     }
 //   });
 // }
+//
+// module.exports = {
+//   imagesUploadFiles: (files, user) => new Promise((resolve) => {
+//     try {
+//       if (files === undefined) {
+//         resolve([]);
+//       } else if (Array.isArray(files)) {
+//         Promise.all(files.map((x) => uploadFile(x.path, user, allowedExtensionsImg))).then((filesArray) => {
+//           resolve(filesArray.filter(Boolean)); })
+//           .catch(() => { resolve([]); });
+//       } else { uploadFile(files.path, user, allowedExtensionsImg).then((fileArray) => { resolve((fileArray != 0) ? [fileArray] : []); }).catch(() => { resolve([]); }); }
+//     } catch (err) { resolve(err); }
+//   }),
+// };

@@ -22,7 +22,7 @@ class Organization {
                   uuid: String(user),
                   name: String(data.name),
                   notes: String(data.notes),
-                  address: await data.address.map((item) => JSON.parse(item)),
+                  address: await (data.address.leading === 0) ? [] : data.address.map((item) => JSON.parse(item)),
                   premium: false,
                   non_peering: false,
                   rgDate: luxon.DateTime.utc(),
@@ -55,7 +55,7 @@ class Organization {
             organization.find({
               $and:
                  [{ _id: { $ne: id } }, { name: String(data.name) }],
-            }).count((err, c) => {
+            }).count( async (err, c) => {
               if (err) reject({ m: err });
               else if (c > 0) reject({ m: 'We have registered in our system more than one organization with the same name' });
               else {
@@ -63,7 +63,7 @@ class Organization {
                 data = {
                   name: String(data.name),
                   notes: String(data.notes),
-                  address: data.address,
+                  address: await (data.address.leading === 0) ? [] : data.address.map((item) => JSON.parse(item)),
                   uDate: luxon.DateTime.utc(),
                 };
                 organization.updateOne(
