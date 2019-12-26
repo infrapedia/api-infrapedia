@@ -7,10 +7,10 @@ module.exports = function () {
         validator: {
           $jsonSchema: {
             bsonType: 'object',
-            required: ['uuid '],
+            required: ['uuid'],
             properties: {
               uuid: { bsonType: 'string' },
-              name: { bsonType: String },
+              name: { bsonType: 'string' },
               websites: { bsonType: ['array'] }, // Array of strings
               organizations: { bsonType: ['array'] },
               facilities: { bsonType: ['array'] }, // Array of object IDs
@@ -18,8 +18,9 @@ module.exports = function () {
               cls: { bsonType: ['array'] }, // Array of object ID's
               cables: { bsonType: ['array'] }, // Array of object ID's
               rgDate: { bsonType: 'date' },
-              uDate: { bsonType: 'date ' },
+              uDate: { bsonType: 'date' },
               status: { bsonType: 'bool' },
+              deleted: { bsonType: 'bool' },
             },
           },
         },

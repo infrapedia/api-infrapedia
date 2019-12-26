@@ -30,6 +30,8 @@ module.exports = function () {
               rgDate: { bsonType: 'date' },
               uDate: { bsonType: 'date' },
               status: { bsonType: 'bool' },
+              deleted: { bsonType: 'bool' },
+
             },
           },
         },
