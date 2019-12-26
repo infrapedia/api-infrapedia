@@ -44,7 +44,7 @@ const routes = function (router, controllers) {
       // bugsnagClient.notify(new Error( msgError[ 1 ] ) );
       // REPORT CLIENT
       res.set({ 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Max-Age': 600, 'X-Powered-By': 'Infrapedia.com' });
-      res.status(409).json({ t: 'success', data: answ });
+      res.status(409).json({ t: 'error', data: answ });
     },
   };
   //
@@ -107,6 +107,8 @@ const routes = function (router, controllers) {
   //     .then((r) => { response.success(res, r); })
   //     .catch((e) => { response.err(res, e); });
   // });
+
+
   // ORGANIZATIONS ---------------->
   router.post('/auth/organization/add', (req, res) => {
     // console.log((req.headers.authorization, req.headers.user_id));
@@ -114,7 +116,7 @@ const routes = function (router, controllers) {
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.post('/auth/organization/edit', (req, res) => {
+  router.put('/auth/organization/edit', (req, res) => {
     controllers.organizations.edit(req.headers.user_id, req.body)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
@@ -130,5 +132,21 @@ const routes = function (router, controllers) {
       .catch((e) => { response.err(res, e); });
   });
   // NETWORKS ---------------->
+  router.post('/auth/network/add', (req, res) => {
+    // console.log((req.headers.authorization, req.headers.user_id));
+    controllers.networks.add(req.headers.user_id, req.body)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
+  router.put('/auth/network/edit', (req, res) => {
+    controllers.networks.edit(req.headers.user_id, req.body)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
+  router.get('/auth/network/all', (req, res) => {
+    controllers.networks.list(req.headers.user_id)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
 };
 module.exports = routes;

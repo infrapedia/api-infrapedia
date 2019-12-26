@@ -11,6 +11,9 @@
     - List
     - Deleted
 - Networks:
+    - Add
+    - Edit
+    - List
     
 
 

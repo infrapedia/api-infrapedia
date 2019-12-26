@@ -1,4 +1,4 @@
-const luxon = require('luxon')
+const luxon = require('luxon');
 const { ObjectID } = require('mongodb');
 
 class Organization {
@@ -28,10 +28,11 @@ class Organization {
                   rgDate: luxon.DateTime.utc(),
                   uDate: luxon.DateTime.utc(),
                   status: false,
-                }
+                  deleted: false,
+                };
                 // console.log( JSON.stringify( data ) );
                 organization.insertOne(data, (err, i) => {
-                  if (err) reject({ m: err })
+                  if (err) reject({ m: err });
                   resolve({ m: 'Organization created' });
                 });
               }
@@ -58,7 +59,7 @@ class Organization {
               if (err) reject({ m: err });
               else if (c > 0) reject({ m: 'We have registered in our system more than one organization with the same name' });
               else {
-                data.address = JSON.parse(data.address)
+                data.address = JSON.parse(data.address);
                 data = {
                   name: String(data.name),
                   notes: String(data.notes),
@@ -67,8 +68,8 @@ class Organization {
                 };
                 organization.updateOne(
                   { _id: id, uuid: String(user) }, { $set: data }, (err, u) => {
-                    if (err) reject(err)
-                    else if (u.result.nModified !== 1) resolve({ m: 'Not updated' })
+                    if (err) reject(err);
+                    else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
                     else resolve({ m: 'Loaded', r: data });
                   },
                 );
@@ -101,25 +102,52 @@ class Organization {
     });
   }
 
-  delete(usr, id) {
+  delete(user, id) {
     return new Promise((resolve, reject) => {
       try {
-        this.model().then((organization) => {
-          id = new ObjectID(id);
-          organization.find({ $and: [{ _id: id }, { uuid: usr }] }).count((err, c) => {
-            if (err) reject({ m: err });
-            else if (c === 0) reject({ m: 'We cannot delete your organization' });
-            else {
-              // TODO: we need verify if we have connection in another collections
-              organization.deleteOne({ _id: id }, (err, d) => {
-                if (err) reject({ m: err });
-                resolve({ m: 'Deleted' });
-              });
-            }
-          });
-        });
+        if (user !== undefined || user !== '') {
+          this.model().then(async (organization) => {
+            const id = new ObjectID(id);
+            // we need to validate if  don't have another organization with the same name
+            organization.find({ _id: id }).count((err, c) => {
+              if (err) reject({ m: err });
+              else if (c > 0) reject({ m: 'We cannot delete your organization' });
+              else {
+                organization.updateOne(
+                  { _id: id, uuid: String(user) }, { $set: { deleted: true } }, (err, u) => {
+                    if (err) reject(err);
+                    else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete your organization' });
+                    else resolve({ m: 'Deleted' });
+                  },
+                );
+              }
+            });
+          }).catch((e) => reject(e));
+        } else { resolve('Not user found'); }
       } catch (e) { reject({ m: e }); }
     });
   }
+
+  // delete(usr, id) {
+  //   return new Promise((resolve, reject) => {
+  //     try {
+  //       this.model().then((organization) => {
+  //         // eslint-disable-next-line no-param-reassign
+  //         id = new ObjectID(id);
+  //         organization.find({ $and: [{ _id: id }, { uuid: usr }] }).count((err, c) => {
+  //           if (err) reject(new Error({ m: err }));
+  //           else if (c === 0) reject({ m: 'We cannot delete your organization' });
+  //           else {
+  //             // TODO: we need verify if we have connection in another collections
+  //             organization.deleteOne({ _id: id }, (err, d) => {
+  //               if (err) reject({ m: err });
+  //               resolve({ m: 'Deleted' });
+  //             });
+  //           }
+  //         });
+  //       });
+  //     } catch (e) { reject({ m: e }); }
+  //   });
+  // }
 }
-module.exports = Organization
+module.exports = Organization;

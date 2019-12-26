@@ -60,13 +60,12 @@ const strategy = new Auth0Strategy(
 const expressConfig = function (app) {
   // config
   app.set('settings', _settings);
-  app.use(methodOverride( 'X-HTTP-Method-Override'));
+  app.use(methodOverride('X-HTTP-Method-Override'));
   app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', _settings.urlCors);
     res.header('Access-Control-Allow-Headers',
       'Authorization, Origin, X-Requested-With, Content-Length, X-Requested-With, Content-Type, Accept, user_id');
     res.header('Access-Control-Allow-Credentials', true);
-    res.header('Access-Control-Expose-Headers', 'Content-Length');
     res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, PATCH, OPTIONS');
     res.header('Access-Control-Max-Age', 600);
     next();
