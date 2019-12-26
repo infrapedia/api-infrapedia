@@ -22,7 +22,7 @@ class Organization {
                   uuid: String(user),
                   name: String(data.name),
                   notes: String(data.notes),
-                  address: await (data.address.length === 0) ? [] : data.address.map((item) => JSON.parse(item)),
+                  address: await (data.address === '') ? [] : data.address.map((item) => JSON.parse(item)),
                   premium: false,
                   non_peering: false,
                   rgDate: luxon.DateTime.utc(),
@@ -62,7 +62,7 @@ class Organization {
                 data = {
                   name: String(data.name),
                   notes: String(data.notes),
-                  address: await (data.address.length === 0) ? [] : data.address.map((item) => JSON.parse(item)),
+                  address: await (data.address === '') ? [] : data.address.map((item) => JSON.parse(item)),
                   uDate: luxon.DateTime.utc(),
                 };
                 organization.updateOne(
