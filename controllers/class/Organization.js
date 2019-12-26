@@ -11,18 +11,18 @@ class Organization {
     return new Promise((resolve, reject) => {
       try {
         if (data.name && user) {
-          this.model().then(async (organization) => {
+          this.model().then( (organization) => {
             // we need to validate if  don't have another organization with the same name
-            organization.find({ name: String(data.name) }).count((err, c) => {
+            organization.find({ name: String(data.name) }).count(async (err, c) => {
               if (err) reject({ m: err });
               else if (c > 0) reject({ m: 'We have registered in our system more than one organization with the same name' });
               else {
-                data.address = JSON.parse(data.address);
+                // data.address = JSON.parse(data.address);
                 data = {
                   uuid: String(user),
                   name: String(data.name),
                   notes: String(data.notes),
-                  address: data.address,
+                  address: await data.address.map((item) => JSON.parse(item)),
                   premium: false,
                   non_peering: false,
                   rgDate: luxon.DateTime.utc(),

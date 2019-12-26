@@ -56,6 +56,11 @@ _DB_DOMAIN=
 _DB_PORT = 
 _DB_NAME = 
 
+#Gcloud
+_GG_CLOUD_BUCKET_FOLDER=
+_GG_PROJECT_ID=
+_GG_CLOUD_BUCKET_FOLDER =
+
 ```
 
 ## Databases
