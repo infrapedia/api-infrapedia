@@ -59,7 +59,6 @@ class Organization {
               if (err) reject({ m: err });
               else if (c > 0) reject({ m: 'We have registered in our system more than one organization with the same name' });
               else {
-                data.address = JSON.parse(data.address);
                 data = {
                   name: String(data.name),
                   notes: String(data.notes),
