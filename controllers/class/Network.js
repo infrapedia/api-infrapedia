@@ -77,11 +77,6 @@ class Network {
           }, {
             $project: {
               uuid: 0,
-              websites: 0,
-              organizations: 0,
-              facilities: 0,
-              ixps: 0,
-              cls: 0,
             },
           }]).toArray((err, rNetwork) => {
             if (err) reject(err);

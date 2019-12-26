@@ -11,7 +11,7 @@ class Organization {
     return new Promise((resolve, reject) => {
       try {
         if (data.name && user) {
-          this.model().then( (organization) => {
+          this.model().then((organization) => {
             // we need to validate if  don't have another organization with the same name
             organization.find({ name: String(data.name) }).count(async (err, c) => {
               if (err) reject({ m: err });

@@ -267,5 +267,4 @@ package-lock.json
 .idea/workspace.xml
 package-lock.json
 .idea/codeStyles/
-keys/hale-cocoa-231721-ca05829368f5.json
-keys/hale-cocoa-231721-ca05829368f5.json
+keys/*
