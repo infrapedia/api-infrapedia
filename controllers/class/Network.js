@@ -114,7 +114,7 @@ class Network {
                 );
               }
             });
-          }).catch((e) =>{ console.log( e ); reject({ m: e }); });
+          }).catch((e) =>reject({ m: e }));
         } else { resolve({ m: 'Not user found' }); }
       } catch (e) { reject({ m: 'error2' }); }
     });

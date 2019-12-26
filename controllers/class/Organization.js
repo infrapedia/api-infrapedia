@@ -122,7 +122,7 @@ class Organization {
                 );
               }
             });
-          }).catch((e) => reject(e));
+          }).catch((e) => reject({m: e}));
         } else { resolve('Not user found'); }
       } catch (e) { reject({ m: e }); }
     });
