@@ -10,11 +10,11 @@ class Network {
     return new Promise((resolve, reject) => {
       try {
         this.model().then(async (network) => {
-          data.websites = JSON.parse(data.websites);
-          data.organizations = JSON.parse(data.organizations);
-          data.facilities = JSON.parse(data.facilities);
-          data.ixps = JSON.parse(data.ixps);
-          data.cls = JSON.parse(data.cls);
+          // data.websites = JSON.parse(data.websites);
+          // data.organizations = JSON.parse(data.organizations);
+          // data.facilities = JSON.parse(data.facilities);
+          // data.ixps = JSON.parse(data.ixps);
+          // data.cls = JSON.parse(data.cls);
           data = {
             uuid: String(user),
             name: String(data.name),
@@ -23,6 +23,7 @@ class Network {
             facilities: await (data.facilities.length === 0) ? [] : data.facilities.map((item) => new ObjectID(item)),
             ixps: await (data.ixps.length === 0) ? [] : data.ixps.map((item) => new ObjectID(item)),
             cls: await (data.cls.length === 0) ? [] : data.cls.map((item) => new ObjectID(item)),
+            cables: await (data.cables.length === 0) ? [] : data.cables.map((item) => new ObjectID(item)),
             rgDate: luxon.DateTime.utc(),
             uDate: luxon.DateTime.utc(),
             status: false,
@@ -43,11 +44,6 @@ class Network {
       try {
         this.model().then(async (network) => {
           const id = new ObjectID(data._id);
-          data.websites = JSON.parse(data.websites);
-          data.organizations = JSON.parse(data.organizations);
-          data.facilities = JSON.parse(data.facilities);
-          data.ixps = JSON.parse(data.ixps);
-          data.cls = JSON.parse(data.cls);
           data = {
             name: String(data.name),
             websites: await (data.websites.length === 0) ? [] : data.websites,
@@ -55,6 +51,7 @@ class Network {
             facilities: await (data.facilities.length === 0) ? [] : data.facilities.map((item) => new ObjectID(item)),
             ixps: await (data.ixps.length === 0) ? [] : data.ixps.map((item) => new ObjectID(item)),
             cls: await (data.cls.length === 0) ? [] : data.cls.map((item) => new ObjectID(item)),
+            cables: await (data.cables.length === 0) ? [] : data.cables.map((item) => new ObjectID(item)),
             uDate: luxon.DateTime.utc(),
           };
           network.updateOne({ _id: id, uuid: String(user) }, { $set: data }, (err, u) => {
