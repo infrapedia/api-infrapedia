@@ -86,9 +86,10 @@ class Organization {
       try {
         this.model().then((organization) => {
           organization.aggregate([{
-            $match: {
-              uuid: usr,
-            },
+            $and: [
+              { uuid: usr },
+              { deleted: false },
+            ],
           }, {
             $project: {
               uuid: 0,

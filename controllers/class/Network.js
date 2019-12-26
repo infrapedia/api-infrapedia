@@ -72,7 +72,10 @@ class Network {
         this.model().then((network) => {
           network.aggregate([{
             $match: {
-              uuid: usr,
+              $and: [
+                { uuid: usr },
+                { deleted: false },
+              ],
             },
           }, {
             $project: {
@@ -97,8 +100,6 @@ class Network {
       try {
         if (user !== undefined || user !== '') {
           this.model().then( (network) => {
-            console.log('PASO EL PROCESO');
-
             id = new ObjectID(id);
             // we need to validate if  don't have another organization with the same name
             network.find({ _id: id }).count((err, c) => {
