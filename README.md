@@ -5,15 +5,20 @@
 - Connection to the database 
 - Connection to Redis Sessions
 - eslintRules
-- Organizations:
-    - Add
-    - Edit
-    - List
-    - Deleted
-- Networks:
-    - Add
-    - Edit
-    - List
+
+App network: 
+
+    - Organizations:
+        - Add
+        - Edit
+        - List
+        - Delete
+        
+    - Networks:
+        - Add
+        - Edit
+        - List
+        - Delete
     
 
 

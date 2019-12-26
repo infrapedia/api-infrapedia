@@ -1,4 +1,4 @@
-const luxon = require('luxon')
+const luxon = require('luxon');
 const { ObjectID } = require('mongodb');
 
 class Network {
@@ -27,14 +27,14 @@ class Network {
             uDate: luxon.DateTime.utc(),
             status: false,
             deleted: false,
-          }
+          };
           network.insertOne(data, (err, i) => {
-            console.log( err );
-            if (err) reject({ m: err })
+            console.log(err);
+            if (err) reject({ m: err });
             resolve({ m: 'Network created' });
           });
-        }).catch((e) => {  console.log( e ); reject({ m: e }); });
-      } catch (e) { console.log( e );reject({ m: e }); }
+        }).catch((e) => { console.log(e); reject({ m: e }); });
+      } catch (e) { console.log(e); reject({ m: e }); }
     });
   }
 
@@ -56,9 +56,9 @@ class Network {
             ixps: await data.ixps.map((item) => new ObjectID(item)),
             cls: await data.cls.map((item) => new ObjectID(item)),
             uDate: luxon.DateTime.utc(),
-          }
+          };
           network.updateOne({ _id: id, uuid: String(user) }, { $set: data }, (err, u) => {
-            if (err) reject({ m: err })
+            if (err) reject({ m: err });
             resolve({ m: 'Network updated', r: data });
           });
         }).catch((e) => { reject({ m: e }); });
@@ -91,5 +91,31 @@ class Network {
       } catch (e) { reject({ m: e }); }
     });
   }
+
+  delete(user, id) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (user !== undefined || user !== '') {
+          this.model().then(async (network) => {
+            const id = new ObjectID(id);
+            // we need to validate if  don't have another organization with the same name
+            network.find({ _id: id }).count((err, c) => {
+              if (err) reject({ m: err });
+              else if (c > 0) reject({ m: 'We cannot delete your organization' });
+              else {
+                network.updateOne(
+                  { _id: id, uuid: String(user) }, { $set: { deleted: true } }, (err, u) => {
+                    if (err) reject(err);
+                    else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete your network' });
+                    else resolve({ m: 'Deleted' });
+                  },
+                );
+              }
+            });
+          }).catch((e) => reject(e));
+        } else { resolve('Not user found'); }
+      } catch (e) { reject({ m: e }); }
+    });
+  }
 }
-module.exports = Network
+module.exports = Network;
