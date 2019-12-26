@@ -8,4 +8,3 @@ class CLS {
   edit(user, data){}
 
 }
-

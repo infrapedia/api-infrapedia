@@ -5,4 +5,5 @@ module.exports = {
   add: (usr, data) => Network.add(usr, data),
   edit: (usr, data) => Network.edit(usr, data),
   list: (usr) => Network.list(usr),
+  delete: (usr, id) => Network.delete(usr, id),
 };

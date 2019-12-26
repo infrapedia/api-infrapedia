@@ -96,25 +96,27 @@ class Network {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
-          this.model().then(async (network) => {
-            const id = new ObjectID(id);
+          this.model().then( (network) => {
+            console.log('PASO EL PROCESO');
+
+            id = new ObjectID(id);
             // we need to validate if  don't have another organization with the same name
             network.find({ _id: id }).count((err, c) => {
               if (err) reject({ m: err });
-              else if (c > 0) reject({ m: 'We cannot delete your organization' });
+              else if (c === 0) reject({ m: 'We cannot delete your organization' });
               else {
                 network.updateOne(
                   { _id: id, uuid: String(user) }, { $set: { deleted: true } }, (err, u) => {
-                    if (err) reject(err);
+                    if (err) reject({ m: err });
                     else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete your network' });
                     else resolve({ m: 'Deleted' });
                   },
                 );
               }
             });
-          }).catch((e) => reject(e));
-        } else { resolve('Not user found'); }
-      } catch (e) { reject({ m: e }); }
+          }).catch((e) =>{ console.log( e ); reject({ m: e }); });
+        } else { resolve({ m: 'Not user found' }); }
+      } catch (e) { reject({ m: 'error2' }); }
     });
   }
 }

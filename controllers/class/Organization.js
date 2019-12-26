@@ -107,11 +107,11 @@ class Organization {
       try {
         if (user !== undefined || user !== '') {
           this.model().then(async (organization) => {
-            const id = new ObjectID(id);
+            id = new ObjectID(id);
             // we need to validate if  don't have another organization with the same name
             organization.find({ _id: id }).count((err, c) => {
               if (err) reject({ m: err });
-              else if (c > 0) reject({ m: 'We cannot delete your organization' });
+              else if (c === 0) reject({ m: 'We cannot delete your organization' });
               else {
                 organization.updateOne(
                   { _id: id, uuid: String(user) }, { $set: { deleted: true } }, (err, u) => {

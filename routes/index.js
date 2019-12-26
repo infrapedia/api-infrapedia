@@ -148,5 +148,11 @@ const routes = function (router, controllers) {
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
+
+  router.delete('/auth/network/delete/:id', (req, res) => {
+    controllers.networks.delete(req.headers.user_id, req.params.id)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
 };
 module.exports = routes;
