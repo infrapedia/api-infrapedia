@@ -19,6 +19,8 @@ App network:
         - Edit
         - List
         - Delete
+    - Upload
+        - Logos    
     
 
 

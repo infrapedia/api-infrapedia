@@ -154,5 +154,13 @@ const routes = function (router, controllers) {
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
+
+  //UPLOAD
+  router.post('/auth/upload/logo', (req, res) => {
+    // console.log((req.headers.authorization, req.headers.user_id));
+    controllers.uploads.logo(req.headers.user_id, req.body)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
 };
 module.exports = routes;
