@@ -1,10 +1,126 @@
+const luxon = require('luxon');
+const { ObjectID } = require('mongodb');
+
 class CLS {
   constructor() {
     this.model = require('../../models/cls.model');
   }
 
   add(user, data) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then(async (cls) => {
+          // TODO: check if exist another cls with the same name
+          data = {
+            uuid: String(user),
+            name: data.name,
+            state: data.state,
+            slug: data.slug,
+            geom: (data.geom !== '') ? JSON.parse(data.geom) : {},
+            cables: await (data.cables === '') ? [] : data.cables.map((item) => new ObjectID(item)),
+            rgDate: luxon.DateTime.utc(),
+            uDate: luxon.DateTime.utc(),
+            status: false,
+            deleted: false,
+          };
+          cls.insertOne(data, (err, i) => {
+            // TODO: validation insert
+            if (err) reject({ m: err });
+            resolve({ m: 'CLS created' });
+          });
+        }).catch((e) => { console.log(e); reject({ m: e }); });
+      } catch (e) { reject({ m: e }); }
+    });
   }
-  edit(user, data){}
 
+  edit(user, data) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (user !== undefined || user !== '') {
+          this.model().then(async (cls) => {
+            const id = new ObjectID(data._id);
+            // we need to validate if  don't have another organization with the same name
+            cls.find({
+              $and:
+                 [{ _id: { $ne: id } }, { name: String(data.name) }],
+            }).count(async (err, c) => {
+              if (err) reject({ m: err });
+              else if (c > 0) reject({ m: 'We have registered in our system more than one cls with the same name' });
+              else {
+                data = {
+                  name: data.name,
+                  state: data.state,
+                  slug: data.slug,
+                  geom: (data.geom !== '') ? JSON.parse(data.geom) : {},
+                  cables: await (data.cables === '') ? [] : data.cables.map((item) => new ObjectID(item)),
+                  uDate: luxon.DateTime.utc(),
+                };
+                cls.updateOne(
+                  { _id: id, uuid: String(user) }, { $set: data }, (err, u) => {
+                    if (err) reject(err);
+                    else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
+                    else resolve({ m: 'Loaded', r: data });
+                  },
+                );
+              }
+            });
+          }).catch((e) => reject(e));
+        } else { resolve('Not user found'); }
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  list(usr) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((cls) => {
+          cls.aggregate([{
+            $match: {
+              $and: [
+                { uuid: usr },
+                { deleted: false },
+              ],
+            },
+          }, {
+            $project: {
+              uuid: 0,
+              geom: 0,
+              cables: 0,
+              deleted: 0
+            },
+          }]).toArray((err, rNetwork) => {
+            if (err) reject(err);
+            resolve({ m: 'Loaded', r: rNetwork });
+          });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  delete(user, id) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (user !== undefined || user !== '') {
+          this.model().then(async (cls) => {
+            id = new ObjectID(id);
+            // we need to validate if  don't have another organization with the same name
+            cls.find({ _id: id }).count((err, c) => {
+              if (err) reject({ m: err });
+              else if (c === 0) reject({ m: 'We cannot delete your CLS' });
+              else {
+                cls.updateOne(
+                  { _id: id, uuid: String(user) }, { $set: { deleted: true } }, (err, u) => {
+                    if (err) reject(err);
+                    else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete your cls' });
+                    else resolve({ m: 'Deleted' });
+                  },
+                );
+              }
+            });
+          }).catch((e) => reject({ m: e }));
+        } else { resolve('Not user found'); }
+      } catch (e) { reject({ m: e }); }
+    });
+  }
 }
+module.exports = CLS;

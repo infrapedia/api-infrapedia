@@ -7,7 +7,7 @@ module.exports = function () {
         validator: {
           $jsonSchema: {
             bsonType: 'object',
-            required: ['uuid '],
+            required: ['uuid'],
             properties: {
               uuid: { bsonType: 'string' },
               name: { bsonType: 'string' },
@@ -16,8 +16,9 @@ module.exports = function () {
               geom: { bsonType: 'object' },
               cables: { bsonType: ['array'] }, // Array of object ID's
               rgDate: { bsonType: 'date' },
-              uDate: { bsonType: 'date ' },
+              uDate: { bsonType: 'date' },
               status: { bsonType: 'bool' },
+              deleted: { bsonType: 'bool' },
             },
           },
         },

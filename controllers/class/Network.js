@@ -10,11 +10,7 @@ class Network {
     return new Promise((resolve, reject) => {
       try {
         this.model().then(async (network) => {
-          // data.websites = JSON.parse(data.websites);
-          // data.organizations = JSON.parse(data.organizations);
-          // data.facilities = JSON.parse(data.facilities);
-          // data.ixps = JSON.parse(data.ixps);
-          // data.cls = JSON.parse(data.cls);
+          // TODO: check if exist another network with the same name
           data = {
             uuid: String(user),
             name: String(data.name),
@@ -30,7 +26,7 @@ class Network {
             deleted: false,
           };
           network.insertOne(data, (err, i) => {
-            console.log(err);
+            // TODO: validation insert
             if (err) reject({ m: err });
             resolve({ m: 'Network created' });
           });
@@ -44,6 +40,7 @@ class Network {
       try {
         this.model().then(async (network) => {
           const id = new ObjectID(data._id);
+          // TODO: check if exist another network with the same name
           data = {
             name: String(data.name),
             websites: await (data.websites === '') ? [] : data.websites,

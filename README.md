@@ -19,8 +19,14 @@ App network:
         - Edit
         - List
         - Delete
+    - CLS    
+        - Add
+        - Edit
+        - List
+        - Delete  
     - Upload
-        - Logos    
+        - Logos
+      
     
 
 

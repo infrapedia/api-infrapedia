@@ -154,8 +154,30 @@ const routes = function (router, controllers) {
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
+  // CLS ---------------->
+  router.post('/auth/cls/add', (req, res) => {
+    // console.log((req.headers.authorization, req.headers.user_id));
+    controllers.cableLandingStations.add(req.headers.user_id, req.body)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
+  router.put('/auth/cls/edit', (req, res) => {
+    controllers.cableLandingStations.edit(req.headers.user_id, req.body)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
+  router.get('/auth/cls/all', (req, res) => {
+    controllers.cableLandingStations.list(req.headers.user_id)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
 
-  //UPLOAD
+  router.delete('/auth/cls/delete/:id', (req, res) => {
+    controllers.cableLandingStations.delete(req.headers.user_id, req.params.id)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
+  // UPLOADS ---------------->
   router.post('/auth/upload/logo', (req, res) => {
     // console.log((req.headers.authorization, req.headers.user_id));
     controllers.uploads.logo(req.headers.user_id, req.body)

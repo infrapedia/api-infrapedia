@@ -32,6 +32,7 @@ class Organization {
                 };
                 // console.log( JSON.stringify( data ) );
                 organization.insertOne(data, (err, i) => {
+                  // TODO: validation insert
                   if (err) reject({ m: err });
                   resolve({ m: 'Organization created' });
                 });
