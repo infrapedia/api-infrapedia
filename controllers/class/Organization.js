@@ -13,6 +13,7 @@ class Organization {
         if (data.name && user) {
           this.model().then((organization) => {
             // we need to validate if  don't have another organization with the same name
+            // TODO: discard deleted files
             organization.find({ name: String(data.name) }).count(async (err, c) => {
               if (err) reject({ m: err });
               else if (c > 0) reject({ m: 'We have registered in our system more than one organization with the same name' });
@@ -21,7 +22,9 @@ class Organization {
                 data = {
                   uuid: String(user),
                   name: String(data.name),
+                  logo: String(data.logo),
                   notes: String(data.notes),
+                  // TODO: when array is empty not use the map
                   address: await (data.address === '') ? [] : data.address.map((item) => JSON.parse(item)),
                   premium: false,
                   non_peering: false,
