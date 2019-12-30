@@ -65,6 +65,7 @@ class Organization {
               else {
                 data = {
                   name: String(data.name),
+                  logo: String(data.logo),
                   notes: String(data.notes),
                   address: await (data.address === '') ? [] : data.address.map((item) => JSON.parse(item)),
                   uDate: luxon.DateTime.utc(),
@@ -129,6 +130,22 @@ class Organization {
               }
             });
           }).catch((e) => reject({m: e}));
+        } else { resolve('Not user found'); }
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  owner(user, id) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (user !== undefined || user !== '') {
+          this.model().then((organization) => {
+            id = new ObjectID(id);
+            organization.findOne({ _id: id }, (err, o) => {
+              if (err) reject(err);
+              resolve({ m: 'Loaded', r: o });
+            });
+          });
         } else { resolve('Not user found'); }
       } catch (e) { reject({ m: e }); }
     });

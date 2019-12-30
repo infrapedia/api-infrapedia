@@ -6,4 +6,5 @@ module.exports = {
   edit: (usr, data) => Network.edit(usr, data),
   list: (usr) => Network.list(usr),
   delete: (usr, id) => Network.delete(usr, id),
+  owner: (usr, id) => Network.owner(usr, id),
 };

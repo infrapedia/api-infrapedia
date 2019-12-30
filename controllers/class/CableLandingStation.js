@@ -122,5 +122,21 @@ class CLS {
       } catch (e) { reject({ m: e }); }
     });
   }
+
+  owner(user, id) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (user !== undefined || user !== '') {
+          this.model().then((cls) => {
+            id = new ObjectID(id);
+            cls.findOne({ _id: id }, (err, o) => {
+              if (err) reject(err);
+              resolve({ m: 'Loaded', r: o });
+            });
+          });
+        } else { resolve('Not user found'); }
+      } catch (e) { reject({ m: e }); }
+    });
+  }
 }
 module.exports = CLS;

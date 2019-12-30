@@ -109,5 +109,22 @@ class Network {
       } catch (e) { reject({ m: 'error2' }); }
     });
   }
+
+  owner(user, id) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (user !== undefined || user !== '') {
+          this.model().then((network) => {
+            id = new ObjectID(id);
+            network.findOne({ _id: id }, (err, o) => {
+              if (err) reject(err);
+              resolve({ m: 'Loaded', r: o });
+            });
+          });
+        } else { resolve('Not user found'); }
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
 }
 module.exports = Network;

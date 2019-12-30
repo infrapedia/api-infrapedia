@@ -13,17 +13,25 @@ App network:
         - Edit
         - List
         - Delete
-        
+        - View
     - Networks:
         - Add
         - Edit
         - List
         - Delete
+        - View
     - CLS    
         - Add
         - Edit
         - List
-        - Delete  
+        - Delete
+        - View
+    - Cables
+        - Add
+        - Edit
+        - List
+        - Delete
+        - View      
     - Upload
         - Logos
       

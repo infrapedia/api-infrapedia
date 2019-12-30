@@ -6,4 +6,5 @@ module.exports = {
   edit: (usr, data) => Organization.edit(usr, data),
   list: (usr) => Organization.list(usr),
   delete: (usr, id) => Organization.delete(usr, id),
+  owner: (usr, id) => Organization.owner(usr, id),
 };

@@ -6,4 +6,5 @@ module.exports = {
   edit: (usr, data) => CLS.edit(usr, data),
   list: (usr) => CLS.list(usr),
   delete: (usr, id) => CLS.delete(usr, id),
+  owner: (usr, id) => CLS.owner(usr, id),
 };

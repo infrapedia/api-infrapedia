@@ -131,6 +131,11 @@ const routes = function (router, controllers) {
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
+  router.get('/auth/organization/owner/:id', (req, res) => {
+    controllers.organizations.owner(req.headers.user_id, req.params.id)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
   // NETWORKS ---------------->
   router.post('/auth/network/add', (req, res) => {
     // console.log((req.headers.authorization, req.headers.user_id));
@@ -154,6 +159,11 @@ const routes = function (router, controllers) {
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
+  router.get('/auth/network/owner/:id', (req, res) => {
+    controllers.networks.owner(req.headers.user_id, req.params.id)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
   // CLS ---------------->
   router.post('/auth/cls/add', (req, res) => {
     // console.log((req.headers.authorization, req.headers.user_id));
@@ -174,6 +184,12 @@ const routes = function (router, controllers) {
 
   router.delete('/auth/cls/delete/:id', (req, res) => {
     controllers.cableLandingStations.delete(req.headers.user_id, req.params.id)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
+
+  router.get('/auth/cls/owner/:id', (req, res) => {
+    controllers.cableLandingStations.owner(req.headers.user_id, req.params.id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
