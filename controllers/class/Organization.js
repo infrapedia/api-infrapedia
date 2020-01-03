@@ -145,7 +145,7 @@ class Organization {
               if (err) reject(err);
               resolve({ m: 'Loaded', r: o });
             });
-          });
+          }).catch((e) => reject({ m: e }));
         } else { resolve('Not user found'); }
       } catch (e) { reject({ m: e }); }
     });
