@@ -7,12 +7,12 @@ module.exports = function () {
         validator: {
           $jsonSchema: {
             bsonType: 'object',
-            required: ['uuid '],
+            required: ['uuid'],
             properties: {
               uuid: { bsonType: 'string' },
               name: { bsonType: 'string' },
               system_lenght: { bsonType: 'double' },
-              activationDateTime: { bsonType: 'int' },
+              activationDateTime: { bsonType: 'date' }, // Convert to timestamp
               urls: { bsonType: 'array' },
               terrestrial: { bsonType: 'bool' },
               capacity_tbps: { bsonType: 'double' },
@@ -24,6 +24,7 @@ module.exports = function () {
               rgDate: { bsonType: 'date' },
               uDate: { bsonType: 'date ' },
               status: { bsonType: 'bool' },
+              deleted: { bsonType: 'bool' },
             },
           },
         },

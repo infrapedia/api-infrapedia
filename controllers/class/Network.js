@@ -125,6 +125,5 @@ class Network {
       } catch (e) { reject({ m: e }); }
     });
   }
-
 }
 module.exports = Network;
