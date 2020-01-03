@@ -1,3 +1,4 @@
+// eslint-disable-next-line global-require
 // eslint-disable-next-line no-underscore-dangle
 // Declare
 require('dotenv/config')

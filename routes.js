@@ -17,4 +17,4 @@ files.forEach((file) => {
     temp = temp[parts.shift()];
   }
 })
-module.exports = function() { require('./routes/index')(app, controllers) }
+module.exports = function () { require('./routes/index')(app, controllers) }
