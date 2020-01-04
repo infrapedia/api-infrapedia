@@ -14,7 +14,7 @@ module.exports = {
             if (isNaN(geoJson.features[key].geometry.coordinates[0][0]) === false && geoJson.features[key].geometry.coordinates[0][0] !== null && geoJson.features[key].geometry.coordinates[0][0] !== undefined){
               if (Array.isArray(geoJson.features[key].geometry.coordinates)) {
                 geoJson.features[key].geometry.coordinates = await geoJson.features[key].geometry.coordinates.map((coordinante) => ((coordinante.length > 2 ) ? [coordinante[0], coordinante[1]] : coordinante));
-                geoJson.features[key].properties = geoJson.features[key].properties = { _id: key, name: `Segment ${key}`, color: '#cccccc' };
+                geoJson.features[key].properties = geoJson.features[key].properties = { _id: key, name: `Segment ${key}`, stroke: '#fdf72d', 'stroke-width': 1, 'stroke-opacity': 1};
                 geoJsonFormated.features.push(geoJson.features[key]);
               }
             }
