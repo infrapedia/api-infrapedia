@@ -22,7 +22,7 @@ module.exports = function () {
               cls: { bsonType: 'array' }, // Array of object ID's
               geometry: { bsonType: 'object' },
               rgDate: { bsonType: 'date' },
-              uDate: { bsonType: 'date ' },
+              uDate: { bsonType: 'date' },
               status: { bsonType: 'bool' },
               deleted: { bsonType: 'bool' },
             },

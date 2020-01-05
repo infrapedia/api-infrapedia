@@ -227,6 +227,20 @@ const routes = function (router, controllers) {
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
+  // ALERTS ---------------->
+  router.post('/auth/alerts/add', (req, res) => {
+    // console.log((req.headers.authorization, req.headers.user_id));
+    console.log(req.body);
+    controllers.alerts.add(req.headers.user_id, req.body)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
+  router.patch('/auth/alerts/disabled', (req, res) => {
+    // console.log((req.headers.authorization, req.headers.user_id));
+    controllers.alerts.disabled(req.headers.user_id, req.body)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
   // UPLOADS ---------------->
   router.post('/auth/upload/logo', (req, res) => {
     // console.log((req.headers.authorization, req.headers.user_id));

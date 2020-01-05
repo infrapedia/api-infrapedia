@@ -1,4 +1,4 @@
-let CLS = require('./class/cableLandingStation');
+let CLS = require('./class/CableLandingStation');
 
 CLS = new CLS();
 module.exports = {

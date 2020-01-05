@@ -9,33 +9,35 @@ class Cable {
   add(user, data) {
     return new Promise((resolve, reject) => {
       try {
-        this.model().then(async (cables) => {
-          // TODO: check if exist another network with the same name
-          const activationDateTime = (data.activationDateTime) ? new Date(data.activationDateTime) : '';
-          data = {
-            uuid: String(user),
-            name: String(data.name),
-            systemLength: String(data.systemLength),
-            activationDateTime: (activationDateTime === '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
-            urls: await (data.websites === '') ? [] : data.websites,
-            terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
-            capacityTBPS: String(data.capacityTBPS),
-            fiberPairs: String(data.fiberPairs),
-            notes: String(data.notes),
-            facilities: await (data.facilities === '') ? [] : data.facilities.map((item) => new ObjectID(item)),
-            cls: await (data.cls === '') ? [] : data.cls.map((item) => new ObjectID(item)),
-            geometry: (data.geom !== '') ? JSON.parse(data.geom) : {},
-            rgDate: luxon.DateTime.utc(),
-            uDate: luxon.DateTime.utc(),
-            status: false,
-            deleted: false,
-          };
-          cables.insertOne(data, (err, i) => {
-            // TODO: validation insert
-            if (err) reject({ m: err });
-            resolve({ m: 'Network created' });
-          });
-        }).catch((e) => reject({ m: e }));
+        if (user !== undefined || user !== '') {
+          this.model().then(async (cables) => {
+            // TODO: check if exist another network with the same name
+            const activationDateTime = (data.activationDateTime) ? new Date(data.activationDateTime) : '';
+            data = {
+              uuid: String(user),
+              name: String(data.name),
+              systemLength: String(data.systemLength),
+              activationDateTime: (activationDateTime === '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
+              urls: await (data.websites === '') ? [] : data.websites,
+              terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
+              capacityTBPS: String(data.capacityTBPS),
+              fiberPairs: String(data.fiberPairs),
+              notes: String(data.notes),
+              facilities: await (data.facilities === '') ? [] : data.facilities.map((item) => new ObjectID(item)),
+              cls: await (data.cls === '') ? [] : data.cls.map((item) => new ObjectID(item)),
+              geometry: (data.geom !== '') ? JSON.parse(data.geom) : {},
+              rgDate: luxon.DateTime.utc(),
+              uDate: luxon.DateTime.utc(),
+              status: false,
+              deleted: false,
+            };
+            cables.insertOne(data, (err, i) => {
+              // TODO: validation insert
+              if (err) reject({ m: err });
+              resolve({ m: 'Network created' });
+            });
+          }).catch((e) => reject({ m: e }));
+        } else { resolve('Not user found'); }
       } catch (e) { reject({ m: e }); }
     });
   }
@@ -43,58 +45,62 @@ class Cable {
   edit(user, data) {
     return new Promise((resolve, reject) => {
       try {
-        this.model().then(async (cables) => {
-          const id = new ObjectID(data._id);
-          const activationDateTime = (data.activationDateTime) ? new Date(data.activationDateTime) : '';
-          data = {
-            uuid: String(user),
-            name: String(data.name),
-            systemLength: String(data.systemLength),
-            activationDateTime: (activationDateTime === '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
-            urls: await (data.websites === '') ? [] : data.websites,
-            terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
-            capacityTBPS: String(data.capacityTBPS),
-            fiberPairs: String(data.fiberPairs),
-            notes: String(data.notes),
-            facilities: await (data.facilities === '') ? [] : data.facilities.map((item) => new ObjectID(item)),
-            cls: await (data.cls === '') ? [] : data.cls.map((item) => new ObjectID(item)),
-            geometry: (data.geom !== '') ? JSON.parse(data.geom) : {},
-            uDate: luxon.DateTime.utc(),
-          };
-          // we're going to search if the user is the own of the cable
-          cables.find({ _id: id, uuid: String(user) }).count((err, c) => {
-            if (err) reject({ m: err });
-            cables.updateOne({ _id: id, uuid: String(user) }, { $set: data }, (err, u) => {
+        if (user !== undefined || user !== '') {
+          this.model().then(async (cables) => {
+            const id = new ObjectID(data._id);
+            const activationDateTime = (data.activationDateTime) ? new Date(data.activationDateTime) : '';
+            data = {
+              uuid: String(user),
+              name: String(data.name),
+              systemLength: String(data.systemLength),
+              activationDateTime: (activationDateTime === '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
+              urls: await (data.websites === '') ? [] : data.websites,
+              terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
+              capacityTBPS: String(data.capacityTBPS),
+              fiberPairs: String(data.fiberPairs),
+              notes: String(data.notes),
+              facilities: await (data.facilities === '') ? [] : data.facilities.map((item) => new ObjectID(item)),
+              cls: await (data.cls === '') ? [] : data.cls.map((item) => new ObjectID(item)),
+              geometry: (data.geom !== '') ? JSON.parse(data.geom) : {},
+              uDate: luxon.DateTime.utc(),
+            };
+            // we're going to search if the user is the own of the cable
+            cables.find({ _id: id, uuid: String(user) }).count((err, c) => {
               if (err) reject({ m: err });
-              else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
-              else resolve({ m: 'Loaded', r: data });
+              cables.updateOne({ _id: id, uuid: String(user) }, { $set: data }, (err, u) => {
+                if (err) reject({ m: err });
+                else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
+                else resolve({ m: 'Loaded', r: data });
+              });
             });
-          });
-        }).catch((e) => reject({ m: e }));
+          }).catch((e) => reject({ m: e }));
+        } else { resolve('Not user found'); }
       } catch (e) { reject({ m: e }); }
     });
   }
 
-  list(usr) {
+  list(user) {
     return new Promise((resolve, reject) => {
       try {
-        this.model().then((cables) => {
-          cables.aggregate([{
-            $match: {
-              $and: [
-                { uuid: usr },
-                { deleted: false },
-              ],
-            },
-          }, {
-            $project: {
-              uuid: 0,
-            },
-          }]).toArray((err, rCables) => {
-            if (err) reject(err);
-            resolve({ m: 'Loaded', r: rCables });
+        if (user !== undefined || user !== '') {
+          this.model().then((cables) => {
+            cables.aggregate([{
+              $match: {
+                $and: [
+                  { uuid: user },
+                  { deleted: false },
+                ],
+              },
+            }, {
+              $project: {
+                uuid: 0,
+              },
+            }]).toArray((err, rCables) => {
+              if (err) reject(err);
+              resolve({ m: 'Loaded', r: rCables });
+            });
           });
-        });
+        } else { resolve('Not user found'); }
       } catch (e) { reject({ m: e }); }
     });
   }

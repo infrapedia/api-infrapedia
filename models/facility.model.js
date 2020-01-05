@@ -27,7 +27,7 @@ module.exports = function () {
               websites: { bsonType: ['array'] }, // Array of strings
               polygon: { },
               rgDate: { bsonType: 'date' },
-              uDate: { bsonType: 'date ' },
+              uDate: { bsonType: 'date' },
               status: { bsonType: 'bool' },
             },
           },

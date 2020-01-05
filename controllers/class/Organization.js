@@ -10,7 +10,7 @@ class Organization {
   add(user, data) {
     return new Promise((resolve, reject) => {
       try {
-        if (data.name && user) {
+        if (user !== undefined || user !== '') {
           this.model().then((organization) => {
             // we need to validate if  don't have another organization with the same name
             // TODO: discard deleted files
@@ -42,9 +42,7 @@ class Organization {
               }
             });
           }).catch((e) => { reject(e); });
-        } else {
-          reject({ m: 'Error' });
-        }
+        } else { resolve('Not user found'); }
       } catch (e) { reject({ m: e }); }
     });
   }
@@ -85,26 +83,28 @@ class Organization {
     });
   }
 
-  list(usr) {
+  list(user) {
     return new Promise((resolve, reject) => {
       try {
-        this.model().then((organization) => {
-          organization.aggregate([{
-            $match: {
-              $and: [
-                { uuid: usr },
-                { deleted: false },
-              ],
-            },
-          }, {
-            $project: {
-              uuid: 0,
-            },
-          }]).toArray((err, rOrganizations) => {
-            if (err) reject(err);
-            resolve({ m: 'Loaded', r: rOrganizations });
+        if (user !== undefined || user !== '') {
+          this.model().then((organization) => {
+            organization.aggregate([{
+              $match: {
+                $and: [
+                  { uuid: usr },
+                  { deleted: false },
+                ],
+              },
+            }, {
+              $project: {
+                uuid: 0,
+              },
+            }]).toArray((err, rOrganizations) => {
+              if (err) reject(err);
+              resolve({ m: 'Loaded', r: rOrganizations });
+            });
           });
-        });
+        } else { resolve('Not user found'); }
       } catch (e) { reject({ m: e }); }
     });
   }

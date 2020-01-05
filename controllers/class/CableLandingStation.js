@@ -9,26 +9,28 @@ class CLS {
   add(user, data) {
     return new Promise((resolve, reject) => {
       try {
-        this.model().then(async (cls) => {
-          // TODO: check if exist another cls with the same name
-          data = {
-            uuid: String(user),
-            name: data.name,
-            state: data.state,
-            slug: data.slug,
-            geom: (data.geom !== '') ? JSON.parse(data.geom) : {},
-            cables: await (data.cables === '') ? [] : data.cables.map((item) => new ObjectID(item)),
-            rgDate: luxon.DateTime.utc(),
-            uDate: luxon.DateTime.utc(),
-            status: false,
-            deleted: false,
-          };
-          cls.insertOne(data, (err, i) => {
-            // TODO: validation insert
-            if (err) reject({ m: err });
-            resolve({ m: 'CLS created' });
-          });
-        }).catch((e) => { console.log(e); reject({ m: e }); });
+        if (user !== undefined || user !== '') {
+          this.model().then(async (cls) => {
+            // TODO: check if exist another cls with the same name
+            data = {
+              uuid: String(user),
+              name: data.name,
+              state: data.state,
+              slug: data.slug,
+              geom: (data.geom !== '') ? JSON.parse(data.geom) : {},
+              cables: await (data.cables === '') ? [] : data.cables.map((item) => new ObjectID(item)),
+              rgDate: luxon.DateTime.utc(),
+              uDate: luxon.DateTime.utc(),
+              status: false,
+              deleted: false,
+            };
+            cls.insertOne(data, (err, i) => {
+              // TODO: validation insert
+              if (err) reject({ m: err });
+              resolve({ m: 'CLS created' });
+            });
+          }).catch((e) => { console.log(e); reject({ m: e }); });
+        } else { resolve('Not user found'); }
       } catch (e) { reject({ m: e }); }
     });
   }
@@ -70,29 +72,31 @@ class CLS {
     });
   }
 
-  list(usr) {
+  list(user) {
     return new Promise((resolve, reject) => {
       try {
-        this.model().then((cls) => {
-          cls.aggregate([{
-            $match: {
-              $and: [
-                { uuid: usr },
-                { deleted: false },
-              ],
-            },
-          }, {
-            $project: {
-              uuid: 0,
-              geom: 0,
-              cables: 0,
-              deleted: 0
-            },
-          }]).toArray((err, rNetwork) => {
-            if (err) reject(err);
-            resolve({ m: 'Loaded', r: rNetwork });
+        if (user !== undefined || user !== '') {
+          this.model().then((cls) => {
+            cls.aggregate([{
+              $match: {
+                $and: [
+                  { uuid: user },
+                  { deleted: false },
+                ],
+              },
+            }, {
+              $project: {
+                uuid: 0,
+                geom: 0,
+                cables: 0,
+                deleted: 0
+              },
+            }]).toArray((err, rNetwork) => {
+              if (err) reject(err);
+              resolve({ m: 'Loaded', r: rNetwork });
+            });
           });
-        });
+        } else { resolve('Not user found'); }
       } catch (e) { reject({ m: e }); }
     });
   }
