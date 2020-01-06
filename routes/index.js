@@ -1,9 +1,9 @@
 // declare
 const swaggerJSDoc = require('swagger-jsdoc');
 const passport = require('passport');
-const util = require('util');
-const url = require('url');
-const querystring = require('querystring');
+// const util = require('util');
+// const url = require('url');
+// const querystring = require('querystring');
 // const secureMiddleware = require('../lib/middleware/secure')();
 // eslint-disable-next-line func-names
 const routes = function (router, controllers) {
@@ -238,6 +238,12 @@ const routes = function (router, controllers) {
   router.patch('/auth/alerts/disabled', (req, res) => {
     // console.log((req.headers.authorization, req.headers.user_id));
     controllers.alerts.disabled(req.headers.user_id, req.body)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
+  // Issuees ---------------->
+  router.post('/auth/issues/report', (req, res) => {
+    controllers.issues.report(req.headers.user_id, req.body)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
