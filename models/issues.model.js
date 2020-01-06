@@ -11,7 +11,8 @@ module.exports = function () {
             properties: {
               uuid: { bsonType: 'string' },
               t: { bsonType: 'string' }, // cables:1, CLS:2, Facilities:3, IXPS:4, Map:5, Network:6, Organization:7
-              elemnt: { bsonType: 'string' },
+              elemnt_id: { bsonType: 'objectId' },
+              element: { bsonType: 'string' },
               email: { bsonType: 'string' },
               phone: { bsonType: 'string' },
               issue: { bsonType: 'string' },

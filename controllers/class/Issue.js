@@ -6,22 +6,24 @@ class Issue {
     this.model = require('../../models/issues.model');
   }
 
-  report(user, data) {
+  addReport(user, data) {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
           this.model().then((issues) => {
-            issues.insertOne({
+            let issue = {
               uuid: String(user),
               t: data.t,
-              elemnt: (data.elemnt),
               email: (data.email),
               phone: (data.phone),
               issue: (data.issue),
               rgDate: luxon.DateTime.utc(),
               uDate: luxon.DateTime.utc(),
               disabled: false,
-            }, (err, I) => {
+            };
+            if (ObjectID.isValid(data.elemnt)) { issue.elemnt_id = new ObjectID(data.elemnt); }
+            else { issue.elemnt = data.elemnt; }
+            issues.insertOne(issue, (err, I) => {
               if (err) reject({ m: err });
               resolve({ m: 'Thank you, your issue was registered in our system' });
             });
@@ -44,7 +46,30 @@ class Issue {
     });
   }
 
-  myReports(user) {
+  _Cables(){
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((cables) => {
+        });
+      }catch (e) { reject({ m: e }); }
+    });
+  }
+  _CableLandingStations(){
+    try {
+      this.model().then((cls) => {
+      });
+    }catch (e) { reject({ m: e }); }
+  }
+  _Facilities(){
+    try {
+    }catch (e) { reject({ m: e }); }
+  }
+  _Networks(){
+  }
+  _Organization(){
+  }
+
+  myReports(user, search) {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {

@@ -196,7 +196,6 @@ const routes = function (router, controllers) {
 
   // CABLES ---------------->
   router.post('/auth/cables/add', (req, res) => {
-    // console.log((req.headers.authorization, req.headers.user_id));
     controllers.cables.add(req.headers.user_id, req.body)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
@@ -230,7 +229,6 @@ const routes = function (router, controllers) {
   // ALERTS ---------------->
   router.post('/auth/alerts/add', (req, res) => {
     // console.log((req.headers.authorization, req.headers.user_id));
-    console.log(req.body);
     controllers.alerts.add(req.headers.user_id, req.body)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
@@ -243,7 +241,13 @@ const routes = function (router, controllers) {
   });
   // Issuees ---------------->
   router.post('/auth/issues/report', (req, res) => {
-    controllers.issues.report(req.headers.user_id, req.body)
+    // console.log(req.body)
+    controllers.issues.addReport(req.headers.user_id, req.body)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
+  router.get('/auth/issues/myreports', (req, res) => {
+    controllers.issues.myreports(req.headers.user_id, req.params.search)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });

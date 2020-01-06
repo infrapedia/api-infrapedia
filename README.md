@@ -37,6 +37,11 @@ App network:
         - KMZ
     - Convert
         - Kmz to GeoJson    
+    - Alerts
+        - Sign up in alerts
+        - Disabled alerts
+    - Issues
+        - Report issue         
       
     
 

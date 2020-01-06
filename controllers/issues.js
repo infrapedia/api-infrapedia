@@ -2,6 +2,6 @@ let Issue = require('./class/Issue');
 
 Issue = new Issue();
 module.exports = {
-  report: (usr, data) => Issue.report(usr, data),
+  addReport: (usr, data) => Issue.addReport(usr, data),
   myReports: (usr, data) => Issue.myReports(usr, data),
 }
