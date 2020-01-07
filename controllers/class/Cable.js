@@ -10,22 +10,22 @@ class Cable {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
-          this.model().then(async (cables) => {
+          this.model().then( async (cables) => {
             // TODO: check if exist another network with the same name
-            const activationDateTime = (data.activationDateTime) ? new Date(data.activationDateTime) : '';
+            const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
             data = {
               uuid: String(user),
               name: String(data.name),
               systemLength: String(data.systemLength),
-              activationDateTime: (activationDateTime === '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
-              urls: await (data.websites === '') ? [] : data.websites,
+              activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
+              urls: await (data.urls === '') ? [] : JSON.parse(data.urls),
               terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
               capacityTBPS: String(data.capacityTBPS),
               fiberPairs: String(data.fiberPairs),
               notes: String(data.notes),
               facilities: await (data.facilities === '') ? [] : data.facilities.map((item) => new ObjectID(item)),
               cls: await (data.cls === '') ? [] : data.cls.map((item) => new ObjectID(item)),
-              geometry: (data.geom !== '') ? JSON.parse(data.geom) : {},
+              geometry: (data.geometry !== '') ? JSON.parse(data.geometry) : {},
               rgDate: luxon.DateTime.utc(),
               uDate: luxon.DateTime.utc(),
               status: false,
@@ -34,7 +34,7 @@ class Cable {
             cables.insertOne(data, (err, i) => {
               // TODO: validation insert
               if (err) reject({ m: err });
-              resolve({ m: 'Network created' });
+              resolve({ m: 'Cable created' });
             });
           }).catch((e) => reject({ m: e }));
         } else { resolve('Not user found'); }
@@ -48,20 +48,20 @@ class Cable {
         if (user !== undefined || user !== '') {
           this.model().then(async (cables) => {
             const id = new ObjectID(data._id);
-            const activationDateTime = (data.activationDateTime) ? new Date(data.activationDateTime) : '';
+            const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
             data = {
               uuid: String(user),
               name: String(data.name),
               systemLength: String(data.systemLength),
-              activationDateTime: (activationDateTime === '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
-              urls: await (data.websites === '') ? [] : data.websites,
+              activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
+              urls: await (data.urls === '') ? [] : JSON.parse(data.urls),
               terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
               capacityTBPS: String(data.capacityTBPS),
               fiberPairs: String(data.fiberPairs),
               notes: String(data.notes),
               facilities: await (data.facilities === '') ? [] : data.facilities.map((item) => new ObjectID(item)),
               cls: await (data.cls === '') ? [] : data.cls.map((item) => new ObjectID(item)),
-              geometry: (data.geom !== '') ? JSON.parse(data.geom) : {},
+              geometry: (data.geometry !== '') ? JSON.parse(data.geometry) : {},
               uDate: luxon.DateTime.utc(),
             };
             // we're going to search if the user is the own of the cable
@@ -111,7 +111,7 @@ class Cable {
         if (user !== undefined || user !== '') {
           this.model().then(async (cables) => {
             id = new ObjectID(id);
-            // we need to validate if  don't have another organization with the same name
+            // TODO: we need to validate if  don't have another organization with the same name
             cables.find({ _id: id }).count((err, c) => {
               if (err) reject({ m: err });
               else if (c === 0) reject({ m: 'We cannot delete your cable' });

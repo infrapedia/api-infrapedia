@@ -52,7 +52,6 @@ class Alert {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
-          console.log( data );
           this.model().then((alerts) => {
             alerts.findOneAndUpdate({
               uuid: String(user),

@@ -44,9 +44,6 @@ App network:
         - Report issue
         - Reports of my elements
         - My reports         
-      
-    
-
 
 ## Documentation
 
