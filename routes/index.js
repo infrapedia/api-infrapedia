@@ -251,6 +251,11 @@ const routes = function (router, controllers) {
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
+  router.get('/auth/issues/myreports', (req, res) => {
+    controllers.issues.myReports(req.headers.user_id, req.query.page)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
   // UPLOADS ---------------->
   router.post('/auth/upload/logo', (req, res) => {
     // console.log((req.headers.authorization, req.headers.user_id));

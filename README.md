@@ -41,7 +41,9 @@ App network:
         - Sign up in alerts
         - Disabled alerts
     - Issues
-        - Report issue         
+        - Report issue
+        - Reports of my elements
+        - My reports         
       
     
 
