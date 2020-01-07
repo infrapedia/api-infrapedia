@@ -91,7 +91,7 @@ class Organization {
             organization.aggregate([{
               $match: {
                 $and: [
-                  { uuid: usr },
+                  { uuid: user },
                   { deleted: false },
                 ],
               },
