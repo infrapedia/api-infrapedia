@@ -19,6 +19,7 @@ module.exports = function () {
               rgDate: { bsonType: 'date' },
               uDate: { bsonType: 'date' },
               disabled: { bsonType: 'bool' },
+              viewed: { bsonType: 'bool' },
             },
           },
         },

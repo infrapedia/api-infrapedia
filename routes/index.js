@@ -246,8 +246,8 @@ const routes = function (router, controllers) {
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.get('/auth/issues/myreports', (req, res) => {
-    controllers.issues.myreports(req.headers.user_id, req.params.search)
+  router.get('/auth/issues/reports', (req, res) => {
+    controllers.issues.reports(req.headers.user_id, req.query.page)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
