@@ -266,6 +266,9 @@ const routes = function (router, controllers) {
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
+
+  // Message ---------------->
+
   // UPLOADS ---------------->
   router.post('/auth/upload/logo', (req, res) => {
     controllers.uploads.logo(req.headers.user_id, req.body)
