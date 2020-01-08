@@ -18,7 +18,7 @@ class Cable {
               name: String(data.name),
               systemLength: String(data.systemLength),
               activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
-              urls: await (data.urls === '') ? [] : JSON.parse(data.urls),
+              urls:  (data.urls === '') ? [] : data.urls,
               terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
               capacityTBPS: String(data.capacityTBPS),
               fiberPairs: String(data.fiberPairs),
@@ -32,13 +32,14 @@ class Cable {
               deleted: false,
             };
             cables.insertOne(data, (err, i) => {
+              console.log(err);
               // TODO: validation insert
               if (err) reject({ m: err });
               resolve({ m: 'Cable created' });
             });
           }).catch((e) => reject({ m: e }));
         } else { resolve('Not user found'); }
-      } catch (e) { reject({ m: e }); }
+      } catch (e) { console.log(e); reject({ m: e }); }
     });
   }
 
@@ -54,7 +55,7 @@ class Cable {
               name: String(data.name),
               systemLength: String(data.systemLength),
               activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
-              urls: await (data.urls === '') ? [] : JSON.parse(data.urls),
+              urls:  (data.urls === '') ? [] : data.urls,
               terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
               capacityTBPS: String(data.capacityTBPS),
               fiberPairs: String(data.fiberPairs),

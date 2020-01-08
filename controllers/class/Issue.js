@@ -7,7 +7,6 @@ class Issue {
   }
 
   addReport(user, data) {
-    console.log('--- LLego hasta aqui ---');
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
@@ -47,10 +46,50 @@ class Issue {
   //   });
   // }
 
-  Cables() {
+  Cables(user, page) {
     return new Promise((resolve, reject) => {
       try {
-        this.model().then((cables) => {
+        this.model = require('../../models/cable.model');
+        this.model().then((cls) => {
+          page = (parseInt(page) < 1) ? 1 : parseInt(page);
+          const limit = 50;
+          cls.aggregate([
+            { $match: { uuid: String(user) } },
+            { $sort: { uDate: -1 } },
+            {
+              $lookup: {
+                from: 'issues',
+                localField: '_id',
+                foreignField: 'elemnt_id',
+                as: 'elemnt_id',
+              },
+            },
+            { $unwind: { path: '$elemnt_id', preserveNullAndEmptyArrays: false } },
+            {
+              $addFields: {
+                rgDate: '$elemnt_id.rgDate', uDate: '$elemnt_id.rgDate', viewed: '$elemnt_id.viewed', idReport: '$elemnt_id._id', elemntStatus: '$status',
+
+              },
+            },
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                elemntStatus: 1,
+                rgDate: 1,
+                uDate: 1,
+                status: 1,
+                viewed: 1,
+                idReport: 1,
+                t: 'CLS',
+              },
+            },
+            { $skip: Math.abs((limit * page) - limit) },
+            { $limit: limit },
+          ]).toArray((err, r) => {
+            if (err) reject(err);
+            resolve(r);
+          });
         });
       } catch (e) { reject({ m: e }); }
     });
@@ -171,11 +210,65 @@ class Issue {
     });
   }
 
+  myReportsCables(user, page) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model = require('../../models/issues.model');
+        this.model().then((issues) => {
+          page = (parseInt(page) < 1) ? 1 : parseInt(page);
+          const limit = 50;
+          issues.aggregate([
+            { $match: { $and: [{ uuid: String(user) }, { t: '1' }] } },
+            { $sort: { uDate: -1 } },
+            { $skip: Math.abs((limit * page) - limit) },
+            { $limit: limit },
+            {
+              $lookup: {
+                from: 'cables',
+                localField: 'elemnt_id',
+                foreignField: '_id',
+                as: 'elemnt_id',
+              },
+            },
+            {
+              $addFields: {
+                elemnt_id: { $arrayElemAt: ['$elemnt_id', 0] },
+              },
+            },
+            {
+              $addFields: {
+                _id: '$elemnt_id._id',
+                name: '$elemnt_id.name',
+                elemntStatus: '$elemnt_id.status',
+                idReport: '$_id',
+              },
+            },
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                elemntStatus: 1,
+                rgDate: 1,
+                uDate: 1,
+                status: 1,
+                viewed: 1,
+                idReport: 1,
+                t: 'Cable',
+              },
+            },
+          ]).toArray((err, r) => {
+            resolve(r);
+          });
+        }).catch();
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
   reports(user, page) {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
-          Promise.all([this.CableLandingStations(user, page)]).then((r) => {
+          Promise.all([this.CableLandingStations(user, page), this.Cables(user, page)]).then((r) => {
             resolve({ m: 'loaded', r });
           }).catch((e) => { reject({ m: e }); });
         } else { resolve('Not user found'); }
@@ -186,9 +279,25 @@ class Issue {
   myReports(user, page) {
     return new Promise((resolve, reject) => {
       try {
-        Promise.all([this.myReportsCLS(user, page)]).then((r) => {
+        Promise.all([this.myReportsCLS(user, page), this.myReportsCables(user, page)]).then((r) => {
           resolve({ m: 'loaded', r });
         }).catch((e) => { reject({ m: e }); });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  viewReportCable(user, data) {
+    return new Promise((resolve, reject) => {
+      try {
+
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  viewReport(user, page) {
+    return new Promise((resolve, reject) => {
+      try {
+
       } catch (e) { reject({ m: e }); }
     });
   }
