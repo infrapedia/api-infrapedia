@@ -256,6 +256,16 @@ const routes = function (router, controllers) {
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
+  router.get('/auth/issues/view/:elemnt/:id', (req, res) => {
+    controllers.issues.viewReport(req.headers.user_id, req.params.id, req.params.elemnt)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
+  router.delete('/auth/issues/delete/:id', (req, res) => {
+    controllers.issues.viewReport(req.headers.user_id, req.params.id)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
   // UPLOADS ---------------->
   router.post('/auth/upload/logo', (req, res) => {
     controllers.uploads.logo(req.headers.user_id, req.body)

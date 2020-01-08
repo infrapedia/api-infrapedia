@@ -5,5 +5,6 @@ module.exports = {
   addReport: (usr, data) => Issue.addReport(usr, data),
   reports: (usr, data) => Issue.reports(usr, data),
   myReports: (usr, data) => Issue.myReports(usr, data),
-  viewReport: (usr, data) => Issue.viewReport(usr, data),
+  viewReport: (usr, id, elemnt) => Issue.viewReport(usr, id, elemnt),
+  deleteMyReport: (usr, id) => Issue.deleteMyReport(usr, id),
 }

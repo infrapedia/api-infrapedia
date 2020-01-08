@@ -20,6 +20,7 @@ module.exports = function () {
               uDate: { bsonType: 'date' },
               disabled: { bsonType: 'bool' },
               viewed: { bsonType: 'bool' },
+              deleted: { bsonType: 'bool' },
             },
           },
         },

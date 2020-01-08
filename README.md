@@ -43,7 +43,9 @@ App network:
     - Issues
         - Report issue
         - Reports of my elements
-        - My reports         
+        - My reports      
+        - View report   
+        - Delete report
 
 ## Documentation
 

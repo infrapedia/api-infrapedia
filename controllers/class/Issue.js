@@ -6,6 +6,9 @@ class Issue {
     this.model = require('../../models/issues.model');
   }
 
+  //TODO: issue reports filtered by deleted
+  //TODO: validate the update
+
   addReport(user, data) {
     return new Promise((resolve, reject) => {
       try {
@@ -21,6 +24,7 @@ class Issue {
               uDate: luxon.DateTime.utc(),
               disabled: false,
               viewed: false,
+              deleted: false,
             };
             if (ObjectID.isValid(data.elemnt)) { issue.elemnt_id = new ObjectID(data.elemnt); } else { issue.elemnt = data.elemnt; }
             issues.insertOne(issue, (err, I) => {
@@ -198,11 +202,11 @@ class Issue {
                 status: 1,
                 viewed: 1,
                 idReport: 1,
-                t: 'CLS',
+                t: 'cls',
               },
             },
           ]).toArray((err, r) => {
-            console.log( err );
+            console.log(err);
             resolve(r);
           });
         }).catch();
@@ -253,7 +257,7 @@ class Issue {
                 status: 1,
                 viewed: 1,
                 idReport: 1,
-                t: 'Cable',
+                t: 'cable',
               },
             },
           ]).toArray((err, r) => {
@@ -286,19 +290,149 @@ class Issue {
     });
   }
 
-  viewReportCable(user, data) {
+  viewReportCable(user, id) {
     return new Promise((resolve, reject) => {
       try {
-
+        this.model = require('../../models/issues.model');
+        this.model().then((issues) => {
+          // , { uuid: String(user) }
+          issues.aggregate([
+            { $match: { $and: [{ _id: new ObjectID(id) }, { t: '1' }] } },
+            {
+              $lookup: {
+                from: 'cables',
+                localField: 'elemnt_id',
+                foreignField: '_id',
+                as: 'elemnt_id',
+              },
+            },
+            {
+              $addFields: {
+                elemnt_id: { $arrayElemAt: ['$elemnt_id', 0] },
+              },
+            },
+            {
+              $addFields: {
+                _id: '$elemnt_id._id',
+                name: '$elemnt_id.name',
+                elemntStatus: '$elemnt_id.status',
+                idReport: '$_id',
+              },
+            },
+            // {
+            //   $project: {
+            //     _id: 1,
+            //     name: 1,
+            //     elemntStatus: 1,
+            //     rgDate: 1,
+            //     uDate: 1,
+            //     status: 1,
+            //     viewed: 1,
+            //     idReport: 1,
+            //     t: 'Cable',
+            //   },
+            // },
+          ]).toArray((err, r) => {
+            resolve(r);
+          });
+        }).catch();
       } catch (e) { reject({ m: e }); }
     });
   }
 
-  viewReport(user, page) {
+  viewReportCls(user, id) {
     return new Promise((resolve, reject) => {
       try {
-
+        this.model = require('../../models/issues.model');
+        this.model().then((issues) => {
+          // , { uuid: String(user) }
+          issues.aggregate([
+            { $match: { $and: [{ _id: new ObjectID(id) }, { t: '2' }] } },
+            {
+              $lookup: {
+                from: 'cls',
+                localField: 'elemnt_id',
+                foreignField: '_id',
+                as: 'elemnt_id',
+              },
+            },
+            {
+              $addFields: {
+                elemnt_id: { $arrayElemAt: ['$elemnt_id', 0] },
+              },
+            },
+            {
+              $addFields: {
+                _id: '$elemnt_id._id',
+                name: '$elemnt_id.name',
+                elemntStatus: '$elemnt_id.status',
+                idReport: '$_id',
+              },
+            },
+            // {
+            //   $project: {
+            //     _id: 1,
+            //     name: 1,
+            //     elemntStatus: 1,
+            //     rgDate: 1,
+            //     uDate: 1,
+            //     status: 1,
+            //     viewed: 1,
+            //     idReport: 1,
+            //     t: 'Cable',
+            //   },
+            // },
+          ]).toArray((err, r) => {
+            issues.updateOne({ _id: new ObjectID(id) }, { $set: { viewed: true } }, (err, u) => {
+              resolve(r);
+            });
+          });
+        }).catch();
       } catch (e) { reject({ m: e }); }
+    });
+  }
+
+
+  viewReport(user, id, elemnt) {
+    return new Promise((resolve, reject) => {
+      try {
+        switch (elemnt) {
+          case 'cable':
+            this.viewReportCable(user, id).then((r) => { resolve({ m: 'loaded', r }); }).catch((e) => { reject({ m: e }); });
+            break;
+          case 'cls':
+            this.viewReportCls(user, id).then((r) => { resolve({ m: 'loaded', r }); }).catch((e) => { reject({ m: e }); });
+            break;
+          default:
+            reject({ m: 'Element not valid' });
+        }
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  deleteMyReport(user, id) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (user !== undefined || user !== '') {
+          this.model().then((issue) => {
+            id = new ObjectID(id);
+            // we need to validate if  don't have another organization with the same name
+            issue.find({ _id: id }).count((err, c) => {
+              if (err) reject({ m: err });
+              else if (c === 0) reject({ m: 'We cannot delete your issue report' });
+              else {
+                issue.updateOne(
+                  { _id: id, uuid: String(user) }, { $set: { deleted: true } }, (err, u) => {
+                    if (err) reject({ m: err });
+                    else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete your issue report' });
+                    else resolve({ m: 'Deleted' });
+                  },
+                );
+              }
+            });
+          }).catch((e) => reject({ m: e }));
+        } else { resolve({ m: 'Not user found' }); }
+      } catch (e) { reject({ m: 'error2' }); }
     });
   }
 }
