@@ -25,7 +25,7 @@ class Cable {
               notes: String(data.notes),
               facilities: await (data.facilities === '') ? [] : data.facilities.map((item) => new ObjectID(item)),
               cls: await (data.cls === '') ? [] : data.cls.map((item) => new ObjectID(item)),
-              geometry: (data.geometry !== '') ? JSON.parse(data.geometry) : {},
+              geom: (data.geom !== '') ? JSON.parse(data.geom) : {},
               rgDate: luxon.DateTime.utc(),
               uDate: luxon.DateTime.utc(),
               status: false,
@@ -61,7 +61,7 @@ class Cable {
               notes: String(data.notes),
               facilities: await (data.facilities === '') ? [] : data.facilities.map((item) => new ObjectID(item)),
               cls: await (data.cls === '') ? [] : data.cls.map((item) => new ObjectID(item)),
-              geometry: (data.geometry !== '') ? JSON.parse(data.geometry) : {},
+              geom: (data.geom !== '') ? JSON.parse(data.geom) : {},
               uDate: luxon.DateTime.utc(),
             };
             // we're going to search if the user is the own of the cable
