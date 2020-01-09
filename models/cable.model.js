@@ -18,6 +18,7 @@ module.exports = function () {
               capacity_tbps: { bsonType: 'double' },
               fiberPairs: { bsonType: 'string' },
               notes: { bsonType: 'string' },
+              category: { bsonType: 'string' },
               facilities: { bsonType: 'array' }, // Array of object ID's
               cls: { bsonType: 'array' }, // Array of object ID's
               geometry: { bsonType: 'object' },
