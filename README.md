@@ -36,7 +36,8 @@ App network:
         - Logos
         - KMZ
     - Convert
-        - Kmz to GeoJson    
+        - Kmz to GeoJson (Lines)
+        - Kmz to GeoJson (Points)    
     - Alerts
         - Sign up in alerts
         - Disabled alerts
@@ -46,6 +47,8 @@ App network:
         - My reports      
         - View report   
         - Delete report
+    - Messages
+        
 
 ## Documentation
 

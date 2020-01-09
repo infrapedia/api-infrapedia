@@ -221,8 +221,13 @@ const routes = function (router, controllers) {
       .catch((e) => { response.err(res, e); });
   });
   // KMZ to GEOJSON
-  router.post('/auth/kmz/togeojson', (req, res) => {
-    controllers.convert.kmzToGeojson(req.headers.user_id, req.body)
+  router.post('/auth/kmz/lines/togeojson', (req, res) => {
+    controllers.convert.kmzToGeojsonLines(req.headers.user_id, req.body)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
+  router.post('/auth/kmz/points/togeojson', (req, res) => {
+    controllers.convert.kmzToGeojsonPoints(req.headers.user_id, req.body)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
