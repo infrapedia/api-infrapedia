@@ -10,7 +10,7 @@ class Cable {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
-          this.model().then( async (cables) => {
+          this.model().then(async (cables) => {
             // TODO: check if exist another network with the same name
             const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
             data = {
@@ -97,6 +97,36 @@ class Cable {
             }, {
               $project: {
                 uuid: 0,
+                geom: 0,
+              },
+            }]).toArray((err, rCables) => {
+              if (err) reject(err);
+              resolve({ m: 'Loaded', r: rCables });
+            });
+          });
+        } else { resolve('Not user found'); }
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  shortList(user) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (user !== undefined || user !== '') {
+          this.model().then((cables) => {
+            cables.aggregate([{
+              $match: {
+                $and: [
+                  { uuid: user },
+                  { deleted: false },
+                ],
+              },
+            }, {
+              $project: {
+                _id: 1,
+                name: 1,
+                category: 1,
+                status: 1,
               },
             }]).toArray((err, rCables) => {
               if (err) reject(err);
@@ -146,6 +176,55 @@ class Cable {
             });
           }).catch((e) => reject({ m: e }));
         } else { resolve('Not user found'); }
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  bbox(user, id) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((cables) => {
+          cables.aggregate([
+            {
+              $project: { _id: 1, $geom: 1 },
+            },
+            {
+              $match: {
+                _id: new ObjectID(id),
+              },
+            },
+            {
+              $addFields: {
+                coordinates: { $map: { input: '$geom.features.geometry.coordinates', as: 'feature', in: '$$feature' } },
+              },
+            },
+          ]).toArray((err, c) => {
+            if (err) reject(err);
+            resolve({ m: 'Loaded', r: c });
+          });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  view(user, id) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((cables) => {
+          cables.aggregate([
+            {
+              $project: { $geom: 0 },
+            },
+            {
+              $match: {
+                _id: new ObjectID(id),
+              },
+            }
+          ]).toArray((err, c) => {
+            if (err) reject(err);
+            resolve({ m: 'Loaded', r: c });
+          });
+        });
       } catch (e) { reject({ m: e }); }
     });
   }

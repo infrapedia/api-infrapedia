@@ -66,5 +66,34 @@ class Alert {
       } catch (e) { reject({ m: e }); }
     });
   }
+
+
+  cables(id){
+
+  }
+  cls(id){
+
+  }
+  orgs(id){
+
+  }
+  facilities(id){
+
+  }
+  network(id){
+
+  }
+
+  configuredAlerts(user, data){
+    return new Promise((resolve, reject) => {
+      try {
+        if (user !== undefined || user !== '') {
+          this.model().then((alerts) => {
+
+          }).catch((e) => { reject({ m: e }); });
+        } else { resolve('Not user found'); }
+      } catch (e) { reject({ m: e }); }
+    });
+  }
 }
 module.exports = Alert;

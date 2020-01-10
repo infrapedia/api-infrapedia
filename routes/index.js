@@ -210,6 +210,11 @@ const routes = function (router, controllers) {
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
+  router.get('/auth/cables/shortlist', (req, res) => {
+    controllers.cables.shortList(req.headers.user_id)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
   router.delete('/auth/cables/delete/:id', (req, res) => {
     controllers.cables.delete(req.headers.user_id, req.params.id)
       .then((r) => { response.success(res, r); })
@@ -217,6 +222,16 @@ const routes = function (router, controllers) {
   });
   router.get('/auth/cables/owner/:id', (req, res) => {
     controllers.cables.owner(req.headers.user_id, req.params.id)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
+  router.get('/auth/cables/box/:id', (req, res) => {
+    controllers.cables.bbox(req.headers.user_id, req.params.id)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
+  router.get('/auth/cables/view/:id', (req, res) => {
+    controllers.cables.view(req.headers.user_id, req.params.id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
@@ -273,6 +288,9 @@ const routes = function (router, controllers) {
   });
 
   // Message ---------------->
+
+  // Search ----------------->
+
 
   // UPLOADS ---------------->
   router.post('/auth/upload/logo', (req, res) => {
