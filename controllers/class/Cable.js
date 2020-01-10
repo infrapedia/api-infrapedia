@@ -213,13 +213,13 @@ class Cable {
         this.model().then((cables) => {
           cables.aggregate([
             {
-              $project: { $geom: 0 },
-            },
-            {
               $match: {
                 _id: new ObjectID(id),
               },
-            }
+            },
+            {
+              $project: { geom: 0 },
+            },
           ]).toArray((err, c) => {
             if (err) reject(err);
             resolve({ m: 'Loaded', r: c });

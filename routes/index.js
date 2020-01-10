@@ -230,7 +230,7 @@ const routes = function (router, controllers) {
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.get('/auth/cables/view/:id', (req, res) => {
+  router.get('/cables/view/:id', (req, res) => {
     controllers.cables.view(req.headers.user_id, req.params.id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
