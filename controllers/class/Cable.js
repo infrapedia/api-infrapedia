@@ -197,30 +197,14 @@ class Cable {
             },
             {
               $addFields: {
-                "v": { $arrayElemAt: [ "$geom.features.geometry.coordinates", 0 ] },
-                "b": { $arrayElemAt: [ "$geom.features.geometry.coordinates", -1 ] },
-
-              }
+                v: { $arrayElemAt: ['$geom.features.geometry.coordinates', 0] },
+                b: { $arrayElemAt: ['$geom.features.geometry.coordinates', -1] },
+              },
             },
-            // {
-            //   $project: {
-            //     type: 'FeatureCollection',
-            //     features: [
-            //       {
-            //         type: 'Feature',
-            //         geometry: {
-            //           type: 'LineString',
-            //           properties: {},
-            //           coordinates: '$coordinates',
-            //         },
-            //       },
-            //     ],
-            //   },
-            // },
             {
               $project: {
                 _id: 1,
-                coordinates: [ { $arrayElemAt: [ "$v", 0 ] }, { $arrayElemAt: [ "$b", -1 ] } ],
+                coordinates: [{ $arrayElemAt: ['$v', 0] }, { $arrayElemAt: ['$b', -1] }],
               },
             },
           ]).toArray((err, c) => {
