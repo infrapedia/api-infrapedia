@@ -197,8 +197,8 @@ class Cable {
             },
             {
               $addFields: {
-                "v": { $arrayElemAt: [ "$coordinates", 0 ] },
-                "b": { $arrayElemAt: [ "$coordinates", -1 ] },
+                "v": { $arrayElemAt: [ "$geom.features.geometry.coordinates", 0 ] },
+                "b": { $arrayElemAt: [ "$geom.features.geometry.coordinates", -1 ] },
 
               }
             },
@@ -220,7 +220,7 @@ class Cable {
             {
               $project: {
                 _id: 1,
-                coordinates: [ { $arrayElemAt: [ "$v", 0 ] }, { $arrayElemAt: [ "$b", 0 ] } ],
+                coordinates: [ { $arrayElemAt: [ "$v", 0 ] }, { $arrayElemAt: [ "$b", -1 ] } ],
               },
             },
           ]).toArray((err, c) => {
