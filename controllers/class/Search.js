@@ -188,7 +188,7 @@ class Search {
       try {
         Promise.all([this.cables(data), this.cls(data)]).then((r) => {
           let result = [];
-          result = result.concat(r[0], r[1], r[2])
+          result = result.concat(r[0], r[1])
           resolve(result);
         }).catch((e) => { reject({ m: e }); });
       } catch (e) { reject({ m: e }); }
