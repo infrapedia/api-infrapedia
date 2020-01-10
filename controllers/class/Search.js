@@ -186,7 +186,7 @@ class Search {
   byField(user, data) {
     return new Promise((resolve, reject) => {
       try {
-        Promise.all([this.cables(data), this.cls(data), this.networks(data)]).then((r) => {
+        Promise.all([this.cables(data), this.cls(data)]).then((r) => {
           let result = [];
           result = result.concat(r[0], r[1], r[2])
           resolve(result);
