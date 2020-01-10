@@ -21,13 +21,15 @@ class Search {
             {
               $match: {
                 $expr: makeSearchExpr(searchFields, search.toLowerCase()),
+                deleted: false
               },
             },
             {
               $addFields: {
                 t: 'cable',
               },
-            },{
+            },
+            {
               $project: {
                 _id: 1,
                 name: 1,
@@ -65,7 +67,8 @@ class Search {
               $addFields: {
                 t: 'cls',
               },
-            },{
+            },
+            {
               $project: {
                 _id: 1,
                 name: 1,
@@ -186,10 +189,10 @@ class Search {
   byField(user, data) {
     return new Promise((resolve, reject) => {
       try {
-        Promise.all([this.cables(data), this.cls(data)]).then((r) => {
+        Promise.all([this.cables(data)]).then((r) => {
           let result = [];
           result = result.concat(r[0], r[1])
-          resolve(result);
+          resolve(r);
         }).catch((e) => { reject({ m: e }); });
       } catch (e) { reject({ m: e }); }
     });
