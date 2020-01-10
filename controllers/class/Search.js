@@ -20,7 +20,7 @@ class Search {
           cables.aggregate([
             {
               $match: {
-                $expr: makeSearchExpr(searchFields, search),
+                $expr: makeSearchExpr(searchFields, search.toLowerCase()),
               },
             },
             {
@@ -104,9 +104,54 @@ class Search {
                 t: 'network',
               },
             },{
+
+            },{
               $project: {
                 _id: 1,
                 name: 1,
+                organizations: 1,
+                facilities: 1,
+                cables: 1,
+                cls: 1,
+                t: 1,
+              },
+            },
+          ]).toArray((err, rCls) => {
+            if (err) reject(err);
+            resolve(rCls);
+          });
+        }).catch((e) => { reject({ m: e }); });
+      } catch (e) {}
+    });
+  }
+
+  orgs(search){
+    return new Promise((resolve, reject) => {
+      try {
+        this.model = require('../../models/network.model');
+        this.model().then((network) => {
+          const strIdExpr = { $toString: '$_id' };
+          const searchFields = ['$name', strIdExpr];
+          const makeSearchExpr = (fields, query) => ({
+            $or: fields.map((field) => ({
+              $gte: [{ $indexOfCP: [{ $toLower: field }, query.toLowerCase()] }, 0],
+            })),
+          });
+          network.aggregate([
+            {
+              $match: {
+                $expr: makeSearchExpr(searchFields, search),
+              },
+            },
+            {
+              $addFields: {
+                t: 'network',
+              },
+            },{
+              $project: {
+                _id: 1,
+                name: 1,
+                organizations: 1,
                 facilities: 1,
                 cables: 1,
                 cls: 1,

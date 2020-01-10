@@ -225,7 +225,7 @@ const routes = function (router, controllers) {
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.get('/auth/cables/box/:id', (req, res) => {
+  router.get('/cables/box/:id', (req, res) => {
     controllers.cables.bbox(req.headers.user_id, req.params.id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });

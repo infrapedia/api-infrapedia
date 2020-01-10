@@ -186,9 +186,6 @@ class Cable {
         this.model().then((cables) => {
           cables.aggregate([
             {
-              $project: { _id: 1, $geom: 1 },
-            },
-            {
               $match: {
                 _id: new ObjectID(id),
               },
@@ -197,6 +194,9 @@ class Cable {
               $addFields: {
                 coordinates: { $map: { input: '$geom.features.geometry.coordinates', as: 'feature', in: '$$feature' } },
               },
+            },
+            {
+              $project: { _id: 1, coordinates: 1 },
             },
           ]).toArray((err, c) => {
             if (err) reject(err);
