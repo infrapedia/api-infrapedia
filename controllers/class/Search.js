@@ -6,11 +6,40 @@ class Search {
     this.model = require('../../models/cable.model');
   }
 
-  cables() {
+  cables(search) {
     return new Promise((resolve, reject) => {
       try {
-
-      } catch (e) {}
+        this.model().then((cables) => {
+          const strIdExpr = { $toString: '$_id' };
+          const searchFields = ['$name', strIdExpr];
+          const makeSearchExpr = (fields, query) => ({
+            $or: fields.map((field) => ({
+              $gte: [{ $indexOfCP: [{ $toLower: field }, query.toLowerCase()] }, 0],
+            })),
+          });
+          cables.aggregate([
+            {
+              $match: {
+                $expr: makeSearchExpr(searchFields, search),
+              },
+            },
+            {
+              $addFields: {
+                t: 'cable',
+              },
+            },{
+              $project: {
+                _id: 1,
+                name: 1,
+                t: 1,
+              },
+            },
+          ]).toArray((err, rCables) => {
+            if (err) reject(err);
+            resolve({ m: 'Loaded', r: rCables });
+          });
+        }).catch((e) => { reject({ m: e }); });
+      } catch (e) { reject({ m: e }); }
     });
   }
 
@@ -46,13 +75,14 @@ class Search {
     });
   }
 
-  search(user, data){
-    return new Promise((Resolve, reject) => {
+  byField(user, data) {
+    return new Promise((resolve, reject) => {
       try {
-        Promsie.all([cables()]).then((r) => {
-
+        Promise.all([this.cables(data)]).then((r) => {
+          resolve(r);
         }).catch((e) => { reject({ m: e }); });
       } catch (e) { reject({ m: e }); }
     });
   }
 }
+module.exports = Search;

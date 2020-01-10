@@ -48,7 +48,8 @@ App network:
         - View report   
         - Delete report
     - Messages
-        
+    - Search
+        - By Field (Name or ID)
 
 ## Documentation
 

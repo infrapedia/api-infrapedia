@@ -1,6 +1,6 @@
-let Cable = require('./class/Cable');
+let Search = require('./class/Search');
 
-Cable = new Cable();
+Search = new Search();
 module.exports = {
-
+  byField: (usr, data) => Search.byField(usr, data),
 };

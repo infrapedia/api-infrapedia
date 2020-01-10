@@ -290,8 +290,11 @@ const routes = function (router, controllers) {
   // Message ---------------->
 
   // Search ----------------->
-
-
+  router.get('/search/field', (req, res) => {
+    controllers.searchs.byField(req.headers.user_id, req.query.s)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
   // UPLOADS ---------------->
   router.post('/auth/upload/logo', (req, res) => {
     controllers.uploads.logo(req.headers.user_id, req.body)
