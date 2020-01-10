@@ -196,11 +196,11 @@ class Cable {
             //   },
             // },
             {
-              $project: { uuid: 0, name: 0, systemLength: 0, activationDateTime: 0, urls: 0, terrestrial: 0, capacityTBPS: 0, fiberPairs: 0, notes: 0, facilities: 0, cls: 0, rgDate: 0, uDate: 0, status: 0, deleted: 0, category: 0, 'geom.propertiescle': 0 },
+              $project: { uuid: 0, name: 0, systemLength: 0, activationDateTime: 0, urls: 0, terrestrial: 0, capacityTBPS: 0, fiberPairs: 0, notes: 0, facilities: 0, cls: 0, rgDate: 0, uDate: 0, status: 0, deleted: 0, category: 0, 'geom.properties': 0 },
             },
           ]).toArray((err, c) => {
             if (err) reject(err);
-            resolve({ m: 'Loaded', r: c });
+            resolve({ m: 'Loaded', r: c[0].geom });
           });
         });
       } catch (e) { reject({ m: e }); }
