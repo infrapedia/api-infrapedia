@@ -195,6 +195,13 @@ class Cable {
                 coordinates: { $map: { input: '$geom.features.geometry.coordinates', as: 'feature', in: '$$feature' } },
               },
             },
+            {
+              $addFields: {
+                "v": { $arrayElemAt: [ "$coordinates", 0 ] },
+                "b": { $arrayElemAt: [ "$coordinates", -1 ] },
+
+              }
+            },
             // {
             //   $project: {
             //     type: 'FeatureCollection',
@@ -213,7 +220,7 @@ class Cable {
             {
               $project: {
                 _id: 1,
-                coordinates: 1,
+                coordinates: [ { $arrayElemAt: [ "$v", 0 ] }, { $arrayElemAt: [ "$b", 0 ] } ],
               },
             },
           ]).toArray((err, c) => {
