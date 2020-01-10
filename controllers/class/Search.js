@@ -21,7 +21,7 @@ class Search {
             {
               $match: {
                 $expr: makeSearchExpr(searchFields, search.toLowerCase()),
-                deleted: false
+                deleted: false,
               },
             },
             {
@@ -61,6 +61,7 @@ class Search {
             {
               $match: {
                 $expr: makeSearchExpr(searchFields, search),
+                deleted: false,
               },
             },
             {
@@ -190,9 +191,7 @@ class Search {
     return new Promise((resolve, reject) => {
       try {
         Promise.all([this.cables(data)]).then((r) => {
-          let result = [];
-          result = result.concat(r[0], r[1])
-          resolve(r);
+          resolve(r[0]);
         }).catch((e) => { reject({ m: e }); });
       } catch (e) { reject({ m: e }); }
     });
