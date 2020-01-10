@@ -190,17 +190,35 @@ class Cable {
                 _id: new ObjectID(id),
               },
             },
+            {
+              $addFields: {
+                coordinates: { $map: { input: '$geom.features.geometry.coordinates', as: 'feature', in: '$$feature' } },
+              },
+            },
             // {
-            //   $addFields: {
-            //     coordinates: { $map: { input: '$geom.features.geometry.coordinates', as: 'feature', in: '$$feature' } },
+            //   $project: {
+            //     type: 'FeatureCollection',
+            //     features: [
+            //       {
+            //         type: 'Feature',
+            //         geometry: {
+            //           type: 'LineString',
+            //           properties: {},
+            //           coordinates: '$coordinates',
+            //         },
+            //       },
+            //     ],
             //   },
             // },
             {
-              $project: { uuid: 0, name: 0, systemLength: 0, activationDateTime: 0, urls: 0, terrestrial: 0, capacityTBPS: 0, fiberPairs: 0, notes: 0, facilities: 0, cls: 0, rgDate: 0, uDate: 0, status: 0, deleted: 0, category: 0, 'geom.properties': 0 },
+              $project: {
+                _id: 1,
+                coordinates: 1,
+              },
             },
           ]).toArray((err, c) => {
             if (err) reject(err);
-            resolve({ m: 'Loaded', r: c[0].geom });
+            resolve({ m: 'Loaded', r: c });
           });
         });
       } catch (e) { reject({ m: e }); }
