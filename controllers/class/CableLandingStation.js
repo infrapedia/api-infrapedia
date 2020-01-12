@@ -18,7 +18,7 @@ class CLS {
               state: data.state,
               slug: data.slug,
               geom: (data.geom !== '') ? JSON.parse(data.geom) : {},
-              cables: await (data.cables === '') ? [] : data.cables.map((item) => new ObjectID(item)),
+              cables: await (data.cables.length === 0) ? [] : data.cables.map((item) => new ObjectID(item)),
               rgDate: luxon.DateTime.utc(),
               uDate: luxon.DateTime.utc(),
               status: false,
