@@ -7,4 +7,5 @@ module.exports = {
   list: (usr) => Network.list(usr),
   delete: (usr, id) => Network.delete(usr, id),
   owner: (usr, id) => Network.owner(usr, id),
+  view: (usr, id) => Network.view(usr, id),
 };

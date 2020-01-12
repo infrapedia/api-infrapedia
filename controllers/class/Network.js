@@ -131,5 +131,112 @@ class Network {
       } catch (e) { reject({ m: e }); }
     });
   }
+
+  view(user, id) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((cables) => {
+          cables.aggregate([
+            {
+              $match: {
+                _id: new ObjectID(id),
+              },
+            },
+            {
+              $lookup: {
+                from: 'organizations',
+                let: { orgs: '$organizations' },
+                pipeline: [
+                  {
+                    $addFields: {
+                      idsorgs: '$$orgs',
+                    },
+                  },
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$_id', '$idsorgs'],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1
+                    }
+                  }
+                ],
+                as: 'orgs',
+              },
+            },
+            {
+              $lookup: {
+                from: 'cables',
+                let: { cables: '$cables' },
+                pipeline: [
+                  {
+                    $addFields: {
+                      idscables: '$$cables',
+                    },
+                  },
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$_id', '$idscables'],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1
+                    }
+                  }
+                ],
+                as: 'cables',
+              },
+            },
+            {
+              $lookup: {
+                from: 'cls',
+                let: { cls: '$cls' },
+                pipeline: [
+                  {
+                    $addFields: {
+                      idscls: '$$cls',
+                    },
+                  },
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$_id', '$idscls'],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1
+                    }
+                  }
+                ],
+                as: 'cls',
+              },
+            },
+            {
+              $project: {
+                uuid: 0,
+                status: 0,
+                deleted: 0
+              }
+            }
+          ]).toArray((err, c) => {
+            if (err) reject(err);
+            resolve({ m: 'Loaded', r: c });
+          });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
 }
 module.exports = Network;

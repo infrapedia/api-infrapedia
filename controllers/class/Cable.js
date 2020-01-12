@@ -229,6 +229,87 @@ class Cable {
             {
               $project: { geom: 0 },
             },
+            {
+              $lookup: {
+                from: 'cls',
+                let: { cables: '$_id' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$$cables', '$cables'],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'cls',
+              },
+            },
+            {
+              $lookup: {
+                from: 'networks',
+                let: { cable: '$_id' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$$cable', '$cables'],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                      organizations: 1,
+                    },
+                  },
+                ],
+                as: 'networks',
+              },
+            },
+            {
+              $lookup: {
+                from: 'organizations',
+                let: { networks: '$networks' },
+                pipeline: [
+                  {
+                    $addFields: {
+                      idsorgs: { $map: { input: '$$networks.organizations', as: 'orgs', in: '$$orgs' } },
+                    },
+                  },
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$_id', { $arrayElemAt: ['$idsorgs', 0] }],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'organizations',
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                uuid: 0,
+                geom: 0,
+                status: 0,
+                deleted: 0,
+              },
+            },
           ]).toArray((err, c) => {
             if (err) reject(err);
             resolve({ m: 'Loaded', r: c });

@@ -172,5 +172,109 @@ class Organization {
   //     } catch (e) { reject({ m: e }); }
   //   });
   // }
+
+  view(user, id) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((cables) => {
+          cables.aggregate([
+            {
+              $match: {
+                _id: new ObjectID(id),
+              },
+            },
+            {
+              $lookup: {
+                from: 'networks',
+                let: { idorg: '$_id' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$$idorg', '$organizations'],
+                      },
+                    },
+                  },
+                  {
+                    $lookup: {
+                      from: 'cables',
+                      let: { cables: '$cables' },
+                      pipeline: [
+                        {
+                          $addFields: {
+                            idscables: '$$cables',
+                          },
+                        },
+                        {
+                          $match: {
+                            $expr: {
+                              $in: ['$_id', '$idscables'],
+                            },
+                          },
+                        },
+                        {
+                          $project: {
+                            _id: 1,
+                            name: 1
+                          }
+                        }
+                      ],
+                      as: 'cables',
+                    },
+                  },
+                  {
+                    $lookup: {
+                      from: 'cls',
+                      let: { cls: '$cls' },
+                      pipeline: [
+                        {
+                          $addFields: {
+                            idscls: '$$cls',
+                          },
+                        },
+                        {
+                          $match: {
+                            $expr: {
+                              $in: ['$_id', '$idscls'],
+                            },
+                          },
+                        },
+                        {
+                          $project: {
+                            _id: 1,
+                            name: 1
+                          }
+                        }
+                      ],
+                      as: 'cls',
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                      cls: 1,
+                      cables: 1
+                    }
+                  }
+                ],
+                as: 'networks'
+              }
+            },
+            {
+              $project: {
+                uuid: 0,
+                status: 0,
+                deleted: 0,
+              },
+            },
+          ]).toArray((err, c) => {
+            if (err) reject(err);
+            resolve({ m: 'Loaded', r: c });
+          });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
 }
 module.exports = Organization;

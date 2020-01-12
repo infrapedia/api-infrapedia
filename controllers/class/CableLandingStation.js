@@ -89,7 +89,7 @@ class CLS {
                 uuid: 0,
                 geom: 0,
                 cables: 0,
-                deleted: 0
+                deleted: 0,
               },
             }]).toArray((err, rNetwork) => {
               if (err) reject(err);
@@ -139,6 +139,145 @@ class CLS {
             });
           });
         } else { resolve('Not user found'); }
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  bbox(user, id) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((cables) => {
+          cables.aggregate([
+            {
+              $match: {
+                _id: new ObjectID(id),
+              },
+            },
+            {
+              $addFields: {
+                coordinates: { $map: { input: '$geom.features.geometry.coordinates', as: 'feature', in: '$$feature' } },
+              },
+            },
+            {
+              $addFields: {
+                v: { $arrayElemAt: ['$geom.features.geometry.coordinates', 0] },
+                b: { $arrayElemAt: ['$geom.features.geometry.coordinates', -1] },
+              },
+            },
+            {
+              $project: {
+                _id: 1,
+                coordinates: [{ $arrayElemAt: ['$v', 0] }, { $arrayElemAt: ['$b', -1] }],
+              },
+            },
+          ]).toArray((err, c) => {
+            if (err) reject(err);
+            resolve({ m: 'Loaded', r: c });
+          });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  view(user, id) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((cables) => {
+          cables.aggregate([
+            {
+              $match: {
+                _id: new ObjectID(id),
+              },
+            },
+            {
+              $project: { geom: 0 },
+            },
+            {
+              $lookup: {
+                from: 'cables',
+                let: { cables: '$cables' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$_id', '$$cables'],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'cables',
+              },
+            },
+            {
+              $lookup: {
+                from: 'networks',
+                let: { cls: '$_id' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$$cls', '$cls'],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                      organizations: 1,
+                    },
+                  },
+                ],
+                as: 'networks',
+              },
+            },
+            {
+              $lookup: {
+                from: 'organizations',
+                let: { networks: '$networks' },
+                pipeline: [
+                  {
+                    $addFields: {
+                      idsorgs: { $map: { input: '$$networks.organizations', as: 'orgs', in: '$$orgs' } },
+                    },
+                  },
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$_id', { $arrayElemAt: ['$idsorgs', 0] }],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'organizations',
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                uuid: 0,
+                geom: 0,
+                status: 0,
+                deleted: 0,
+              },
+            },
+          ]).toArray((err, c) => {
+            if (err) reject(err);
+            resolve({ m: 'Loaded', r: c });
+          });
+        });
       } catch (e) { reject({ m: e }); }
     });
   }

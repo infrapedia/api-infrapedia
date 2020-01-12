@@ -7,4 +7,5 @@ module.exports = {
   list: (usr) => Organization.list(usr),
   delete: (usr, id) => Organization.delete(usr, id),
   owner: (usr, id) => Organization.owner(usr, id),
+  view: (usr, id) => Organization.view(usr, id),
 };

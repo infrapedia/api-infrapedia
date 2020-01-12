@@ -136,6 +136,11 @@ const routes = function (router, controllers) {
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
+  router.get('/organization/view/:id', (req, res) => {
+    controllers.organizations.view(req.headers.user_id, req.params.id)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
   // NETWORKS ---------------->
   router.post('/auth/network/add', (req, res) => {
     // console.log((req.headers.authorization, req.headers.user_id));
@@ -161,6 +166,12 @@ const routes = function (router, controllers) {
   });
   router.get('/auth/network/owner/:id', (req, res) => {
     controllers.networks.owner(req.headers.user_id, req.params.id)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
+
+  router.get('/network/view/:id', (req, res) => {
+    controllers.networks.view(req.headers.user_id, req.params.id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
@@ -190,6 +201,17 @@ const routes = function (router, controllers) {
 
   router.get('/auth/cls/owner/:id', (req, res) => {
     controllers.cableLandingStations.owner(req.headers.user_id, req.params.id)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
+
+  router.get('/cls/box/:id', (req, res) => {
+    controllers.cableLandingStations.bbox(req.headers.user_id, req.params.id)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
+  router.get('/cls/view/:id', (req, res) => {
+    controllers.cableLandingStations.view(req.headers.user_id, req.params.id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });

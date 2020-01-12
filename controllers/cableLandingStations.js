@@ -7,4 +7,6 @@ module.exports = {
   list: (usr) => CLS.list(usr),
   delete: (usr, id) => CLS.delete(usr, id),
   owner: (usr, id) => CLS.owner(usr, id),
+  bbox: (usr, id) => CLS.bbox(usr, id),
+  view: (usr, id) => CLS.view(usr, id),
 };
