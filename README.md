@@ -13,25 +13,29 @@ App network:
         - Edit
         - List
         - Delete
-        - View
+        - View (owner)
+        - view
     - Networks:
         - Add
         - Edit
         - List
         - Delete
-        - View
+        - View (owner)
+        - view
     - CLS    
         - Add
         - Edit
         - List
         - Delete
-        - View
+        - View (owner)
+        - view
     - Cables
         - Add
         - Edit
         - List
         - Delete
-        - View      
+        - View (owner)
+        - view  
     - Upload
         - Logos
         - KMZ
