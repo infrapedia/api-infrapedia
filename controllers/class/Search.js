@@ -217,10 +217,7 @@ class Search {
     return new Promise((resolve, reject) => {
       try {
         Promise.all([this.organizations(data), this.networks(data), this.cables(data), this.cls(data)]).then( async (r) => {
-          resolve({
-            m: 'loaded',
-            r: await r.reduce((total, value) => total.concat(value), []),
-          });
+          resolve(await r.reduce((total, value) => total.concat(value), []));
         }).catch((e) => { reject({ m: e }); });
       } catch (e) { reject({ m: e }); }
     });
@@ -230,10 +227,7 @@ class Search {
     return new Promise((resolve, reject) => {
       try {
         this.cables(data).then((r) => {
-          resolve({
-            m: 'loaded',
-            r,
-          });
+          resolve(r);
         }).catch((e) => { reject({ m: e }); });
       } catch (e) { reject({ m: e }); }
     });
@@ -243,10 +237,7 @@ class Search {
     return new Promise((resolve, reject) => {
       try {
         this.cls(data).then((r) => {
-          resolve({
-            m: 'loaded',
-            r,
-          });
+          resolve(r);
         }).catch((e) => { reject({ m: e }); });
       } catch (e) { reject({ m: e }); }
     });
@@ -256,10 +247,7 @@ class Search {
     return new Promise((resolve, reject) => {
       try {
         this.networks(data).then((r) => {
-          resolve({
-            m: 'loaded',
-            r,
-          });
+          resolve(r);
         }).catch((e) => { reject({ m: e }); });
       } catch (e) { reject({ m: e }); }
     });
@@ -269,10 +257,7 @@ class Search {
     return new Promise((resolve, reject) => {
       try {
         this.organizations(data).then((r) => {
-          resolve({
-            m: 'loaded',
-            r,
-          });
+          resolve(r);
         }).catch((e) => { reject({ m: e }); });
       } catch (e) { reject({ m: e }); }
     });
