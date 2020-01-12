@@ -295,6 +295,26 @@ const routes = function (router, controllers) {
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
+  router.get('/search/field/cables', (req, res) => {
+    controllers.searchs.byFieldCables(req.headers.user_id, req.query.s)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
+  router.get('/search/field/cls', (req, res) => {
+    controllers.searchs.byFieldCls(req.headers.user_id, req.query.s)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
+  router.get('/search/field/networks', (req, res) => {
+    controllers.searchs.byFieldNetworks(req.headers.user_id, req.query.s)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
+  router.get('/search/field/orgs', (req, res) => {
+    controllers.searchs.byFieldOrgs(req.headers.user_id, req.query.s)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
   // UPLOADS ---------------->
   router.post('/auth/upload/logo', (req, res) => {
     controllers.uploads.logo(req.headers.user_id, req.body)

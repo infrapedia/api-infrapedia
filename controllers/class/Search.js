@@ -395,5 +395,57 @@ class Search {
       } catch (e) { reject({ m: e }); }
     });
   }
+
+  byFieldCables(user, data) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.cables(data).then((r) => {
+          resolve({
+            m: 'loaded',
+            data: r,
+          });
+        }).catch((e) => { reject({ m: e }); });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  byFieldCls(user, data) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.cls(data).then((r) => {
+          resolve({
+            m: 'loaded',
+            data: r,
+          });
+        }).catch((e) => { reject({ m: e }); });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  byFieldNetworks(user, data) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.networks(data).then((r) => {
+          resolve({
+            m: 'loaded',
+            data: r,
+          });
+        }).catch((e) => { reject({ m: e }); });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  byFieldOrgs(user, data) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.organizations(data).then((r) => {
+          resolve({
+            m: 'loaded',
+            data: r,
+          });
+        }).catch((e) => { reject({ m: e }); });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
 }
 module.exports = Search;
