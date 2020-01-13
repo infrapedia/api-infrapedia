@@ -312,7 +312,7 @@ const routes = function (router, controllers) {
   // Message ---------------->
 
   // Search ----------------->
-  router.get('/search/field', (req, res) => {
+  router.get('/api/search/field', (req, res) => {
     controllers.searchs.byField(req.headers.user_id, req.query.s)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
