@@ -46,25 +46,27 @@ class CLS {
               $and:
                  [{ _id: { $ne: id } }, { name: String(data.name) }],
             }).count(async (err, c) => {
-              if (err) reject({ m: err });
-              else if (c > 0) reject({ m: 'We have registered in our system more than one cls with the same name' });
-              else {
-                data = {
-                  name: data.name,
-                  state: data.state,
-                  slug: data.slug,
-                  geom: (data.geom !== '') ? JSON.parse(data.geom) : {},
-                  cables: await (data.cables === '') ? [] : data.cables.map((item) => new ObjectID(item)),
-                  uDate: luxon.DateTime.utc(),
-                };
-                cls.updateOne(
-                  { _id: id, uuid: String(user) }, { $set: data }, (err, u) => {
-                    if (err) reject(err);
-                    else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
-                    else resolve({ m: 'Loaded', r: data });
-                  },
-                );
-              }
+              // if (err) reject({ m: err });
+              // else if (c > 0) reject({ m: 'We have registered in our system more than one cls with the same name' });
+              // else {
+              //
+              // }
+              // TODO: validate the numbers of cls with the same name
+              data = {
+                name: data.name,
+                state: data.state,
+                slug: data.slug,
+                geom: (data.geom !== '') ? JSON.parse(data.geom) : {},
+                cables: await (data.cables === '') ? [] : data.cables.map((item) => new ObjectID(item)),
+                uDate: luxon.DateTime.utc(),
+              };
+              cls.updateOne(
+                { _id: id, uuid: String(user) }, { $set: data }, (err, u) => {
+                  if (err) reject(err);
+                  else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
+                  else resolve({ m: 'Loaded', r: data });
+                },
+              );
             });
           }).catch((e) => reject(e));
         } else { resolve('Not user found'); }
