@@ -110,200 +110,200 @@ const routes = function (router, controllers) {
 
 
   // ORGANIZATIONS ---------------->
-  router.post('/auth/organization/add', (req, res) => {
+  router.post(process.env._ROUTE + '/auth/organization/add', (req, res) => {
     // console.log((req.headers.authorization, req.headers.user_id));
     controllers.organizations.add(req.headers.user_id, req.body)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.put('/auth/organization/edit', (req, res) => {
+  router.put(process.env._ROUTE + '/auth/organization/edit', (req, res) => {
     controllers.organizations.edit(req.headers.user_id, req.body)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.get('/auth/organization/all', (req, res) => {
+  router.get(process.env._ROUTE + '/auth/organization/all', (req, res) => {
     controllers.organizations.list(req.headers.user_id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.delete('/auth/organization/delete/:id', (req, res) => {
+  router.delete(process.env._ROUTE + '/auth/organization/delete/:id', (req, res) => {
     controllers.organizations.delete(req.headers.user_id, req.params.id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.get('/auth/organization/owner/:id', (req, res) => {
+  router.get(process.env._ROUTE + '/auth/organization/owner/:id', (req, res) => {
     controllers.organizations.owner(req.headers.user_id, req.params.id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.get('/organization/view/:id', (req, res) => {
+  router.get(process.env._ROUTE + '/organization/view/:id', (req, res) => {
     controllers.organizations.view(req.headers.user_id, req.params.id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
   // NETWORKS ---------------->
-  router.post('/auth/network/add', (req, res) => {
+  router.post(process.env._ROUTE + '/auth/network/add', (req, res) => {
     // console.log((req.headers.authorization, req.headers.user_id));
     controllers.networks.add(req.headers.user_id, req.body)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.put('/auth/network/edit', (req, res) => {
+  router.put(process.env._ROUTE + '/auth/network/edit', (req, res) => {
     controllers.networks.edit(req.headers.user_id, req.body)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.get('/auth/network/all', (req, res) => {
+  router.get(process.env._ROUTE + '/auth/network/all', (req, res) => {
     controllers.networks.list(req.headers.user_id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
 
-  router.delete('/auth/network/delete/:id', (req, res) => {
+  router.delete(process.env._ROUTE + '/auth/network/delete/:id', (req, res) => {
     controllers.networks.delete(req.headers.user_id, req.params.id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.get('/auth/network/owner/:id', (req, res) => {
+  router.get(process.env._ROUTE + '/auth/network/owner/:id', (req, res) => {
     controllers.networks.owner(req.headers.user_id, req.params.id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
 
-  router.get('/network/view/:id', (req, res) => {
+  router.get(process.env._ROUTE + '/network/view/:id', (req, res) => {
     controllers.networks.view(req.headers.user_id, req.params.id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
   // CLS ---------------->
-  router.post('/auth/cls/add', (req, res) => {
+  router.post(process.env._ROUTE + '/auth/cls/add', (req, res) => {
     // console.log((req.headers.authorization, req.headers.user_id));
     controllers.cableLandingStations.add(req.headers.user_id, req.body)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.put('/auth/cls/edit', (req, res) => {
+  router.put(process.env._ROUTE + '/auth/cls/edit', (req, res) => {
     controllers.cableLandingStations.edit(req.headers.user_id, req.body)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.get('/auth/cls/all', (req, res) => {
+  router.get(process.env._ROUTE + '/auth/cls/all', (req, res) => {
     controllers.cableLandingStations.list(req.headers.user_id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
 
-  router.delete('/auth/cls/delete/:id', (req, res) => {
+  router.delete(process.env._ROUTE + '/auth/cls/delete/:id', (req, res) => {
     controllers.cableLandingStations.delete(req.headers.user_id, req.params.id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
 
-  router.get('/auth/cls/owner/:id', (req, res) => {
+  router.get(process.env._ROUTE + '/auth/cls/owner/:id', (req, res) => {
     controllers.cableLandingStations.owner(req.headers.user_id, req.params.id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
 
-  router.get('/cls/box/:id', (req, res) => {
+  router.get(process.env._ROUTE + '/cls/box/:id', (req, res) => {
     controllers.cableLandingStations.bbox(req.headers.user_id, req.params.id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.get('/cls/view/:id', (req, res) => {
+  router.get(process.env._ROUTE + '/cls/view/:id', (req, res) => {
     controllers.cableLandingStations.view(req.headers.user_id, req.params.id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
 
   // CABLES ---------------->
-  router.post('/auth/cables/add', (req, res) => {
+  router.post(process.env._ROUTE + '/auth/cables/add', (req, res) => {
     controllers.cables.add(req.headers.user_id, req.body)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.put('/auth/cables/edit', (req, res) => {
+  router.put(process.env._ROUTE + '/auth/cables/edit', (req, res) => {
     controllers.cables.edit(req.headers.user_id, req.body)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.get('/auth/cables/all', (req, res) => {
+  router.get(process.env._ROUTE + '/auth/cables/all', (req, res) => {
     controllers.cables.list(req.headers.user_id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.get('/auth/cables/shortlist', (req, res) => {
+  router.get(process.env._ROUTE + '/auth/cables/shortlist', (req, res) => {
     controllers.cables.shortList(req.headers.user_id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.delete('/auth/cables/delete/:id', (req, res) => {
+  router.delete(process.env._ROUTE + '/auth/cables/delete/:id', (req, res) => {
     controllers.cables.delete(req.headers.user_id, req.params.id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.get('/auth/cables/owner/:id', (req, res) => {
+  router.get(process.env._ROUTE + '/auth/cables/owner/:id', (req, res) => {
     controllers.cables.owner(req.headers.user_id, req.params.id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.get('/cables/box/:id', (req, res) => {
+  router.get(process.env._ROUTE + '/cables/box/:id', (req, res) => {
     controllers.cables.bbox(req.headers.user_id, req.params.id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.get('/cables/view/:id', (req, res) => {
+  router.get(process.env._ROUTE + '/cables/view/:id', (req, res) => {
     controllers.cables.view(req.headers.user_id, req.params.id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
   // KMZ to GEOJSON
-  router.post('/auth/kmz/lines/togeojson', (req, res) => {
+  router.post(process.env._ROUTE + '/auth/kmz/lines/togeojson', (req, res) => {
     controllers.convert.kmzToGeojsonLines(req.headers.user_id, req.body)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.post('/auth/kmz/points/togeojson', (req, res) => {
+  router.post(process.env._ROUTE + '/auth/kmz/points/togeojson', (req, res) => {
     controllers.convert.kmzToGeojsonPoints(req.headers.user_id, req.body)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
   // ALERTS ---------------->
-  router.post('/auth/alerts/add', (req, res) => {
+  router.post(process.env._ROUTE + '/auth/alerts/add', (req, res) => {
     // console.log((req.headers.authorization, req.headers.user_id));
     controllers.alerts.add(req.headers.user_id, req.body)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.patch('/auth/alerts/disabled', (req, res) => {
+  router.patch(process.env._ROUTE + '/auth/alerts/disabled', (req, res) => {
     // console.log((req.headers.authorization, req.headers.user_id));
     controllers.alerts.disabled(req.headers.user_id, req.body)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
   // Issuees ---------------->
-  router.post('/auth/issues/report', (req, res) => {
+  router.post(process.env._ROUTE + '/auth/issues/report', (req, res) => {
     // console.log(req.body)
     controllers.issues.addReport(req.headers.user_id, req.body)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.get('/auth/issues/reports', (req, res) => {
+  router.get(process.env._ROUTE + '/auth/issues/reports', (req, res) => {
     controllers.issues.reports(req.headers.user_id, req.query.page)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.get('/auth/issues/myreports', (req, res) => {
+  router.get(process.env._ROUTE + '/auth/issues/myreports', (req, res) => {
     controllers.issues.myReports(req.headers.user_id, req.query.page)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.get('/auth/issues/view/:elemnt/:id', (req, res) => {
+  router.get(process.env._ROUTE + '/auth/issues/view/:elemnt/:id', (req, res) => {
     controllers.issues.viewReport(req.headers.user_id, req.params.id, req.params.elemnt)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.delete('/auth/issues/delete/:id', (req, res) => {
+  router.delete(process.env._ROUTE + '/auth/issues/delete/:id', (req, res) => {
     controllers.issues.viewReport(req.headers.user_id, req.params.id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
@@ -312,38 +312,38 @@ const routes = function (router, controllers) {
   // Message ---------------->
 
   // Search ----------------->
-  router.get('/api/search/field', (req, res) => {
+  router.get(process.env._ROUTE + '/search/field', (req, res) => {
     controllers.searchs.byField(req.headers.user_id, req.query.s)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.get('/search/field/cables', (req, res) => {
+  router.get(process.env._ROUTE + '/search/field/cables', (req, res) => {
     controllers.searchs.byFieldCables(req.headers.user_id, req.query.s)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.get('/search/field/cls', (req, res) => {
+  router.get(process.env._ROUTE + '/search/field/cls', (req, res) => {
     controllers.searchs.byFieldCls(req.headers.user_id, req.query.s)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.get('/search/field/networks', (req, res) => {
+  router.get(process.env._ROUTE + '/search/field/networks', (req, res) => {
     controllers.searchs.byFieldNetworks(req.headers.user_id, req.query.s)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.get('/search/field/orgs', (req, res) => {
+  router.get(process.env._ROUTE + '/search/field/orgs', (req, res) => {
     controllers.searchs.byFieldOrgs(req.headers.user_id, req.query.s)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
   // UPLOADS ---------------->
-  router.post('/auth/upload/logo', (req, res) => {
+  router.post(process.env._ROUTE + '/auth/upload/logo', (req, res) => {
     controllers.uploads.logo(req.headers.user_id, req.body)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.post('/auth/upload/kmz', (req, res) => {
+  router.post(process.env._ROUTE + '/auth/upload/kmz', (req, res) => {
     controllers.uploads.kmz(req.headers.user_id, req.body)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
