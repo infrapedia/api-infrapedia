@@ -146,8 +146,8 @@ class CLS {
   bbox(user, id) {
     return new Promise((resolve, reject) => {
       try {
-        this.model().then((cables) => {
-          cables.aggregate([
+        this.model().then((cls) => {
+          cls.aggregate([
             {
               $match: {
                 _id: new ObjectID(id),
@@ -182,8 +182,8 @@ class CLS {
   view(user, id) {
     return new Promise((resolve, reject) => {
       try {
-        this.model().then((cables) => {
-          cables.aggregate([
+        this.model().then((cls) => {
+          cls.aggregate([
             {
               $match: {
                 _id: new ObjectID(id),
@@ -248,9 +248,14 @@ class CLS {
                     },
                   },
                   {
+                    $addFields: {
+                      norgs: { $size: '$idsorgs' },
+                    },
+                  },
+                  {
                     $match: {
                       $expr: {
-                        $in: ['$_id', { $arrayElemAt: ['$idsorgs', 0] }],
+                        $in: ['$_id', { $cond: { if: { $eq: ['$norgs', 0] }, then: [], else: { $arrayElemAt: ['$idsorgs', 0] } } }],
                       },
                     },
                   },
