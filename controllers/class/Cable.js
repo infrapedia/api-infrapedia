@@ -39,15 +39,15 @@ class Cable {
               cables.insertOne(data, (err, i) => {
                 console.log(err);
                 // TODO: validation insert
-                if (err) reject({ m: err });
+                if (err) reject({ m: err + 0 });
                 resolve({ m: 'Cable created' });
               });
             } else {
               reject({ m: 'You must send a validated geojson, lines or multilines' });
             }
-          }).catch((e) => reject({ m: e }));
+          }).catch((e) => reject({ m: e + 1 }));
         } else { resolve('Not user found'); }
-      } catch (e) { console.log(e); reject({ m: e }); }
+      } catch (e) { reject({ m: e + 2 }); }
     });
   }
 
