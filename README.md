@@ -15,6 +15,7 @@ App network:
         - Delete
         - View (owner)
         - view
+        - Search
     - Networks:
         - Add
         - Edit
@@ -22,6 +23,7 @@ App network:
         - Delete
         - View (owner)
         - view
+        - Search
     - CLS    
         - Add
         - Edit
@@ -29,6 +31,7 @@ App network:
         - Delete
         - View (owner)
         - view
+        - Search
     - Cables
         - Add
         - Edit
@@ -36,6 +39,7 @@ App network:
         - Delete
         - View (owner)
         - view  
+        - Search
     - Upload
         - Logos
         - KMZ
@@ -54,6 +58,7 @@ App network:
     - Messages
     - Search
         - By Field (Name or ID)
+        
 
 ## Documentation
 

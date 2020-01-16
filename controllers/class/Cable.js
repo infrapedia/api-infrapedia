@@ -22,10 +22,10 @@ class Cable {
               terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
               capacityTBPS: String(data.capacityTBPS),
               fiberPairs: String(data.fiberPairs),
-              notes: String(data.notes),
+              notes: '', //String(data.notes)
               category: String(data.category),
               facilities: await (data.facilities.length === 0 || data.facilities === '') ? [] : data.facilities.map((item) => new ObjectID(item)),
-              cls: await (data.cls.length === 0 || data.cls === '') ? [] : data.cls.map((item) => new ObjectID(item)),
+              // cls: await (data.cls.length === 0 || data.cls === '') ? [] : data.cls.map((item) => new ObjectID(item)),
               geom: (data.geom !== '') ? JSON.parse(data.geom) : {},
               rgDate: luxon.DateTime.utc(),
               uDate: luxon.DateTime.utc(),
@@ -60,7 +60,7 @@ class Cable {
               terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
               capacityTBPS: String(data.capacityTBPS),
               fiberPairs: String(data.fiberPairs),
-              notes: String(data.notes),
+              // notes: String(data.notes),
               category: String(data.category),
               facilities: await (data.facilities.length === 0 || data.facilities === '') ? [] : data.facilities.map((item) => new ObjectID(item)),
               cls: await (data.cls.length === 0 || data.cls === '') ? [] : data.cls.map((item) => new ObjectID(item)),
@@ -212,6 +212,31 @@ class Cable {
             resolve({ m: 'Loaded', r: c });
           });
         });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  search(user, search) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((cable) => {
+          cable.aggregate([
+            {
+              $match: { name: { $regex: search, $options: 'i' } },
+            },
+            { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', search] }, then: 1, else: 0 } } } },
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                yours: 1,
+              },
+            },
+            { $sort: { yours: -1 } },
+          ]).toArray((err, r) => {
+            resolve(r);
+          });
+        }).catch((e) => { reject({ m: e }); });
       } catch (e) { reject({ m: e }); }
     });
   }

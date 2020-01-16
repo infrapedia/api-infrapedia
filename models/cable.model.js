@@ -20,7 +20,7 @@ module.exports = function () {
               notes: { bsonType: 'string' },
               category: { bsonType: 'string' },
               facilities: { bsonType: 'array' }, // Array of object ID's
-              cls: { bsonType: 'array' }, // Array of object ID's
+              // cls: { bsonType: 'array' }, // Array of object ID's
               geometry: { bsonType: 'object' },
               rgDate: { bsonType: 'date' },
               uDate: { bsonType: 'date' },

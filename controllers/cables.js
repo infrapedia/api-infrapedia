@@ -10,4 +10,5 @@ module.exports = {
   owner: (usr, id) => Cable.owner(usr, id),
   bbox: (usr, id) => Cable.bbox(usr, id),
   view: (usr, id) => Cable.view(usr, id),
+  search: (usr, id) => Cable.search(usr, id),
 };
