@@ -35,16 +35,16 @@ class Cable {
               status: false,
               deleted: false,
             };
-            if (GJV.isMultiLineString(data.geom) || GJV.isLineString(data.geom)) {
-              cables.insertOne(data, (err, i) => {
-                console.log(err);
-                // TODO: validation insert
-                if (err) reject({ m: err + 0 });
-                resolve({ m: 'Cable created' });
-              });
-            } else {
-              reject({ m: 'You must send a validated geojson, lines or multilines' });
-            }
+            cables.insertOne(data, (err, i) => {
+              // TODO: validation insert
+              if (err) reject({ m: err + 0 });
+              resolve({ m: 'Cable created' });
+            });
+            // if (GJV.isMultiLineString(data.geom) || GJV.isLineString(data.geom)) {
+            //
+            // } else {
+            //   reject({ m: 'You must send a validated geojson, lines or multilines' });
+            // }
           }).catch((e) => reject({ m: e + 1 }));
         } else { resolve('Not user found'); }
       } catch (e) { reject({ m: e + 2 }); }
@@ -75,16 +75,17 @@ class Cable {
               uDate: luxon.DateTime.utc(),
             };
             // we're going to search if the user is the own of the cable
-            if (GJV.isMultiLineString(data.geom) || GJV.isLineString(data.geom)) {
-              cables.find({ _id: id, uuid: String(user) }).count((err, c) => {
+            cables.find({ _id: id, uuid: String(user) }).count((err, c) => {
+              if (err) reject({ m: err });
+              cables.updateOne({ _id: id, uuid: String(user) }, { $set: data }, (err, u) => {
                 if (err) reject({ m: err });
-                cables.updateOne({ _id: id, uuid: String(user) }, { $set: data }, (err, u) => {
-                  if (err) reject({ m: err });
-                  else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
-                  else resolve({ m: 'Loaded', r: data });
-                });
+                else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
+                else resolve({ m: 'Loaded', r: data });
               });
-            } else { reject({ m: 'You must send a validated geojson, lines or multilines' }); }
+            });
+            // if (GJV.isMultiLineString(data.geom) || GJV.isLineString(data.geom)) {
+            //
+            // } else { reject({ m: 'You must send a validated geojson, lines or multilines' }); }
           }).catch((e) => reject({ m: e }));
         } else { resolve('Not user found'); }
       } catch (e) { reject({ m: e }); }
