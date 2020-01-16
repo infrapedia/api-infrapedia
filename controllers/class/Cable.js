@@ -21,7 +21,7 @@ class Cable {
               name: String(data.name),
               systemLength: String(data.systemLength),
               activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
-              urls: (data.urls === '') ? [] : data.urls,
+              urls: (Array.isArray(data.urls)) ? [] : data.urls,
               terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
               capacityTBPS: String(data.capacityTBPS),
               fiberPairs: String(data.fiberPairs),

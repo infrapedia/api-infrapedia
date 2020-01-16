@@ -15,12 +15,12 @@ class Network {
             data = {
               uuid: String(user),
               name: String(data.name),
-              websites: await (data.websites === '') ? [] : data.websites,
-              organizations: await (data.organizations.length === 0) ? [] : data.organizations.map((item) => new ObjectID(item)),
-              facilities: await (data.facilities.length === 0) ? [] : data.facilities.map((item) => new ObjectID(item)),
-              ixps: await (data.ixps.length === 0) ? [] : data.ixps.map((item) => new ObjectID(item)),
-              cls: await (data.cls.length === 0) ? [] : data.cls.map((item) => new ObjectID(item)),
-              cables: await (data.cables.length === 0) ? [] : data.cables.map((item) => new ObjectID(item)),
+              websites: await (Array.isArray(data.websites)) ? [] : data.websites,
+              organizations: await (Array.isArray(data.organizations)) ? [] : data.organizations.map((item) => new ObjectID(item)),
+              facilities: await (Array.isArray(data.facilities)) ? [] : data.facilities.map((item) => new ObjectID(item)),
+              ixps: await (Array.isArray(data.ixps)) ? [] : data.ixps.map((item) => new ObjectID(item)),
+              cls: await (Array.isArray(data.cls)) ? [] : data.cls.map((item) => new ObjectID(item)),
+              cables: await (Array.isArray(data.cables)) ? [] : data.cables.map((item) => new ObjectID(item)),
               rgDate: luxon.DateTime.utc(),
               uDate: luxon.DateTime.utc(),
               status: false,
@@ -46,12 +46,12 @@ class Network {
             // TODO: check if exist another network with the same name
             data = {
               name: String(data.name),
-              websites: await (data.websites === '') ? [] : data.websites,
-              organizations: await (data.organizations.length === 0) ? [] : data.organizations.map((item) => new ObjectID(item)),
-              facilities: await (data.facilities.length === 0) ? [] : data.facilities.map((item) => new ObjectID(item)),
-              ixps: await (data.ixps.length === 0) ? [] : data.ixps.map((item) => new ObjectID(item)),
-              cls: await (data.cls.length === 0) ? [] : data.cls.map((item) => new ObjectID(item)),
-              cables: await (data.cables.length === 0) ? [] : data.cables.map((item) => new ObjectID(item)),
+              websites: await (Array.isArray(data.websites)) ? [] : data.websites,
+              organizations: await (Array.isArray(data.organizations)) ? [] : data.organizations.map((item) => new ObjectID(item)),
+              facilities: await (Array.isArray(data.facilities)) ? [] : data.facilities.map((item) => new ObjectID(item)),
+              ixps: await (Array.isArray(data.ixps)) ? [] : data.ixps.map((item) => new ObjectID(item)),
+              cls: await (Array.isArray(data.cls)) ? [] : data.cls.map((item) => new ObjectID(item)),
+              cables: await (Array.isArray(data.cables)) ? [] : data.cables.map((item) => new ObjectID(item)),
               uDate: luxon.DateTime.utc(),
             };
             network.updateOne({ _id: id, uuid: String(user) }, { $set: data }, (err, u) => {
