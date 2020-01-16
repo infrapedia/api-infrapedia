@@ -27,7 +27,7 @@ class Cable {
               fiberPairs: String(data.fiberPairs),
               notes: '', // String(data.notes)
               category: String(data.category),
-              facilities: await (data.facilities === '') ? [] : data.facilities.map((item) => new ObjectID(item)),
+              facilities: await (Array.isArray(data.facilities)) ? data.facilities.map((item) => new ObjectID(item)) : [],
               // cls: await (data.cls.length === 0 || data.cls === '') ? [] : data.cls.map((item) => new ObjectID(item)),
               geom: (data.geom !== '') ? JSON.parse(data.geom) : {},
               rgDate: luxon.DateTime.utc(),
@@ -69,7 +69,7 @@ class Cable {
               fiberPairs: String(data.fiberPairs),
               // notes: String(data.notes),
               category: String(data.category),
-              facilities: await (data.facilities === '') ? [] : data.facilities.map((item) => new ObjectID(item)),
+              facilities: await (Array.isArray(data.facilities)) ? data.facilities.map((item) => new ObjectID(item)) : [],
               // cls: await (data.cls.length === 0 || data.cls === '') ? [] : data.cls.map((item) => new ObjectID(item)),
               geom: (data.geom !== '') ? JSON.parse(data.geom) : {},
               uDate: luxon.DateTime.utc(),
