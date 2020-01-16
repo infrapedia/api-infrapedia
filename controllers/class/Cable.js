@@ -1,4 +1,7 @@
 const luxon = require('luxon');
+const GJV = require('geojson-validation');
+// const geojsonHint = require('@mapbox/geojsonhint');
+
 const { ObjectID } = require('mongodb');
 
 class Cable {
@@ -7,39 +10,43 @@ class Cable {
   }
 
   add(user, data) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       try {
-        if (user !== undefined || user !== '') {
-          this.model().then(async (cables) => {
-            // TODO: check if exist another network with the same name
-            const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
-            data = {
-              uuid: String(user),
-              name: String(data.name),
-              systemLength: String(data.systemLength),
-              activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
-              urls: (data.urls === '') ? [] : data.urls,
-              terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
-              capacityTBPS: String(data.capacityTBPS),
-              fiberPairs: String(data.fiberPairs),
-              notes: '', //String(data.notes)
-              category: String(data.category),
-              facilities: await (data.facilities.length === 0 || data.facilities === '') ? [] : data.facilities.map((item) => new ObjectID(item)),
-              // cls: await (data.cls.length === 0 || data.cls === '') ? [] : data.cls.map((item) => new ObjectID(item)),
-              geom: (data.geom !== '') ? JSON.parse(data.geom) : {},
-              rgDate: luxon.DateTime.utc(),
-              uDate: luxon.DateTime.utc(),
-              status: false,
-              deleted: false,
-            };
-            cables.insertOne(data, (err, i) => {
-              console.log(err);
-              // TODO: validation insert
-              if (err) reject({ m: err });
-              resolve({ m: 'Cable created' });
-            });
-          }).catch((e) => reject({ m: e }));
-        } else { resolve('Not user found'); }
+        if (GJV.isMultiLineString(data.geom) || GJV.isLineString(data.geom)) {
+          if (user !== undefined || user !== '') {
+            this.model().then(async (cables) => {
+              // TODO: check if exist another network with the same name
+              const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
+              data = {
+                uuid: String(user),
+                name: String(data.name),
+                systemLength: String(data.systemLength),
+                activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
+                urls: (data.urls === '') ? [] : data.urls,
+                terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
+                capacityTBPS: String(data.capacityTBPS),
+                fiberPairs: String(data.fiberPairs),
+                notes: '', //String(data.notes)
+                category: String(data.category),
+                facilities: await (data.facilities.length === 0 || data.facilities === '') ? [] : data.facilities.map((item) => new ObjectID(item)),
+                // cls: await (data.cls.length === 0 || data.cls === '') ? [] : data.cls.map((item) => new ObjectID(item)),
+                geom: (data.geom !== '') ? JSON.parse(data.geom) : {},
+                rgDate: luxon.DateTime.utc(),
+                uDate: luxon.DateTime.utc(),
+                status: false,
+                deleted: false,
+              };
+              cables.insertOne(data, (err, i) => {
+                console.log(err);
+                // TODO: validation insert
+                if (err) reject({ m: err });
+                resolve({ m: 'Cable created' });
+              });
+            }).catch((e) => reject({ m: e }));
+          } else { resolve('Not user found'); }
+        } else {
+          reject({ m: 'You must send a validated geojson, lines or multilineas' });
+        }
       } catch (e) { console.log(e); reject({ m: e }); }
     });
   }
@@ -47,37 +54,39 @@ class Cable {
   edit(user, data) {
     return new Promise((resolve, reject) => {
       try {
-        if (user !== undefined || user !== '') {
-          this.model().then(async (cables) => {
-            const id = new ObjectID(data._id);
-            const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
-            data = {
-              uuid: String(user),
-              name: String(data.name),
-              systemLength: String(data.systemLength),
-              activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
-              urls: (data.urls === '') ? [] : data.urls,
-              terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
-              capacityTBPS: String(data.capacityTBPS),
-              fiberPairs: String(data.fiberPairs),
-              // notes: String(data.notes),
-              category: String(data.category),
-              facilities: await (data.facilities.length === 0 || data.facilities === '') ? [] : data.facilities.map((item) => new ObjectID(item)),
-              cls: await (data.cls.length === 0 || data.cls === '') ? [] : data.cls.map((item) => new ObjectID(item)),
-              geom: (data.geom !== '') ? JSON.parse(data.geom) : {},
-              uDate: luxon.DateTime.utc(),
-            };
-            // we're going to search if the user is the own of the cable
-            cables.find({ _id: id, uuid: String(user) }).count((err, c) => {
-              if (err) reject({ m: err });
-              cables.updateOne({ _id: id, uuid: String(user) }, { $set: data }, (err, u) => {
+        if (GJV.isMultiLineString(data.geom) || GJV.isLineString(data.geom)) {
+          if (user !== undefined || user !== '') {
+            this.model().then(async (cables) => {
+              const id = new ObjectID(data._id);
+              const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
+              data = {
+                uuid: String(user),
+                name: String(data.name),
+                systemLength: String(data.systemLength),
+                activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
+                urls: (data.urls === '') ? [] : data.urls,
+                terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
+                capacityTBPS: String(data.capacityTBPS),
+                fiberPairs: String(data.fiberPairs),
+                // notes: String(data.notes),
+                category: String(data.category),
+                facilities: await (data.facilities.length === 0 || data.facilities === '') ? [] : data.facilities.map((item) => new ObjectID(item)),
+                // cls: await (data.cls.length === 0 || data.cls === '') ? [] : data.cls.map((item) => new ObjectID(item)),
+                geom: (data.geom !== '') ? JSON.parse(data.geom) : {},
+                uDate: luxon.DateTime.utc(),
+              };
+              // we're going to search if the user is the own of the cable
+              cables.find({ _id: id, uuid: String(user) }).count((err, c) => {
                 if (err) reject({ m: err });
-                else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
-                else resolve({ m: 'Loaded', r: data });
+                cables.updateOne({ _id: id, uuid: String(user) }, { $set: data }, (err, u) => {
+                  if (err) reject({ m: err });
+                  else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
+                  else resolve({ m: 'Loaded', r: data });
+                });
               });
-            });
-          }).catch((e) => reject({ m: e }));
-        } else { resolve('Not user found'); }
+            }).catch((e) => reject({ m: e }));
+          } else { resolve('Not user found'); }
+        } else { reject({ m: 'You must send a validated geojson, lines or multilines' }); }
       } catch (e) { reject({ m: e }); }
     });
   }
