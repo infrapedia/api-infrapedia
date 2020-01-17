@@ -140,7 +140,7 @@ class Network {
             {
               $match: { name: { $regex: search, $options: 'i' } },
             },
-            { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', search] }, then: 1, else: 0 } } } },
+            { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {
               $project: {
                 _id: 1,
