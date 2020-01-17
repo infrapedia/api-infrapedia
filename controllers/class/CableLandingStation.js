@@ -18,7 +18,7 @@ class CLS {
               state: data.state,
               slug: data.slug,
               geom: (data.geom !== '') ? JSON.parse(data.geom) : {},
-              cables: await (Array.isArray(data.cables)) ? [] : data.cables.map((item) => new ObjectID(item)),
+              cables: await (Array.isArray(data.cables)) ? data.cables.map((item) => new ObjectID(item)) : [],
               rgDate: luxon.DateTime.utc(),
               uDate: luxon.DateTime.utc(),
               status: false,
@@ -57,7 +57,7 @@ class CLS {
                 state: data.state,
                 slug: data.slug,
                 geom: (data.geom !== '') ? JSON.parse(data.geom) : {},
-                cables: await (Array.isArray(data.cables)) ? [] : data.cables.map((item) => new ObjectID(item)),
+                cables: await (Array.isArray(data.cables)) ? data.cables.map((item) => new ObjectID(item)) : [],
                 uDate: luxon.DateTime.utc(),
               };
               cls.updateOne(
