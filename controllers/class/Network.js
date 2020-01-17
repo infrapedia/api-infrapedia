@@ -187,9 +187,9 @@ class Network {
                   {
                     $project: {
                       _id: 1,
-                      name: 1
-                    }
-                  }
+                      name: 1,
+                    },
+                  },
                 ],
                 as: 'orgs',
               },
@@ -214,9 +214,9 @@ class Network {
                   {
                     $project: {
                       _id: 1,
-                      name: 1
-                    }
-                  }
+                      name: 1,
+                    },
+                  },
                 ],
                 as: 'cables',
               },
@@ -241,9 +241,9 @@ class Network {
                   {
                     $project: {
                       _id: 1,
-                      name: 1
-                    }
-                  }
+                      name: 1,
+                    },
+                  },
                 ],
                 as: 'cls',
               },
@@ -252,9 +252,9 @@ class Network {
               $project: {
                 uuid: 0,
                 status: 0,
-                deleted: 0
-              }
-            }
+                deleted: 0,
+              },
+            },
           ]).toArray((err, c) => {
             if (err) reject(err);
             resolve({ m: 'Loaded', r: c });
