@@ -23,13 +23,13 @@ const routes = function (router, controllers) {
   // Response information
 
   const response = {
-    success: (res, answ) => {
+    success: (res, answ, n) => {
       res.set(
         {
           'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Max-Age': 600, 'X-Powered-By': 'Infrapedia.com', 'X-Auth-Token': (answ.session) ? answ.session : 'Infrapedia',
         },
       );
-      res.status(200).json({ t: 'success', data: answ });
+      res.status(200).json({ t: 'success', data: answ, n });
     },
     err: (res, answ) => {
       // let msgError = answ.msg.split('|');
@@ -123,7 +123,7 @@ const routes = function (router, controllers) {
   });
   router.get(`${process.env._ROUTE}/auth/organization/all`, (req, res) => {
     controllers.organizations.list(req.headers.user_id)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
   router.delete(`${process.env._ROUTE}/auth/organization/delete/:id`, (req, res) => {
@@ -133,17 +133,17 @@ const routes = function (router, controllers) {
   });
   router.get(`${process.env._ROUTE}/auth/organization/owner/:id`, (req, res) => {
     controllers.organizations.owner(req.headers.user_id, req.params.id)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
   router.get(`${process.env._ROUTE}/organization/view/:id`, (req, res) => {
     controllers.organizations.view(req.headers.user_id, req.params.id)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
   router.get(`${process.env._ROUTE}/organization/search`, (req, res) => {
     controllers.organizations.search(req.headers.user_id, req.query.s)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
   // NETWORKS ---------------->
@@ -160,7 +160,7 @@ const routes = function (router, controllers) {
   });
   router.get(`${process.env._ROUTE}/auth/network/all`, (req, res) => {
     controllers.networks.list(req.headers.user_id)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
 
@@ -171,18 +171,18 @@ const routes = function (router, controllers) {
   });
   router.get(`${process.env._ROUTE}/auth/network/owner/:id`, (req, res) => {
     controllers.networks.owner(req.headers.user_id, req.params.id)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
 
   router.get(`${process.env._ROUTE}/network/view/:id`, (req, res) => {
     controllers.networks.view(req.headers.user_id, req.params.id)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
   router.get(`${process.env._ROUTE}/network/search`, (req, res) => {
     controllers.networks.search(req.headers.user_id, req.query.s)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
   // CLS ---------------->
@@ -199,7 +199,7 @@ const routes = function (router, controllers) {
   });
   router.get(`${process.env._ROUTE}/auth/cls/all`, (req, res) => {
     controllers.cableLandingStations.list(req.headers.user_id)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
 
@@ -211,23 +211,23 @@ const routes = function (router, controllers) {
 
   router.get(`${process.env._ROUTE}/auth/cls/owner/:id`, (req, res) => {
     controllers.cableLandingStations.owner(req.headers.user_id, req.params.id)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
 
   router.get(`${process.env._ROUTE}/cls/box/:id`, (req, res) => {
     controllers.cableLandingStations.bbox(req.headers.user_id, req.params.id)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
   router.get(`${process.env._ROUTE}/cls/view/:id`, (req, res) => {
     controllers.cableLandingStations.view(req.headers.user_id, req.params.id)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
   router.get(`${process.env._ROUTE}/cls/search`, (req, res) => {
     controllers.cableLandingStations.search(req.headers.user_id, req.query.s)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
 
@@ -244,12 +244,12 @@ const routes = function (router, controllers) {
   });
   router.get(`${process.env._ROUTE}/auth/cables/all`, (req, res) => {
     controllers.cables.list(req.headers.user_id)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
   router.get(`${process.env._ROUTE}/auth/cables/shortlist`, (req, res) => {
     controllers.cables.shortList(req.headers.user_id)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
   router.delete(`${process.env._ROUTE}/auth/cables/delete/:id`, (req, res) => {
@@ -259,22 +259,22 @@ const routes = function (router, controllers) {
   });
   router.get(`${process.env._ROUTE}/auth/cables/owner/:id`, (req, res) => {
     controllers.cables.owner(req.headers.user_id, req.params.id)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
   router.get(`${process.env._ROUTE}/cables/box/:id`, (req, res) => {
     controllers.cables.bbox(req.headers.user_id, req.params.id)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
   router.get(`${process.env._ROUTE}/cables/view/:id`, (req, res) => {
     controllers.cables.view(req.headers.user_id, req.params.id)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
   router.get(`${process.env._ROUTE}/cables/search`, (req, res) => {
     controllers.cables.search(req.headers.user_id, req.query.s)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
   // KMZ to GEOJSON
@@ -310,17 +310,17 @@ const routes = function (router, controllers) {
   });
   router.get(`${process.env._ROUTE}/auth/issues/reports`, (req, res) => {
     controllers.issues.reports(req.headers.user_id, req.query.page)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
   router.get(`${process.env._ROUTE}/auth/issues/myreports`, (req, res) => {
     controllers.issues.myReports(req.headers.user_id, req.query.page)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
   router.get(`${process.env._ROUTE}/auth/issues/view/:elemnt/:id`, (req, res) => {
     controllers.issues.viewReport(req.headers.user_id, req.params.id, req.params.elemnt)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
   router.delete(`${process.env._ROUTE}/auth/issues/delete/:id`, (req, res) => {
@@ -334,27 +334,27 @@ const routes = function (router, controllers) {
   // Search ----------------->
   router.get(`${process.env._ROUTE}/search/field`, (req, res) => {
     controllers.searchs.byField(req.headers.user_id, req.query.s)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
   router.get(`${process.env._ROUTE}/search/field/cables`, (req, res) => {
     controllers.searchs.byFieldCables(req.headers.user_id, req.query.s)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
   router.get(`${process.env._ROUTE}/search/field/cls`, (req, res) => {
     controllers.searchs.byFieldCls(req.headers.user_id, req.query.s)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
   router.get(`${process.env._ROUTE}/search/field/networks`, (req, res) => {
     controllers.searchs.byFieldNetworks(req.headers.user_id, req.query.s)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
   router.get(`${process.env._ROUTE}/search/field/orgs`, (req, res) => {
     controllers.searchs.byFieldOrgs(req.headers.user_id, req.query.s)
-      .then((r) => { response.success(res, r); })
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
   // UPLOADS ---------------->
