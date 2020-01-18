@@ -272,7 +272,8 @@ class Issue {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
-          Promise.all([this.CableLandingStations(user, page), this.Cables(user, page)]).then((r) => {
+          Promise.all([this.CableLandingStations(user, page), this.Cables(user, page)]).then(async (r) => {
+            r = await r.reduce((total, value) => total.concat(value), []);
             resolve({ m: 'loaded', r });
           }).catch((e) => { reject({ m: e }); });
         } else { resolve('Not user found'); }
@@ -283,7 +284,8 @@ class Issue {
   myReports(user, page) {
     return new Promise((resolve, reject) => {
       try {
-        Promise.all([this.myReportsCLS(user, page), this.myReportsCables(user, page)]).then((r) => {
+        Promise.all([this.myReportsCLS(user, page), this.myReportsCables(user, page)]).then(async (r) => {
+          r = await r.reduce((total, value) => total.concat(value), []);
           resolve({ m: 'loaded', r });
         }).catch((e) => { reject({ m: e }); });
       } catch (e) { reject({ m: e }); }
