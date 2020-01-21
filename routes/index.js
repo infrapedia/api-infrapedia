@@ -273,8 +273,15 @@ const routes = function (router, controllers) {
       .catch((e) => { response.err(res, e); });
   });
   router.get(`${process.env._ROUTE}/cables/search`, (req, res) => {
-    console.log(req.headers.user_id)
+    console.log(req.headers.user_id);
     controllers.cables.search(req.headers.user_id, req.query.s)
+      .then((r) => { response.success(res, r, false); })
+      .catch((e) => { response.err(res, e); });
+  });
+
+  // FACILITIES --->
+  router.get(`${process.env._ROUTE}/facilities/transfer`, (req, res) => {
+    controllers.facilities.transferFacilities()
       .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
