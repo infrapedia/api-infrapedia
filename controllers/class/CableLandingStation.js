@@ -297,6 +297,21 @@ class CLS {
               },
             },
             {
+              $lookup: {
+                from: 'alerts',
+                let: { elemnt: { $toString: '$_id' } },
+                pipeline: [
+                  {
+                    $match: { $and: [{ $expr: { elemnt: '$$elemnt' } }, { t: 'cls' }, { uuid: user }, { disabled: false }] },
+                  },
+                ],
+                as: 'alert',
+              },
+            },
+            {
+              $addFields: { alert: { $size: '$alert' } },
+            },
+            {
               $project: {
                 _id: 0,
                 uuid: 0,
