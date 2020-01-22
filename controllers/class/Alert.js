@@ -68,28 +68,72 @@ class Alert {
   }
 
 
-  cables(id){
+  cables(){
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((cables) => {
+          cables.aggregate([
+
+          ]).toArray((err, c) => {
+
+          });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+  cls(){
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((cables) => {
+          cables.aggregate([
+
+          ]).toArray((err, c) => {
+
+          });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+  orgs(){
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((cables) => {
+          cables.aggregate([
+
+          ]).toArray((err, c) => {
+
+          });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+  facilities(){
 
   }
-  cls(id){
+
+  ixps(){
 
   }
-  orgs(id){
+  network(){
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((cables) => {
+          cables.aggregate([
 
-  }
-  facilities(id){
+          ]).toArray((err, c) => {
 
-  }
-  network(id){
-
+          });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
   }
 
   configuredAlerts(user, data){
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
-          this.model().then((alerts) => {
-
+          Promise.all([this.cables(), this.cls(), this.network(), this.orgs()]).then(async (notifications) => {
+            resolve(await notifications.reduce((total, value) => total.concat(value), []));
           }).catch((e) => { reject({ m: e }); });
         } else { resolve('Not user found'); }
       } catch (e) { reject({ m: e }); }
