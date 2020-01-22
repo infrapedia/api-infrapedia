@@ -322,7 +322,14 @@ class Cable {
                   {
                     $match: {
                       $expr: {
-                        $in: ['$_id', { $arrayElemAt: ['$idsorgs', 0] }],
+                        $in: ['$_id', {
+                          $cond: {
+                            if: { $isArray: { $arrayElemAt: ['$idsorgs', 0] } },
+                            then: { $arrayElemAt: ['$idsorgs', 0] },
+                            else: [],
+                          },
+                        },
+                        ],
                       },
                     },
                   },
