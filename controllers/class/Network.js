@@ -249,6 +249,21 @@ class Network {
               },
             },
             {
+              $lookup: {
+                from: 'alerts',
+                let: { elemnt: { $toString: '$_id' } },
+                pipeline: [
+                  {
+                    $match: { $and: [{ $expr: { elemnt: '$$elemnt' } }, { t: 'networkc' }, { uuid: user }, { disabled: false }] },
+                  },
+                ],
+                as: 'alert',
+              },
+            },
+            {
+              $addFields: { alert: { $size: '$alert' } },
+            },
+            {
               $project: {
                 uuid: 0,
                 status: 0,

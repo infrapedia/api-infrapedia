@@ -7,6 +7,12 @@ class Organization {
     this.model = require('../../models/organization.model');
   }
 
+  transfer(user, data) {
+    return new Promise((resolve, reject) => {
+
+    });
+  }
+
   add(user, data) {
     return new Promise((resolve, reject) => {
       try {
@@ -240,9 +246,9 @@ class Organization {
                         {
                           $project: {
                             _id: 1,
-                            name: 1
-                          }
-                        }
+                            name: 1,
+                          },
+                        },
                       ],
                       as: 'cables',
                     },
@@ -279,12 +285,27 @@ class Organization {
                       _id: 1,
                       name: 1,
                       cls: 1,
-                      cables: 1
-                    }
-                  }
+                      cables: 1,
+                    },
+                  },
                 ],
-                as: 'networks'
-              }
+                as: 'networks',
+              },
+            },
+            {
+              $lookup: {
+                from: 'alerts',
+                let: { elemnt: { $toString: '$_id' } },
+                pipeline: [
+                  {
+                    $match: { $and: [{ $expr: { elemnt: '$$elemnt' } }, { t: 'organization' }, { uuid: user }, { disabled: false }] },
+                  },
+                ],
+                as: 'alert',
+              },
+            },
+            {
+              $addFields: { alert: { $size: '$alert' } },
             },
             {
               $project: {
