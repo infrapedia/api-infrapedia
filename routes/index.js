@@ -309,6 +309,11 @@ const routes = function (router, controllers) {
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
+  router.post(`${process.env._ROUTE}/auth/alerts/config/provider`, (req, res) => {
+    controllers.alertsProviders.configProvider(req.headers.user_id, req.body)
+      .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
   // Issuees ---------------->
   router.post(`${process.env._ROUTE}/auth/issues/report`, (req, res) => {
     // console.log(req.body)
