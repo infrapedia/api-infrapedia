@@ -49,6 +49,8 @@ App network:
     - Alerts
         - Sign up in alerts
         - Disabled alerts
+        - Providers:
+            - Email
     - Issues
         - Report issue
         - Reports of my elements
@@ -58,7 +60,6 @@ App network:
     - Messages
     - Search
         - By Field (Name or ID)
-        
 
 ## Documentation
 
