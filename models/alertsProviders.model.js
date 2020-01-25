@@ -10,6 +10,7 @@ module.exports = function () {
             required: ['uuid'],
             properties: {
               uuid: { bsonType: 'string' },
+              t: { bsonType: 'string' },
               provider: { bsonType: 'string' }, //Smt, Mandrill, Sendgrid, Mailgun
               options: { bsonType: 'object' },
               rgDate: { bsonType: 'date' },

@@ -309,9 +309,14 @@ const routes = function (router, controllers) {
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
-  router.post(`${process.env._ROUTE}/auth/alerts/config/provider`, (req, res) => {
-    controllers.alertsProviders.configProvider(req.headers.user_id, req.body)
+  router.post(`${process.env._ROUTE}/auth/alerts/config/provider/email`, (req, res) => {
+    controllers.alertsProviders.configProviderEmail(req.headers.user_id, req.body)
       .then((r) => { response.success(res, r); })
+      .catch((e) => { response.err(res, e); });
+  });
+  router.get(`${process.env._ROUTE}/auth/alerts/provider/email`, (req, res) => {
+    controllers.alertsProviders.getEmailProvider(req.headers.user_id)
+      .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
   // Issuees ---------------->
