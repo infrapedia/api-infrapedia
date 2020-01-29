@@ -254,7 +254,7 @@ class Network {
                 let: { elemnt: { $toString: '$_id' } },
                 pipeline: [
                   {
-                    $match: { $and: [{ $expr: { elemnt: '$$elemnt' } }, { t: 'network' }, { uuid: user }, { disabled: false }] },
+                    $match: { $and: [{ $expr: { elemnt: '$$elemnt' } }, { t: '6' }, { uuid: user }, { disabled: false }] },
                   },
                 ],
                 as: 'alert',

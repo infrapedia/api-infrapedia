@@ -349,7 +349,7 @@ class Cable {
                 let: { elemnt: { $toString: '$_id' } },
                 pipeline: [
                   {
-                    $match: { $and: [{ $expr: { elemnt: '$$elemnt' } }, { t: 'cable' }, { uuid: user }, { disabled: false }] },
+                    $match: { $and: [{ $expr: { elemnt: '$$elemnt' } }, { t: '1' }, { uuid: user }, { disabled: false }] },
                   },
                 ],
                 as: 'alert',

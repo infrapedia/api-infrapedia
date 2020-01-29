@@ -76,7 +76,7 @@ class Alert {
           const limit = 50;
           alert.aggregate([{
             $match: {
-              $and: [{ uuid: user }, { t: 1 }],
+              $and: [{ uuid: user }, { t: '1' }],
             },
           },
           {
@@ -91,7 +91,6 @@ class Alert {
           },
           {
             $project: {
-              _idAlert: '$_id',
               _idElement: { $arrayElemAt: ['$elemnt_id._id', 0] },
               name: { $arrayElemAt: ['$elemnt_id.name', 0] },
               status: { $arrayElemAt: ['$elemnt_id.status', 0] },
@@ -115,7 +114,7 @@ class Alert {
           const limit = 50;
           alert.aggregate([{
             $match: {
-              $and: [{ uuid: user }, { t: 2 }],
+              $and: [{ uuid: user }, { t: '2' }],
             },
           },
           {
@@ -130,7 +129,6 @@ class Alert {
           },
           {
             $project: {
-              _idAlert: '$_id',
               _idElement: { $arrayElemAt: ['$elemnt_id._id', 0] },
               name: { $arrayElemAt: ['$elemnt_id.name', 0] },
               status: { $arrayElemAt: ['$elemnt_id.status', 0] },
@@ -154,7 +152,7 @@ class Alert {
           const limit = 50;
           alert.aggregate([{
             $match: {
-              $and: [{ uuid: user }, { t: 3 }],
+              $and: [{ uuid: user }, { t: '3' }],
             },
           },
           {
@@ -169,7 +167,6 @@ class Alert {
           },
           {
             $project: {
-              _idAlert: '$_id',
               _idElement: { $arrayElemAt: ['$elemnt_id._id', 0] },
               name: { $arrayElemAt: ['$elemnt_id.name', 0] },
               status: { $arrayElemAt: ['$elemnt_id.status', 0] },
@@ -193,7 +190,7 @@ class Alert {
           const limit = 50;
           alert.aggregate([{
             $match: {
-              $and: [{ uuid: user }, { t: 4 }],
+              $and: [{ uuid: user }, { t: '4' }],
             },
           },
           {
@@ -208,7 +205,6 @@ class Alert {
           },
           {
             $project: {
-              _idAlert: '$_id',
               _idElement: { $arrayElemAt: ['$elemnt_id._id', 0] },
               name: { $arrayElemAt: ['$elemnt_id.name', 0] },
               status: { $arrayElemAt: ['$elemnt_id.status', 0] },
@@ -232,7 +228,7 @@ class Alert {
           const limit = 50;
           alert.aggregate([{
             $match: {
-              $and: [{ uuid: user }, { t: 6 }],
+              $and: [{ uuid: user }, { t: '6' }],
             },
           },
           {
@@ -247,7 +243,6 @@ class Alert {
           },
           {
             $project: {
-              _idAlert: '$_id',
               _idElement: { $arrayElemAt: ['$elemnt_id._id', 0] },
               name: { $arrayElemAt: ['$elemnt_id.name', 0] },
               status: { $arrayElemAt: ['$elemnt_id.status', 0] },
@@ -271,7 +266,7 @@ class Alert {
           const limit = 50;
           alert.aggregate([{
             $match: {
-              $and: [{ uuid: user }, { t: 7 }],
+              $and: [{ uuid: user }, { t: '7' }],
             },
           },
           {
@@ -286,7 +281,6 @@ class Alert {
           },
           {
             $project: {
-              _idAlert: '$_id',
               _idElement: { $arrayElemAt: ['$elemnt_id._id', 0] },
               name: { $arrayElemAt: ['$elemnt_id.name', 0] },
               status: { $arrayElemAt: ['$elemnt_id.status', 0] },
@@ -306,7 +300,7 @@ class Alert {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
-          Promise.all([this.cables(user, page)]).then(async (notifications) => {
+          Promise.all([this.cables(user, page), this.cls(user, page), this.networks(user, page), this.orgs(user, page)]).then(async (notifications) => {
             resolve(await notifications.reduce((total, value) => total.concat(value), []));
           }).catch((e) => { reject({ m: e }); });
         } else { resolve('Not user found'); }

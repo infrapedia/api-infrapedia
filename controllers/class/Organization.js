@@ -298,7 +298,7 @@ class Organization {
                 let: { elemnt: { $toString: '$_id' } },
                 pipeline: [
                   {
-                    $match: { $and: [{ $expr: { elemnt: '$$elemnt' } }, { t: 'organization' }, { uuid: user }, { disabled: false }] },
+                    $match: { $and: [{ $expr: { elemnt: '$$elemnt' } }, { t: '7' }, { uuid: user }, { disabled: false }] },
                   },
                 ],
                 as: 'alert',

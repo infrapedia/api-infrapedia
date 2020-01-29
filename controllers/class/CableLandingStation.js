@@ -302,7 +302,7 @@ class CLS {
                 let: { elemnt: { $toString: '$_id' } },
                 pipeline: [
                   {
-                    $match: { $and: [{ $expr: { elemnt: '$$elemnt' } }, { t: 'cls' }, { uuid: user }, { disabled: false }] },
+                    $match: { $and: [{ $expr: { elemnt: '$$elemnt' } }, { t: '2' }, { uuid: user }, { disabled: false }] },
                   },
                 ],
                 as: 'alert',

@@ -311,7 +311,7 @@ const routes = function (router, controllers) {
   });
   router.get(`${process.env._ROUTE}/auth/alerts/configured`, (req, res) => {
     // console.log((req.headers.authorization, req.headers.user_id));
-    controllers.alerts.add(req.headers.user_id, req.query.page)
+    controllers.alerts.configuredAlerts(req.headers.user_id, req.query.page)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
