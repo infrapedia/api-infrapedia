@@ -34,9 +34,9 @@ module.exports = function () {
 
             },
           },
+          validationLevel: 'off',
+          validationAction: 'warn',
         },
-        validationLevel: 'off',
-        validationAction: 'warn',
       }).then((organization) => { resolve(organization); }).catch((err) => {
       reject(err);
     });

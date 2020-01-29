@@ -17,6 +17,8 @@ module.exports = function () {
               uDate: { bsonType: 'date' },
             },
           },
+          validationLevel: 'off',
+          validationAction: 'warn',
         },
       }).then((network) => { resolve(network); }).catch((err) => {
       reject(err);

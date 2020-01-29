@@ -23,6 +23,8 @@ module.exports = function () {
               deleted: { bsonType: 'bool' },
             },
           },
+          validationLevel: 'off',
+          validationAction: 'warn',
         },
       }).then((network) => { resolve(network); }).catch((err) => {
       reject(err);

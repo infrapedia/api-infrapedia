@@ -37,27 +37,14 @@ class Issue {
     });
   }
 
-  // ownerList(user) {
-  //   return new Promise((resolve, reject) => {
-  //     try {
-  //       if (user !== undefined || user !== '') {
-  //         /*
-  //          * Debemos buscar segun la lista del propietario, cuales son los
-  //          * cables, CableLandingStation, Facilities, Ixps que tienen problemas
-  //          */
-  //       } else { resolve('Not user found'); }
-  //     } catch (e) { reject({ m: e }); }
-  //   });
-  // }
-
   Cables(user, page) {
     return new Promise((resolve, reject) => {
       try {
         this.model = require('../../models/cable.model');
-        this.model().then((cls) => {
+        this.model().then((cable) => {
           page = (parseInt(page) < 1) ? 1 : parseInt(page);
           const limit = 50;
-          cls.aggregate([
+          cable.aggregate([
             { $match: { uuid: String(user) } },
             { $sort: { uDate: -1 } },
             {
@@ -153,11 +140,9 @@ class Issue {
     } catch (e) { reject({ m: e }); }
   }
 
-  Networks() {
-  }
+  Networks() {}
 
-  Organization() {
-  }
+  Organization() {}
 
   myReportsCLS(user, page) {
     return new Promise((resolve, reject) => {
@@ -321,19 +306,6 @@ class Issue {
                 idReport: '$_id',
               },
             },
-            // {
-            //   $project: {
-            //     _id: 1,
-            //     name: 1,
-            //     elemntStatus: 1,
-            //     rgDate: 1,
-            //     uDate: 1,
-            //     status: 1,
-            //     viewed: 1,
-            //     idReport: 1,
-            //     t: 'Cable',
-            //   },
-            // },
           ]).toArray((err, r) => {
             resolve(r);
           });
@@ -371,19 +343,6 @@ class Issue {
                 idReport: '$_id',
               },
             },
-            // {
-            //   $project: {
-            //     _id: 1,
-            //     name: 1,
-            //     elemntStatus: 1,
-            //     rgDate: 1,
-            //     uDate: 1,
-            //     status: 1,
-            //     viewed: 1,
-            //     idReport: 1,
-            //     t: 'Cable',
-            //   },
-            // },
           ]).toArray((err, r) => {
             issues.updateOne({ _id: new ObjectID(id) }, { $set: { viewed: true } }, (err, u) => {
               resolve(r);
@@ -393,7 +352,6 @@ class Issue {
       } catch (e) { reject({ m: e }); }
     });
   }
-
 
   viewReport(user, id, elemnt) {
     return new Promise((resolve, reject) => {

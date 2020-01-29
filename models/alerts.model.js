@@ -19,6 +19,8 @@ module.exports = function () {
               disabled: { bsonType: 'bool' },
             },
           },
+          validationLevel: 'off',
+          validationAction: 'warn',
         },
       }).then((network) => { resolve(network); }).catch((err) => {
       reject(err);

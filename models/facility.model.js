@@ -10,6 +10,7 @@ module.exports = function () {
             required: ['uuid '],
             properties: {
               uuid: { bsonType: 'string' },
+              fac_id: { bsonType: 'string' },
               name: { bsonType: 'string' },
               point: { bsonType: 'object' },
               address: {
@@ -31,6 +32,8 @@ module.exports = function () {
               status: { bsonType: 'bool' },
             },
           },
+          validationLevel: 'off',
+          validationAction: 'warn',
         },
       }).then((network) => { resolve(network); }).catch((err) => {
       reject(err);
