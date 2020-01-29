@@ -76,7 +76,24 @@ class Network {
                   { deleted: false },
                 ],
               },
-            }, {
+            },
+            {
+              $lookup: {
+                from: 'alerts',
+                let: { elemnt: { $toString: '$_id' } },
+                pipeline: [
+                  {
+                    $match: { $expr: { $and: [{ $eq: ['$elemnt', '$$elemnt'] }] } },
+                  },
+                  { $count: 'elmnt' },
+                ],
+                as: 'alerts',
+              },
+            },
+            {
+              $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
+            },
+            {
               $project: {
                 uuid: 0,
               },
@@ -94,7 +111,7 @@ class Network {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
-          this.model().then( (network) => {
+          this.model().then((network) => {
             id = new ObjectID(id);
             // we need to validate if  don't have another organization with the same name
             network.find({ _id: id }).count((err, c) => {
@@ -110,7 +127,7 @@ class Network {
                 );
               }
             });
-          }).catch((e) =>reject({ m: e }));
+          }).catch((e) => reject({ m: e }));
         } else { resolve({ m: 'Not user found' }); }
       } catch (e) { reject({ m: 'error2' }); }
     });

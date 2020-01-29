@@ -104,7 +104,24 @@ class Cable {
                   { deleted: false },
                 ],
               },
-            }, {
+            },
+            {
+              $lookup: {
+                from: 'alerts',
+                let: { elemnt: { $toString: '$_id' } },
+                pipeline: [
+                  {
+                    $match: { $expr: { $and: [{ $eq: ['$elemnt', '$$elemnt'] }] } },
+                  },
+                  { $count: 'elmnt' },
+                ],
+                as: 'alerts',
+              },
+            },
+            {
+              $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
+            },
+            {
               $project: {
                 uuid: 0,
                 geom: 0,
