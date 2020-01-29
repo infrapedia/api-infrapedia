@@ -273,9 +273,9 @@ class Organization {
                         {
                           $project: {
                             _id: 1,
-                            name: 1
-                          }
-                        }
+                            name: 1,
+                          },
+                        },
                       ],
                       as: 'cls',
                     },
