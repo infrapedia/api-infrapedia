@@ -289,7 +289,7 @@ class Issue {
             {
               $lookup: {
                 from: 'cables',
-                localField: 'elemnt_id',
+                localField: 'elemnt',
                 foreignField: '_id',
                 as: 'elemnt_id',
               },
@@ -326,7 +326,7 @@ class Issue {
             {
               $lookup: {
                 from: 'cls',
-                localField: 'elemnt_id',
+                localField: 'elemnt',
                 foreignField: '_id',
                 as: 'elemnt_id',
               },
