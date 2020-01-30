@@ -86,7 +86,6 @@ class Issue {
       } catch (e) { reject({ m: e }); }
     });
   }
-
   CableLandingStations(user, page) {
     return new Promise((resolve, reject) => {
       try {
@@ -135,16 +134,12 @@ class Issue {
       } catch (e) { reject({ m: e }); }
     });
   }
-
   Facilities() {
     try {
     } catch (e) { reject({ m: e }); }
   }
-
   Networks() {}
-
   Organization() {}
-
   myReportsCLS(user, page) {
     return new Promise((resolve, reject) => {
       try {
@@ -199,7 +194,6 @@ class Issue {
       } catch (e) { reject({ m: e }); }
     });
   }
-
   myReportsCables(user, page) {
     return new Promise((resolve, reject) => {
       try {
@@ -253,7 +247,6 @@ class Issue {
       } catch (e) { reject({ m: e }); }
     });
   }
-
   reports(user, page) {
     return new Promise((resolve, reject) => {
       try {
@@ -266,7 +259,6 @@ class Issue {
       } catch (e) { reject({ m: e }); }
     });
   }
-
   myReports(user, page) {
     return new Promise((resolve, reject) => {
       try {
@@ -277,7 +269,6 @@ class Issue {
       } catch (e) { reject({ m: e }); }
     });
   }
-
   viewReportCable(user, id) {
     return new Promise((resolve, reject) => {
       try {
@@ -314,7 +305,6 @@ class Issue {
       } catch (e) { reject({ m: e }); }
     });
   }
-
   viewReportCls(user, id) {
     return new Promise((resolve, reject) => {
       try {
@@ -353,7 +343,6 @@ class Issue {
       } catch (e) { reject({ m: e }); }
     });
   }
-
   viewReport(user, id, elemnt) {
     return new Promise((resolve, reject) => {
       try {
@@ -370,7 +359,6 @@ class Issue {
       } catch (e) { reject({ m: e }); }
     });
   }
-
   deleteMyReport(user, id) {
     return new Promise((resolve, reject) => {
       try {

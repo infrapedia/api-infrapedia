@@ -348,7 +348,7 @@ const routes = function (router, controllers) {
       .catch((e) => { response.err(res, e); });
   });
   router.delete(`${process.env._ROUTE}/auth/issues/delete/:id`, (req, res) => {
-    controllers.issues.viewReport(req.headers.user_id, req.params.id)
+    controllers.issues.deleteMyReport(req.headers.user_id, req.params.id)
       .then((r) => { response.success(res, r); })
       .catch((e) => { response.err(res, e); });
   });
