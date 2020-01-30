@@ -17,6 +17,7 @@ class Issue {
             const issue = {
               uuid: String(user),
               t: data.t,
+              elemnt: new ObjectID(data.elemnt),
               email: (data.email),
               phone: (data.phone),
               issue: (data.issue),
@@ -25,8 +26,9 @@ class Issue {
               disabled: false,
               viewed: false,
               deleted: false,
-            };
-            if (ObjectID.isValid(data.elemnt)) { issue.elemnt_id = new ObjectID(data.elemnt); } else { issue.elemnt = data.elemnt; }
+            }
+
+            console.log(issue);
             issues.insertOne(issue, (err, I) => {
               if (err) reject({ m: err });
               resolve({ m: 'Thank you, your issue was registered in our system' });
@@ -51,7 +53,7 @@ class Issue {
               $lookup: {
                 from: 'issues',
                 localField: '_id',
-                foreignField: 'elemnt_id',
+                foreignField: 'elemnt',
                 as: 'elemnt_id',
               },
             },
@@ -59,7 +61,6 @@ class Issue {
             {
               $addFields: {
                 rgDate: '$elemnt_id.rgDate', uDate: '$elemnt_id.rgDate', viewed: '$elemnt_id.viewed', idReport: '$elemnt_id._id', elemntStatus: '$status',
-
               },
             },
             {
@@ -72,7 +73,7 @@ class Issue {
                 status: 1,
                 viewed: 1,
                 idReport: 1,
-                t: 'CLS',
+                t: 'cable',
               },
             },
             { $skip: Math.abs((limit * page) - limit) },
@@ -100,7 +101,7 @@ class Issue {
               $lookup: {
                 from: 'issues',
                 localField: '_id',
-                foreignField: 'elemnt_id',
+                foreignField: 'elemnt',
                 as: 'elemnt_id',
               },
             },
@@ -121,7 +122,7 @@ class Issue {
                 status: 1,
                 viewed: 1,
                 idReport: 1,
-                t: 'CLS',
+                t: 'cls',
               },
             },
             { $skip: Math.abs((limit * page) - limit) },
@@ -159,7 +160,7 @@ class Issue {
             {
               $lookup: {
                 from: 'cls',
-                localField: 'elemnt_id',
+                localField: 'elemnt',
                 foreignField: '_id',
                 as: 'elemnt_id',
               },
@@ -214,7 +215,7 @@ class Issue {
             {
               $lookup: {
                 from: 'cables',
-                localField: 'elemnt_id',
+                localField: 'elemnt',
                 foreignField: '_id',
                 as: 'elemnt_id',
               },
