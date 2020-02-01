@@ -6,8 +6,8 @@ class Issue {
     this.model = require('../../models/issues.model');
   }
 
-  //TODO: issue reports filtered by deleted
-  //TODO: validate the update
+  // TODO: issue reports filtered by deleted
+  // TODO: validate the update
 
   addReport(user, data) {
     return new Promise((resolve, reject) => {
@@ -26,7 +26,7 @@ class Issue {
               disabled: false,
               viewed: false,
               deleted: false,
-            }
+            };
 
             console.log(issue);
             issues.insertOne(issue, (err, I) => {
@@ -60,7 +60,12 @@ class Issue {
             { $unwind: { path: '$elemnt_id', preserveNullAndEmptyArrays: false } },
             {
               $addFields: {
-                rgDate: '$elemnt_id.rgDate', uDate: '$elemnt_id.rgDate', viewed: '$elemnt_id.viewed', idReport: '$elemnt_id._id', elemntStatus: '$status',
+                rgDate: '$elemnt_id.rgDate',
+                uDate: '$elemnt_id.rgDate',
+                viewed: '$elemnt_id.viewed',
+                idReport: '$elemnt_id._id',
+                deleted: '$elemnt_id.deleted',
+                elemntStatus: '$status',
               },
             },
             {
@@ -73,6 +78,7 @@ class Issue {
                 status: 1,
                 viewed: 1,
                 idReport: 1,
+                deleted: 1,
                 t: 'cable',
               },
             },
@@ -86,6 +92,7 @@ class Issue {
       } catch (e) { reject({ m: e }); }
     });
   }
+
   CableLandingStations(user, page) {
     return new Promise((resolve, reject) => {
       try {
@@ -107,8 +114,12 @@ class Issue {
             { $unwind: { path: '$elemnt_id', preserveNullAndEmptyArrays: false } },
             {
               $addFields: {
-                rgDate: '$elemnt_id.rgDate', uDate: '$elemnt_id.rgDate', viewed: '$elemnt_id.viewed', idReport: '$elemnt_id._id', elemntStatus: '$status',
-
+                rgDate: '$elemnt_id.rgDate',
+                uDate: '$elemnt_id.rgDate',
+                viewed: '$elemnt_id.viewed',
+                idReport: '$elemnt_id._id',
+                deleted: '$elemnt_id.deleted',
+                elemntStatus: '$status',
               },
             },
             {
@@ -121,6 +132,7 @@ class Issue {
                 status: 1,
                 viewed: 1,
                 idReport: 1,
+                deleted: 1,
                 t: 'cls',
               },
             },
@@ -134,12 +146,16 @@ class Issue {
       } catch (e) { reject({ m: e }); }
     });
   }
+
   Facilities() {
     try {
     } catch (e) { reject({ m: e }); }
   }
+
   Networks() {}
+
   Organization() {}
+
   myReportsCLS(user, page) {
     return new Promise((resolve, reject) => {
       try {
@@ -183,6 +199,7 @@ class Issue {
                 status: 1,
                 viewed: 1,
                 idReport: 1,
+                deleted: 1,
                 t: 'cls',
               },
             },
@@ -194,6 +211,7 @@ class Issue {
       } catch (e) { reject({ m: e }); }
     });
   }
+
   myReportsCables(user, page) {
     return new Promise((resolve, reject) => {
       try {
@@ -237,6 +255,7 @@ class Issue {
                 status: 1,
                 viewed: 1,
                 idReport: 1,
+                deleted: 1,
                 t: 'cable',
               },
             },
@@ -247,6 +266,7 @@ class Issue {
       } catch (e) { reject({ m: e }); }
     });
   }
+
   reports(user, page) {
     return new Promise((resolve, reject) => {
       try {
@@ -259,6 +279,7 @@ class Issue {
       } catch (e) { reject({ m: e }); }
     });
   }
+
   myReports(user, page) {
     return new Promise((resolve, reject) => {
       try {
@@ -269,6 +290,7 @@ class Issue {
       } catch (e) { reject({ m: e }); }
     });
   }
+
   viewReportCable(user, id) {
     return new Promise((resolve, reject) => {
       try {
@@ -305,6 +327,7 @@ class Issue {
       } catch (e) { reject({ m: e }); }
     });
   }
+
   viewReportCls(user, id) {
     return new Promise((resolve, reject) => {
       try {
@@ -343,6 +366,7 @@ class Issue {
       } catch (e) { reject({ m: e }); }
     });
   }
+
   viewReport(user, id, elemnt) {
     return new Promise((resolve, reject) => {
       try {
@@ -359,6 +383,7 @@ class Issue {
       } catch (e) { reject({ m: e }); }
     });
   }
+
   deleteMyReport(user, id) {
     return new Promise((resolve, reject) => {
       try {
