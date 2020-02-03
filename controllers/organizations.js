@@ -9,4 +9,5 @@ module.exports = {
   owner: (usr, id) => Organization.owner(usr, id),
   view: (usr, id) => Organization.view(usr, id),
   search: (usr, id) => Organization.search(usr, id),
+  partners: () => Organization.partners(),
 };
