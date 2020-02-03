@@ -25,6 +25,7 @@ module.exports = function () {
                   },
                 },
               },
+              url: { bsonType: 'string' },
               premium: { bsonType: 'bool' },
               non_peering: { bsonType: 'bool' },
               rgDate: { bsonType: 'date' },

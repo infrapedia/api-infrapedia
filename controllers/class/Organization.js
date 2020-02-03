@@ -32,6 +32,7 @@ class Organization {
                   notes: String(data.notes),
                   // TODO: when array is empty not use the map
                   address: await (data.address === '') ? [] : data.address.map((item) => JSON.parse(item)),
+                  url: String(data.url),
                   premium: false,
                   non_peering: false,
                   rgDate: luxon.DateTime.utc(),
@@ -63,7 +64,7 @@ class Organization {
             organization.find({
               $and:
                  [{ _id: { $ne: id } }, { name: String(data.name) }],
-            }).count( async (err, c) => {
+            }).count(async (err, c) => {
               if (err) reject({ m: err });
               else if (c > 0) reject({ m: 'We have registered in our system more than one organization with the same name' });
               else {
@@ -72,6 +73,7 @@ class Organization {
                   logo: String(data.logo),
                   notes: String(data.notes),
                   address: await (data.address === '') ? [] : data.address.map((item) => JSON.parse(item)),
+                  url: String(data.url),
                   uDate: luxon.DateTime.utc(),
                 };
                 organization.updateOne(
@@ -152,7 +154,7 @@ class Organization {
                 );
               }
             });
-          }).catch((e) => reject({m: e}));
+          }).catch((e) => reject({ m: e }));
         } else { resolve('Not user found'); }
       } catch (e) { reject({ m: e }); }
     });
@@ -336,6 +338,21 @@ class Organization {
             resolve({ m: 'Loaded', r: c });
           });
         });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  partners() {
+    return new Promise((reject, resolve) => {
+      try {
+        this.model().then((organizations) => {
+          organizations.aggregate([
+            { $match: { premium: true } },
+            { $project: { _id: 1, name: 1, logo: 1 } }]).toArray((err, r) => {
+            if (err) reject(err);
+            resolve({ m: 'Loaded', r });
+          });
+        }).catch((e) => reject({ m: e }));
       } catch (e) { reject({ m: e }); }
     });
   }

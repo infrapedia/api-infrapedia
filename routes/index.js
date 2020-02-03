@@ -146,6 +146,11 @@ const routes = function (router, controllers) {
       .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
+  router.get(`${process.env._ROUTE}/partners`, (req, res) => {
+    controllers.organizations.partners()
+      .then((r) => { response.success(res, r, false); })
+      .catch((e) => { response.err(res, e); });
+  });
   // NETWORKS ---------------->
   router.post(`${process.env._ROUTE}/auth/network/add`, (req, res) => {
     // console.log((req.headers.authorization, req.headers.user_id));
