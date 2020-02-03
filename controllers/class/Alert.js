@@ -297,7 +297,7 @@ class Alert {
       try {
         if (user !== undefined || user !== '') {
           Promise.all([this.cables(user, page), this.cls(user, page), this.networks(user, page), this.orgs(user, page)]).then(async (notifications) => {
-            resolve({ m: 'loaded', r: await notifications.reduce((total, value) => total.concat(value), []) });
+            resolve({ m: 'loaded', r: await notifications.reduce((total, value) => total.concat(value), []), n: false });
           }).catch((e) => { reject({ m: e }); });
         } else { resolve('Not user found'); }
       } catch (e) { reject({ m: e }); }
