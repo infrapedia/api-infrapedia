@@ -10,4 +10,5 @@ module.exports = {
   view: (usr, id) => Organization.view(usr, id),
   search: (usr, id) => Organization.search(usr, id),
   partners: () => Organization.partners(),
+  istrusted: () => Organization.istrusted(),
 };

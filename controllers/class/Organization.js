@@ -34,6 +34,7 @@ class Organization {
                   address: await (data.address === '') ? [] : data.address.map((item) => JSON.parse(item)),
                   url: String(data.url),
                   premium: false,
+                  istrusted: false,
                   non_peering: false,
                   rgDate: luxon.DateTime.utc(),
                   uDate: luxon.DateTime.utc(),
@@ -348,6 +349,21 @@ class Organization {
         this.model().then((organizations) => {
           organizations.aggregate([
             { $match: { premium: true } },
+            { $project: { _id: 1, name: 1, logo: 1 } }]).toArray((err, r) => {
+            if (err) reject(err);
+            resolve({ m: 'Loaded', r });
+          });
+        }).catch((e) => reject({ m: e }));
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  istrusted() {
+    return new Promise((reject, resolve) => {
+      try {
+        this.model().then((organizations) => {
+          organizations.aggregate([
+            { $match: { istrusted: true } },
             { $project: { _id: 1, name: 1, logo: 1 } }]).toArray((err, r) => {
             if (err) reject(err);
             resolve({ m: 'Loaded', r });
