@@ -344,7 +344,7 @@ class Organization {
   }
 
   partners() {
-    return new Promise((reject, resolve) => {
+    return new Promise((resolve, reject) => {
       try {
         this.model().then((organizations) => {
           organizations.aggregate([
@@ -359,7 +359,7 @@ class Organization {
   }
 
   istrusted() {
-    return new Promise((reject, resolve) => {
+    return new Promise((resolve, reject) => {
       try {
         this.model().then((organizations) => {
           organizations.aggregate([
