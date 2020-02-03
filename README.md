@@ -16,6 +16,8 @@ App network:
         - View (owner)
         - view
         - Search
+        - Partners
+        - TrustedBy
     - Networks:
         - Add
         - Edit
@@ -60,6 +62,8 @@ App network:
     - Messages
     - Search
         - By Field (Name or ID)
+    -Shortner
+       - URL
 
 ## Documentation
 
