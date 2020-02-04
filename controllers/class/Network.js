@@ -91,6 +91,87 @@ class Network {
               },
             },
             {
+              $lookup: {
+                from: 'organizations',
+                let: { orgs: '$organizations' },
+                pipeline: [
+                  {
+                    $addFields: {
+                      idsorgs: '$$orgs',
+                    },
+                  },
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$_id', '$idsorgs'],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'organizations',
+              },
+            },
+            {
+              $lookup: {
+                from: 'cables',
+                let: { cables: '$cables' },
+                pipeline: [
+                  {
+                    $addFields: {
+                      idscables: '$$cables',
+                    },
+                  },
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$_id', '$idscables'],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'cables',
+              },
+            },
+            {
+              $lookup: {
+                from: 'cls',
+                let: { cls: '$cls' },
+                pipeline: [
+                  {
+                    $addFields: {
+                      idscls: '$$cls',
+                    },
+                  },
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$_id', '$idscls'],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'cls',
+              },
+            },
+            {
               $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
             },
             {
