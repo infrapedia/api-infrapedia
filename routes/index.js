@@ -18,7 +18,6 @@ const routes = function (router, controllers) {
     res.setHeader('Content-Type', 'application/json');
     res.send(swaggerSpec);
   });
-  
   // Response information
 
   const response = {
