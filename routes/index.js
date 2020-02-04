@@ -18,7 +18,7 @@ const routes = function (router, controllers) {
     res.setHeader('Content-Type', 'application/json');
     res.send(swaggerSpec);
   });
-  // Response information -
+  // Response information --
 
   const response = {
     success: (res, answ, n) => {
