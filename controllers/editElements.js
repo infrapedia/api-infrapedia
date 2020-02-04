@@ -1,5 +1,6 @@
 const luxon = require('luxon');
 const u = require('./helpers/gcloudStorage');
+const { ObjectID } = require('mongodb');
 
 module.exports = {
   uploadInformation: (usr, idata) => new Promise((resolve, reject) => {
@@ -9,6 +10,8 @@ module.exports = {
         editElements().then((editE) => {
           editE.insertOne({
             uuid: String(usr),
+            elemnt: new ObjectID(idata.elemnt),
+            t: String(idata.t),
             information: String(idata.information),
             lks,
             rgDate: luxon.DateTime.utc(),

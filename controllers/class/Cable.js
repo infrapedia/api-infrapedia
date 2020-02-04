@@ -377,8 +377,6 @@ class Cable {
             },
             {
               $project: {
-                _id: 0,
-                uuid: 0,
                 geom: 0,
                 status: 0,
                 deleted: 0,
