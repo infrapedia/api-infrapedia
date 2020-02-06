@@ -395,8 +395,8 @@ class Message {
               if (err) reject({ m: err });
               else if (c === 0) reject({ m: 'We cannot delete the message' });
               else {
-                message.updateOne(
-                  { _id: id, uuid: String(user) }, { $set: { deleted: true } }, (err, u) => {
+                message.updateOne( //uuid: String(user)
+                  { _id: id }, { $set: { deleted: true } }, (err, u) => {
                     if (err) reject({ m: err });
                     else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete the message' });
                     else resolve({ m: 'Deleted' });
