@@ -30,6 +30,7 @@ class Organization {
                   name: String(data.name),
                   logo: String(data.logo),
                   notes: String(data.notes),
+                  information: String(data.information),
                   // TODO: when array is empty not use the map
                   address: await (data.address === '') ? [] : data.address.map((item) => JSON.parse(item)),
                   url: String(data.url),
@@ -72,7 +73,7 @@ class Organization {
                 data = {
                   name: String(data.name),
                   logo: String(data.logo),
-                  notes: String(data.notes),
+                  information: String(data.information),
                   address: await (data.address === '') ? [] : data.address.map((item) => JSON.parse(item)),
                   url: String(data.url),
                   uDate: luxon.DateTime.utc(),
