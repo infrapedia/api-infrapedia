@@ -396,7 +396,7 @@ class Issue {
               else if (c === 0) reject({ m: 'We cannot delete your issue report' });
               else {
                 issue.updateOne(
-                  { _id: id, uuid: String(user) }, { $set: { deleted: true } }, (err, u) => {
+                  { _id: id }, { $set: { deleted: true } }, (err, u) => {
                     if (err) reject({ m: err });
                     else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete your issue report' });
                     else resolve({ m: 'Deleted' });
