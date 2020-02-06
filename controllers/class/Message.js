@@ -388,19 +388,19 @@ class Message {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
-          this.model().then((issue) => {
+          this.model().then((message) => {
             id = new ObjectID(id);
             // we need to validate if  don't have another organization with the same name
-            issue.find({ _id: id }).count((err, c) => {
+            message.find({ _id: id }).count((err, c) => {
               if (err) reject({ m: err });
-              else if (c === 0) reject({ m: 'We cannot delete your issue report' });
+              else if (c === 0) reject({ m: 'We cannot delete the message' });
               else {
-                issue.updateOne(
-                   { _id: id, uuid: String(user) }, { $set: { deleted: true } }, (err, u) => {
-                     if (err) reject({ m: err });
-                     else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete your issue report' });
-                     else resolve({ m: 'Deleted' });
-                   },
+                message.updateOne(
+                  { _id: id, uuid: String(user) }, { $set: { deleted: true } }, (err, u) => {
+                    if (err) reject({ m: err });
+                    else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete the message' });
+                    else resolve({ m: 'Deleted' });
+                  },
                 );
               }
             });
