@@ -41,6 +41,7 @@ class Organization {
                   uDate: luxon.DateTime.utc(),
                   status: false,
                   deleted: false,
+                  validated: false,
                 };
                 // console.log( JSON.stringify( data ) );
                 organization.insertOne(data, (err, i) => {
