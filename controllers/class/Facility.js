@@ -40,7 +40,7 @@ class Facility {
               status: true,
             };
             // we need search about the information
-            facility.find({ fac_id: data }).count((err, f) => {
+            facility.find({ fac_id: data.fac_id }).count((err, f) => {
               if (err) reject({ m: err + 0 });
               else if (f > 0) { console.log('Repeat'); reject(); } else {
                 facility.insertOne(data, (err, i) => {
@@ -58,20 +58,18 @@ class Facility {
   search(user, search) {
     return new Promise((resolve, reject) => {
       try {
-        this.model().then((cable) => {
-          cable.aggregate([
+        this.model().then((facility) => {
+          facility.aggregate([
             {
               $match: { name: { $regex: search, $options: 'i' } },
             },
-            { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {
               $project: {
                 _id: 1,
                 name: 1,
-                yours: 1,
               },
             },
-            { $sort: { yours: -1 } },
+            { $sort: { name: 1 } },
           ]).toArray((err, r) => {
             resolve(r);
           });
