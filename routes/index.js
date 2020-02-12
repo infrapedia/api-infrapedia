@@ -41,7 +41,7 @@ const routes = function (router, controllers) {
   //
   router.get('/', controllers.infrapedia.ping);
   // ORGANIZATIONS ---------------->
-  require('./bymodules/organizations').callEndPoints(router,controllers, response);
+  require('./bymodules/organizations').callEndPoints(router, controllers, response);
   // NETWORKS ---------------->
   router.post(`${process.env._ROUTE}/auth/network/add`, (req, res) => {
     // console.log((req.headers.authorization, req.headers.user_id));
@@ -180,7 +180,7 @@ const routes = function (router, controllers) {
       .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
-  router.get(`${process.env._ROUTE}/facilities/search`, (req, res) => {
+  router.get(`${process.env._ROUTE}/auth/facilities/search`, (req, res) => {
     controllers.facilities.search(req.headers.user_id, req.query.s)
       .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
@@ -191,10 +191,10 @@ const routes = function (router, controllers) {
       .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
-  router.get(`${process.env._ROUTE}/ixps/search`, (req, res) => {
+  router.get(`${process.env._ROUTE}/auth/ixps/search`, (req, res) => {
     controllers.InternetExchangePoints.search(req.headers.user_id, req.query.s)
-       .then((r) => { response.success(res, r, false); })
-       .catch((e) => { response.err(res, e); });
+      .then((r) => { response.success(res, r, false); })
+      .catch((e) => { response.err(res, e); });
   });
 
   // KMZ to GEOJSON
