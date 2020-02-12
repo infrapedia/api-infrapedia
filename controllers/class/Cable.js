@@ -34,6 +34,7 @@ class Cable {
               uDate: luxon.DateTime.utc(),
               status: false,
               deleted: false,
+              validated: false,
             };
             cables.insertOne(data, (err, i) => {
               // TODO: validation insert

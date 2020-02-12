@@ -216,7 +216,7 @@ class Search {
   byField(user, data) {
     return new Promise((resolve, reject) => {
       try {
-        Promise.all([this.organizations(data), this.networks(data), this.cables(data), this.cls(data)]).then( async (r) => {
+        Promise.all([this.organizations(data), this.networks(data), this.cables(data), this.cls(data)]).then(async (r) => {
           resolve(await r.reduce((total, value) => total.concat(value), []));
         }).catch((e) => { reject({ m: e }); });
       } catch (e) { reject({ m: e }); }
