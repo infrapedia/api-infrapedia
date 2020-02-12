@@ -18,6 +18,8 @@
         "import/no-dynamic-require":  ["off"],
         "consistent-return": ["off"],
         "no-shadow": ["off"],
-        "prefer-promise-reject-errors": ["off"]
+        "prefer-promise-reject-errors": ["off"],
+        "global-require": 0
+
     }
 }

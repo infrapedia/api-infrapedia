@@ -68,7 +68,7 @@ class IXP {
               $match: { $and: [{ name: { $regex: search, $options: 'i' } }, { nameLong: { $regex: search, $options: 'i' } }] } ,
             },
             {
-              $addFields: { nameLong: { $concat: ['$name', ' - ', '$nameLong', ' (', { $arrayElemAt: ['$address.city', 0] }, ', ', { $arrayElemAt: ['$address.country', 0] }, ' )'] } },
+              $addFields: { nameLong: { $concat: ['$name', ' - ', '$nameLong', ' (', { $arrayElemAt: ['$address.city', 0] }, ', ', { $arrayElemAt: ['$address.country', 0] }, ')'] } },
             },
             {
               $project: {
