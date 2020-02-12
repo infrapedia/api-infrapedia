@@ -22,7 +22,7 @@ class Facility {
                 {
                   reference: '',
                   street: `${data.address1} ${data.address2}`,
-                  apt: '',
+                  apt: `#${data.osm_addr_housenumber}`,
                   city: data.city,
                   state: data.state,
                   zipcode: data.zipcode,
@@ -35,6 +35,9 @@ class Facility {
                 type: 'FeatureCollection',
                 features: [data.polygon],
               },
+              t: data.osm_telecom,
+              startDate: data.osm_start_date,
+              building: (data.osm_building === 'yes') ? 'Building' : data.osm_building,
               rgDate: luxon.DateTime.utc(),
               uDate: luxon.DateTime.utc(),
               status: true,
