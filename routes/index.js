@@ -211,7 +211,11 @@ const routes = function (router, controllers) {
       .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
-
+  router.get(`${process.env._ROUTE}/ixps/box/:id`, (req, res) => {
+    controllers.InternetExchangePoints.bbox(req.headers.user_id, req.params.id)
+      .then((r) => { response.success(res, r, false); })
+      .catch((e) => { response.err(res, e); });
+  });
   // KMZ to GEOJSON
   router.post(`${process.env._ROUTE}/auth/kmz/lines/togeojson`, (req, res) => {
     controllers.convert.kmzToGeojsonLines(req.headers.user_id, req.body)
