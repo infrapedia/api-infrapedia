@@ -27,6 +27,8 @@ const routes = function (router, controllers) {
   };
   //
   router.get('/', controllers.infrapedia.ping);
+  const mapStatistics = require('../lib/middleware/mapStatistics');
+  router.post('/mps', mapStatistics, (req, res) => res.status(200).send('1'));
   // ORGANIZATIONS ---------------->
   require('./bymodules/organizations').callEndPoints(router, controllers, response);
   // NETWORKS ---------------->
