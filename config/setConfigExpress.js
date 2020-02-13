@@ -119,6 +119,8 @@ const expressConfig = function (app) {
   app.use(formData.format());
   app.use(formData.stream());
   app.use(formData.union());
-  app.use('/auth', (err, req, res, next) => { next(); });
+  app.use('/auth', (err, req, res, next) => {
+    next();
+  });
 }
 module.exports = expressConfig;

@@ -15,6 +15,7 @@ class CLS {
             data = {
               uuid: String(user),
               name: data.name,
+              notes: '', // String(data.notes)
               state: data.state,
               slug: data.slug,
               geom: (data.geom !== '') ? JSON.parse(data.geom) : {},

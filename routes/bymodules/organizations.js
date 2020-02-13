@@ -1,5 +1,6 @@
 module.exports = {
-  callEndPoints: (router, controllers, response) => {
+  callEndPoints: (router, controllers, response ) => {
+    const statics = require('../../lib/middleware/statics');
     router.post(`${process.env._ROUTE}/auth/organization/add`, (req, res) => {
       controllers.organizations.add(req.headers.user_id, req.body)
         .then((r) => { response.success(res, r); })
@@ -25,12 +26,12 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.get(`${process.env._ROUTE}/organization/view/:id`, (req, res) => {
+    router.get(`${process.env._ROUTE}/organization/view/:id`, statics, (req, res) => {
       controllers.organizations.view(req.headers.user_id, req.params.id)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.get(`${process.env._ROUTE}/organization/search`, (req, res) => {
+    router.get(`${process.env._ROUTE}/organization/search`, statics, (req, res) => {
       controllers.organizations.search(req.headers.user_id, req.query.s)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });

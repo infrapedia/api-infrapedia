@@ -18,6 +18,7 @@ class Facility {
               uuid: String(user),
               fac_id: String(data.fac_id),
               name: String(data.name),
+              notes: '', // String(data.notes)
               point: JSON.parse(data.point),
               address: [
                 {

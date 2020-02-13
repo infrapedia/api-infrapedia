@@ -15,6 +15,7 @@ class Network {
             data = {
               uuid: String(user),
               name: String(data.name),
+              notes: '', // String(data.notes)
               websites: await (Array.isArray(data.websites)) ? data.websites : [],
               organizations: await (Array.isArray(data.organizations)) ? data.organizations.map((item) => new ObjectID(item)) : [],
               facilities: await (Array.isArray(data.facilities)) ? data.facilities.map((item) => new ObjectID(item)) : [],

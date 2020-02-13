@@ -15,6 +15,7 @@ class IXP {
               uuid: String(user),
               ix_id: String(data.ix_id),
               name: String(data.name),
+              notes: '', // String(data.notes)
               nameLong: String(data.name_long),
               geom: JSON.parse(data.point),
               address: [

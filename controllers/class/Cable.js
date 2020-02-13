@@ -19,13 +19,13 @@ class Cable {
             data = {
               uuid: String(user),
               name: String(data.name),
+              notes: '', // String(data.notes)
               systemLength: String(data.systemLength),
               activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
               urls: (Array.isArray(data.urls)) ? data.urls : [],
               terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
               capacityTBPS: String(data.capacityTBPS),
               fiberPairs: String(data.fiberPairs),
-              notes: '', // String(data.notes)
               category: String(data.category),
               facilities: await (Array.isArray(data.facilities)) ? data.facilities.map((item) => new ObjectID(item)) : [],
               // cls: await (data.cls.length === 0 || data.cls === '') ? [] : data.cls.map((item) => new ObjectID(item)),

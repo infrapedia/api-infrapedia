@@ -28,8 +28,8 @@ class Organization {
                 data = {
                   uuid: String(user),
                   name: String(data.name),
+                  notes: '', // String(data.notes)
                   logo: String(data.logo),
-                  notes: String(data.notes),
                   information: String(data.information),
                   // TODO: when array is empty not use the map
                   address: await (data.address === '') ? [] : data.address.map((item) => JSON.parse(item)),
