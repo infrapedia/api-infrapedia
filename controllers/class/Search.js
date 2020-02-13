@@ -213,10 +213,107 @@ class Search {
     });
   }
 
+  facility(search){
+    return new Promise((resolve, reject) => {
+      try {
+        this.model = require('../../models/facility.model');
+        this.model().then((facility) => {
+          facility.aggregate([
+            {
+              $lookup: {
+                from: 'networks',
+                let: { facility: '$_id' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$$facility', '$facilities'],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'networks',
+              },
+            },
+            {
+              $match: { name: { $regex: search, $options: 'i' } },
+            },
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                networks: 1,
+                t: 'facility',
+              },
+            },
+          ]).toArray((err, r) => {
+            resolve(r);
+          });
+        }).catch((e) => { reject({ m: e }); });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  ixps(search) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model = require('../../models/ixp.model');
+        this.model().then((ixp) => {
+          ixp.aggregate([
+            {
+              $lookup: {
+                from: 'networks',
+                let: { ixps: '$_id' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$$ixps', '$ixps'],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'networks',
+              },
+            },
+            {
+              $match: { name: { $regex: search, $options: 'i' } },
+            },
+            {
+              $addFields: { name: { $concat: ['$name', ' (', '$nameLong', ')'] } },
+            },
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                networks: 1,
+                t: 'ixps',
+              },
+            },
+          ]).toArray((err, r) => {
+            resolve(r);
+          });
+        }).catch((e) => { reject({ m: e }); });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
   byField(user, data) {
     return new Promise((resolve, reject) => {
       try {
-        Promise.all([this.organizations(data), this.networks(data), this.cables(data), this.cls(data)]).then(async (r) => {
+        Promise.all([this.organizations(data), this.networks(data), this.cables(data), this.cls(data), this.ixps(data), this.facility(data)]).then(async (r) => {
           resolve(await r.reduce((total, value) => total.concat(value), []));
         }).catch((e) => { reject({ m: e }); });
       } catch (e) { reject({ m: e }); }
@@ -257,6 +354,26 @@ class Search {
     return new Promise((resolve, reject) => {
       try {
         this.organizations(data).then((r) => {
+          resolve(r);
+        }).catch((e) => { reject({ m: e }); });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  byFieldFacility(user, data) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.facility(data).then((r) => {
+          resolve(r);
+        }).catch((e) => { reject({ m: e }); });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  byFieldIXP(user, data) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.ixps(data).then((r) => {
           resolve(r);
         }).catch((e) => { reject({ m: e }); });
       } catch (e) { reject({ m: e }); }

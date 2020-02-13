@@ -337,6 +337,16 @@ const routes = function (router, controllers) {
       .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
+  router.get(`${process.env._ROUTE}/search/field/facilities`, (req, res) => {
+    controllers.searchs.byFieldFacility(req.headers.user_id, req.query.s)
+      .then((r) => { response.success(res, r, false); })
+      .catch((e) => { response.err(res, e); });
+  });
+  router.get(`${process.env._ROUTE}/search/field/ixps`, (req, res) => {
+    controllers.searchs.byFieldIXP(req.headers.user_id, req.query.s)
+      .then((r) => { response.success(res, r, false); })
+      .catch((e) => { response.err(res, e); });
+  });
   // UPLOADS ---------------->
   router.post(`${process.env._ROUTE}/auth/upload/logo`, (req, res) => {
     controllers.uploads.logo(req.headers.user_id, req.body)

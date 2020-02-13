@@ -7,4 +7,6 @@ module.exports = {
   byFieldCls: (usr, data) => Search.byFieldCls(usr, data),
   byFieldNetworks: (usr, data) => Search.byFieldNetworks(usr, data),
   byFieldOrgs: (usr, data) => Search.byFieldOrgs(usr, data),
+  byFieldFacility: (usr, data) => Search.byFieldFacility(usr, data),
+  byFieldIXP: (usr, data) => Search.byFieldIXP(usr, data),
 };
