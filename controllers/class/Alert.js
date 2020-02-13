@@ -105,6 +105,7 @@ class Alert {
       } catch (e) { reject({ m: e }); }
     });
   }
+
   cls(user, page) {
     return new Promise((resolve, reject) => {
       try {
@@ -142,6 +143,7 @@ class Alert {
       } catch (e) { reject({ m: e }); }
     });
   }
+
   facilities(user, page) {
     return new Promise((resolve, reject) => {
       try {
@@ -179,6 +181,7 @@ class Alert {
       } catch (e) { reject({ m: e }); }
     });
   }
+
   ixps(user, page) {
     return new Promise((resolve, reject) => {
       try {
@@ -216,6 +219,7 @@ class Alert {
       } catch (e) { reject({ m: e }); }
     });
   }
+
   networks(user, page) {
     return new Promise((resolve, reject) => {
       try {
@@ -253,6 +257,7 @@ class Alert {
       } catch (e) { reject({ m: e }); }
     });
   }
+
   orgs(user, page) {
     return new Promise((resolve, reject) => {
       try {
@@ -296,7 +301,7 @@ class Alert {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
-          Promise.all([this.cables(user, page), this.cls(user, page), this.networks(user, page), this.orgs(user, page)]).then(async (notifications) => {
+          Promise.all([this.cables(user, page), this.cls(user, page), this.networks(user, page), this.orgs(user, page), this.facilities(user, page), this.ixps(user, page)]).then(async (notifications) => {
             resolve({ m: 'loaded', r: await notifications.reduce((total, value) => total.concat(value), []), n: false });
           }).catch((e) => { reject({ m: e }); });
         } else { resolve('Not user found'); }
