@@ -1,5 +1,6 @@
 const luxon = require('luxon');
 const GJV = require('geojson-validation');
+const { ObjectID } = require('mongodb');
 const countries = require('../helpers/isoCountries');
 
 class Facility {
@@ -31,10 +32,11 @@ class Facility {
               ],
               websites: data.website,
               // information: String(data.information),
-              polygon: {
+              geom: {
                 type: 'FeatureCollection',
                 features: [data.polygon],
               },
+              ixps: [],
               t: data.osm_telecom,
               startDate: data.osm_start_date,
               building: (data.osm_building === 'yes') ? 'Building' : data.osm_building,
@@ -55,6 +57,166 @@ class Facility {
           }).catch((e) => reject({ m: e + 1 }));
         }
       } catch (e) { reject({ m: e + 2 }); }
+    });
+  }
+
+  view(user, id) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((facility) => {
+          facility.aggregate([
+            {
+              $match: {
+                _id: new ObjectID(id),
+              },
+            },
+            {
+              $project: { geom: 0 },
+            },
+            {
+              $lookup: {
+                from: 'cables',
+                let: { facilities: '$_id' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$$facilities', '$facilities'],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'cables',
+              },
+            },
+            {
+              $lookup: {
+                from: 'networks',
+                let: { ixps: '$_id' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$$ixps', '$ixps'],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                      organizations: 1,
+                    },
+                  },
+                ],
+                as: 'networks',
+              },
+            },
+            {
+              $lookup: {
+                from: 'organizations',
+                let: { networks: '$networks' },
+                pipeline: [
+                  {
+                    $addFields: {
+                      idsorgs: { $map: { input: '$$networks.organizations', as: 'orgs', in: '$$orgs' } },
+                    },
+                  },
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$_id', {
+                          $cond: {
+                            if: { $isArray: { $arrayElemAt: ['$idsorgs', 0] } },
+                            then: { $arrayElemAt: ['$idsorgs', 0] },
+                            else: [],
+                          },
+                        },
+                        ],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'organizations',
+              },
+            },
+            {
+              $lookup: {
+                from: 'alerts',
+                let: { elemnt: { $toString: '$_id' } },
+                pipeline: [
+                  {
+                    $match: { $and: [{ $expr: { elemnt: '$$elemnt' } }, { t: '4' }, { uuid: user }, { disabled: false }] },
+                  },
+                ],
+                as: 'alert',
+              },
+            },
+            {
+              $addFields: { alert: { $size: '$alert' } },
+            },
+            {
+              $project: {
+                point: 0,
+                status: 0,
+                deleted: 0,
+              },
+            },
+          ]).toArray((err, c) => {
+            if (err) reject(err);
+            resolve({ m: 'Loaded', r: c });
+          });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  bbox(user, id) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((facility) => {
+          facility.aggregate([
+            {
+              $match: {
+                _id: new ObjectID(id),
+              },
+            },
+            {
+              $addFields: {
+                coordinates: { $map: { input: '$geom.features.geometry.coordinates', as: 'feature', in: '$$feature' } },
+              },
+            },
+            {
+              $addFields: {
+                v: { $arrayElemAt: ['$geom.features.geometry.coordinates', 0] },
+                b: { $arrayElemAt: ['$geom.features.geometry.coordinates', -1] },
+              },
+            },
+            {
+              $project: {
+                _id: 1,
+                coordinates: [{ $arrayElemAt: ['$v', 0] }, { $arrayElemAt: ['$b', -1] }],
+              },
+            },
+          ]).toArray((err, c) => {
+            console.log(c);
+            if (err) reject(err);
+            resolve({ m: 'Loaded', r: c });
+          });
+        });
+      } catch (e) { reject({ m: e }); }
     });
   }
 

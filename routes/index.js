@@ -185,6 +185,16 @@ const routes = function (router, controllers) {
       .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });
+  router.get(`${process.env._ROUTE}/auth/facilities/view/:id`, (req, res) => {
+    controllers.facilities.view(req.headers.user_id, req.params.id)
+      .then((r) => { response.success(res, r, false); })
+      .catch((e) => { response.err(res, e); });
+  });
+  router.get(`${process.env._ROUTE}/facilities/box/:id`, (req, res) => {
+    controllers.facilities.bbox(req.headers.user_id, req.params.id)
+      .then((r) => { response.success(res, r, false); })
+      .catch((e) => { response.err(res, e); });
+  });
   // IXPS
   router.get(`${process.env._ROUTE}/ixps/transfer`, (req, res) => {
     controllers.InternetExchangePoints.transferIXPS()
@@ -193,6 +203,11 @@ const routes = function (router, controllers) {
   });
   router.get(`${process.env._ROUTE}/auth/ixps/search`, (req, res) => {
     controllers.InternetExchangePoints.search(req.headers.user_id, req.query.s)
+      .then((r) => { response.success(res, r, false); })
+      .catch((e) => { response.err(res, e); });
+  });
+  router.get(`${process.env._ROUTE}/auth/ixps/view/:id`, (req, res) => {
+    controllers.InternetExchangePoints.view(req.headers.user_id, req.params.id)
       .then((r) => { response.success(res, r, false); })
       .catch((e) => { response.err(res, e); });
   });

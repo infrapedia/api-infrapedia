@@ -25,4 +25,6 @@ FROM facility`;
       });
     });
   }),
+  view: (usr, id) => Facility.view(usr, id),
+  bbox: (usr, id) => Facility.bbox(usr, id),
 };
