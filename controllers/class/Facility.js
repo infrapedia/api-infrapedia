@@ -195,24 +195,12 @@ class Facility {
               },
             },
             {
-              $addFields: {
-                coordinates: { $map: { input: '$geom.features.geometry.coordinates', as: 'feature', in: '$$feature' } },
-              },
-            },
-            {
-              $addFields: {
-                v: { $arrayElemAt: ['$geom.features.geometry.coordinates', 0] },
-                b: { $arrayElemAt: ['$geom.features.geometry.coordinates', -1] },
-              },
-            },
-            {
               $project: {
                 _id: 1,
-                coordinates: [{ $arrayElemAt: ['$v', 0] }, { $arrayElemAt: ['$b', -1] }],
+                coordinates: '$point.coordinates',
               },
             },
           ]).toArray((err, c) => {
-            console.log(c);
             if (err) reject(err);
             resolve({ m: 'Loaded', r: c });
           });

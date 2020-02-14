@@ -16,7 +16,7 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.get(`${process.env._ROUTE}/search/facilities/box/:id`, (req, res) => {
+    router.get(`${process.env._ROUTE}/facilities/box/:id`, (req, res) => {
       controllers.facilities.bbox(req.headers.user_id, req.params.id)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });

@@ -16,7 +16,7 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.get(`${process.env._ROUTE}/search/ixps/box/:id`, (req, res) => {
+    router.get(`${process.env._ROUTE}/ixps/box/:id`, (req, res) => {
       controllers.InternetExchangePoints.bbox(req.headers.user_id, req.params.id)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
