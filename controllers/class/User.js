@@ -63,6 +63,7 @@ class User {
               rgDate: 1,
             },
           },
+          { $limit: 10 },
           ]).toArray((err, r) => {
             if (err) reject({ m: err });
             resolve({ m: 'Loaded', r });
