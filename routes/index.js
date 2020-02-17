@@ -57,6 +57,5 @@ const routes = function (router, controllers) {
   require('./bymodules/uploads').callEndPoints(router, controllers, response);
   // SHORTENER ---->
   require('./bymodules/shortener').callEndPoints(router, controllers, response);
-
 };
 module.exports = routes;

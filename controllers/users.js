@@ -7,4 +7,5 @@ module.exports = {
   phoneNumber: (token, user, data) => User.updatePhoneNumber(token, user, data),
   updateName: (token, user, data) => User.updateName(token, user, data),
   logs: (user) => User.logs(user),
+  verifyElement: (user, email, element, type) => User.verifyElement(user, email, element, type),
 }

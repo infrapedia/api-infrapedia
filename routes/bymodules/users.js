@@ -5,5 +5,10 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+    router.post(`${process.env._ROUTE}/auth/user/verifyElemnt`, (req, res) => {
+      controllers.users.verifyElement(req.headers.user_id, req.body.email, req.body.elemnt, req.body.type)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
   },
 };

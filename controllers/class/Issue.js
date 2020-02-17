@@ -28,7 +28,6 @@ class Issue {
               deleted: false,
             };
 
-            console.log(issue);
             issues.insertOne(issue, (err, I) => {
               if (err) reject({ m: err });
               resolve({ m: 'Thank you, your issue was registered in our system' });

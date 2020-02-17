@@ -2,6 +2,7 @@
 const util = require('util');
 const url = require('url');
 const Axios = require('axios');
+const luxon = require('luxon');
 
 class User {
   constructor() {
@@ -69,6 +70,25 @@ class User {
           ]).toArray((err, r) => {
             if (err) reject({ m: err });
             resolve({ m: 'Loaded', r });
+          });
+        }).catch((e) => { reject({ m: e }); });
+      } catch (e) { reject(e); }
+    });
+  }
+  verifyElement(user, email, element, t) {
+    return new Promise((resolve, reject) => {
+      try {
+        const verifications = require('../../models/verification.model');
+        verifications().then((verifications) => {
+          verifications.insertOne({
+            uuid: user,
+            email,
+            element,
+            t,
+            rgDate: luxon.DateTime.utc(),
+          }, (err, i) => {
+            if (err) reject({ m: err });
+            resolve({ m: 'Thank you, your message was registered in our system' });
           });
         }).catch((e) => { reject({ m: e }); });
       } catch (e) { reject(e); }
