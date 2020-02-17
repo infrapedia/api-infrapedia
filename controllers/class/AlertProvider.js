@@ -55,5 +55,41 @@ class AlertProvider {
       }
     });
   }
+
+  sendEmail(user, params) {
+    return new Promise((resolve, reject) => {
+      try {
+        const provider = require('../../models/alertsProviders.model');
+        // we need to search the provider configured
+        provider().then((provider) => {
+          provider.findOne({
+            uuid: 'auth0|5d9ca4fcabdb280e0e369d1e',
+          }, (err, options) => {
+            if (err) reject({ m: err });
+            const ejs = require('ejs');
+            switch (options.provider) {
+              case 'mandrill':
+                const mandrill = require('../helpers/mandrill');
+                // eslint-disable-next-line no-unused-vars
+                ejs.renderFile('templates/email/email_alerts_one.ejs', params, (err, html) => {
+                  mandrill(params.idElement, params.subject, html, options.options.apiKey, options.options.from).then((r) => {
+                    resolve(r);
+                  }).catch((e) => {
+                    reject(e);
+                  });
+                });
+                break;
+              case 'smtp':
+                break;
+              default:
+                reject({ m: 'provider not selected' });
+            }
+          });
+        }).catch((e) => reject({ m: e + 1 }));
+      } catch (e) {
+        reject({ m: e + 2 });
+      }
+    });
+  }
 }
 module.exports = AlertProvider;
