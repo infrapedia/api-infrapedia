@@ -46,6 +46,31 @@ class User {
       } catch (e) { reject(e); }
     });
   }
+
+  logs(user) {
+    return new Promise((resolve, reject) => {
+      try {
+        const LOG = require('../../models/statistic.model');
+        LOG().then((LOG) => {
+          LOG.aggregate([{
+            $match: {
+              uuid: user,
+            },
+          },
+          {
+            $project: {
+              path: 1,
+              rgDate: 1,
+            },
+          },
+          ]).toArray((err, r) => {
+            if (err) reject({ m: err });
+            resolve({ m: 'Loaded', r });
+          });
+        }).catch((e) => { reject({ m: e }); });
+      } catch (e) { reject(e); }
+    });
+  }
 }
 
 module.exports = User
