@@ -5,7 +5,7 @@ const Axios = require('axios');
 
 class User {
   constructor() {
-    this.auth0Url = new url.URL(util.format('https://%s/api/v2', process.env.AUTH0_DOMAIN) );
+    this.auth0Url = new url.URL(util.format('https://%s/api/v2', process.env.AUTH0_DOMAIN));
   }
 
   getProfile(token, user) {
@@ -15,7 +15,7 @@ class User {
         Axios.get(`${this.auth0Url}/users/${user}?include_fields=true`,
           // bodyParameters,
           config)
-          .then((response) => { resolve(response.data) }).catch((error) => { reject(error); });
+          .then((response) => { resolve(response.data); }).catch((error) => { reject(error); });
       } catch (e) { reject(e); }
     });
   }
@@ -52,18 +52,20 @@ class User {
       try {
         const LOG = require('../../models/statistic.model');
         LOG().then((LOG) => {
-          LOG.aggregate([{
-            $match: {
-              uuid: user,
+          LOG.aggregate([
+            { $sort: { rgDate: -1 } },
+            {
+              $match: {
+                uuid: user,
+              },
             },
-          },
-          {
-            $project: {
-              path: 1,
-              rgDate: 1,
+            {
+              $project: {
+                path: 1,
+                rgDate: 1,
+              },
             },
-          },
-          { $limit: 10 },
+            { $limit: 10 },
           ]).toArray((err, r) => {
             if (err) reject({ m: err });
             resolve({ m: 'Loaded', r });
@@ -74,4 +76,4 @@ class User {
   }
 }
 
-module.exports = User
+module.exports = User;
