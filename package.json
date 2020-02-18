@@ -4,7 +4,13 @@
   "description": "Api for infrapedia",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "gcloud app deploy",
+    "start": "node app.js",
+    "lint": "samples lint",
+    "pretest": "npm run lint",
+    "system-test": "samples test app",
+    "e2e-test": "samples test deploy"
   },
   "repository": {
     "type": "git",
@@ -26,7 +32,7 @@
     "nodemon": "^2.0.2"
   },
   "dependencies": {
-    "@google-cloud/storage": "^4.1.3",
+    "@google-cloud/storage": "^4.3.1",
     "@mapbox/geojsonhint": "^3.0.0",
     "axios": "^0.19.0",
     "body-parser": "^1.19.0",
@@ -35,7 +41,7 @@
     "cookie-parser": "^1.4.4",
     "cors": "^2.8.5",
     "dns": "^0.2.2",
-    "dotenv": "^8.1.0",
+    "dotenv": "^8.2.0",
     "ejs": "^3.0.1",
     "express": "^4.17.1",
     "express-form-data": "^2.0.10",
