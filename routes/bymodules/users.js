@@ -7,7 +7,7 @@ module.exports = {
     });
     router.post(`${process.env._ROUTE}/auth/user/verifyElemnt`, (req, res) => {
       controllers.users.verifyElement(req.headers.user_id, req.body.email, req.body.elemnt, req.body.type)
-        .then((r) => { response.success(res, r, false); })
+        .then((r) => { response.success(res, r); })
         .catch((e) => { response.err(res, e); });
     });
   },
