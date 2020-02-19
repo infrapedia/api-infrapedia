@@ -16,7 +16,7 @@ module.exports = {
     router.get(`${process.env._ROUTE}/auth/alerts/configured`, (req, res) => {
       // console.log((req.headers.authorization, req.headers.user_id));
       controllers.alerts.configuredAlerts(req.headers.user_id, req.query.page)
-        .then((r) => { response.success(res, r); })
+        .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
     router.post(`${process.env._ROUTE}/auth/alerts/config/provider/email`, (req, res) => {

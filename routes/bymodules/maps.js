@@ -8,7 +8,7 @@ module.exports = {
     });
     router.get(`${process.env._ROUTE}/auth/map/mymap`, (req, res) => {
       controllers.maps.getMyMap(req.headers.user_id)
-        .then((r) => { response.success(res, r); })
+        .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
   },
