@@ -29,7 +29,7 @@ class Map {
           maps.findOne({ subdomain: data.subdomain }, (err, f) => {
             if (err) reject({ m: err });
             else if (!f) { // Can insert
-              maps.inserOne({
+              maps.insertOne({
                 uuid: user,
                 subdomain: data.subdomain,
                 googleID: data.googleID,
