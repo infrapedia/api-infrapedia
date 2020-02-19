@@ -26,7 +26,7 @@ const routes = function (router, controllers) {
     },
   };
   //
-  router.get('/', controllers.infrapedia.ping);
+  router.get(`${process.env._ROUTE}/`, controllers.infrapedia.ping);
   const mapStatistics = require('../lib/middleware/mapStatistics');
   router.get('/mps', mapStatistics, (req, res) => res.status(200).send('1'));
   // USER
