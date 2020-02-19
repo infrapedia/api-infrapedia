@@ -5,7 +5,7 @@ const { Storage } = require('@google-cloud/storage');
 
 const storage = new Storage({
   projectId: process.env._GG_PROJECT_ID,
-  keyFilename: 'keys/hale-cocoa-231721-ca05829368f5.json',
+  keyFilename: 'keys/GCkey.json',
 });
 const bucket = storage.bucket(process.env._GG_CLOUD_BUCKET);
 const allowedExtensionsImg = /(\.jpg|\.jpeg)$/i;
