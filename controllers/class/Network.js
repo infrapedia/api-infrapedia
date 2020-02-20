@@ -22,6 +22,7 @@ class Network {
               ixps: await (Array.isArray(data.ixps)) ? data.ixps.map((item) => new ObjectID(item)) : [],
               cls: await (Array.isArray(data.cls)) ? data.cls.map((item) => new ObjectID(item)) : [],
               cables: await (Array.isArray(data.cables)) ? data.cables.map((item) => new ObjectID(item)) : [],
+              tags: data.tags,
               rgDate: luxon.DateTime.utc(),
               uDate: luxon.DateTime.utc(),
               status: false,
@@ -53,6 +54,7 @@ class Network {
               ixps: await (Array.isArray(data.ixps)) ? data.ixps.map((item) => new ObjectID(item)) : [],
               cls: await (Array.isArray(data.cls)) ? data.cls.map((item) => new ObjectID(item)) : [],
               cables: await (Array.isArray(data.cables)) ? data.cables.map((item) => new ObjectID(item)) : [],
+              tags: data.tags,
               uDate: luxon.DateTime.utc(),
             };
             network.updateOne({ _id: id, uuid: String(user) }, { $set: data }, (err, u) => {

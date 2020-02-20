@@ -39,6 +39,7 @@ class IXP {
               techPhone: data.tech_phone,
               policyEmail: data.policy_email,
               policyPhone: data.policy_phone,
+              tags: [],
               rgDate: luxon.DateTime.utc(),
               uDate: luxon.DateTime.utc(),
               status: true,

@@ -37,6 +37,7 @@ class Organization {
                   premium: false,
                   istrusted: false,
                   non_peering: false,
+                  tags: [],
                   rgDate: luxon.DateTime.utc(),
                   uDate: luxon.DateTime.utc(),
                   status: false,
@@ -77,6 +78,7 @@ class Organization {
                   information: String(data.information),
                   address: await (data.address === '') ? [] : data.address.map((item) => JSON.parse(item)),
                   url: String(data.url),
+                  tags: [],
                   uDate: luxon.DateTime.utc(),
                 };
                 organization.updateOne(

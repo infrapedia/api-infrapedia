@@ -20,6 +20,7 @@ class CLS {
               slug: data.slug,
               geom: (data.geom !== '') ? JSON.parse(data.geom) : {},
               cables: await (Array.isArray(data.cables)) ? data.cables.map((item) => new ObjectID(item)) : [],
+              tags: data.tags,
               rgDate: luxon.DateTime.utc(),
               uDate: luxon.DateTime.utc(),
               status: false,
@@ -59,6 +60,7 @@ class CLS {
                 slug: data.slug,
                 geom: (data.geom !== '') ? JSON.parse(data.geom) : {},
                 cables: await (Array.isArray(data.cables)) ? data.cables.map((item) => new ObjectID(item)) : [],
+                tags: data.tags,
                 uDate: luxon.DateTime.utc(),
               };
               cls.updateOne(

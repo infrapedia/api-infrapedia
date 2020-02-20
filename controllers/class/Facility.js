@@ -38,6 +38,7 @@ class Facility {
                 features: [data.polygon],
               },
               ixps: [],
+              tags: [],
               t: data.osm_telecom,
               startDate: data.osm_start_date,
               building: (data.osm_building === 'yes') ? 'Building' : data.osm_building,
