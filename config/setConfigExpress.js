@@ -10,7 +10,14 @@ const cookieParser = require('cookie-parser');
 const methodOverride = require('method-override');
 const compression = require('compression');
 const path = require('path');
+// bugsnag
+const bugsnag = require('@bugsnag/js');
+const bugsnagExpress = require('@bugsnag/plugin-express');
 
+const bugsnagClient = bugsnag('d376cb029ba391af1b92c22f316570a1');
+
+bugsnagClient.use(bugsnagExpress);
+const middleware = bugsnagClient.getPlugin('express')
 // swagger
 const swaggerUi = require('swagger-ui-express');
 const _settings = require('./settings');
@@ -22,6 +29,7 @@ const options = {
     url: '/api-docs.json',
   },
 };
+
 // // Session confg
 // const redis = require('redis');
 // const redisStore = require('connect-redis')(session);
@@ -59,6 +67,13 @@ const strategy = new Auth0Strategy(
 
 
 const expressConfig = function (app) {
+  // Bugsnag
+  // This must be the first piece of middleware in the stack.
+  // It can only capture errors in downstream middleware
+  app.use(middleware.requestHandler);
+  /* all other middleware and application routes go here */
+  // This handles any errors that Express catches
+  app.use(middleware.errorHandler);
   // config
   app.set('settings', _settings);
   app.use(methodOverride('X-HTTP-Method-Override'));

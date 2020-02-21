@@ -59,5 +59,7 @@ const routes = function (router, controllers) {
   require('./bymodules/shortener').callEndPoints(router, controllers, response);
   // Map ---->
   require('./bymodules/maps').callEndPoints(router, controllers, response);
+  // Tags --->
+  require('./bymodules/tags').callEndPoints(router, controllers, response);
 };
 module.exports = routes;

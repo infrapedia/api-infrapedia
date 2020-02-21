@@ -32,6 +32,8 @@
     "nodemon": "^2.0.2"
   },
   "dependencies": {
+    "@bugsnag/js": "^6.5.2",
+    "@bugsnag/plugin-express": "^6.5.1",
     "@google-cloud/storage": "^4.3.1",
     "@mapbox/geojsonhint": "^3.0.0",
     "axios": "^0.19.0",
