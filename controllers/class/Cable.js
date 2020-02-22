@@ -44,8 +44,9 @@ class Cable {
               cables.insertOne(data, (err, i) => {
                 // TODO: validation insert
                 if (err) reject({ m: err + 0 });
-                fs.unlink(`./temp/${nameFile}.json`);
-                resolve({ m: 'Cable created' });
+                fs.unlink(`./temp/${nameFile}.json`, (err) => {
+                  resolve({ m: 'Cable created' });
+                });
               });
             });
           }).catch((e) => reject({ m: e + 1 }));
