@@ -16,7 +16,7 @@ class Cable {
         if (user !== undefined || user !== '') {
           this.model().then(async (cables) => {
             // create file
-            const readStream = await fs.readFileSync(data.geom);
+            const readStream = await fs.createReadStream(data.geom);
             readStream.on('open', async (err, geom) => {
               data = {
                 uuid: String(user),
