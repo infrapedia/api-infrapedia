@@ -130,8 +130,8 @@ const expressConfig = function (app) {
   app.use('/assets/css/', express.static(`${process.cwd()}/public/css`));
 
   // data parser
-  app.use(bodyParser.urlencoded({limit: '50mb', extended: true, parameterLimit: 50000}));
   app.use(bodyParser.json({ limit: '50mb' }));
+  app.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }));
   app.use(formData.parse(options));
   app.use(formData.format());
   app.use(formData.stream());
