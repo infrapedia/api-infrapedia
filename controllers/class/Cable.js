@@ -19,7 +19,7 @@ class Cable {
             const stream = await fs.createWriteStream('./temp/t_cable.json');
             stream.write(data.geom);
             stream.end(async () => {
-              const rd = await fs.readFileSync('readMe.txt', 'utf8');
+              const rd = await fs.readFileSync('./temp/t_cable.json', 'utf8');
               const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
               let geomData;
               rd.on('data', async (err, chunk) => { geomData += await chunk; });
