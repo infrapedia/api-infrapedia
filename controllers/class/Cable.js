@@ -60,37 +60,39 @@ class Cable {
       try {
         if (user !== undefined || user !== '') {
           this.model().then(async (cables) => {
-            const id = new ObjectID(data._id);
-            const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
-            data = {
-              uuid: String(user),
-              name: String(data.name),
-              systemLength: String(data.systemLength),
-              activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
-              urls: (data.urls === '') ? data.urls : [],
-              terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
-              capacityTBPS: String(data.capacityTBPS),
-              fiberPairs: String(data.fiberPairs),
-              // notes: String(data.notes),
-              category: String(data.category),
-              facilities: await (Array.isArray(data.facilities)) ? data.facilities.map((item) => new ObjectID(item)) : [],
-              // cls: await (data.cls.length === 0 || data.cls === '') ? [] : data.cls.map((item) => new ObjectID(item)),
-              geom: (data.geom !== '') ? JSON.parse(data.geom) : {},
-              tags: data.tags,
-              uDate: luxon.DateTime.utc(),
-            };
-            // we're going to search if the user is the own of the cable
-            cables.find({ _id: id, uuid: String(user) }).count((err, c) => {
-              if (err) reject({ m: err });
-              cables.updateOne({ _id: id, uuid: String(user) }, { $set: data }, (err, u) => {
+            const nameFile = Math.floor(Date.now() / 1000);
+            const stream = await fs.createWriteStream(`./temp/${nameFile}.json`);
+            stream.write(data.geom);
+            stream.end(async () => {
+              const geomData = await fs.readFileSync(`./temp/${nameFile}.json`, 'utf8');
+              const id = new ObjectID(data._id);
+              const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
+              data = {
+                uuid: String(user),
+                name: String(data.name),
+                systemLength: String(data.systemLength),
+                activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
+                urls: (data.urls === '') ? data.urls : [],
+                terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
+                capacityTBPS: String(data.capacityTBPS),
+                fiberPairs: String(data.fiberPairs),
+                // notes: String(data.notes),
+                category: String(data.category),
+                facilities: await (Array.isArray(data.facilities)) ? data.facilities.map((item) => new ObjectID(item)) : [],
+                geom: (geomData !== '') ? JSON.parse(geomData) : {},
+                tags: data.tags,
+                uDate: luxon.DateTime.utc(),
+              };
+              // we're going to search if the user is the own of the cable
+              cables.find({ _id: id, uuid: String(user) }).count((err, c) => {
                 if (err) reject({ m: err });
-                else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
-                else resolve({ m: 'Loaded', r: data });
+                cables.updateOne({ _id: id, uuid: String(user) }, { $set: data }, (err, u) => {
+                  if (err) reject({ m: err });
+                  else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
+                  else resolve({ m: 'Loaded', r: data });
+                });
               });
             });
-            // if (GJV.isMultiLineString(data.geom) || GJV.isLineString(data.geom)) {
-            //
-            // } else { reject({ m: 'You must send a validated geojson, lines or multilines' }); }
           }).catch((e) => reject({ m: e }));
         } else { resolve('Not user found'); }
       } catch (e) { reject({ m: e }); }
