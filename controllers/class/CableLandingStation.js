@@ -132,7 +132,6 @@ class CLS {
               $project: {
                 uuid: 0,
                 geom: 0,
-                cables: 0,
                 deleted: 0,
               },
             }]).toArray((err, rNetwork) => {
