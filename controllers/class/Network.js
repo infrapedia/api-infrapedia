@@ -341,7 +341,7 @@ class Network {
                   as: 'cls',
                 },
               },
-            ], (err, o) => {
+            ]).toArray((err, o) => {
               if (err) reject(err);
               resolve({ m: 'Loaded', r: o });
             });
