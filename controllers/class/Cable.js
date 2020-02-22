@@ -17,11 +17,10 @@ class Cable {
           this.model().then(async (cables) => {
 
             //create file
-            let readStream = fs.createReadStream(data.geom);
-            readStream.on('open', function (err, data) {
-              // This just pipes the read stream to the response object (which goes to the client)
-              console.log(data);
-            });
+            const readStream = fs.createReadStream(data.geom);
+            const geom = await readStream.on('open', (err, data) => data);
+
+            console.log(geom);
             // await fs.readFile(data.file.path, 'utf8', async (err, rFile) => {
             //   if (err){
             //     reject({ m: err + 0 }
