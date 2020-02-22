@@ -10,9 +10,123 @@ class Map {
     return new Promise((resolve, reject) => {
       try {
         this.model().then((maps) => {
-          maps.findOne({ uuid: user }, (err, r) => {
+          maps.aggregate([
+            { $match: { uuid: user } },
+            {
+              $lookup: {
+                from: 'facilities',
+                let: { f: '$facilities' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$_id', '$$f'],
+                      },
+                    },
+                  },
+                  {
+                    $addFields: {
+                      label: '$name',
+                      value: '$_id',
+                    },
+                  },
+                  {
+                    $project: {
+                      label: 1,
+                      value: 1,
+                    },
+                  },
+                ],
+                as: 'facilities',
+              },
+            },
+            {
+              $lookup: {
+                from: 'cables',
+                let: { f: '$cables' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$_id', '$$f'],
+                      },
+                    },
+                  },
+                  {
+                    $addFields: {
+                      label: '$name',
+                      value: '$_id',
+                    },
+                  },
+                  {
+                    $project: {
+                      label: 1,
+                      value: 1,
+                    },
+                  },
+                ],
+                as: 'cables',
+              },
+            },
+            {
+              $lookup: {
+                from: 'cls',
+                let: { f: '$cls' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$_id', '$$f'],
+                      },
+                    },
+                  },
+                  {
+                    $addFields: {
+                      label: '$name',
+                      value: '$_id',
+                    },
+                  },
+                  {
+                    $project: {
+                      label: 1,
+                      value: 1,
+                    },
+                  },
+                ],
+                as: 'cls',
+              },
+            },
+            {
+              $lookup: {
+                from: 'ixps',
+                let: { f: '$ixps' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$_id', '$$f'],
+                      },
+                    },
+                  },
+                  {
+                    $addFields: {
+                      label: '$name',
+                      value: '$_id',
+                    },
+                  },
+                  {
+                    $project: {
+                      label: 1,
+                      value: 1,
+                    },
+                  },
+                ],
+                as: 'ixps',
+              },
+            },
+          ]).toArray((err, r) => {
             if (err) reject({ m: err });
-            resolve({ m: 'Loaded', r });
+            resolve({ m: 'Loaded', r[0] });
           });
         }).catch((e) => {});
       } catch (e) {
@@ -34,6 +148,7 @@ class Map {
                 subdomain: data.subdomain,
                 googleID: data.googleID,
                 facilities: data.facilities,
+                ixps: data.ixps,
                 cls: data.cls,
                 cables: data.cables,
                 logos: data.logos,
@@ -50,6 +165,7 @@ class Map {
                   subdomain: data.subdomain,
                   googleID: data.googleID,
                   facilities: data.facilities,
+                  ixps: data.ixps,
                   cls: data.cls,
                   cables: data.cables,
                   logos: data.logos,
