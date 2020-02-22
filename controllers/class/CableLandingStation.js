@@ -155,7 +155,41 @@ class CLS {
         if (user !== undefined || user !== '') {
           this.model().then((cls) => {
             id = new ObjectID(id);
-            cls.findOne({ _id: id }, (err, o) => {
+            cls.aggregate([
+              {
+                $match: {
+                  _id: id,
+                },
+              },
+              {
+                $lookup: {
+                  from: 'cables',
+                  let: { f: '$cables' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $in: ['$_id', '$$f'],
+                        },
+                      },
+                    },
+                    {
+                      $addFields: {
+                        label: '$name',
+                        value: '$_id',
+                      },
+                    },
+                    {
+                      $project: {
+                        label: 1,
+                        value: 1,
+                      },
+                    },
+                  ],
+                  as: 'cables',
+                },
+              },
+            ], (err, o) => {
               if (err) reject(err);
               resolve({ m: 'Loaded', r: o });
             });

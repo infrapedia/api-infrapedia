@@ -204,7 +204,41 @@ class Cable {
         if (user !== undefined || user !== '') {
           this.model().then((cables) => {
             id = new ObjectID(id);
-            cables.findOne({ _id: id }, (err, o) => {
+            cables.aggregate([
+              {
+                $match: {
+                  _id: id,
+                },
+              },
+              {
+                $lookup: {
+                  from: 'facilities',
+                  let: { f: '$facilities' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $in: ['$_id', '$$f'],
+                        },
+                      },
+                    },
+                    {
+                      $addFields: {
+                        label: '$name',
+                        value: '$_id',
+                      },
+                    },
+                    {
+                      $project: {
+                        label: 1,
+                        value: 1,
+                      },
+                    },
+                  ],
+                  as: 'facilities',
+                },
+              },
+            ], (err, o) => {
               if (err) reject(err);
               resolve({ m: 'Loaded', r: o });
             });

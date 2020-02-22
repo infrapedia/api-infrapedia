@@ -223,7 +223,125 @@ class Network {
         if (user !== undefined || user !== '') {
           this.model().then((network) => {
             id = new ObjectID(id);
-            network.findOne({ _id: id }, (err, o) => {
+            network.aggregate([
+              {
+                $match: {
+                  _id: id,
+                },
+              },
+              {
+                $lookup: {
+                  from: 'organizations',
+                  let: { f: '$organizations' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $in: ['$_id', '$$f'],
+                        },
+                      },
+                    },
+                    {
+                      $addFields: {
+                        label: '$name',
+                        value: '$_id',
+                      },
+                    },
+                    {
+                      $project: {
+                        label: 1,
+                        value: 1,
+                      },
+                    },
+                  ],
+                  as: 'organizations',
+                },
+              },
+              {
+                $lookup: {
+                  from: 'facilities',
+                  let: { f: '$facilities' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $in: ['$_id', '$$f'],
+                        },
+                      },
+                    },
+                    {
+                      $addFields: {
+                        label: '$name',
+                        value: '$_id',
+                      },
+                    },
+                    {
+                      $project: {
+                        label: 1,
+                        value: 1,
+                      },
+                    },
+                  ],
+                  as: 'facilities',
+                },
+              },
+              {
+                $lookup: {
+                  from: 'cables',
+                  let: { f: '$cables' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $in: ['$_id', '$$f'],
+                        },
+                      },
+                    },
+                    {
+                      $addFields: {
+                        label: '$name',
+                        value: '$_id',
+                      },
+                    },
+                    {
+                      $project: {
+                        label: 1,
+                        value: 1,
+                      },
+                    },
+                  ],
+                  as: 'cables',
+                },
+              },
+              {
+                $lookup: {
+                  from: 'cls',
+                  let: { f: '$cls' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $in: ['$_id', '$$f'],
+                        },
+                      },
+                    },
+                    {
+                      $addFields: {
+                        label: '$name',
+                        value: '$_id',
+                      },
+                    },
+                    {
+                      $project: {
+                        label: 1,
+                        value: 1,
+                      },
+                    },
+                  ],
+                  as: 'cls',
+                },
+              },
+            ], (err, o) => {
               if (err) reject(err);
               resolve({ m: 'Loaded', r: o });
             });
