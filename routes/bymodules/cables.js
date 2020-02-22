@@ -2,7 +2,7 @@ module.exports = {
   callEndPoints: (router, controllers, response) => {
     const statics = require('../../lib/middleware/statics');
     router.post(`${process.env._ROUTE}/auth/cables/add`, (req, res) => {
-      req.setTimeout(500000);
+      req.setTimeout(3600000);
       controllers.cables.add(req.headers.user_id, req.body)
         .then((r) => { response.success(res, r); })
         .catch((e) => { response.err(res, e); });
