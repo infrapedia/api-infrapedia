@@ -19,36 +19,37 @@ class Cable {
             const stream = await fs.createWriteStream('./temp/t_cable.json');
             stream.write(data.geom);
             stream.end(async () => {
-              const rd = await fs.readFileSync('./temp/t_cable.json', 'utf8');
+              const geomData = await fs.readFileSync('./temp/t_cable.json', 'utf8');
               const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
-              let geomData;
-              rd.on('data', async (err, chunk) => { geomData += await chunk; });
-              rd.on('end', async () => {
-                data = {
-                  uuid: String(user),
-                  name: String(data.name),
-                  notes: '', // String(data.notes)
-                  systemLength: String(data.systemLength),
-                  activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
-                  urls: (Array.isArray(data.urls)) ? data.urls : [],
-                  terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
-                  capacityTBPS: String(data.capacityTBPS),
-                  fiberPairs: String(data.fiberPairs),
-                  category: String(data.category),
-                  facilities: await (Array.isArray(data.facilities)) ? data.facilities.map((item) => new ObjectID(item)) : [],
-                  geom: (geomData !== '') ? JSON.parse(geomData) : {},
-                  tags: data.tags,
-                  rgDate: luxon.DateTime.utc(),
-                  uDate: luxon.DateTime.utc(),
-                  status: false,
-                  deleted: false,
-                };
-                cables.insertOne(data, (err, i) => {
-                  // TODO: validation insert
-                  if (err) reject({ m: err + 0 });
-                  resolve({ m: 'Cable created' });
-                });
+              data = {
+                uuid: String(user),
+                name: String(data.name),
+                notes: '', // String(data.notes)
+                systemLength: String(data.systemLength),
+                activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
+                urls: (Array.isArray(data.urls)) ? data.urls : [],
+                terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
+                capacityTBPS: String(data.capacityTBPS),
+                fiberPairs: String(data.fiberPairs),
+                category: String(data.category),
+                facilities: await (Array.isArray(data.facilities)) ? data.facilities.map((item) => new ObjectID(item)) : [],
+                geom: (geomData !== '') ? JSON.parse(geomData) : {},
+                tags: data.tags,
+                rgDate: luxon.DateTime.utc(),
+                uDate: luxon.DateTime.utc(),
+                status: false,
+                deleted: false,
+              };
+              cables.insertOne(data, (err, i) => {
+                // TODO: validation insert
+                if (err) reject({ m: err + 0 });
+                resolve({ m: 'Cable created' });
               });
+              // let geomData;
+              // rd.on('data', async (err, chunk) => { geomData += await chunk; });
+              // rd.on('end', async () => {
+              //
+              // });
             });
           }).catch((e) => reject({ m: e + 1 }));
         } else { resolve('Not user found'); }
