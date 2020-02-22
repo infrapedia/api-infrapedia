@@ -92,6 +92,28 @@ class CLS {
             },
             {
               $lookup: {
+                from: 'cables',
+                let: { cables: '$cables' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$_id', '$$cables'],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'cables',
+              },
+            },
+            {
+              $lookup: {
                 from: 'alerts',
                 let: { elemnt: { $toString: '$_id' } },
                 pipeline: [

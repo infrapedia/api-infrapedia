@@ -114,6 +114,34 @@ class Cable {
             },
             {
               $lookup: {
+                from: 'facilities',
+                let: { f: '$facilities' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$_id', '$$f'],
+                      },
+                    },
+                  },
+                  {
+                    $addFields: {
+                      label: '$name',
+                      value: '$_id',
+                    },
+                  },
+                  {
+                    $project: {
+                      label: 1,
+                      value: 1,
+                    },
+                  },
+                ],
+                as: 'facilities',
+              },
+            },
+            {
+              $lookup: {
                 from: 'alerts',
                 let: { elemnt: { $toString: '$_id' } },
                 pipeline: [
