@@ -16,7 +16,7 @@ class Cable {
         if (user !== undefined || user !== '') {
           this.model().then(async (cables) => {
             // create file
-            let readStream = fs.createReadStream(data.geom);
+            let readStream = fs.readFileSync(data.geom);
             readStream.on('open', function (err, data) {
               // This just pipes the read stream to the response object (which goes to the client)
               console.log(data);
