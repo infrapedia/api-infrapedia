@@ -61,5 +61,7 @@ const routes = function (router, controllers) {
   require('./bymodules/maps').callEndPoints(router, controllers, response);
   // Tags --->
   require('./bymodules/tags').callEndPoints(router, controllers, response);
+  // Master File --->
+  require('./bymodules/masterFile').callEndPoints(router, controllers, response);
 };
 module.exports = routes;
