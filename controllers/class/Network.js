@@ -183,7 +183,7 @@ class Network {
               },
             }]).toArray((err, rNetwork) => {
               if (err) reject(err);
-              resolve({ m: 'Loaded', r: rNetwork[0] });
+              resolve({ m: 'Loaded', r: rNetwork });
             });
           });
         } else { resolve('Not user found'); }
@@ -343,7 +343,7 @@ class Network {
               },
             ]).toArray((err, o) => {
               if (err) reject(err);
-              resolve({ m: 'Loaded', r: o });
+              resolve({ m: 'Loaded', r: o[0] });
             });
           });
         } else { resolve('Not user found'); }
