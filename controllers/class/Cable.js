@@ -20,7 +20,7 @@ class Cable {
               .on('error', (err) => {
                 console.log(err);
               })
-              .on('open', { encoding: 'utf8' }, async (err, geom) => {
+              .on('open', async (err, geom) => {
                 // TODO: check if exist another network with the same name
                 const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
                 data = {
