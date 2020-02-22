@@ -126,7 +126,7 @@ class Map {
             },
           ]).toArray((err, r) => {
             if (err) reject({ m: err });
-            resolve({ m: 'Loaded', r[0] });
+            resolve({ m: 'Loaded', r: r[0] });
           });
         }).catch((e) => {});
       } catch (e) {
