@@ -16,44 +16,34 @@ class Cable {
         if (user !== undefined || user !== '') {
           this.model().then(async (cables) => {
             // create file
-            let readStream = fs.readFileSync(data.geom);
-            readStream.on('open', function (err, data) {
-              // This just pipes the read stream to the response object (which goes to the client)
-              console.log(data);
+            const readStream = await fs.readFileSync(data.geom);
+            readStream.on('open', async (err, geom) => {
+              data = {
+                uuid: String(user),
+                name: String(data.name),
+                notes: '', // String(data.notes)
+                systemLength: String(data.systemLength),
+                activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
+                urls: (Array.isArray(data.urls)) ? data.urls : [],
+                terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
+                capacityTBPS: String(data.capacityTBPS),
+                fiberPairs: String(data.fiberPairs),
+                category: String(data.category),
+                facilities: await (Array.isArray(data.facilities)) ? data.facilities.map((item) => new ObjectID(item)) : [],
+                // cls: await (data.cls.length === 0 || data.cls === '') ? [] : data.cls.map((item) => new ObjectID(item)),
+                geom: (geom !== '') ? JSON.parse(geom) : {},
+                tags: data.tags,
+                rgDate: luxon.DateTime.utc(),
+                uDate: luxon.DateTime.utc(),
+                status: false,
+                deleted: false,
+              };
+              cables.insertOne(data, (err, i) => {
+                // TODO: validation insert
+                if (err) reject({ m: err + 0 });
+                resolve({ m: 'Cable created' });
+              });
             });
-            // fs.createReadStream(data.geom)
-            //   .on('error', (err) => {
-            //     console.log(err);
-            //   })
-            //   .on('open', async (err, geom) => {
-            //     // TODO: check if exist another network with the same name
-            //     const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
-            //     data = {
-            //       uuid: String(user),
-            //       name: String(data.name),
-            //       notes: '', // String(data.notes)
-            //       systemLength: String(data.systemLength),
-            //       activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
-            //       urls: (Array.isArray(data.urls)) ? data.urls : [],
-            //       terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
-            //       capacityTBPS: String(data.capacityTBPS),
-            //       fiberPairs: String(data.fiberPairs),
-            //       category: String(data.category),
-            //       facilities: await (Array.isArray(data.facilities)) ? data.facilities.map((item) => new ObjectID(item)) : [],
-            //       // cls: await (data.cls.length === 0 || data.cls === '') ? [] : data.cls.map((item) => new ObjectID(item)),
-            //       geom: (geom !== '') ? JSON.parse(geom) : {},
-            //       tags: data.tags,
-            //       rgDate: luxon.DateTime.utc(),
-            //       uDate: luxon.DateTime.utc(),
-            //       status: false,
-            //       deleted: false,
-            //     };
-            //     cables.insertOne(data, (err, i) => {
-            //       // TODO: validation insert
-            //       if (err) reject({ m: err + 0 });
-            //       resolve({ m: 'Cable created' });
-            //     });
-            //   });
           }).catch((e) => reject({ m: e + 1 }));
         } else { resolve('Not user found'); }
       } catch (e) { reject({ m: e + 2 }); }
