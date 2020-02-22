@@ -16,10 +16,11 @@ class Cable {
         if (user !== undefined || user !== '') {
           this.model().then(async (cables) => {
             // create file
-            const stream = await fs.createWriteStream('./temp/t_cable.json');
+            const nameFile = Math.floor(Date.now() / 1000);
+            const stream = await fs.createWriteStream(`./temp/${nameFile}.json`);
             stream.write(data.geom);
             stream.end(async () => {
-              const geomData = await fs.readFileSync('./temp/t_cable.json', 'utf8');
+              const geomData = await fs.readFileSync(`./temp/${nameFile}.json`, 'utf8');
               const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
               data = {
                 uuid: String(user),
@@ -43,13 +44,9 @@ class Cable {
               cables.insertOne(data, (err, i) => {
                 // TODO: validation insert
                 if (err) reject({ m: err + 0 });
+                fs.unlink(`./temp/${nameFile}.json`);
                 resolve({ m: 'Cable created' });
               });
-              // let geomData;
-              // rd.on('data', async (err, chunk) => { geomData += await chunk; });
-              // rd.on('end', async () => {
-              //
-              // });
             });
           }).catch((e) => reject({ m: e + 1 }));
         } else { resolve('Not user found'); }
