@@ -17,7 +17,10 @@ class Cable {
           this.model().then(async (cables) => {
             // create file
             const readStream = await fs.createReadStream(data.geom);
-            readStream.on('open', async (err, geom) => {
+            const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
+            let geomData;
+            readStream.on('data', async (err, chunk) => { geomData += await chunk; });
+            readStream.on('end', async () => {
               data = {
                 uuid: String(user),
                 name: String(data.name),
@@ -31,7 +34,7 @@ class Cable {
                 category: String(data.category),
                 facilities: await (Array.isArray(data.facilities)) ? data.facilities.map((item) => new ObjectID(item)) : [],
                 // cls: await (data.cls.length === 0 || data.cls === '') ? [] : data.cls.map((item) => new ObjectID(item)),
-                geom: (geom !== '') ? JSON.parse(geom) : {},
+                geom: (geomData !== '') ? JSON.parse(geomData) : {},
                 tags: data.tags,
                 rgDate: luxon.DateTime.utc(),
                 uDate: luxon.DateTime.utc(),
