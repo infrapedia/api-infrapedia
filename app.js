@@ -1,5 +1,4 @@
-// eslint-disable-next-line global-require
-// eslint-disable-next-line no-underscore-dangle
+require('newrelic');
 // Declare
 require('dotenv/config')
 const path = require('path');

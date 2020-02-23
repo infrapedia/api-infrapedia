@@ -56,6 +56,7 @@
     "mime": "^2.4.4",
     "mongodb": "^3.3.3",
     "nanoid": "^2.1.11",
+    "newrelic": "^6.4.1",
     "node-mandrill": "^1.0.1",
     "node-wget": "^0.4.3",
     "passport": "^0.4.0",
