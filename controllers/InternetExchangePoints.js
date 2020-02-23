@@ -19,4 +19,5 @@ module.exports = {
   }),
   view: (usr, id) => IXP.view(usr, id),
   bbox: (usr, id) => IXP.bbox(usr, id),
+  getElementGeom: (usr, id) => IXP.getElementGeom(id),
 };

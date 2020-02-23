@@ -401,5 +401,29 @@ class CLS {
       } catch (e) { reject({ m: e }); }
     });
   }
+
+  getElementGeom(id) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((cls) => {
+          cls.aggregate([
+            {
+              $match: {
+                _id: new ObjectID(id),
+              },
+            },
+            {
+              $project: {
+                geom: 1,
+              },
+            },
+          ]).toArray((err, c) => {
+            if (err) reject(err);
+            resolve({ m: 'Loaded', r: c });
+          });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
 }
 module.exports = CLS;

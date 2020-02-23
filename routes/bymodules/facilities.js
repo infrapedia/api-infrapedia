@@ -21,5 +21,10 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+    router.get(`${process.env._ROUTE}/facilities/geom/:id`, statics, (req, res) => {
+      controllers.facilities.getElementGeom(req.headers.user_id, req.params.id)
+         .then((r) => { response.success(res, r, false); })
+         .catch((e) => { response.err(res, e); });
+    });
   },
 };

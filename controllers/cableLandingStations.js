@@ -10,4 +10,5 @@ module.exports = {
   bbox: (usr, id) => CLS.bbox(usr, id),
   view: (usr, id) => CLS.view(usr, id),
   search: (usr, id) => CLS.search(usr, id),
+  getElementGeom: (usr, id) => CLS.getElementGeom(id),
 };

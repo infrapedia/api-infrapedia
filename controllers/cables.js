@@ -11,4 +11,5 @@ module.exports = {
   bbox: (usr, id) => Cable.bbox(usr, id),
   view: (usr, id) => Cable.view(usr, id),
   search: (usr, id) => Cable.search(usr, id),
+  getElementGeom: (usr, id) => Cable.getElementGeom(id),
 };
