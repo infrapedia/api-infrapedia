@@ -213,19 +213,19 @@ class IXP {
       try {
         this.model().then((facility) => {
           facility.aggregate([
+            { $sort: { name: 1 } },
             {
               $match: { $and: [{ name: { $regex: search, $options: 'i' } }, { nameLong: { $regex: search, $options: 'i' } }] } ,
             },
             {
-              $addFields: { nameLong: { $concat: ['$name', ' - ', '$nameLong', ' (', { $arrayElemAt: ['$address.city', 0] }, ', ', { $arrayElemAt: ['$address.country', 0] }, ')'] } },
+              $addFields: { name: { $concat: ['$name', ' - ', '$nameLong', ' (', { $arrayElemAt: ['$address.city', 0] }, ', ', { $arrayElemAt: ['$address.country', 0] }, ')'] } },
             },
             {
               $project: {
                 _id: 1,
-                nameLong: 1,
+                name: 1,
               },
             },
-            { $sort: { name: 1 } },
           ]).toArray((err, r) => {
             resolve(r);
           });
