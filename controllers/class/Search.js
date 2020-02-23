@@ -12,6 +12,7 @@ class Search {
         this.model = require('../../models/organization.model');
         this.model().then((organization) => {
           organization.aggregate([
+            { $sort: { name: 1 } },
             {
               $match: {
                 $or: [
@@ -22,6 +23,7 @@ class Search {
                 ],
               },
             },
+            { $limit: 10 },
             {
               $project: {
                 _id: 1,
@@ -46,6 +48,7 @@ class Search {
         this.model = require('../../models/network.model');
         this.model().then((network) => {
           network.aggregate([
+            { $sort: { name: 1 } },
             {
               $lookup: {
                 from: 'organizations',
@@ -106,6 +109,7 @@ class Search {
                 ],
               },
             },
+            { $limit: 10 },
             {
               $addFields: {
                 premium: { $arrayElemAt: ['$address.premium', 0] },
@@ -125,6 +129,7 @@ class Search {
         this.model = require('../../models/cable.model');
         this.model().then((cable) => {
           cable.aggregate([
+            { $sort: { name: 1 } },
             {
               $lookup: {
                 from: 'networks',
@@ -150,6 +155,7 @@ class Search {
             {
               $match: { name: { $regex: search, $options: 'i' } },
             },
+            { $limit: 10 },
             {
               $project: {
                 _id: 1,
@@ -172,6 +178,7 @@ class Search {
         this.model = require('../../models/cls.model');
         this.model().then((cls) => {
           cls.aggregate([
+            { $sort: { name: 1 } },
             {
               $lookup: {
                 from: 'networks',
@@ -197,6 +204,7 @@ class Search {
             {
               $match: { name: { $regex: search, $options: 'i' } },
             },
+            { $limit: 10 },
             {
               $project: {
                 _id: 1,
@@ -213,12 +221,13 @@ class Search {
     });
   }
 
-  facility(search){
+  facility(search) {
     return new Promise((resolve, reject) => {
       try {
         this.model = require('../../models/facility.model');
         this.model().then((facility) => {
           facility.aggregate([
+            { $sort: { name: 1 } },
             {
               $lookup: {
                 from: 'networks',
@@ -244,6 +253,7 @@ class Search {
             {
               $match: { name: { $regex: search, $options: 'i' } },
             },
+            { $limit: 10 },
             {
               $project: {
                 _id: 1,
@@ -266,6 +276,7 @@ class Search {
         this.model = require('../../models/ixp.model');
         this.model().then((ixp) => {
           ixp.aggregate([
+            { $sort: { name: 1 } },
             {
               $lookup: {
                 from: 'networks',
@@ -291,6 +302,7 @@ class Search {
             {
               $match: { name: { $regex: search, $options: 'i' } },
             },
+            { $limit: 10 },
             {
               $addFields: { name: { $concat: ['$name', ' (', '$nameLong', ')'] } },
             },
