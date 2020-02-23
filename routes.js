@@ -11,9 +11,7 @@ files.forEach((file) => {
   let temp = controllers;
   const parts = path.relative(path.join(process.cwd(), 'controllers'), file).slice(0, -3).split(path.sep);
   while (parts.length) {
-    if (parts.length === 1) { temp[parts[0]] = require(file); }
-    else { temp[parts[0]] = temp[parts[0]] || {}; }
-
+    if (parts.length === 1) { temp[parts[0]] = require(file); } else { temp[parts[0]] = temp[parts[0]] || {}; }
     temp = temp[parts.shift()];
   }
 });

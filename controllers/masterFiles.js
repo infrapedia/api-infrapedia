@@ -62,6 +62,20 @@ module.exports = {
               console.log('Error to create the file');
             });
             stream.end(() => {
+              const { exec } = require('child_process');
+              if (process.env._USECDN === 'true') {
+                exec('./sh/cablesT_migrateToCdn.sh', (error, stdout, stderr) => {
+                  if (error) {
+                    console.log(`error: ${error.message}`);
+                    return;
+                  }
+                  if (stderr) {
+                    console.log(`stderr: ${stderr}`);
+                    return;
+                  }
+                  console.log(`stdout: ${stdout}`);
+                });
+              }
               console.log('The file was created');
             });
           } catch (err) { return err; }

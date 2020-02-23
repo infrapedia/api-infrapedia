@@ -114,6 +114,10 @@ _GG_CLOUD_BUCKET_FOLDER_KMZ=
 - MongoDB: 
 
 
+chmod u+r+x cablesT_migrateToCdn.sh 
+
+
+
 ## License
 
 The MIT License (MIT)
