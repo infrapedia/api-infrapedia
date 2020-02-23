@@ -12,5 +12,13 @@ module.exports = {
       controllers.masterFiles.cls();
       res.send('I');
     });
+    router.get(`${process.env._ROUTE}/masterfile/cablesterrestrial`, (req, res) => {
+      controllers.masterFiles.cablesT();
+      res.send('I');
+    });
+    router.get(`${process.env._ROUTE}/masterfile/cablessubsea`, (req, res) => {
+      controllers.masterFiles.cablesS();
+      res.send('I');
+    });
   },
 };

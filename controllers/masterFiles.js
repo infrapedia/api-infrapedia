@@ -2,14 +2,140 @@ const cp = require('child_process');
 const fs = require('fs');
 
 module.exports = {
-  // cables: () => {
-  //   try {
-  //     const cable = require('../models/cable.model');
-  //     cable().then((cable) => {
-  //
-  //     }).catch((e) => 'Error');
-  //   } catch (e) { return 'Error'; }
-  // },
+  cablesT: () => {
+    try {
+      const cable = require('../models/cable.model');
+      cable().then((cable) => {
+        cable.aggregate([
+          {
+            $match: {
+              terrestrial: true,
+            },
+          },
+          {
+            $unwind:
+               {
+                 path: '$geom.features',
+                 preserveNullAndEmptyArrays: false,
+               },
+          },
+          {
+            $addFields: {
+              'geom.features.properties.name': '$name',
+              'geom.features.properties.segment': '$geom.features.properties._id',
+              'geom.features.properties._id': '$_id',
+              'geom.features.properties.systemLength': '$systemLenght',
+              'geom.features.properties.capacityTBPS': '$capacityTBPS',
+              'geom.features.properties.terrestrial': '$terrestrial',
+              'geom.features.properties.category': '$category',
+              // 'geom.features.properties.activationDateTime': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
+              'geom.features.properties.facilities': '$facilities',
+            },
+          },
+          {
+            $project: {
+              'geom.features.id': 0,
+            },
+          },
+          {
+            $project: {
+              geom: 1,
+            },
+          },
+          {
+            $addFields: {
+              geom: '$geom.features',
+            },
+          },
+        ], { allowDiskUse: false }).toArray(async (err, lines) => {
+          if (err) return 'Error';
+          // we'll going to create the master file for ixps
+          lines = await lines.reduce((total, value) => total.concat(value.geom), []);
+          lines = `{
+                              "type": "FeatureCollection",
+                              "features": ${JSON.stringify(lines)}
+                          }`;
+          try {
+            const stream = await fs.createWriteStream('./temp/cables_terrestrial.json');
+            stream.write(lines);
+            stream.on('err', () => {
+              console.log('Error to create the file');
+            });
+            stream.end(() => {
+              console.log('The file was created');
+            });
+          } catch (err) { return err; }
+        });
+      }).catch((e) => e);
+    } catch (e) { return e; }
+  },
+  cablesS: () => {
+    try {
+      const cable = require('../models/cable.model');
+      cable().then((cable) => {
+        cable.aggregate([
+          {
+            $match: {
+              terrestrial: false,
+            },
+          },
+          {
+            $unwind:
+               {
+                 path: '$geom.features',
+                 preserveNullAndEmptyArrays: false,
+               },
+          },
+          {
+            $addFields: {
+              'geom.features.properties.name': '$name',
+              'geom.features.properties.segment': '$geom.features.properties._id',
+              'geom.features.properties._id': '$_id',
+              'geom.features.properties.systemLength': '$systemLenght',
+              'geom.features.properties.capacityTBPS': '$capacityTBPS',
+              'geom.features.properties.terrestrial': '$terrestrial',
+              'geom.features.properties.category': '$category',
+              // 'geom.features.properties.activationDateTime': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
+              'geom.features.properties.facilities': '$facilities',
+            },
+          },
+          {
+            $project: {
+              'geom.features.id': 0,
+            },
+          },
+          {
+            $project: {
+              geom: 1,
+            },
+          },
+          {
+            $addFields: {
+              geom: '$geom.features',
+            },
+          },
+        ], { allowDiskUse: false }).toArray(async (err, lines) => {
+          if (err) return 'Error';
+          // we'll going to create the master file for ixps
+          lines = await lines.reduce((total, value) => total.concat(value.geom), []);
+          lines = `{
+                              "type": "FeatureCollection",
+                              "features": ${JSON.stringify(lines)}
+                          }`;
+          try {
+            const stream = await fs.createWriteStream('./temp/cables_subsea.json');
+            stream.write(lines);
+            stream.on('err', () => {
+              console.log('Error to create the file');
+            });
+            stream.end(() => {
+              console.log('The file was created');
+            });
+          } catch (err) { return err; }
+        });
+      }).catch((e) => e);
+    } catch (e) { return e; }
+  },
   cls: () => {
     try {
       const cls = require('../models/cls.model');
@@ -19,7 +145,7 @@ module.exports = {
             $unwind:
                {
                  path: '$geom.features',
-                 preserveNullAndEmptyArrays: false
+                 preserveNullAndEmptyArrays: false,
                },
           },
           {
@@ -49,8 +175,12 @@ module.exports = {
                               "features": ${JSON.stringify(multipoints)}
                           }`;
           try {
-            await fs.writeFile('./temp/cls.json', multipoints, (err) => {
-              if (err) throw err;
+            const stream = await fs.createWriteStream('./temp/cls.json');
+            stream.write(multipoints);
+            stream.on('err', () => {
+              console.log('Error to create the file');
+            });
+            stream.end(() => {
               console.log('The file was created');
             });
           } catch (err) { return err; }
@@ -91,8 +221,12 @@ module.exports = {
                               "features": ${JSON.stringify(multipoints)}
                           }`;
           try {
-            await fs.writeFile('./temp/ixps.json', multipoints, (err) => {
-              if (err) throw err;
+            const stream = await fs.createWriteStream('./temp/ixps.json');
+            stream.write(multipoints);
+            stream.on('err', () => {
+              console.log('Error to create the file');
+            });
+            stream.end(() => {
               console.log('The file was created');
             });
           } catch (err) { return err; }
@@ -198,17 +332,21 @@ module.exports = {
               feature: 1,
             },
           },
-        ], { allowDiskUse: false }).toArray(async (err, multipoints) => {
+        ], { allowDiskUse: false }).toArray(async (err, polygon) => {
           if (err) return 'Error';
           // we'll going to create the master file for ixps
-          multipoints = await multipoints.reduce((total, value) => total.concat(value.feature), []);
-          multipoints = `{
+          polygon = await polygon.reduce((total, value) => total.concat(value.feature), []);
+          polygon = `{
                               "type": "FeatureCollection",
-                              "features": ${JSON.stringify(multipoints)}
+                              "features": ${JSON.stringify(polygon)}
                           }`;
           try {
-            await fs.writeFile('./temp/facilities.json', multipoints, (err) => {
-              if (err) throw err;
+            const stream = await fs.createWriteStream('./temp/facilities.json');
+            stream.write(polygon);
+            stream.on('err', () => {
+              console.log('Error to create the file');
+            });
+            stream.end(() => {
               console.log('The file was created');
             });
           } catch (err) { return err; }
