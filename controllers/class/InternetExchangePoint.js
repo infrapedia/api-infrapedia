@@ -273,9 +273,9 @@ class IXP {
                 geom: 1,
               },
             },
-          ]).toArray((err, c) => {
+          ]).toArray((err, r) => {
             if (err) reject(err);
-            resolve({ m: 'Loaded', r: c });
+            resolve({ m: 'Loaded', r: r[0].geom });
           });
         });
       } catch (e) { reject({ m: e }); }
