@@ -260,8 +260,8 @@ class Facility {
   getMultiElementsGeom(ids) {
     return new Promise((resolve, reject) => {
       try {
+        if (!Array.isArray(ids) || ids.length === 0) resolve({ m: 'Loaded', r: false });
         ids = ids.map((i) => new ObjectID(i));
-        if (ids.length === 0) resolve(false);
         this.model().then((facility) => {
           facility.aggregate([
             {
