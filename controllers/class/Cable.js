@@ -482,7 +482,7 @@ class Cable {
     return new Promise((resolve, reject) => {
       try {
         ids = ids.map((i) => new ObjectID(i));
-        console.log(ids);
+        if (ids.length === 0) resolve(false);
         this.model().then((cables) => {
           cables.aggregate([
             {

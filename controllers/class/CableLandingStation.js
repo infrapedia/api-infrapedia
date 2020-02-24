@@ -430,6 +430,7 @@ class CLS {
     return new Promise((resolve, reject) => {
       try {
         ids = ids.map((i) => new ObjectID(i));
+        if (ids.length === 0) resolve(false);
         this.model().then((cls) => {
           cls.aggregate([
             {
