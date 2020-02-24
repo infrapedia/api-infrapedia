@@ -63,5 +63,13 @@ const routes = function (router, controllers) {
   require('./bymodules/tags').callEndPoints(router, controllers, response);
   // Master File --->
   require('./bymodules/masterFile').callEndPoints(router, controllers, response);
+
+
+  // WMS ---> SERVICE
+  const params = {
+    mbtiles: ['./temp/terrestrial.mbtiles'],
+    quiet: false,
+  };
+  require('./bymodules/wms').serve(router, response, params);
 };
 module.exports = routes;

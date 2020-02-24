@@ -29,7 +29,7 @@ module.exports = {
               'geom.features.properties.terrestrial': '$terrestrial',
               'geom.features.properties.category': '$category',
               // 'geom.features.properties.activationDateTime': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
-              'geom.features.properties.facilities': '$facilities',
+              // 'geom.features.properties.facilities': '$facilities',
             },
           },
           {
@@ -64,7 +64,7 @@ module.exports = {
             stream.end(() => {
               const { exec } = require('child_process');
               if (process.env._USECDN === 'true') {
-                exec('./sh/cablesT_migrateToCdn.sh', (error, stdout, stderr) => {
+                exec('tippecanoe -zg -o terrestrial.mbtiles --drop-densest-as-needed cables_terrestrial.json', (error, stdout, stderr) => {
                   if (error) {
                     console.log(`error: ${error.message}`);
                     return;

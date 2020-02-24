@@ -117,7 +117,6 @@ _GG_CLOUD_BUCKET_FOLDER_KMZ=
 chmod u+r+x cablesT_migrateToCdn.sh 
 
 
-
 ## License
 
 The MIT License (MIT)
