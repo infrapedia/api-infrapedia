@@ -256,6 +256,40 @@ class Facility {
       } catch (e) { reject({ m: e }); }
     });
   }
+
+  getMultiElementsGeom(ids) {
+    return new Promise((resolve, reject) => {
+      try {
+        ids = ids.map((i) => new ObjectID(i));
+        console.log(ids);
+        this.model().then((facility) => {
+          facility.aggregate([
+            {
+              $match: {
+                $expr: {
+                  $in: ['$_id', ids],
+                },
+              },
+            },
+            {
+              $project: {
+                geom: 1,
+              },
+            },
+          ]).toArray(async (err, polygon) => {
+            if (err) return 'Error';
+            // we'll going to create the master file for ixps
+            polygon = await polygon.reduce((total, value) => total.concat(value.geom.features), []);
+            polygon = {
+              type: 'FeatureCollection',
+              features: polygon,
+            };
+            resolve({ m: 'Loaded', r: polygon });
+          });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
 }
 
 module.exports = Facility;

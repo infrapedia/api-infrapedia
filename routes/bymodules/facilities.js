@@ -23,8 +23,13 @@ module.exports = {
     });
     router.get(`${process.env._ROUTE}/facilities/geom/:id`, statics, (req, res) => {
       controllers.facilities.getElementGeom(req.headers.user_id, req.params.id)
-         .then((r) => { response.success(res, r, false); })
-         .catch((e) => { response.err(res, e); });
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.post(`${process.env._ROUTE}/facilities/geoms`, statics, (req, res) => {
+      controllers.cables.getMultiElementsGeom(req.headers.user_id, req.body.cables)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
     });
   },
 };

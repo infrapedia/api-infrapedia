@@ -11,4 +11,5 @@ module.exports = {
   view: (usr, id) => CLS.view(usr, id),
   search: (usr, id) => CLS.search(usr, id),
   getElementGeom: (usr, id) => CLS.getElementGeom(id),
+  getMultiElementsGeom: (usr, ids) => CLS.getMultiElementsGeom(ids),
 };

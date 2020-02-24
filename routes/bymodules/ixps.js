@@ -26,5 +26,10 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+    router.post(`${process.env._ROUTE}/ixps/geoms`, statics, (req, res) => {
+      controllers.cables.getMultiElementsGeom(req.headers.user_id, req.body.cables)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
   },
 };
