@@ -54,7 +54,7 @@ module.exports = {
         .catch((e) => { response.err(res, e); });
     });
     router.post(`${process.env._ROUTE}/cables/geoms`, statics, (req, res) => {
-      controllers.cables.getMultiElementsGeom(req.headers.user_id, req.body.cables)
+      controllers.cables.getMultiElementsGeom(req.headers.user_id, req.body.ids)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });

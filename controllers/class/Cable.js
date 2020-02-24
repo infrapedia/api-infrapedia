@@ -497,15 +497,15 @@ class Cable {
                 geom: 1,
               },
             },
-          ]).toArray(async (err, polygon) => {
+          ]).toArray(async (err, lines) => {
             if (err) return 'Error';
             // we'll going to create the master file for ixps
-            polygon = await polygon.reduce((total, value) => total.concat(value.geom.features), []);
-            polygon = {
+            lines = await lines.reduce((total, value) => total.concat(value.geom.features), []);
+            lines = {
               type: 'FeatureCollection',
-              features: polygon,
+              features: lines,
             };
-            resolve({ m: 'Loaded', r: polygon });
+            resolve({ m: 'Loaded', r: lines });
           });
         });
       } catch (e) { reject({ m: e }); }

@@ -301,15 +301,15 @@ class IXP {
                 geom: 1,
               },
             },
-          ]).toArray(async (err, polygon) => {
+          ]).toArray(async (err, points) => {
             if (err) return 'Error';
             // we'll going to create the master file for ixps
-            polygon = await polygon.reduce((total, value) => total.concat(value.geom), []);
-            polygon = {
+            points = await points.reduce((total, value) => total.concat(value.geom), []);
+            points = {
               type: 'FeatureCollection',
-              features: polygon,
+              features: points,
             };
-            resolve({ m: 'Loaded', r: polygon });
+            resolve({ m: 'Loaded', r: points });
           });
         });
       } catch (e) { reject({ m: e }); }
