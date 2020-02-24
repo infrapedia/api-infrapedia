@@ -1,3 +1,4 @@
+const fs = require('fs');
 
 const routes = function (router, controllers) {
   const response = {
@@ -66,10 +67,7 @@ const routes = function (router, controllers) {
 
 
   // WMS ---> SERVICE
-  const params = {
-    mbtiles: ['./temp/terrestrial.mbtiles'],
-    quiet: false,
-  };
+  const params = { mbtiles: ['./temp/terrestrial.mbtiles'], quiet: false };
   require('./bymodules/wms').serve(router, response, params);
 };
 module.exports = routes;

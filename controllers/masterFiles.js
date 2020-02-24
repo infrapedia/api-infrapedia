@@ -9,7 +9,7 @@ module.exports = {
         cable.aggregate([
           {
             $match: {
-              terrestrial: true,
+              terrestrial: false,
             },
           },
           {
@@ -63,11 +63,10 @@ module.exports = {
             });
             stream.end(() => {
               const { exec } = require('child_process');
-              if (process.env._USECDN === 'true') {
-                exec('tippecanoe -zg -o terrestrial.mbtiles --drop-densest-as-needed cables_terrestrial.json', (error, stdout, stderr) => {
+              if (process.env._CREATEMBITLES === 'true') {
+                exec('cd temp/ && tippecanoe -zg -o terrestrial.mbtiles --drop-densest-as-needed cables_terrestrial.json --force && echo "FINISH"', (error, stdout, stderr) => {
                   if (error) {
                     console.log(`error: ${error.message}`);
-                    return;
                   }
                   if (stderr) {
                     console.log(`stderr: ${stderr}`);
