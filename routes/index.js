@@ -67,7 +67,7 @@ const routes = function (router, controllers) {
 
 
   // WMS ---> SERVICE
-  const params = { mbtiles: ['./temp/terrestrial.mbtiles'], quiet: false };
+  const params = { mbtiles: ['./temp/terrestrial.mbtiles', './temp/subsea.mbtiles', './temp/cls.mbtiles', './temp/ixps.mbtiles', './temp/facilities.mbtiles'], quiet: false };
   require('./bymodules/wms').serve(router, response, params);
 };
 module.exports = routes;
