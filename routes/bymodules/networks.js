@@ -1,5 +1,5 @@
 module.exports = {
-  callEndPoints: (router, controllers, response ) => {
+  callEndPoints: (router, controllers, response) => {
     const statics = require('../../lib/middleware/statics');
     router.post(`${process.env._ROUTE}/auth/network/add`, (req, res) => {
       // console.log((req.headers.authorization, req.headers.user_id));
