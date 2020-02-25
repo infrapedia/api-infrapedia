@@ -211,7 +211,7 @@ module.exports = {
                 type: 'Feature',
                 geometry: '$geom',
                 properties: {
-                  id: { $toString: '$_id' },
+                  _id: { $toString: '$_id' },
                   name: '$name',
                   type: 'ixps',
                 },
@@ -328,7 +328,7 @@ module.exports = {
           {
             $addFields: {
               'feature.properties': {
-                id: { $toString: '$_id' },
+                _id: { $toString: '$_id' },
                 name: '$name',
                 type: 'facility',
                 height: '$height',
