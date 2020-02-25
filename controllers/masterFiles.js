@@ -28,7 +28,7 @@ module.exports = {
               'geom.features.properties.capacityTBPS': '$capacityTBPS',
               'geom.features.properties.terrestrial': '$terrestrial',
               'geom.features.properties.category': '$category',
-              'geom.features.properties.activationDateTime': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
+              // 'geom.features.properties.activationDateTime': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
               // 'geom.features.properties.facilities': '$facilities',
             },
           },
