@@ -99,8 +99,8 @@ module.exports = {
               'geom.features.properties.capacityTBPS': '$capacityTBPS',
               'geom.features.properties.terrestrial': '$terrestrial',
               'geom.features.properties.category': '$category',
-              // 'geom.features.properties.activationDateTime': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
-              'geom.features.properties.facilities': '$facilities',
+              'geom.features.properties.activationDateTime': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
+              // 'geom.features.properties.facilities': '$facilities',
             },
           },
           {
@@ -162,7 +162,7 @@ module.exports = {
                 type: 'Feature',
                 geometry: '$geom.features.geometry',
                 properties: {
-                  id: { $toString: '$_id' },
+                  _id: { $toString: '$_id' },
                   name: '$name',
                   type: 'cls',
                 },
@@ -330,6 +330,7 @@ module.exports = {
               'feature.properties': {
                 _id: { $toString: '$_id' },
                 name: '$name',
+                address: { $arrayElemAt: ['$address.street', 0] },
                 type: 'facility',
                 height: '$height',
                 premium: '$premium',
