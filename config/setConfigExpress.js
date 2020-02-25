@@ -17,7 +17,7 @@ const bugsnagExpress = require('@bugsnag/plugin-express');
 const bugsnagClient = bugsnag('d376cb029ba391af1b92c22f316570a1');
 
 bugsnagClient.use(bugsnagExpress);
-const middleware = bugsnagClient.getPlugin('express')
+const middleware = bugsnagClient.getPlugin('express');
 // swagger
 const swaggerUi = require('swagger-ui-express');
 const _settings = require('./settings');
@@ -79,9 +79,11 @@ const expressConfig = function (app) {
   app.use(methodOverride('X-HTTP-Method-Override'));
   app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', _settings.urlCors);
-    res.header('Access-Control-Allow-Headers',
-      'Authorization, Origin, X-Requested-With, Content-Length, X-Requested-With, Content-Type, Accept, user_id');
-    res.header('Access-Control-Allow-Credentials', true);
+    res.header('Access-Control-Allow-Origin', req.header('origin'));
+    res.header('Access-Control-Allow-Headers', 'Authorization, Origin, X-Requested-With, Content-Length, X-Requested-With, Content-Type, Accept, user_id');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    // res.header('Access-Control-Allow-Headers','Authorization, Origin, X-Requested-With, Content-Length, X-Requested-With, Content-Type, Accept, user_id');
+    // res.header('Access-Control-Allow-Credentials', true);
     res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, PATCH, OPTIONS');
     res.header('Access-Control-Max-Age', 600);
     next();

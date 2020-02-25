@@ -1,8 +1,10 @@
 module.exports = {
-  callEndPoints: (router, controllers, response ) => {
+  callEndPoints: (router, controllers, response) => {
     const statics = require('../../lib/middleware/statics');
     router.post(`${process.env._ROUTE}/auth/organization/add`, (req, res) => {
+      console.log('------- HEADERS -------');
       console.log(req.headers);
+      console.log('------- Body -------');
       controllers.organizations.add(req.headers.user_id, req.body)
         .then((r) => { response.success(res, r); })
         .catch((e) => { response.err(res, e); });
