@@ -1,5 +1,6 @@
 const cp = require('child_process');
 const fs = require('fs');
+const notifications = require('./helpers/sendNotificationEmailUsingMandrill');
 
 module.exports = {
   cablesT: () => {
@@ -64,9 +65,8 @@ module.exports = {
             stream.end(async () => {
               const stream = await fs.createWriteStream('./temp/cables_terrestrial.txt');
               stream.write('');
-              stream.on('err', () => {
-                console.log('Error to create the file');
-              });
+              stream.on('err', () => notifications('Master file of terrestrial cables wasn\'t created', new Date()));
+              stream.end(() => notifications('Master file of terrestrial cables was created', new Date()));
             });
           } catch (err) { return err; }
         });
@@ -135,9 +135,8 @@ module.exports = {
             stream.end(async () => {
               const stream = await fs.createWriteStream('./temp/cables_subsea.txt');
               stream.write('');
-              stream.on('err', () => {
-                console.log('Error to create the file');
-              });
+              stream.on('err', () => notifications('Master file of subsea cables wasn\'t created', new Date()));
+              stream.end(() => notifications('Master file of subsea cables was created', new Date()));
             });
           } catch (err) { return err; }
         });
@@ -191,9 +190,8 @@ module.exports = {
             stream.end(async () => {
               const stream = await fs.createWriteStream('./temp/cls.txt');
               stream.write('');
-              stream.on('err', () => {
-                console.log('Error to create the file');
-              });
+              stream.on('err', () => notifications('Master file of cls wasn\'t created', new Date()));
+              stream.end(() => notifications('Master file of cls was created', new Date()));
             });
           } catch (err) { return err; }
         });
@@ -241,9 +239,8 @@ module.exports = {
             stream.end(async () => {
               const stream = await fs.createWriteStream('./temp/ixps.txt');
               stream.write('');
-              stream.on('err', () => {
-                console.log('Error to create the file');
-              });
+              stream.on('err', () => notifications('Master file of ixps cables wasn\'t created', new Date()));
+              stream.end(() => notifications('Master file of ixps cables was created', new Date()));
             });
           } catch (err) { return err; }
         });
@@ -366,9 +363,8 @@ module.exports = {
             stream.end(async () => {
               const stream = await fs.createWriteStream('./temp/facilities.txt');
               stream.write('');
-              stream.on('err', () => {
-                console.log('Error to create the file');
-              });
+              stream.on('err', () => notifications('Master file of facilities cables wasn\'t created', new Date()));
+              stream.end(() => notifications('Master file of facilities cables was created', new Date()));
             });
           } catch (err) { return err; }
         });
