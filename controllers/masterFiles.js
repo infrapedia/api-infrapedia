@@ -9,7 +9,7 @@ module.exports = {
         cable.aggregate([
           {
             $match: {
-              terrestrial: false,
+              terrestrial: true,
             },
           },
           {
@@ -28,7 +28,7 @@ module.exports = {
               'geom.features.properties.capacityTBPS': '$capacityTBPS',
               'geom.features.properties.terrestrial': '$terrestrial',
               'geom.features.properties.category': '$category',
-              // 'geom.features.properties.activationDateTime': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
+              'geom.features.properties.activationDateTime': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
               // 'geom.features.properties.facilities': '$facilities',
             },
           },
@@ -61,21 +61,12 @@ module.exports = {
             stream.on('err', () => {
               console.log('Error to create the file');
             });
-            stream.end(() => {
-              const { exec } = require('child_process');
-              if (process.env._CREATEMBITLES === 'true') {
-                exec('cd temp/ && tippecanoe -zg -o terrestrial.mbtiles --drop-densest-as-needed cables_terrestrial.json --force && echo "FINISH"', (error, stdout, stderr) => {
-                  if (error) {
-                    console.log(`error: ${error.message}`);
-                  }
-                  if (stderr) {
-                    console.log(`stderr: ${stderr}`);
-                    return;
-                  }
-                  console.log(`stdout: ${stdout}`);
-                });
-              }
-              console.log('The file was created');
+            stream.end(async () => {
+              const stream = await fs.createWriteStream('./temp/cables_terrestrial.txt');
+              stream.write('');
+              stream.on('err', () => {
+                console.log('Error to create the file');
+              });
             });
           } catch (err) { return err; }
         });
@@ -141,8 +132,12 @@ module.exports = {
             stream.on('err', () => {
               console.log('Error to create the file');
             });
-            stream.end(() => {
-              console.log('The file was created');
+            stream.end(async () => {
+              const stream = await fs.createWriteStream('./temp/cables_subsea.txt');
+              stream.write('');
+              stream.on('err', () => {
+                console.log('Error to create the file');
+              });
             });
           } catch (err) { return err; }
         });
@@ -193,8 +188,12 @@ module.exports = {
             stream.on('err', () => {
               console.log('Error to create the file');
             });
-            stream.end(() => {
-              console.log('The file was created');
+            stream.end(async () => {
+              const stream = await fs.createWriteStream('./temp/cls.txt');
+              stream.write('');
+              stream.on('err', () => {
+                console.log('Error to create the file');
+              });
             });
           } catch (err) { return err; }
         });
@@ -239,8 +238,12 @@ module.exports = {
             stream.on('err', () => {
               console.log('Error to create the file');
             });
-            stream.end(() => {
-              console.log('The file was created');
+            stream.end(async () => {
+              const stream = await fs.createWriteStream('./temp/ixps.txt');
+              stream.write('');
+              stream.on('err', () => {
+                console.log('Error to create the file');
+              });
             });
           } catch (err) { return err; }
         });
@@ -359,8 +362,12 @@ module.exports = {
             stream.on('err', () => {
               console.log('Error to create the file');
             });
-            stream.end(() => {
-              console.log('The file was created');
+            stream.end(async () => {
+              const stream = await fs.createWriteStream('./temp/facilities.txt');
+              stream.write('');
+              stream.on('err', () => {
+                console.log('Error to create the file');
+              });
             });
           } catch (err) { return err; }
         });
