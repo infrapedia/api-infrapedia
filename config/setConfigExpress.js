@@ -80,7 +80,7 @@ const expressConfig = function (app) {
   app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', _settings.urlCors);
     res.header('Access-Control-Allow-Origin', req.header('origin'));
-    res.header('Access-Control-Allow-Headers', 'Authorization, Origin, X-Requested-With, Content-Length, X-Requested-With, Content-Type, Accept, user_id');
+    res.header('Access-Control-Allow-Headers', '*');
     res.header('Access-Control-Allow-Credentials', 'true');
     // res.header('Access-Control-Allow-Headers','Authorization, Origin, X-Requested-With, Content-Length, X-Requested-With, Content-Type, Accept, user_id');
     // res.header('Access-Control-Allow-Credentials', true);
