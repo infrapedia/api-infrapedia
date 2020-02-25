@@ -35,7 +35,7 @@ module.exports = {
   listen(router, response, config) {
     // eslint-disable-next-line no-underscore-dangle
     const { format } = config.tiles._info;
-    router.get(`/:source/:z/:x/:y.${format}`, (req, res) => {
+    router.get(`${process.env._ROUTE}/:source/:z/:x/:y.${format}`, (req, res) => {
       const p = req.params;
       p.source += '.mbtiles'
       const { tiles } = config.sources[p.source];
