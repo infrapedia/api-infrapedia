@@ -7,27 +7,27 @@ module.exports = {
         .catch((e) => { response.err(res, e); });
     });
     router.get(`${process.env._ROUTE}/auth/facilities/search`, statics, (req, res) => {
-      controllers.facilities.search(req.headers.user_id, req.query.s)
+      controllers.facilities.search(req.headers.userid, req.query.s)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
     router.get(`${process.env._ROUTE}/auth/facilities/view/:id`, statics, (req, res) => {
-      controllers.facilities.view(req.headers.user_id, req.params.id)
+      controllers.facilities.view(req.headers.userid, req.params.id)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
     router.get(`${process.env._ROUTE}/facilities/box/:id`, (req, res) => {
-      controllers.facilities.bbox(req.headers.user_id, req.params.id)
+      controllers.facilities.bbox(req.headers.userid, req.params.id)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
     router.get(`${process.env._ROUTE}/facilities/geom/:id`, statics, (req, res) => {
-      controllers.facilities.getElementGeom(req.headers.user_id, req.params.id)
+      controllers.facilities.getElementGeom(req.headers.userid, req.params.id)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
     router.post(`${process.env._ROUTE}/facilities/geoms`, statics, (req, res) => {
-      controllers.facilities.getMultiElementsGeom(req.headers.user_id, req.body.ids)
+      controllers.facilities.getMultiElementsGeom(req.headers.userid, req.body.ids)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });

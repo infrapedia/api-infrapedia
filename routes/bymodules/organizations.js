@@ -5,37 +5,37 @@ module.exports = {
       console.log('------- HEADERS -------');
       console.log(req.headers);
       console.log('------- Body -------');
-      controllers.organizations.add(req.headers.user_id, req.body)
+      controllers.organizations.add(req.headers.userid, req.body)
         .then((r) => { response.success(res, r); })
         .catch((e) => { response.err(res, e); });
     });
     router.put(`${process.env._ROUTE}/auth/organization/edit`, (req, res) => {
-      controllers.organizations.edit(req.headers.user_id, req.body)
+      controllers.organizations.edit(req.headers.userid, req.body)
         .then((r) => { response.success(res, r); })
         .catch((e) => { response.err(res, e); });
     });
     router.get(`${process.env._ROUTE}/auth/organization/all`, (req, res) => {
-      controllers.organizations.list(req.headers.user_id)
+      controllers.organizations.list(req.headers.userid)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
     router.delete(`${process.env._ROUTE}/auth/organization/delete/:id`, (req, res) => {
-      controllers.organizations.delete(req.headers.user_id, req.params.id)
+      controllers.organizations.delete(req.headers.userid, req.params.id)
         .then((r) => { response.success(res, r); })
         .catch((e) => { response.err(res, e); });
     });
     router.get(`${process.env._ROUTE}/auth/organization/owner/:id`, (req, res) => {
-      controllers.organizations.owner(req.headers.user_id, req.params.id)
+      controllers.organizations.owner(req.headers.userid, req.params.id)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
     router.get(`${process.env._ROUTE}/organization/view/:id`, statics, (req, res) => {
-      controllers.organizations.view(req.headers.user_id, req.params.id)
+      controllers.organizations.view(req.headers.userid, req.params.id)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
     router.get(`${process.env._ROUTE}/organization/search`, statics, (req, res) => {
-      controllers.organizations.search(req.headers.user_id, req.query.s)
+      controllers.organizations.search(req.headers.userid, req.query.s)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
