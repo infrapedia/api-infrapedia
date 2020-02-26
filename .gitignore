@@ -2,6 +2,8 @@
 # Created by https://www.gitignore.io/api/node,dotenv,webstorm,jetbrains,virtualenv
 # Edit at https://www.gitignore.io/?templates=node,dotenv,webstorm,jetbrains,virtualenv
 
+temp/*
+
 ### dotenv ###
 .env
 

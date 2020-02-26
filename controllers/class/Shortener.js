@@ -23,7 +23,7 @@ class Shortener {
             upsert: true,
           }, (err, r) => {
             if (err) reject({ m: err });
-            resolve({ m: 'New url', r: `${process.env._BASEURL}${r.value.urlCode}` });
+            resolve({ m: 'Now you can share your link with your friends', r: `${process.env._BASEURL}/s/${r.value.urlCode}` });
           });
         }).catch((e) => { });
       } catch (e) { reject({ m: e }); }
