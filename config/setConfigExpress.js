@@ -79,10 +79,9 @@ const expressConfig = function (app) {
   app.use(methodOverride('X-HTTP-Method-Override'));
   app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', _settings.urlCors);
-    res.header('Access-Control-Allow-Headers', '*');
+    // res.header('Access-Control-Allow-Headers', '*');
     res.header('Access-Control-Allow-Credentials', 'true');
-    // res.header('Access-Control-Allow-Headers','Authorization, Origin, X-Requested-With, Content-Length, X-Requested-With, Content-Type, Accept, user_id');
-    // res.header('Access-Control-Allow-Credentials', true);
+    res.header('Access-Control-Allow-Headers', 'Authorization, Origin, X-Requested-With, Content-Length, X-Requested-With, Content-Type, Accept, userid');
     res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, PATCH, OPTIONS'); // ALLOW
     res.header('Access-Control-Max-Age', 600);
     next();
