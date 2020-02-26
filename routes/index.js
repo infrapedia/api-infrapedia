@@ -1,5 +1,3 @@
-const fs = require('fs');
-
 const routes = function (router, controllers) {
   const response = {
     success: (res, answ, n) => {
@@ -72,5 +70,15 @@ const routes = function (router, controllers) {
   router.get(`${process.env._ROUTE}/wms/ixps`, (req, res) => { res.sendFile('./temp/ixps.json'); });
   router.get(`${process.env._ROUTE}/wms/cls`, (req, res) => { res.sendFile('./temp/cls.json'); });
   router.get(`${process.env._ROUTE}/wms/facilities`, (req, res) => { res.sendFile('./temp/facilities.json'); });
+  router.get(`${process.env._ROUTE}/s/:route`, (req, res) => {
+    const shortener = require('../models/shorts.model');
+    shortener().then((s) => {
+      s.findOneAndUpdate({ urlCode: req.params.route },
+        { $inc: { views: 1 } }, (err, r) => {
+          if (!r.value.original_url) res.redirect(process.env._BASEURL);
+          res.render('shortener', { url: r.value.original_url });
+        });
+    });
+  });
 };
 module.exports = routes;
