@@ -272,3 +272,11 @@ package-lock.json
 keys/*
 keys/GCkey.json
 app.yml
+temp/terrestrial.mbtiles
+temp/ixps.mbtiles
+temp/ixps.json
+temp/facilities.mbtiles
+temp/facilities.json
+temp/cls.json
+temp/cables_terrestrial.json
+temp/cables_subsea.json
