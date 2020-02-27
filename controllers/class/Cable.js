@@ -99,7 +99,7 @@ class Cable {
     });
   }
 
-  list(user) {
+  listT(user) {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
@@ -108,6 +108,74 @@ class Cable {
               $match: {
                 $and: [
                   { uuid: user },
+                  { terrestrial: true },
+                  { deleted: false },
+                ],
+              },
+            },
+            {
+              $lookup: {
+                from: 'facilities',
+                let: { f: '$facilities' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$_id', '$$f'],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'facilities',
+              },
+            },
+            {
+              $lookup: {
+                from: 'alerts',
+                let: { elemnt: { $toString: '$_id' } },
+                pipeline: [
+                  {
+                    $match: { $expr: { $and: [{ $eq: ['$elemnt', '$$elemnt'] }] } },
+                  },
+                  { $count: 'elmnt' },
+                ],
+                as: 'alerts',
+              },
+            },
+            {
+              $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
+            },
+            {
+              $project: {
+                uuid: 0,
+                geom: 0,
+              },
+            }]).toArray((err, rCables) => {
+              if (err) reject(err);
+              resolve({ m: 'Loaded', r: rCables });
+            });
+          });
+        } else { resolve('Not user found'); }
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  listS(user) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (user !== undefined || user !== '') {
+          this.model().then((cables) => {
+            cables.aggregate([{
+              $match: {
+                $and: [
+                  { uuid: user },
+                  { terrestrial: false },
                   { deleted: false },
                 ],
               },

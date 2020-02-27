@@ -12,8 +12,13 @@ module.exports = {
         .then((r) => { response.success(res, r); })
         .catch((e) => { response.err(res, e); });
     });
-    router.get(`${process.env._ROUTE}/auth/cables/all`, (req, res) => {
-      controllers.cables.list(req.headers.userid)
+    router.get(`${process.env._ROUTE}/auth/cables/terrestrial/all`, (req, res) => {
+      controllers.cables.listT(req.headers.userid)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.get(`${process.env._ROUTE}/auth/cables/subsea/all`, (req, res) => {
+      controllers.cables.listS(req.headers.userid)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
