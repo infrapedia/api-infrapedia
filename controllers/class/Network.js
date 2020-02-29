@@ -31,7 +31,7 @@ class Network {
             network.insertOne(data, (err, i) => {
               // TODO: validation insert
               if (err) reject({ m: err });
-              resolve({ m: 'Network created' });
+              resolve({ m: 'Connection created' });
             });
           }).catch((e) => { console.log(e); reject({ m: e + 1 }); });
         } else { resolve('Not user found'); }
@@ -59,7 +59,7 @@ class Network {
             };
             network.updateOne({ _id: id, uuid: String(user) }, { $set: data }, (err, u) => {
               if (err) reject({ m: err });
-              resolve({ m: 'Network updated', r: data });
+              resolve({ m: 'Connetion updated', r: data });
             });
           }).catch((e) => { reject({ m: e }); });
         } else { resolve('Not user found'); }
@@ -200,12 +200,12 @@ class Network {
             // we need to validate if  don't have another organization with the same name
             network.find({ _id: id }).count((err, c) => {
               if (err) reject({ m: err });
-              else if (c === 0) reject({ m: 'We cannot delete your organization' });
+              else if (c === 0) reject({ m: 'We cannot delete your connection' });
               else {
                 network.updateOne(
                   { _id: id, uuid: String(user) }, { $set: { deleted: true } }, (err, u) => {
                     if (err) reject({ m: err });
-                    else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete your network' });
+                    else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete your connection' });
                     else resolve({ m: 'Deleted' });
                   },
                 );

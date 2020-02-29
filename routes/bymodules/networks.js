@@ -20,23 +20,23 @@ module.exports = {
     router.delete(`${process.env._ROUTE}/auth/network/delete/:id`, (req, res) => {
       controllers.networks.delete(req.headers.userid, req.params.id)
         .then((r) => { response.success(res, r); })
-         .catch((e) => { response.err(res, e); });
+        .catch((e) => { response.err(res, e); });
     });
     router.get(`${process.env._ROUTE}/auth/network/owner/:id`, (req, res) => {
       controllers.networks.owner(req.headers.userid, req.params.id)
         .then((r) => { response.success(res, r, false); })
-         .catch((e) => { response.err(res, e); });
+        .catch((e) => { response.err(res, e); });
     });
 
     router.get(`${process.env._ROUTE}/network/view/:id`, statics, (req, res) => {
       controllers.networks.view(req.headers.userid, req.params.id)
-         .then((r) => { response.success(res, r, false); })
-         .catch((e) => { response.err(res, e); });
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
     });
     router.get(`${process.env._ROUTE}/network/search`, statics, (req, res) => {
       controllers.networks.search(req.headers.userid, req.query.s)
-         .then((r) => { response.success(res, r, false); })
-         .catch((e) => { response.err(res, e); });
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
     });
   },
 };

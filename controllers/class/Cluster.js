@@ -281,20 +281,7 @@ class Cluster {
                         },
                         {
                           $addFields: {
-                            sizeFeature: { $floor: { $divide: [{ $size: '$geom.features' }, 2] } },
-                          },
-                        },
-                        {
-                          $addFields: {
-                            geom: { $arrayElemAt: ['$geom.features', '$sizeFeature'] },
-                          },
-                        },
-                        {
-                          $addFields: { sizeFeature: { $floor: { $divide: [{ $size: '$geom.geometry.coordinates' }, 2] } } },
-                        },
-                        {
-                          $addFields: {
-                            v: { $arrayElemAt: ['$geom.geometry.coordinates', '$sizeFeature'] },
+                            v: { $arrayElemAt: [{ $arrayElemAt: ['$geom.features.geometry.coordinates', 0] }, 0] },
                           },
                         },
                         {
