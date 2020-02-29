@@ -330,12 +330,20 @@ class Cluster {
               },
             },
           ]).toArray(async (err, points) => {
-            points = await points[0].points.map((value) => ({ type: 'Feature', properties: {}, geometry: value }), []);
-            points = {
-              type: 'FeatureCollection',
-              features: points,
-            };
-            resolve({ m: 'Loaded', r: points });
+            if(points !== undefined) {
+              points = await points[0].points.map((value) => ({ type: 'Feature', properties: {}, geometry: value }), []);
+              points = {
+                type: 'FeatureCollection',
+                features: points,
+              };
+              resolve({ m: 'Loaded', r: points });
+            } else {
+              points = {
+                type: 'FeatureCollection',
+                features: [],
+              };
+              resolve({ m: 'Loaded', r: points });
+            }
           });
         }).catch((e) => { reject({ m: e }); });
       } catch (e) { reject({ m: e }); }
