@@ -330,7 +330,7 @@ class Cluster {
               },
             },
           ]).toArray(async (err, points) => {
-            if(points !== undefined) {
+            if (points.length !== 0) {
               points = await points[0].points.map((value) => ({ type: 'Feature', properties: {}, geometry: value }), []);
               points = {
                 type: 'FeatureCollection',
