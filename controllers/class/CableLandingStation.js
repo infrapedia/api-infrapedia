@@ -84,7 +84,6 @@ class CLS {
           this.model().then((cls) => {
             cls.findOneAndUpdate({
               _id: new ObjectID(idcls),
-              uuid: user,
             }, { $addToSet: { cables: new ObjectID(idcable) } }, (err, u) => {
               if (err) reject(err);
               else if (u.ok !== 1) resolve({ m: 'Not updated' });
@@ -103,7 +102,6 @@ class CLS {
           this.model().then((cls) => {
             cls.updateOne({
               _id: new ObjectID(idcls),
-              uuid: user,
             }, { $pull: { cables: new ObjectID(idcable) } }, (err, u) => {
               if (err) reject(err);
               else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete your cls' });
@@ -124,7 +122,6 @@ class CLS {
               $match: {
                 $and: [
                   { _id: new ObjectID(idcls) },
-                  { uuid: user },
                 ],
               },
             },
