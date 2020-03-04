@@ -34,6 +34,7 @@ class Cable {
                 fiberPairs: String(data.fiberPairs),
                 category: String(data.category),
                 facilities: await (Array.isArray(data.facilities)) ? data.facilities.map((item) => new ObjectID(item)) : [],
+                owners: await (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : [],
                 geom: (geomData !== '') ? JSON.parse(geomData) : {},
                 tags: data.tags,
                 rgDate: luxon.DateTime.utc(),
@@ -79,6 +80,7 @@ class Cable {
                 // notes: String(data.notes),
                 category: String(data.category),
                 facilities: await (Array.isArray(data.facilities)) ? data.facilities.map((item) => new ObjectID(item)) : [],
+                owners: await (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : [],
                 geom: (geomData !== '') ? JSON.parse(geomData) : {},
                 tags: data.tags,
                 uDate: luxon.DateTime.utc(),
@@ -519,6 +521,35 @@ class Cable {
                   },
                 ],
                 as: 'organizations',
+              },
+            },
+            {
+              $lookup: {
+                from: 'organizations',
+                let: { f: '$owners' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$_id', {
+                          $cond: {
+                            if: { $isArray: { $arrayElemAt: ['$$f', 0] } },
+                            then: '$$f',
+                            else: [],
+                          },
+                        },
+                        ],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'owners',
               },
             },
             {
