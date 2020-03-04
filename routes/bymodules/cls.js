@@ -55,5 +55,21 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+    router.post(`${process.env._ROUTE}/cls/update/cable`, statics, (req, res) => {
+      controllers.cableLandingStations.updateCable(req.headers.userid, req.body)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.post(`${process.env._ROUTE}/cls/remove/cable`, statics, (req, res) => {
+      controllers.cableLandingStations.removeCable(req.headers.userid, req.body)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.get(`${process.env._ROUTE}/cls/list/cables/:id`, statics, (req, res) => {
+      console.log(req.params.id);
+      controllers.cableLandingStations.listOfCables(req.headers.userid, req.params.id)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
   },
 };

@@ -77,6 +77,95 @@ class CLS {
     });
   }
 
+  updateCable(user, idcls, idcable) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (ObjectID.isValid(idcls) && ObjectID.isValid(idcable)) {
+          this.model().then((cls) => {
+            cls.findOneAndUpdate({
+              _id: new ObjectID(idcls),
+              uuid: user,
+            }, { $addToSet: { cables: new ObjectID(idcable) } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.ok !== 1) resolve({ m: 'Not updated' });
+              else resolve({ m: 'Updated', r: u.value.cables });
+            });
+          });
+        } else reject({ m: 'Not resolved' });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  removeCable(user, idcls, idcable) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (ObjectID.isValid(idcls) && ObjectID.isValid(idcable)) {
+          this.model().then((cls) => {
+            cls.updateOne({
+              _id: new ObjectID(idcls),
+              uuid: user,
+            }, { $pull: { cables: new ObjectID(idcable) } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete your cls' });
+              else resolve({ m: 'Updated', r: u.value.cables });
+            });
+          });
+        } else reject({ m: 'Not resolved' });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  listOfCables(user, idcls) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (ObjectID.isValid(idcls)) {
+          this.model().then((cls) => {
+            cls.aggregate([{
+              $match: {
+                $and: [
+                  { _id: new ObjectID(idcls) },
+                  { uuid: user },
+                ],
+              },
+            },
+            {
+              $lookup: {
+                from: 'cables',
+                let: { cables: '$cables' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$_id', '$$cables'],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'cables',
+              },
+            },
+            { $unwind: { path: '$cables', preserveNullAndEmptyArrays: false } },
+            {
+              $project: {
+                _id: '$cables._id',
+                value: '$cables.name',
+              },
+            }]).toArray((err, rNetwork) => {
+              if (err) reject(err);
+              resolve({ m: 'Loaded', r: rNetwork });
+            });
+          });
+        } else reject({ m: 'Not resolved' });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
   list(user) {
     return new Promise((resolve, reject) => {
       try {

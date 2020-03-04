@@ -65,6 +65,7 @@ const routes = function (router, controllers) {
   // Cluster File --->
   require('./bymodules/cluster').callEndPoints(router, controllers, response);
 
+
   // WMS ---> SERVICE
   const params = { mbtiles: ['./temp/terrestrial.mbtiles', './temp/subsea.mbtiles', './temp/cls.mbtiles', './temp/ixps.mbtiles', './temp/facilities.mbtiles'], quiet: false };
   require('./bymodules/wms').serve(router, response, params);
