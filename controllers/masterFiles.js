@@ -1,6 +1,6 @@
 const cp = require('child_process');
 const fs = require('fs');
-const notifications = require('./helpers/sendNotificationEmailUsingMandrill');
+// const notifications = require('./helpers/sendNotificationEmailUsingMandrill');
 
 module.exports = {
   cablesT: () => {
@@ -65,8 +65,8 @@ module.exports = {
             stream.end(async () => {
               const stream = await fs.createWriteStream('./temp/cables_terrestrial.txt');
               stream.write('');
-              stream.on('err', () => notifications('Master file of terrestrial cables wasn\'t created', new Date()));
-              stream.end(() => notifications('Master file of terrestrial cables was created', new Date()));
+              // stream.on('err', () => notifications('Master file of terrestrial cables wasn\'t created', new Date()));
+              // stream.end(() => notifications('Master file of terrestrial cables was created', new Date()));
             });
           } catch (err) { return err; }
         });
@@ -135,8 +135,8 @@ module.exports = {
             stream.end(async () => {
               const stream = await fs.createWriteStream('./temp/cables_subsea.txt');
               stream.write('');
-              stream.on('err', () => notifications('Master file of subsea cables wasn\'t created', new Date()));
-              stream.end(() => notifications('Master file of subsea cables was created', new Date()));
+              // stream.on('err', () => notifications('Master file of subsea cables wasn\'t created', new Date()));
+              // stream.end(() => notifications('Master file of subsea cables was created', new Date()));
             });
           } catch (err) { return err; }
         });
