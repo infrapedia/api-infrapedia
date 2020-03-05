@@ -82,12 +82,12 @@ class CLS {
       try {
         if (ObjectID.isValid(idcls) && ObjectID.isValid(idcable)) {
           this.model().then((cls) => {
-            cls.findOneAndUpdate({
+            cls.updateOne({
               _id: new ObjectID(idcls),
             }, { $addToSet: { cables: new ObjectID(idcable) } }, (err, u) => {
               if (err) reject(err);
               else if (u.ok !== 1) resolve({ m: 'Not updated' });
-              else resolve({ m: 'Updated', r: u.value.cables });
+              else resolve({ m: 'Updated' });
             });
           });
         } else reject({ m: 'Not resolved' });
