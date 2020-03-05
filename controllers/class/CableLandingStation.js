@@ -105,7 +105,7 @@ class CLS {
             }, { $pull: { cables: new ObjectID(idcable) } }, (err, u) => {
               if (err) reject(err);
               else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete your cls' });
-              else resolve({ m: 'Updated', r: u.value.cables });
+              else resolve({ m: 'Updated' });
             });
           });
         } else reject({ m: 'Not resolved' });
