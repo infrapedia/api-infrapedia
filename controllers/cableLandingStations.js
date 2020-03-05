@@ -15,4 +15,5 @@ module.exports = {
   updateCable: (usr, ids) => CLS.updateCable(usr, ids.cls, ids.cable),
   removeCable: (usr, ids) => CLS.removeCable(usr, ids.cls, ids.cable),
   listOfCables: (usr, ids) => CLS.listOfCables(usr, ids),
+  listOfCLSbyCable: (usr, ids) => CLS.listOfCLSbyCable(usr, ids),
 };

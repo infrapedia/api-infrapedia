@@ -163,6 +163,35 @@ class CLS {
     });
   }
 
+  listOfCLSbyCable(user, idCable) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (ObjectID.isValid(idCable)) {
+          this.model().then((cls) => {
+            cls.aggregate([
+              {
+                $match: {
+                  $expr: {
+                    $in: [new ObjectID(idCable), '$cables'],
+                  },
+                },
+              },
+              {
+                $project: {
+                  _id: 1,
+                  name: 1,
+                },
+              },
+            ]).toArray((err, rNetwork) => {
+              if (err) reject(err);
+              resolve({ m: 'Loaded', r: rNetwork });
+            });
+          });
+        } else reject({ m: 'Not resolved' });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
   list(user) {
     return new Promise((resolve, reject) => {
       try {
