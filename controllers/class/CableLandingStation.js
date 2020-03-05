@@ -176,9 +176,11 @@ class CLS {
                   },
                 },
               },
+              { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
               {
                 $project: {
                   _id: 1,
+                  yours: 1,
                   name: 1,
                 },
               },
