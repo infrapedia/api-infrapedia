@@ -18,7 +18,7 @@ class Network {
               notes: '', // String(data.notes)
               websites: await (Array.isArray(data.websites)) ? data.websites : [],
               organizations: await (Array.isArray(data.organizations)) ? data.organizations.map((item) => new ObjectID(item)) : [],
-              references: await (Array.isArray(data.references)) ? data.references.map((item) => JSON.parse(item)) : [],
+              references: (typeof data.references === 'string' && data.references !== '') ? JSON.parse(data.references) : {},
               facilities: await (Array.isArray(data.facilities)) ? data.facilities.map((item) => new ObjectID(item)) : [],
               ixps: await (Array.isArray(data.ixps)) ? data.ixps.map((item) => new ObjectID(item)) : [],
               cls: await (Array.isArray(data.cls)) ? data.cls.map((item) => new ObjectID(item)) : [],
@@ -51,7 +51,7 @@ class Network {
               name: String(data.name),
               websites: await (Array.isArray(data.websites)) ? data.websites : [],
               organizations: await (Array.isArray(data.organizations)) ? data.organizations.map((item) => new ObjectID(item)) : [],
-              references: await (Array.isArray(data.references)) ? data.references.map((item) => JSON.parse(item)) : [],
+              references: (typeof data.references === 'string' && data.references !== '') ? JSON.parse(data.references) : {},
               facilities: await (Array.isArray(data.facilities)) ? data.facilities.map((item) => new ObjectID(item)) : [],
               ixps: await (Array.isArray(data.ixps)) ? data.ixps.map((item) => new ObjectID(item)) : [],
               cls: await (Array.isArray(data.cls)) ? data.cls.map((item) => new ObjectID(item)) : [],
