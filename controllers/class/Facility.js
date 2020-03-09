@@ -77,35 +77,13 @@ class Facility {
             },
             {
               $lookup: {
-                from: 'facilities',
-                let: { f: '$_id' },
-                pipeline: [
-                  {
-                    $match: {
-                      $expr: {
-                        $in: ['$$f', '$facilities'],
-                      },
-                    },
-                  },
-                  {
-                    $project: {
-                      _id: 1,
-                      name: 1,
-                    },
-                  },
-                ],
-                as: 'cables',
-              },
-            },
-            {
-              $lookup: {
                 from: 'cables',
-                let: { f: '$_id' },
+                let: { facilities: '$_id' },
                 pipeline: [
                   {
                     $match: {
                       $expr: {
-                        $in: ['$$f', '$cables'],
+                        $in: ['$$facilities', '$facilities'],
                       },
                     },
                   },
