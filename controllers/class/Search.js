@@ -97,7 +97,7 @@ class Search {
                 id: 1,
                 name: 1,
                 address: 1,
-                t: 'networks',
+                t: 'groups',
               },
             },
             {
