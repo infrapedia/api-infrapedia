@@ -15,6 +15,11 @@ class Search {
             { $sort: { name: 1 } },
             {
               $match: {
+                deleted: false,
+              },
+            },
+            {
+              $match: {
                 $or: [
                   { _id: { $regex: search, $options: 'i' } },
                   { name: { $regex: search, $options: 'i' } },
@@ -49,6 +54,11 @@ class Search {
         this.model().then((network) => {
           network.aggregate([
             { $sort: { name: 1 } },
+            {
+              $match: {
+                deleted: false,
+              },
+            },
             {
               $lookup: {
                 from: 'organizations',
@@ -97,7 +107,7 @@ class Search {
                 id: 1,
                 name: 1,
                 address: 1,
-                t: 'networks',
+                t: 'groups',
               },
             },
             {
@@ -130,6 +140,11 @@ class Search {
         this.model().then((cable) => {
           cable.aggregate([
             { $sort: { name: 1 } },
+            {
+              $match: {
+                deleted: false,
+              },
+            },
             {
               $lookup: {
                 from: 'networks',
@@ -180,6 +195,11 @@ class Search {
           cls.aggregate([
             { $sort: { name: 1 } },
             {
+              $match: {
+                deleted: false,
+              },
+            },
+            {
               $lookup: {
                 from: 'networks',
                 let: { cls: '$_id' },
@@ -229,6 +249,11 @@ class Search {
           facility.aggregate([
             { $sort: { name: 1 } },
             {
+              $match: {
+                deleted: false,
+              },
+            },
+            {
               $lookup: {
                 from: 'networks',
                 let: { facility: '$_id' },
@@ -277,6 +302,11 @@ class Search {
         this.model().then((ixp) => {
           ixp.aggregate([
             { $sort: { name: 1 } },
+            {
+              $match: {
+                deleted: false,
+              },
+            },
             {
               $lookup: {
                 from: 'networks',
