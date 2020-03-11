@@ -250,66 +250,66 @@ class Organization {
                       },
                     },
                   },
-                  {
-                    $lookup: {
-                      from: 'cables',
-                      let: { cables: '$cables' },
-                      pipeline: [
-                        {
-                          $addFields: {
-                            idscables: '$$cables',
-                          },
-                        },
-                        {
-                          $match: {
-                            $expr: {
-                              $in: ['$_id', '$idscables'],
-                            },
-                          },
-                        },
-                        {
-                          $project: {
-                            _id: 1,
-                            name: 1,
-                          },
-                        },
-                      ],
-                      as: 'cables',
-                    },
-                  },
-                  {
-                    $lookup: {
-                      from: 'cls',
-                      let: { cls: '$cls' },
-                      pipeline: [
-                        {
-                          $addFields: {
-                            idscls: '$$cls',
-                          },
-                        },
-                        {
-                          $match: {
-                            $expr: {
-                              $in: ['$_id', '$idscls'],
-                            },
-                          },
-                        },
-                        {
-                          $project: {
-                            _id: 1,
-                            name: 1,
-                          },
-                        },
-                      ],
-                      as: 'cls',
-                    },
-                  },
+                  // {
+                  //   $lookup: {
+                  //     from: 'cables',
+                  //     let: { cables: '$cables' },
+                  //     pipeline: [
+                  //       {
+                  //         $addFields: {
+                  //           idscables: '$$cables',
+                  //         },
+                  //       },
+                  //       {
+                  //         $match: {
+                  //           $expr: {
+                  //             $in: ['$_id', '$idscables'],
+                  //           },
+                  //         },
+                  //       },
+                  //       {
+                  //         $project: {
+                  //           _id: 1,
+                  //           name: 1,
+                  //         },
+                  //       },
+                  //     ],
+                  //     as: 'cables',
+                  //   },
+                  // },
+                  // {
+                  //   $lookup: {
+                  //     from: 'cls',
+                  //     let: { cls: '$cls' },
+                  //     pipeline: [
+                  //       {
+                  //         $addFields: {
+                  //           idscls: '$$cls',
+                  //         },
+                  //       },
+                  //       {
+                  //         $match: {
+                  //           $expr: {
+                  //             $in: ['$_id', '$idscls'],
+                  //           },
+                  //         },
+                  //       },
+                  //       {
+                  //         $project: {
+                  //           _id: 1,
+                  //           name: 1,
+                  //         },
+                  //       },
+                  //     ],
+                  //     as: 'cls',
+                  //   },
+                  // },
                   {
                     $project: {
                       _id: 1,
                       name: 1,
-                      cls: 1,
-                      cables: 1,
+                      // cls: 1,
+                      // cables: 1,
                     },
                   },
                 ],
