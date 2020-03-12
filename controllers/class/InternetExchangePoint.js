@@ -80,9 +80,16 @@ class IXP {
                 pipeline: [
                   {
                     $match: {
-                      $expr: {
-                        $in: ['$$ixps', '$ixps'],
-                      },
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$$ixps', '$ixps'],
+                          },
+                        },
+                        {
+                          deleted: false,
+                        },
+                      ],
                     },
                   },
                   {
@@ -102,9 +109,16 @@ class IXP {
                 pipeline: [
                   {
                     $match: {
-                      $expr: {
-                        $in: ['$$ixps', '$ixps'],
-                      },
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$$ixps', '$ixps'],
+                          },
+                        },
+                        {
+                          deleted: false,
+                        },
+                      ],
                     },
                   },
                   {
@@ -130,16 +144,23 @@ class IXP {
                   },
                   {
                     $match: {
-                      $expr: {
-                        $in: ['$_id', {
-                          $cond: {
-                            if: { $isArray: { $arrayElemAt: ['$idsorgs', 0] } },
-                            then: { $arrayElemAt: ['$idsorgs', 0] },
-                            else: [],
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$_id', {
+                              $cond: {
+                                if: { $isArray: { $arrayElemAt: ['$idsorgs', 0] } },
+                                then: { $arrayElemAt: ['$idsorgs', 0] },
+                                else: [],
+                              },
+                            },
+                            ],
                           },
                         },
-                        ],
-                      },
+                        {
+                          deleted: false,
+                        },
+                      ],
                     },
                   },
                   {

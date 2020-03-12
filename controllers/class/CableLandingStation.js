@@ -418,9 +418,16 @@ class CLS {
                 pipeline: [
                   {
                     $match: {
-                      $expr: {
-                        $in: ['$_id', '$$cables'],
-                      },
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$_id', '$$cables'],
+                          },
+                        },
+                        {
+                          deleted: false,
+                        },
+                      ],
                     },
                   },
                   {
@@ -440,9 +447,16 @@ class CLS {
                 pipeline: [
                   {
                     $match: {
-                      $expr: {
-                        $in: ['$$cls', '$cls'],
-                      },
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$$cls', '$cls'],
+                          },
+                        },
+                        {
+                          deleted: false,
+                        },
+                      ],
                     },
                   },
                   {
@@ -473,9 +487,16 @@ class CLS {
                   },
                   {
                     $match: {
-                      $expr: {
-                        $in: ['$_id', { $cond: { if: { $eq: ['$norgs', 0] }, then: [], else: { $arrayElemAt: ['$idsorgs', 0] } } }],
-                      },
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$_id', { $cond: { if: { $eq: ['$norgs', 0] }, then: [], else: { $arrayElemAt: ['$idsorgs', 0] } } }],
+                          },
+                        },
+                        {
+                          deleted: false,
+                        },
+                      ],
                     },
                   },
                   {

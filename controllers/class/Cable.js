@@ -426,16 +426,23 @@ class Cable {
                 pipeline: [
                   {
                     $match: {
-                      $expr: {
-                        $in: ['$_id', {
-                          $cond: {
-                            if: { $isArray: { $arrayElemAt: ['$$f', 0] } },
-                            then: '$$f',
-                            else: [],
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$_id', {
+                              $cond: {
+                                if: { $isArray: { $arrayElemAt: ['$$f', 0] } },
+                                then: '$$f',
+                                else: [],
+                              },
+                            },
+                            ],
                           },
                         },
-                        ],
-                      },
+                        {
+                          deleted: false,
+                        },
+                      ],
                     },
                   },
                   {
@@ -455,9 +462,16 @@ class Cable {
                 pipeline: [
                   {
                     $match: {
-                      $expr: {
-                        $in: ['$$cables', '$cables'],
-                      },
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$$cables', '$cables'],
+                          },
+                        },
+                        {
+                          deleted: false,
+                        },
+                      ],
                     },
                   },
                   {
@@ -477,9 +491,16 @@ class Cable {
                 pipeline: [
                   {
                     $match: {
-                      $expr: {
-                        $in: ['$$cable', '$cables'],
-                      },
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$$cable', '$cables'],
+                          },
+                        },
+                        {
+                          deleted: false,
+                        },
+                      ],
                     },
                   },
                   {
@@ -505,16 +526,23 @@ class Cable {
                   },
                   {
                     $match: {
-                      $expr: {
-                        $in: ['$_id', {
-                          $cond: {
-                            if: { $isArray: { $arrayElemAt: ['$idsorgs', 0] } },
-                            then: { $arrayElemAt: ['$idsorgs', 0] },
-                            else: [],
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$_id', {
+                              $cond: {
+                                if: { $isArray: { $arrayElemAt: ['$idsorgs', 0] } },
+                                then: { $arrayElemAt: ['$idsorgs', 0] },
+                                else: [],
+                              },
+                            },
+                            ],
                           },
                         },
-                        ],
-                      },
+                        {
+                          deleted: false,
+                        },
+                      ],
                     },
                   },
                   {
@@ -534,16 +562,23 @@ class Cable {
                 pipeline: [
                   {
                     $match: {
-                      $expr: {
-                        $in: ['$_id', {
-                          $cond: {
-                            if: { $isArray: { $arrayElemAt: ['$$f', 0] } },
-                            then: '$$f',
-                            else: [],
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$_id', {
+                              $cond: {
+                                if: { $isArray: { $arrayElemAt: ['$$f', 0] } },
+                                then: '$$f',
+                                else: [],
+                              },
+                            },
+                            ],
                           },
                         },
-                        ],
-                      },
+                        {
+                          deleted: false,
+                        },
+                      ],
                     },
                   },
                   {

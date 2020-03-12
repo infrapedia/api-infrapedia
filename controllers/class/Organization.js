@@ -245,9 +245,16 @@ class Organization {
                 pipeline: [
                   {
                     $match: {
-                      $expr: {
-                        $in: ['$$idorg', '$organizations'],
-                      },
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$$idorg', '$organizations'],
+                          },
+                        },
+                        {
+                          deleted: false,
+                        },
+                      ],
                     },
                   },
                   // {

@@ -400,9 +400,16 @@ class Network {
                   },
                   {
                     $match: {
-                      $expr: {
-                        $in: ['$_id', '$idsorgs'],
-                      },
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$_id', '$idsorgs'],
+                          },
+                        },
+                        {
+                          deleted: false,
+                        },
+                      ],
                     },
                   },
                   {
@@ -427,9 +434,16 @@ class Network {
                   },
                   {
                     $match: {
-                      $expr: {
-                        $in: ['$_id', '$idscables'],
-                      },
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$_id', '$idscables'],
+                          },
+                        },
+                        {
+                          deleted: false,
+                        },
+                      ],
                     },
                   },
                   {
@@ -449,9 +463,16 @@ class Network {
                 pipeline: [
                   {
                     $match: {
-                      $expr: {
-                        $in: ['$_id', '$$f'],
-                      },
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$_id', '$$f'],
+                          },
+                        },
+                        {
+                          deleted: false,
+                        },
+                      ],
                     },
                   },
                   {
@@ -476,9 +497,16 @@ class Network {
                   },
                   {
                     $match: {
-                      $expr: {
-                        $in: ['$_id', '$idscls'],
-                      },
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$_id', '$idscls'],
+                          },
+                        },
+                        {
+                          deleted: false,
+                        },
+                      ],
                     },
                   },
                   {

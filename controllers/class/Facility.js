@@ -82,9 +82,16 @@ class Facility {
                 pipeline: [
                   {
                     $match: {
-                      $expr: {
-                        $in: ['$$facilities', '$facilities'],
-                      },
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$$facilities', '$facilities'],
+                          },
+                        },
+                        {
+                          deleted: false,
+                        },
+                      ],
                     },
                   },
                   {
@@ -132,16 +139,23 @@ class Facility {
                   },
                   {
                     $match: {
-                      $expr: {
-                        $in: ['$_id', {
-                          $cond: {
-                            if: { $isArray: { $arrayElemAt: ['$idsorgs', 0] } },
-                            then: { $arrayElemAt: ['$idsorgs', 0] },
-                            else: [],
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$_id', {
+                              $cond: {
+                                if: { $isArray: { $arrayElemAt: ['$idsorgs', 0] } },
+                                then: { $arrayElemAt: ['$idsorgs', 0] },
+                                else: [],
+                              },
+                            },
+                            ],
                           },
                         },
-                        ],
-                      },
+                        {
+                          deleted: false,
+                        },
+                      ],
                     },
                   },
                   {
