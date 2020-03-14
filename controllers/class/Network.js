@@ -308,6 +308,7 @@ class Network {
                     {
                       $project: {
                         label: 1,
+                        terrestrial: 1,
                         value: 1,
                       },
                     },
