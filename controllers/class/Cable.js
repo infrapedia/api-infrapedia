@@ -345,14 +345,7 @@ class Cable {
                         $and: [
                           {
                             $expr: {
-                              $in: ['$_id', {
-                                $cond: {
-                                  if: { $isArray: { $arrayElemAt: ['$$f', 0] } },
-                                  then: '$$f',
-                                  else: [],
-                                },
-                              },
-                              ],
+                              $in: ['$_id', '$$f'],
                             },
                           },
                           {
