@@ -320,15 +320,8 @@ class Cable {
                       },
                     },
                     {
-                      $addFields: {
-                        label: '$name',
-                        value: '$_id',
-                      },
-                    },
-                    {
                       $project: {
-                        label: 1,
-                        value: 1,
+                        label: '$name',
                       },
                     },
                   ],
@@ -356,8 +349,7 @@ class Cable {
                     },
                     {
                       $project: {
-                        _id: 1,
-                        name: 1,
+                        label: '$name',
                       },
                     },
                   ],
