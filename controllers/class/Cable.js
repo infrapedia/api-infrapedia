@@ -338,19 +338,21 @@ class Cable {
               {
                 $lookup: {
                   from: 'organizations',
-                  let: { orgs: '$organizations' },
+                  let: { f: '$owners' },
                   pipeline: [
-                    {
-                      $addFields: {
-                        idsorgs: '$owners',
-                      },
-                    },
                     {
                       $match: {
                         $and: [
                           {
                             $expr: {
-                              $in: ['$_id', '$idsorgs'],
+                              $in: ['$_id', {
+                                $cond: {
+                                  if: { $isArray: { $arrayElemAt: ['$$f', 0] } },
+                                  then: '$$f',
+                                  else: [],
+                                },
+                              },
+                              ],
                             },
                           },
                           {
