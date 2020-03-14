@@ -450,6 +450,7 @@ class Network {
                     $project: {
                       _id: 1,
                       name: 1,
+                      terrestrial: 1,
                     },
                   },
                 ],
