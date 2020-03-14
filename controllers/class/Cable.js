@@ -335,6 +335,40 @@ class Cable {
                   as: 'facilities',
                 },
               },
+              {
+                $lookup: {
+                  from: 'organizations',
+                  let: { orgs: '$organizations' },
+                  pipeline: [
+                    {
+                      $addFields: {
+                        idsorgs: '$owners',
+                      },
+                    },
+                    {
+                      $match: {
+                        $and: [
+                          {
+                            $expr: {
+                              $in: ['$_id', '$idsorgs'],
+                            },
+                          },
+                          {
+                            deleted: false,
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      $project: {
+                        _id: 1,
+                        name: 1,
+                      },
+                    },
+                  ],
+                  as: 'owners',
+                },
+              },
             ]).toArray((err, o) => {
               if (err) reject(err);
               resolve({ m: 'Loaded', r: o[0] });
