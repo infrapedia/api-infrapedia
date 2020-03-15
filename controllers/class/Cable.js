@@ -25,7 +25,7 @@ class Cable {
               data = {
                 uuid: String(user),
                 name: String(data.name),
-                cc: String(data.cc),
+                // cc: String(data.cc),
                 notes: '', // String(data.notes)
                 systemLength: String(data.systemLength),
                 activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
@@ -73,7 +73,7 @@ class Cable {
               data = {
                 uuid: String(user),
                 name: String(data.name),
-                cc: String(data.cc),
+                // cc: String(data.cc),
                 systemLength: String(data.systemLength),
                 activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
                 urls: (data.urls === '') ? data.urls : [],
