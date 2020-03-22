@@ -1,5 +1,7 @@
 const luxon = require('luxon');
+const GJV = require('geojson-validation');
 const { ObjectID } = require('mongodb');
+const adms = require('../helpers/adms');
 
 class CLS {
   constructor() {
@@ -34,6 +36,43 @@ class CLS {
           }).catch((e) => { console.log(e); reject({ m: e }); });
         } else { resolve('Not user found'); }
       } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  addByTransfer(data) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (GJV.valid(JSON.parse(data.point))) {
+          this.model().then((cls) => {
+            cls.find({ cid: String(data.cid) }).count(async (err, c) => {
+              if (err) reject({ m: err });
+              else if (c > 0) reject({ m: 'We have registered in our system more than one organization with the same name' });
+              else {
+                data = {
+                  uuid: '',
+                  cid: String(data.cid),
+                  name: String(data.name),
+                  notes: '', // String(data.notes)
+                  state: `${String(data.state)}`,
+                  slug: `${String(data.slug)}`,
+                  geom: JSON.parse(data.point),
+                  cables: [],
+                  tags: [],
+                  rgDate: luxon.DateTime.utc(),
+                  uDate: luxon.DateTime.utc(),
+                  status: false,
+                  deleted: false,
+                };
+                // we need search about the information
+                cls.insertOne(data, (err, i) => {
+                  if (err) reject({ m: err + 0 });
+                  resolve();
+                });
+              }
+            });
+          }).catch((e) => reject({ m: e + 1 }));
+        }
+      } catch (e) { reject({ m: e + 2 }); }
     });
   }
 
@@ -202,7 +241,7 @@ class CLS {
             cls.aggregate([{
               $match: {
                 $and: [
-                  { uuid: user },
+                  adms(user),
                   { deleted: false },
                 ],
               },

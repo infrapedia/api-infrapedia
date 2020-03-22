@@ -1,16 +1,12 @@
 const luxon = require('luxon');
 const { ObjectID } = require('mongodb');
+const countries = require('../helpers/isoCountries');
+const adms = require('../helpers/adms');
 
 class Organization {
   constructor() {
     // eslint-disable-next-line global-require
     this.model = require('../../models/organization.model');
-  }
-
-  transfer(user, data) {
-    return new Promise((resolve, reject) => {
-
-    });
   }
 
   add(user, data) {
@@ -54,6 +50,59 @@ class Organization {
             });
           }).catch((e) => { reject(e); });
         } else { resolve('Not user found'); }
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  addByTransfer(data) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((organization) => {
+          // we need to validate if  don't have another organization with the same name
+          // TODO: discard deleted files
+          organization.find({ ooid: String(data.ooid) }).count(async (err, c) => {
+            if (err) reject({ m: err });
+            else if (c > 0) reject({ m: 'We have registered in our system more than one organization with the same name' });
+            else {
+              // data.address = JSON.parse(data.address);
+              data = {
+                uuid: '',
+                ooid: String(data.ooid),
+                name: String(data.name),
+                notes: '', // String(data.notes)
+                logo: (data.logo !== null && data.logo !== '') ? String(data.logo) : '',
+                information: '',
+                address: [
+                  {
+                    reference: `${data.address1} ${data.address2}`,
+                    street: `${data.address1} ${data.address2}`,
+                    apt: '',
+                    city: `${data.city}`,
+                    state: `${data.state}`,
+                    zipcode: `${data.zipcode}`,
+                    country: countries(data.country),
+                  },
+                ],
+                url: String(data.url),
+                premium: false,
+                istrusted: false,
+                non_peering: (data.non_peering),
+                tags: [],
+                rgDate: luxon.DateTime.utc(),
+                uDate: luxon.DateTime.utc(),
+                status: false,
+                deleted: false,
+                validated: false,
+              };
+              // console.log( JSON.stringify( data ) );
+              organization.insertOne(data, (err, i) => {
+                // TODO: validation insert
+                if (err) reject({ m: err });
+                resolve({ m: 'Organization created' });
+              });
+            }
+          });
+        }).catch((e) => { reject(e); });
       } catch (e) { reject({ m: e }); }
     });
   }
@@ -104,7 +153,7 @@ class Organization {
             organization.aggregate([{
               $match: {
                 $and: [
-                  { uuid: user },
+                  adms(user),
                   { deleted: false },
                 ],
               },

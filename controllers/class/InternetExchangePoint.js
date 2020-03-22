@@ -6,51 +6,57 @@ const countries = require('../helpers/isoCountries');
 class IXP {
   constructor() { this.model = require('../../models/ixp.model'); }
 
-  addByTransfer(user, data) {
+  addByTransfer(data) {
     return new Promise((resolve, reject) => {
       try {
         if (GJV.valid(JSON.parse(data.point))) {
-          this.model().then((facility) => {
-            data = {
-              uuid: String(user),
-              ix_id: String(data.ix_id),
-              name: String(data.name),
-              notes: '', // String(data.notes)
-              nameLong: String(data.name_long),
-              geom: JSON.parse(data.point),
-              address: [
-                {
-                  reference: '',
-                  street: '',
-                  apt: '',
-                  city: data.city,
-                  state: '',
-                  zipcode: '',
-                  country: countries(data.country),
-                },
-              ],
-              media: data.media,
-              proto_unicast: data.proto_unicast,
-              proto_multicast: data.proto_multicast,
-              proto_ipv6: data.proto_ipv6,
-              website: data.website,
-              urlStats: data.url_stats,
-              techEmail: data.tech_email,
-              techPhone: data.tech_phone,
-              policyEmail: data.policy_email,
-              policyPhone: data.policy_phone,
-              tags: [],
-              rgDate: luxon.DateTime.utc(),
-              uDate: luxon.DateTime.utc(),
-              status: true,
-            };
-            // we need search about the information
-            facility.find({ nameLong: data.name_long }).count((err, f) => {
-              if (err) reject({ m: err + 0 });
-              else if (f > 0) { reject(); } else {
-                facility.insertOne(data, (err, i) => {
+          this.model().then((ixps) => {
+            ixps.find({ fac_id: String(data.fac_id) }).count(async (err, c) => {
+              if (err) reject({ m: err });
+              else if (c > 0) reject({ m: 'We have registered in our system more than one organization with the same name' });
+              else {
+                data = {
+                  uuid: '',
+                  ix_id: String(data.ix_id),
+                  name: String(data.name),
+                  notes: '', // String(data.notes)
+                  nameLong: String(data.name_long),
+                  geom: JSON.parse(data.point),
+                  address: [
+                    {
+                      reference: '',
+                      street: '',
+                      apt: '',
+                      city: `${data.city}`,
+                      state: '',
+                      zipcode: '',
+                      country: countries(data.country),
+                    },
+                  ],
+                  media: data.media,
+                  proto_unicast: data.proto_unicast,
+                  proto_multicast: data.proto_multicast,
+                  proto_ipv6: data.proto_ipv6,
+                  website: data.website,
+                  urlStats: data.url_stats,
+                  techEmail: data.tech_email,
+                  techPhone: data.tech_phone,
+                  policyEmail: data.policy_email,
+                  policyPhone: data.policy_phone,
+                  tags: [],
+                  rgDate: luxon.DateTime.utc(),
+                  uDate: luxon.DateTime.utc(),
+                  status: true,
+                };
+                // we need search about the information
+                ixps.find({ nameLong: data.name_long }).count((err, f) => {
                   if (err) reject({ m: err + 0 });
-                  resolve();
+                  else if (f > 0) { reject(); } else {
+                    facility.insertOne(data, (err, i) => {
+                      if (err) reject({ m: err + 0 });
+                      resolve();
+                    });
+                  }
                 });
               }
             });

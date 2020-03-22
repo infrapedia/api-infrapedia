@@ -4,6 +4,7 @@ const fs = require('fs');
 // const geojsonHint = require('@mapbox/geojsonhint');
 
 const { ObjectID } = require('mongodb');
+const adms = require('../helpers/adms');
 
 class Cable {
   constructor() {
@@ -54,6 +55,46 @@ class Cable {
             });
           }).catch((e) => reject({ m: e + 1 }));
         } else { resolve('Not user found'); }
+      } catch (e) { reject({ m: e + 2 }); }
+    });
+  }
+
+  addByTransfer(data) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then(async (cables) => {
+          // create file
+          const nameFile = Math.floor(Date.now() / 1000);
+          const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
+          data = {
+            uuid: '',
+            name: String(data.name),
+            notes: '', // String(data.notes)
+            systemLength: String(data.systemLength),
+            activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
+            urls: (Array.isArray(data.urls)) ? data.urls : [],
+            terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
+            capacityTBPS: String(data.capacityTBPS),
+            litCapacity: [],
+            fiberPairs: String(data.fiberPairs),
+            category: '',
+            facilities: [],
+            owners: [],
+            geom: data.geom,
+            tags: [],
+            rgDate: luxon.DateTime.utc(),
+            uDate: luxon.DateTime.utc(),
+            status: false,
+            deleted: false,
+          };
+          cables.insertOne(data, (err, i) => {
+            // TODO: validation insert
+            if (err) reject({ m: err + 0 });
+            fs.unlink(`./temp/${nameFile}.json`, (err) => {
+              resolve({ m: 'Cable created' });
+            });
+          });
+        }).catch((e) => reject({ m: e + 1 }));
       } catch (e) { reject({ m: e + 2 }); }
     });
   }
@@ -113,7 +154,7 @@ class Cable {
             cables.aggregate([{
               $match: {
                 $and: [
-                  { uuid: user },
+                  adms(user),
                   { terrestrial: true },
                   { deleted: false },
                 ],
@@ -180,7 +221,7 @@ class Cable {
             cables.aggregate([{
               $match: {
                 $and: [
-                  { uuid: user },
+                  adms(user),
                   { terrestrial: false },
                   { deleted: false },
                 ],
@@ -247,7 +288,7 @@ class Cable {
             cables.aggregate([{
               $match: {
                 $and: [
-                  { uuid: user },
+                  adms(user),
                   { deleted: false },
                 ],
               },
