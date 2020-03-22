@@ -11,9 +11,9 @@ class IXP {
       try {
         if (GJV.valid(JSON.parse(data.point))) {
           this.model().then((ixps) => {
-            ixps.find({ fac_id: String(data.fac_id) }).count(async (err, c) => {
-              if (err) reject({ m: err });
-              else if (c > 0) reject({ m: 'We have registered in our system more than one organization with the same name' });
+            ixps.find({ ix_id: String(data.ix_id) }).count(async (err, c) => {
+              if (err) resolve({ m: err });
+              else if (c > 0) resolve({ m: 'We have registered in our system more than one organization with the same name' });
               else {
                 data = {
                   uuid: '',
@@ -50,10 +50,10 @@ class IXP {
                 };
                 // we need search about the information
                 ixps.find({ nameLong: data.name_long }).count((err, f) => {
-                  if (err) reject({ m: err + 0 });
-                  else if (f > 0) { reject(); } else {
-                    facility.insertOne(data, (err, i) => {
-                      if (err) reject({ m: err + 0 });
+                  if (err) resolve({ m: err + 0 });
+                  else if (f > 0) { resolve(); } else {
+                    ixps.insertOne(data, (err, i) => {
+                      if (err) resolve({ m: err + 0 });
                       resolve();
                     });
                   }

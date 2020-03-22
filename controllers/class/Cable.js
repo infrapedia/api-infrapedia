@@ -63,36 +63,42 @@ class Cable {
     return new Promise((resolve, reject) => {
       try {
         this.model().then(async (cables) => {
-          // create file
-          const nameFile = Math.floor(Date.now() / 1000);
-          const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
-          data = {
-            uuid: '',
-            name: String(data.name),
-            notes: '', // String(data.notes)
-            systemLength: String(data.systemLength),
-            activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
-            urls: (Array.isArray(data.urls)) ? data.urls : [],
-            terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
-            capacityTBPS: String(data.capacityTBPS),
-            litCapacity: [],
-            fiberPairs: String(data.fiberPairs),
-            category: '',
-            facilities: [],
-            owners: [],
-            geom: data.geom,
-            tags: [],
-            rgDate: luxon.DateTime.utc(),
-            uDate: luxon.DateTime.utc(),
-            status: false,
-            deleted: false,
-          };
-          cables.insertOne(data, (err, i) => {
-            // TODO: validation insert
-            if (err) reject({ m: err + 0 });
-            fs.unlink(`./temp/${nameFile}.json`, (err) => {
-              resolve({ m: 'Cable created' });
-            });
+          cables.find({ cableid: String(data.cableid) }).count(async (err, c) => {
+            console.log(c);
+            if (err) resolve({ m: err });
+            else if (c > 0) resolve({ m: 'We have registered in our system more than one organization with the same name' });
+            else {
+              // create file
+              const nameFile = Math.floor(Date.now() / 1000);
+              const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
+              data = {
+                uuid: '',
+                cableid: String(data.cableid),
+                name: String(data.name),
+                notes: '', // String(data.notes)
+                systemLength: String(data.systemLength),
+                activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
+                urls: (Array.isArray(data.urls)) ? data.urls : [],
+                terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
+                capacityTBPS: String(data.capacityTBPS),
+                litCapacity: [],
+                fiberPairs: String(data.fiberPairs),
+                category: '',
+                facilities: [],
+                owners: [],
+                geom: data.geom,
+                tags: [],
+                rgDate: luxon.DateTime.utc(),
+                uDate: luxon.DateTime.utc(),
+                status: false,
+                deleted: false,
+              };
+              cables.insertOne(data, (err, i) => {
+                // TODO: validation insert
+                if (err) reject({ m: err + 0 });
+                resolve({ m: 'Cable created' });
+              });
+            }
           });
         }).catch((e) => reject({ m: e + 1 }));
       } catch (e) { reject({ m: e + 2 }); }

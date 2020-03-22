@@ -1,10 +1,11 @@
 const cp = require('child_process');
 const fs = require('fs');
-// const notifications = require('./helpers/sendNotificationEmailUsingMandrill');
+const notifications = function (a) {return a};
 
 module.exports = {
   cablesT: () => {
     try {
+      console.log('Terrestrial cables');
       const cable = require('../models/cable.model');
       cable().then((cable) => {
         cable.aggregate([
@@ -48,7 +49,8 @@ module.exports = {
               geom: '$geom.features',
             },
           },
-        ], { allowDiskUse: false }).toArray(async (err, lines) => {
+        ], { allowDiskUse: true }).toArray(async (err, lines) => {
+          console.log(lines, err);
           if (err) return 'Error';
           // we'll going to create the master file for ixps
           lines = await lines.reduce((total, value) => total.concat(value.geom), []);
@@ -119,6 +121,7 @@ module.exports = {
             },
           },
         ], { allowDiskUse: false }).toArray(async (err, lines) => {
+          console.log(lines);
           if (err) return 'Error';
           // we'll going to create the master file for ixps
           lines = await lines.reduce((total, value) => total.concat(value.geom), []);
@@ -224,6 +227,8 @@ module.exports = {
           },
         ], { allowDiskUse: false }).toArray(async (err, multipoints) => {
           if (err) return 'Error';
+
+          console.log(multipoints);
           // we'll going to create the master file for ixps
           multipoints = await multipoints.reduce((total, value) => total.concat(value.feature), []);
           multipoints = `{
@@ -342,12 +347,13 @@ module.exports = {
           },
           {
             $project: {
-
               feature: 1,
             },
           },
         ], { allowDiskUse: false }).toArray(async (err, polygon) => {
+          console.log(err);
           if (err) return 'Error';
+          console.log(polygon)
           // we'll going to create the master file for ixps
           polygon = await polygon.reduce((total, value) => total.concat(value.feature), []);
           polygon = `{

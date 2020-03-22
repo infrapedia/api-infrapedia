@@ -45,8 +45,8 @@ class CLS {
         if (GJV.valid(JSON.parse(data.point))) {
           this.model().then((cls) => {
             cls.find({ cid: String(data.cid) }).count(async (err, c) => {
-              if (err) reject({ m: err });
-              else if (c > 0) reject({ m: 'We have registered in our system more than one organization with the same name' });
+              if (err) resolve({ m: err });
+              else if (c > 0) resolve({ m: 'We have registered in our system more than one organization with the same name' });
               else {
                 data = {
                   uuid: '',
@@ -55,7 +55,16 @@ class CLS {
                   notes: '', // String(data.notes)
                   state: `${String(data.state)}`,
                   slug: `${String(data.slug)}`,
-                  geom: JSON.parse(data.point),
+                  geom: {
+                    type: 'FeatureCollection',
+                    features: [
+                      {
+                        type: 'Feature',
+                        properties: {},
+                        geometry: JSON.parse(data.point),
+                      },
+                    ],
+                  },
                   cables: [],
                   tags: [],
                   rgDate: luxon.DateTime.utc(),
@@ -65,7 +74,9 @@ class CLS {
                 };
                 // we need search about the information
                 cls.insertOne(data, (err, i) => {
-                  if (err) reject({ m: err + 0 });
+                  console.log(err);
+                  if (err) resolve({ m: err + 0 });
+                  console.log(i);
                   resolve();
                 });
               }

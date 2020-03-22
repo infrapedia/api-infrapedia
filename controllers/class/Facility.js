@@ -11,59 +11,53 @@ class Facility {
   addByTransfer(data) {
     return new Promise((resolve, reject) => {
       try {
-        if (GJV.valid(data.polygon) && GJV.valid(JSON.parse(data.point)) && data.polygon.geometry) {
-          this.model().then((facility) => {
-            facility.find({ fac_id: String(data.fac_id) }).count(async (err, c) => {
-              if (err) reject({ m: err });
-              else if (c > 0) reject({ m: 'We have registered in our system more than one organization with the same name' });
-              else {
-                data.polygon.properties.height = (data.polygon.properties.height === '') ? 30 : parseFloat(data.polygon.properties.height);
-                data = {
-                  uuid: '',
-                  fac_id: String(data.fac_id),
-                  name: String(data.name),
-                  notes: '', // String(data.notes)
-                  point: JSON.parse(data.point),
-                  address: [
-                    {
-                      reference: `${data.address1} ${data.address2}`,
-                      street: `${data.address1} ${data.address2}`,
-                      apt: `#${data.osm_addr_housenumber}`,
-                      city: data.city,
-                      state: data.state,
-                      zipcode: data.zipcode,
-                      country: countries(data.country),
-                    },
-                  ],
-                  websites: data.website,
-                  // information: String(data.information),
-                  geom: {
-                    type: 'FeatureCollection',
-                    features: [data.polygon],
+        this.model().then((facility) => {
+          facility.find({ fac_id: String(data.fac_id) }).count(async (err, c) => {
+            console.log(c);
+            if (err) resolve({ m: err });
+            else if (c > 0) resolve({ m: 'We have registered in our system more than one organization with the same name' });
+            else {
+              data.polygon.properties.height = (data.polygon.properties.height === '') ? 30 : parseFloat(data.polygon.properties.height);
+              data = {
+                uuid: '',
+                fac_id: String(data.fac_id),
+                name: String(data.name),
+                notes: '', // String(data.notes)
+                point: JSON.parse(data.point),
+                address: [
+                  {
+                    reference: `${data.address1} ${data.address2}`,
+                    street: `${data.address1} ${data.address2}`,
+                    apt: `#${data.osm_addr_housenumber}`,
+                    city: data.city,
+                    state: data.state,
+                    zipcode: data.zipcode,
+                    country: countries(data.country),
                   },
-                  ixps: [],
-                  tags: [],
-                  t: data.osm_telecom,
-                  startDate: data.osm_start_date,
-                  building: (data.osm_building === 'yes') ? 'Building' : data.osm_building,
-                  rgDate: luxon.DateTime.utc(),
-                  uDate: luxon.DateTime.utc(),
-                  status: true,
-                };
-                // we need search about the information
-                facility.find({ fac_id: data.fac_id }).count((err, f) => {
-                  if (err) reject({ m: err + 0 });
-                  else if (f > 0) { console.log('Repeat'); reject(); } else {
-                    facility.insertOne(data, (err, i) => {
-                      if (err) reject({ m: err + 0 });
-                      resolve();
-                    });
-                  }
-                });
-              }
-            });
-          }).catch((e) => reject({ m: e + 1 }));
-        }
+                ],
+                websites: data.website,
+                // information: String(data.information),
+                geom: {
+                  type: 'FeatureCollection',
+                  features: [data.polygon],
+                },
+                ixps: [],
+                tags: [],
+                t: data.osm_telecom,
+                startDate: data.osm_start_date,
+                building: (data.osm_building === 'yes') ? 'Building' : data.osm_building,
+                rgDate: luxon.DateTime.utc(),
+                uDate: luxon.DateTime.utc(),
+                status: true,
+              };// we need search about the information
+              facility.insertOne(data, (err, i) => {
+                if (err) resolve({ m: err + 0 });
+                console.logo(i);
+                resolve();
+              });
+            }
+          });
+        }).catch((e) => reject({ m: e + 1 }));
       } catch (e) { reject({ m: e + 2 }); }
     });
   }

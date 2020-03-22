@@ -61,8 +61,8 @@ class Organization {
           // we need to validate if  don't have another organization with the same name
           // TODO: discard deleted files
           organization.find({ ooid: String(data.ooid) }).count(async (err, c) => {
-            if (err) reject({ m: err });
-            else if (c > 0) reject({ m: 'We have registered in our system more than one organization with the same name' });
+            if (err) resolve({ m: err });
+            else if (c > 0) resolve({ m: 'We have registered in our system more than one organization with the same name' });
             else {
               // data.address = JSON.parse(data.address);
               data = {
@@ -97,13 +97,13 @@ class Organization {
               // console.log( JSON.stringify( data ) );
               organization.insertOne(data, (err, i) => {
                 // TODO: validation insert
-                if (err) reject({ m: err });
+                if (err) resolve({ m: err });
                 resolve({ m: 'Organization created' });
               });
             }
           });
         }).catch((e) => { reject(e); });
-      } catch (e) { reject({ m: e }); }
+      } catch (e) { resolve({ m: e }); }
     });
   }
 
