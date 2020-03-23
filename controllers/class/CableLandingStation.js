@@ -246,6 +246,7 @@ class CLS {
   }
 
   list(user, page) {
+    console.log(page);
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
@@ -264,28 +265,28 @@ class CLS {
             },
               { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit) > 0) ? (parseInt(limit) * parseInt(page)) - parseInt(limit) : 0 },
               { $limit: limit },
-              {
-              $lookup: {
-                from: 'cables',
-                let: { cables: '$cables' },
-                pipeline: [
-                  {
-                    $match: {
-                      $expr: {
-                        $in: ['$_id', '$$cables'],
-                      },
-                    },
-                  },
-                  {
-                    $project: {
-                      _id: 1,
-                      name: 1,
-                    },
-                  },
-                ],
-                as: 'cables',
-              },
-            },
+            //   {
+            //   $lookup: {
+            //     from: 'cables',
+            //     let: { cables: '$cables' },
+            //     pipeline: [
+            //       {
+            //         $match: {
+            //           $expr: {
+            //             $in: ['$_id', '$$cables'],
+            //           },
+            //         },
+            //       },
+            //       {
+            //         $project: {
+            //           _id: 1,
+            //           name: 1,
+            //         },
+            //       },
+            //     ],
+            //     as: 'cables',
+            //   },
+            // },
             {
               $lookup: {
                 from: 'alerts',
