@@ -69,12 +69,15 @@ class Network {
     });
   }
 
-  list(user) {
+  list(user, page) {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
           this.model().then((network) => {
-            network.aggregate([{
+            network.aggregate([
+              {
+                $sort: { _id: 1 },
+              },{
               $match: {
                 $and: [
                   { uuid: user },
@@ -82,7 +85,9 @@ class Network {
                 ],
               },
             },
-            {
+              { $skyp: ((parseInt(limit) * parseInt(page)) - parseInt(limit)).limit(parseInt(limit)) },
+
+              {
               $lookup: {
                 from: 'alerts',
                 let: { elemnt: { $toString: '$_id' } },

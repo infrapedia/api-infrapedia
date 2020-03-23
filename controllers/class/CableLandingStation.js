@@ -1,7 +1,7 @@
 const luxon = require('luxon');
 const GJV = require('geojson-validation');
 const { ObjectID } = require('mongodb');
-const adms = require('../helpers/adms');
+const { adms } = require('../helpers/adms');
 
 class CLS {
   constructor() {
@@ -168,7 +168,8 @@ class CLS {
       try {
         if (ObjectID.isValid(idcls)) {
           this.model().then((cls) => {
-            cls.aggregate([{
+            cls.aggregate([
+            {
               $match: {
                 $and: [
                   { _id: new ObjectID(idcls) },
@@ -244,12 +245,15 @@ class CLS {
     });
   }
 
-  list(user) {
+  list(user, page) {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
           this.model().then((cls) => {
-            cls.aggregate([{
+            cls.aggregate([
+              {
+                $sort: { _id: 1 },
+              },{
               $match: {
                 $and: [
                   adms(user),
@@ -257,7 +261,9 @@ class CLS {
                 ],
               },
             },
-            {
+              { $skyp: ((parseInt(limit) * parseInt(page)) - parseInt(limit)).limit(parseInt(limit)) },
+
+              {
               $lookup: {
                 from: 'cables',
                 let: { cables: '$cables' },

@@ -5,7 +5,6 @@ const notifications = function (a) {return a};
 module.exports = {
   cablesT: () => {
     try {
-      console.log('Terrestrial cables');
       const cable = require('../models/cable.model');
       cable().then((cable) => {
         cable.aggregate([
@@ -16,10 +15,10 @@ module.exports = {
           },
           {
             $unwind:
-               {
-                 path: '$geom.features',
-                 preserveNullAndEmptyArrays: false,
-               },
+              {
+                path: '$geom.features',
+                preserveNullAndEmptyArrays: false,
+              },
           },
           {
             $addFields: {
@@ -30,7 +29,7 @@ module.exports = {
               'geom.features.properties.capacityTBPS': '$capacityTBPS',
               'geom.features.properties.terrestrial': '$terrestrial',
               'geom.features.properties.category': '$category',
-              'geom.features.properties.activationDateTime': 0,
+              'geom.features.properties.activationDateTime': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
               // 'geom.features.properties.facilities': '$facilities',
             },
           },
@@ -49,8 +48,8 @@ module.exports = {
               geom: '$geom.features',
             },
           },
-        ], { allowDiskUse: true }).toArray(async (err, lines) => {
-          console.log(lines, err);
+        ], { allowDiskUse: false }).toArray(async (err, lines) => {
+          console.log(lines);
           if (err) return 'Error';
           // we'll going to create the master file for ixps
           lines = await lines.reduce((total, value) => total.concat(value.geom), []);
@@ -67,8 +66,8 @@ module.exports = {
             stream.end(async () => {
               const stream = await fs.createWriteStream('./temp/cables_terrestrial.txt');
               stream.write('');
-              // stream.on('err', () => notifications('Master file of terrestrial cables wasn\'t created', new Date()));
-              // stream.end(() => notifications('Master file of terrestrial cables was created', new Date()));
+              // stream.on('err', () => notifications('Master file of subsea cables wasn\'t created', new Date()));
+              // stream.end(() => notifications('Master file of subsea cables was created', new Date()));
             });
           } catch (err) { return err; }
         });

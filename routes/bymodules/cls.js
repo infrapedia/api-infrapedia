@@ -13,7 +13,7 @@ module.exports = {
         .catch((e) => { response.err(res, e); });
     });
     router.get(`${process.env._ROUTE}/auth/cls/all`, (req, res) => {
-      controllers.cableLandingStations.list(req.headers.userid)
+      controllers.cableLandingStations.list(req.headers.userid, req.query.p)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });

@@ -1,7 +1,7 @@
 const luxon = require('luxon');
 const { ObjectID } = require('mongodb');
 const countries = require('../helpers/isoCountries');
-const adms = require('../helpers/adms');
+const { adms } = require('../helpers/adms');
 
 class Organization {
   constructor() {
@@ -145,12 +145,15 @@ class Organization {
     });
   }
 
-  list(user) {
+  list(user, page) {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
           this.model().then((organization) => {
-            organization.aggregate([{
+            organization.aggregate([
+              {
+                $sort: { _id: 1 },
+              },{
               $match: {
                 $and: [
                   adms(user),
@@ -158,7 +161,8 @@ class Organization {
                 ],
               },
             },
-            {
+              { $skyp: ((parseInt(limit) * parseInt(page)) - parseInt(limit)).limit(parseInt(limit)) },
+              {
               $lookup: {
                 from: 'alerts',
                 let: { elemnt: { $toString: '$_id' } },

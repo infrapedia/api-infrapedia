@@ -4,7 +4,7 @@ const fs = require('fs');
 // const geojsonHint = require('@mapbox/geojsonhint');
 
 const { ObjectID } = require('mongodb');
-const adms = require('../helpers/adms');
+const { adms } = require('../helpers/adms');
 
 class Cable {
   constructor() {
@@ -64,7 +64,6 @@ class Cable {
       try {
         this.model().then(async (cables) => {
           cables.find({ cableid: String(data.cableid) }).count(async (err, c) => {
-            console.log(c);
             if (err) resolve({ m: err });
             else if (c > 0) resolve({ m: 'We have registered in our system more than one organization with the same name' });
             else {
@@ -152,64 +151,70 @@ class Cable {
     });
   }
 
-  listT(user) {
+  listT(user, page) {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
+          const limit = 40;
           this.model().then((cables) => {
-            cables.aggregate([{
-              $match: {
-                $and: [
-                  adms(user),
-                  { terrestrial: true },
-                  { deleted: false },
-                ],
+            cables.aggregate([
+              {
+                $sort: { _id: 1 },
               },
-            },
-            {
-              $lookup: {
-                from: 'facilities',
-                let: { f: '$facilities' },
-                pipeline: [
-                  {
-                    $match: {
-                      $expr: {
-                        $in: ['$_id', '$$f'],
+              {
+                $match: {
+                  $and: [
+                    adms(user),
+                    { terrestrial: true },
+                    { deleted: false },
+                  ],
+                },
+              },
+              { $skyp: ((parseInt(limit) * parseInt(page)) - parseInt(limit)).limit(parseInt(limit)) },
+              {
+                $lookup: {
+                  from: 'facilities',
+                  let: { f: '$facilities' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $in: ['$_id', '$$f'],
+                        },
                       },
                     },
-                  },
-                  {
-                    $project: {
-                      _id: 1,
-                      name: 1,
+                    {
+                      $project: {
+                        _id: 1,
+                        name: 1,
+                      },
                     },
-                  },
-                ],
-                as: 'facilities',
+                  ],
+                  as: 'facilities',
+                },
               },
-            },
-            {
-              $lookup: {
-                from: 'alerts',
-                let: { elemnt: { $toString: '$_id' } },
-                pipeline: [
-                  {
-                    $match: { $expr: { $and: [{ $eq: ['$elemnt', '$$elemnt'] }] } },
-                  },
-                  { $count: 'elmnt' },
-                ],
-                as: 'alerts',
+              {
+                $lookup: {
+                  from: 'alerts',
+                  let: { elemnt: { $toString: '$_id' } },
+                  pipeline: [
+                    {
+                      $match: { $expr: { $and: [{ $eq: ['$elemnt', '$$elemnt'] }] } },
+                    },
+                    { $count: 'elmnt' },
+                  ],
+                  as: 'alerts',
+                },
               },
-            },
-            {
-              $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
-            },
-            {
-              $project: {
-                uuid: 0,
-                geom: 0,
+              {
+                $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
               },
-            }]).toArray((err, rCables) => {
+              {
+                $project: {
+                  uuid: 0,
+                  geom: 0,
+                },
+              }]).toArray((err, rCables) => {
               if (err) reject(err);
               resolve({ m: 'Loaded', r: rCables });
             });
@@ -219,21 +224,26 @@ class Cable {
     });
   }
 
-  listS(user) {
+  listS(user, page) {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
           this.model().then((cables) => {
-            cables.aggregate([{
+            cables.aggregate([
+              {
+                $sort: { _id: 1 },
+              },
+              {
               $match: {
-                $and: [
+                  $and: [
                   adms(user),
                   { terrestrial: false },
                   { deleted: false },
                 ],
               },
             },
-            {
+              { $skyp: ((parseInt(limit) * parseInt(page)) - parseInt(limit)).limit(parseInt(limit)) },
+              {
               $lookup: {
                 from: 'facilities',
                 let: { f: '$facilities' },

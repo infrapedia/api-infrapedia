@@ -12,7 +12,7 @@ module.exports = {
         .catch((e) => { response.err(res, e); });
     });
     router.get(`${process.env._ROUTE}/auth/organization/all`, (req, res) => {
-      controllers.organizations.list(req.headers.userid)
+      controllers.organizations.list(req.headers.userid, req.query.p)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });

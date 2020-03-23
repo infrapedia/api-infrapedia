@@ -13,7 +13,7 @@ module.exports = {
         .catch((e) => { response.err(res, e); });
     });
     router.get(`${process.env._ROUTE}/auth/network/all`, (req, res) => {
-      controllers.networks.list(req.headers.userid)
+      controllers.networks.list(req.headers.userid, req.query.p)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
