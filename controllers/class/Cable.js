@@ -170,7 +170,7 @@ class Cable {
                   ],
                 },
               },
-              { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit) < 0 ) ? (parseInt(limit) * parseInt(page)) - parseInt(limit) : 0 },
+              { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit) > 0) ? (parseInt(limit) * parseInt(page)) - parseInt(limit) : 0 },
               { $limit: limit },
               {
                 $lookup: {
@@ -244,7 +244,7 @@ class Cable {
                   ],
                 },
               },
-              { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit) < 0 ) ? (parseInt(limit) * parseInt(page)) - parseInt(limit) : 0 },
+              { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit) > 0) ? (parseInt(limit) * parseInt(page)) - parseInt(limit) : 0 },
               { $limit: limit },
               {
                 $lookup: {
