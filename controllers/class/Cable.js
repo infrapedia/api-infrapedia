@@ -170,7 +170,8 @@ class Cable {
                   ],
                 },
               },
-              { $skyp: ((parseInt(limit) * parseInt(page)) - parseInt(limit)).limit(parseInt(limit)) },
+              { $skyp: ((parseInt(limit) * parseInt(page)) - parseInt(limit)) },
+              { $limit: parseInt(limit) },
               {
                 $lookup: {
                   from: 'facilities',
