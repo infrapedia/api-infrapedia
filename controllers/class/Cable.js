@@ -170,7 +170,7 @@ class Cable {
                   ],
                 },
               },
-              { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit)) },
+              { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit) < 0 ) ? (parseInt(limit) * parseInt(page)) - parseInt(limit) : 0 },
               { $limit: limit },
               {
                 $lookup: {
@@ -236,60 +236,60 @@ class Cable {
                 $sort: { _id: 1 },
               },
               {
-              $match: {
+                $match: {
                   $and: [
-                  adms(user),
-                  { terrestrial: false },
-                  { deleted: false },
-                ],
+                    adms(user),
+                    { terrestrial: false },
+                    { deleted: false },
+                  ],
+                },
               },
-            },
-              { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit)) },
+              { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit) < 0 ) ? (parseInt(limit) * parseInt(page)) - parseInt(limit) : 0 },
               { $limit: limit },
               {
-              $lookup: {
-                from: 'facilities',
-                let: { f: '$facilities' },
-                pipeline: [
-                  {
-                    $match: {
-                      $expr: {
-                        $in: ['$_id', '$$f'],
+                $lookup: {
+                  from: 'facilities',
+                  let: { f: '$facilities' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $in: ['$_id', '$$f'],
+                        },
                       },
                     },
-                  },
-                  {
-                    $project: {
-                      _id: 1,
-                      name: 1,
+                    {
+                      $project: {
+                        _id: 1,
+                        name: 1,
+                      },
                     },
-                  },
-                ],
-                as: 'facilities',
+                  ],
+                  as: 'facilities',
+                },
               },
-            },
-            {
-              $lookup: {
-                from: 'alerts',
-                let: { elemnt: { $toString: '$_id' } },
-                pipeline: [
-                  {
-                    $match: { $expr: { $and: [{ $eq: ['$elemnt', '$$elemnt'] }] } },
-                  },
-                  { $count: 'elmnt' },
-                ],
-                as: 'alerts',
+              {
+                $lookup: {
+                  from: 'alerts',
+                  let: { elemnt: { $toString: '$_id' } },
+                  pipeline: [
+                    {
+                      $match: { $expr: { $and: [{ $eq: ['$elemnt', '$$elemnt'] }] } },
+                    },
+                    { $count: 'elmnt' },
+                  ],
+                  as: 'alerts',
+                },
               },
-            },
-            {
-              $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
-            },
-            {
-              $project: {
-                uuid: 0,
-                geom: 0,
+              {
+                $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
               },
-            }]).toArray((err, rCables) => {
+              {
+                $project: {
+                  uuid: 0,
+                  geom: 0,
+                },
+              }]).toArray((err, rCables) => {
               if (err) reject(err);
               resolve({ m: 'Loaded', r: rCables });
             });

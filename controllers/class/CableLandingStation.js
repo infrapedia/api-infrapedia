@@ -254,7 +254,7 @@ class CLS {
             cls.aggregate([
               {
                 $sort: { _id: 1 },
-              },{
+              }, {
               $match: {
                 $and: [
                   adms(user),
@@ -262,7 +262,7 @@ class CLS {
                 ],
               },
             },
-              { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit)) },
+              { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit) < 0 ) ? (parseInt(limit) * parseInt(page)) - parseInt(limit) : 0 },
               { $limit: limit },
               {
               $lookup: {
