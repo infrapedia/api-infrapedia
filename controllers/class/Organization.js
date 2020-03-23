@@ -163,7 +163,7 @@ class Organization {
               },
             },
               { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit)) },
-              { $limit: parseInt(limit) },
+              { $limit: limit },
               {
               $lookup: {
                 from: 'alerts',
