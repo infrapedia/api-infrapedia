@@ -170,7 +170,7 @@ class Cable {
                   ],
                 },
               },
-              { $skyp: ((parseInt(limit) * parseInt(page)) - parseInt(limit)) },
+              { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit)) },
               { $limit: parseInt(limit) },
               {
                 $lookup: {
@@ -229,6 +229,7 @@ class Cable {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
+          const limit = 40;
           this.model().then((cables) => {
             cables.aggregate([
               {
@@ -243,7 +244,8 @@ class Cable {
                 ],
               },
             },
-              { $skyp: ((parseInt(limit) * parseInt(page)) - parseInt(limit)).limit(parseInt(limit)) },
+              { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit)) },
+              { $limit: parseInt(limit) },
               {
               $lookup: {
                 from: 'facilities',

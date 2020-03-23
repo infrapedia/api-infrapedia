@@ -73,6 +73,7 @@ class Network {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
+          const limit = 40;
           this.model().then((network) => {
             network.aggregate([
               {
@@ -85,7 +86,7 @@ class Network {
                 ],
               },
             },
-              { $skyp: ((parseInt(limit) * parseInt(page)) - parseInt(limit)) },
+              { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit)) },
               { $limit: parseInt(limit) },
               {
               $lookup: {

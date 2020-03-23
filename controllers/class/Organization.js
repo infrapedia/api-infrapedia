@@ -149,6 +149,7 @@ class Organization {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
+          const limit = 40;
           this.model().then((organization) => {
             organization.aggregate([
               {
@@ -161,7 +162,7 @@ class Organization {
                 ],
               },
             },
-              { $skyp: ((parseInt(limit) * parseInt(page)) - parseInt(limit)) },
+              { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit)) },
               { $limit: parseInt(limit) },
               {
               $lookup: {

@@ -249,6 +249,7 @@ class CLS {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
+          const limit = 40;
           this.model().then((cls) => {
             cls.aggregate([
               {
@@ -261,7 +262,7 @@ class CLS {
                 ],
               },
             },
-              { $skyp: ((parseInt(limit) * parseInt(page)) - parseInt(limit)) },
+              { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit)) },
               { $limit: parseInt(limit) },
               {
               $lookup: {
