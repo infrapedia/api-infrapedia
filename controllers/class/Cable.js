@@ -69,14 +69,14 @@ class Cable {
             else {
               // create file
               const nameFile = Math.floor(Date.now() / 1000);
-              const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
+              // const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
               data = {
                 uuid: '',
                 cableid: String(data.cableid),
                 name: String(data.name),
                 notes: '', // String(data.notes)
                 systemLength: String(data.systemLength),
-                activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
+                activationDateTime: luxon.DateTime.fromJSDate(data.activationDateTime).toUTC(),
                 urls: (Array.isArray(data.urls)) ? data.urls : [],
                 terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
                 capacityTBPS: String(data.capacityTBPS),
@@ -448,9 +448,14 @@ class Cable {
               },
             },
             {
+              $addFields: {
+                position: { $toInt: { $divide: [{ $size: { $arrayElemAt: ['$v', 0] } }, 2] } },
+              },
+            },
+            {
               $project: {
                 _id: 1,
-                coordinates: [{ $arrayElemAt: ['$v', 0] }, { $arrayElemAt: ['$b', -1] }],
+                coordinates: { $cond: { if: { $eq: [{ $size: '$v' }, 0] }, then: { $arrayElemAt: [{ $arrayElemAt: ['$v', 0] }, '$position'] }, else: { $arrayElemAt: ['$b', -1] } } },
               },
             },
           ]).toArray((err, c) => {

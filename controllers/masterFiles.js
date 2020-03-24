@@ -49,7 +49,6 @@ module.exports = {
             },
           },
         ], { allowDiskUse: false }).toArray(async (err, lines) => {
-          console.log(lines);
           if (err) return 'Error';
           // we'll going to create the master file for ixps
           lines = await lines.reduce((total, value) => total.concat(value.geom), []);
@@ -120,7 +119,6 @@ module.exports = {
             },
           },
         ], { allowDiskUse: false }).toArray(async (err, lines) => {
-          console.log(lines);
           if (err) return 'Error';
           // we'll going to create the master file for ixps
           lines = await lines.reduce((total, value) => total.concat(value.geom), []);

@@ -39,7 +39,7 @@ class Facility {
                 // information: String(data.information),
                 geom: {
                   type: 'FeatureCollection',
-                  features: [data.polygon],
+                  features: [(data.polygon) ? data.polygon : JSON.parse(data.point)],
                 },
                 ixps: [],
                 tags: [],

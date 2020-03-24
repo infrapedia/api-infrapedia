@@ -20,7 +20,6 @@ module.exports = {
     });
   }),
   facilities: () => new Promise((resolve, reject) => {
-    console.log('transfer started');
     Facility = new Facility();
     const SQLQuery = `SELECT 
 fac_id, org_id, address1, address2, city, clli, country, created, latitude, longitude, name, net_count, notes, npanxx, rencode, state, status, updated, website, zipcode, org_name, osm_addr_city, osm_addr_country, osm_addr_housenumber, osm_addr_postcode, osm_addr_state, osm_addr_street, osm_building, osm_building_levels, osm_height, osm_id, osm_name, osm_operator, osm_source, osm_start_date, osm_telecom,premium, 
@@ -43,7 +42,6 @@ FROM facility`;
     });
   }),
   ixps: () => new Promise((resolve, reject) => {
-    console.log('transfer started');
     IXP = new IXP();
     const SQLquery = `select i.*, ST_AsGeoJSON(point) as point from ix_fac fi
                       left outer join ix i on (fi.ix_id=i.ix_id)
@@ -58,7 +56,6 @@ FROM facility`;
     });
   }),
   cls: () => new Promise((resolve, reject) => {
-    console.log('transfer started');
     CLS = new CLS();
     const SQLquery = 'SELECT name, state, slug, ST_AsGeoJSON(geom) as point, id as cid FROM cls';
     pool.query(SQLquery, async (error, results) => {
@@ -71,7 +68,6 @@ FROM facility`;
     });
   }),
   cables: () => new Promise((resolve, reject) => {
-    console.log('transfer started');
     CABLES = new CABLES();
     function bouncer(arr) { return arr.filter(Boolean); }
     const fsegments = (f) => new Promise((resolve, rejecct) => {
@@ -103,7 +99,7 @@ FROM facility`;
                 cableid: y.info.cable_id,
                 systemLength: y.info.system_length,
                 // eslint-disable-next-line radix
-                activationDateTime: new Date(parseInt(y.info.activation_datetime)).toLocaleString(),
+                activationDateTime: new Date(parseInt(y.info.activation_datetime) *1000),
                 urls: bouncer([y.info.url1, y.info.url2, y.info.url3]),
                 terrestrial: String(y.info.is_terrestrial),
                 capacityTBPS: y.info.capacity_tbps,
@@ -149,7 +145,6 @@ FROM facility`;
           }
         });
       }).catch((e) => {
-        console.log(e);
         reject({ m: 'The transfer was finished', r: e });
       });
     });
