@@ -1,6 +1,7 @@
 const cp = require('child_process');
 const fs = require('fs');
-const notifications = function (a) {return a};
+
+const notifications = function (a) { return a; };
 
 module.exports = {
   cablesT: () => {
@@ -23,10 +24,10 @@ module.exports = {
           {
             $addFields: {
               'geom.features.properties.name': '$name',
-              'geom.features.properties.status': { $cond: { if: { $or: [ { $eq: ['$category', 'active'] }, { $eq: ['$category', ''] } ] }, then: 1, else: 0  }},
-              'geom.features.properties.activation': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
-              'geom.features.properties.hasutage': { $cond: { if: { $eq: ['$category', 'fault'] }, then: 'true', else: 'false'  }},
-              'geom.features.properties.haspartial': { $cond: { if: { $eq: ['$geom.features.properties.status', 'Inactive'] }, then: 'true', else: 'false'  }},
+              'geom.features.properties.status': { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }] }, then: 1, else: 0 } },
+              'geom.features.properties.activationDateTime': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
+              'geom.features.properties.hasoutage': { $cond: { if: { $eq: ['$category', 'fault'] }, then: 'true', else: 'false' } },
+              'geom.features.properties.haspartial': { $cond: { if: { $eq: ['$geom.features.properties.status', 'Inactive'] }, then: 'true', else: 'false' } },
               'geom.features.properties.terrestrial': { $toString: '$terrestrial' },
               'geom.features.properties.segment': '$geom.features.properties._id',
             },
@@ -91,10 +92,10 @@ module.exports = {
           {
             $addFields: {
               'geom.features.properties.name': '$name',
-              'geom.features.properties.status': { $cond: { if: { $or: [ { $eq: ['$category', 'active'] }, { $eq: ['$category', ''] } ] }, then: 1, else: 0  }},
+              'geom.features.properties.status': { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }] }, then: 1, else: 0 } },
               'geom.features.properties.activation': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
-              'geom.features.properties.hasutage': { $cond: { if: { $eq: ['$category', 'fault'] }, then: 'true', else: 'false'  }},
-              'geom.features.properties.haspartial': { $cond: { if: { $eq: ['$geom.features.properties.status', 'Inactive'] }, then: 'true', else: 'false'  }},
+              'geom.features.properties.hasutage': { $cond: { if: { $eq: ['$category', 'fault'] }, then: 'true', else: 'false' } },
+              'geom.features.properties.haspartial': { $cond: { if: { $eq: ['$geom.features.properties.status', 'Inactive'] }, then: 'true', else: 'false' } },
               'geom.features.properties.terrestrial': { $toString: '$terrestrial' },
               'geom.features.properties.segment': '$geom.features.properties._id',
             },
@@ -346,7 +347,7 @@ module.exports = {
         ], { allowDiskUse: false }).toArray(async (err, polygon) => {
           console.log(err);
           if (err) return 'Error';
-          console.log(polygon)
+          console.log(polygon);
           // we'll going to create the master file for ixps
           polygon = await polygon.reduce((total, value) => total.concat(value.feature), []);
           polygon = `{
