@@ -39,7 +39,7 @@ class Facility {
                 // information: String(data.information),
                 geom: {
                   type: 'FeatureCollection',
-                  features: [(data.polygon) ? data.polygon : JSON.parse(data.point)],
+                  features: [(data.polygon.geometry) ? data.polygon : { type: 'Feature', geometry: JSON.parse(data.point) }],
                 },
                 ixps: [],
                 tags: [],
@@ -52,7 +52,7 @@ class Facility {
               };// we need search about the information
               facility.insertOne(data, (err, i) => {
                 if (err) resolve({ m: err + 0 });
-                console.logo(i);
+                console.log(i);
                 resolve();
               });
             }

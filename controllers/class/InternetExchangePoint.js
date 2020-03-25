@@ -3,6 +3,8 @@ const GJV = require('geojson-validation');
 const { ObjectID } = require('mongodb');
 const countries = require('../helpers/isoCountries');
 
+let transfer = 0;
+const repeat = 0;
 class IXP {
   constructor() { this.model = require('../../models/ixp.model'); }
 
@@ -11,10 +13,10 @@ class IXP {
       try {
         if (GJV.valid(JSON.parse(data.point))) {
           this.model().then((ixps) => {
-            ixps.find({ ix_id: String(data.ix_id) }).count(async (err, c) => {
+            ixps.find({ name: String(data.name) }).count(async (err, c) => {
               if (err) resolve({ m: err });
-              else if (c > 0) resolve({ m: 'We have registered in our system more than one organization with the same name' });
-              else {
+              else if (c > 0) { resolve({ m: 'We have registered in our system more than one organization with the same name' }); } else {
+                console.log(transfer); transfer += 1;
                 data = {
                   uuid: '',
                   ix_id: String(data.ix_id),
@@ -49,15 +51,23 @@ class IXP {
                   status: true,
                 };
                 // we need search about the information
-                ixps.find({ nameLong: data.name_long }).count((err, f) => {
-                  if (err) resolve({ m: err + 0 });
-                  else if (f > 0) { resolve(); } else {
-                    ixps.insertOne(data, (err, i) => {
-                      if (err) resolve({ m: err + 0 });
-                      resolve();
-                    });
-                  }
+                ixps.findOneAndUpdate({ ix_id: data.ix_id }, {
+                  $setOnInsert: data,
+                },
+                {
+                  returnOriginal: false,
+                  upsert: true,
+                }, (err, r) => {
+                  if (err) reject({ m: err });
+                  resolve();
                 });
+                //
+                //
+                // ixps.insertOne(data, (err, i) => {
+                //   if (err) resolve({ m: err + 0 });
+                //   console.log(i);
+                //   resolve();
+                // });
               }
             });
           }).catch((e) => reject({ m: e + 1 }));
@@ -242,7 +252,7 @@ class IXP {
           facility.aggregate([
             { $sort: { name: 1 } },
             {
-              $match: { $and: [{ name: { $regex: search, $options: 'i' } }, { nameLong: { $regex: search, $options: 'i' } }] } ,
+              $match: { $and: [{ name: { $regex: search, $options: 'i' } }, { nameLong: { $regex: search, $options: 'i' } }] },
             },
             {
               $addFields: { name: { $concat: ['$name', ' (', { $arrayElemAt: ['$address.city', 0] }, ', ', { $arrayElemAt: ['$address.country', 0] }, ')'] } },

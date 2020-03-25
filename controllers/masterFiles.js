@@ -23,14 +23,12 @@ module.exports = {
           {
             $addFields: {
               'geom.features.properties.name': '$name',
+              'geom.features.properties.status': { $cond: { if: { $or: [ { $eq: ['$category', 'active'] }, { $eq: ['$category', ''] } ] }, then: 1, else: 0  }},
+              'geom.features.properties.activation': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
+              'geom.features.properties.hasutage': { $cond: { if: { $eq: ['$category', 'fault'] }, then: 'true', else: 'false'  }},
+              'geom.features.properties.haspartial': { $cond: { if: { $eq: ['$geom.features.properties.status', 'Inactive'] }, then: 'true', else: 'false'  }},
+              'geom.features.properties.terrestrial': { $toString: '$terrestrial' },
               'geom.features.properties.segment': '$geom.features.properties._id',
-              'geom.features.properties._id': '$_id',
-              'geom.features.properties.systemLength': '$systemLenght',
-              'geom.features.properties.capacityTBPS': '$capacityTBPS',
-              'geom.features.properties.terrestrial': '$terrestrial',
-              'geom.features.properties.category': '$category',
-              'geom.features.properties.activationDateTime': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
-              // 'geom.features.properties.facilities': '$facilities',
             },
           },
           {
@@ -85,22 +83,20 @@ module.exports = {
           },
           {
             $unwind:
-               {
-                 path: '$geom.features',
-                 preserveNullAndEmptyArrays: false,
-               },
+              {
+                path: '$geom.features',
+                preserveNullAndEmptyArrays: false,
+              },
           },
           {
             $addFields: {
               'geom.features.properties.name': '$name',
+              'geom.features.properties.status': { $cond: { if: { $or: [ { $eq: ['$category', 'active'] }, { $eq: ['$category', ''] } ] }, then: 1, else: 0  }},
+              'geom.features.properties.activation': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
+              'geom.features.properties.hasutage': { $cond: { if: { $eq: ['$category', 'fault'] }, then: 'true', else: 'false'  }},
+              'geom.features.properties.haspartial': { $cond: { if: { $eq: ['$geom.features.properties.status', 'Inactive'] }, then: 'true', else: 'false'  }},
+              'geom.features.properties.terrestrial': { $toString: '$terrestrial' },
               'geom.features.properties.segment': '$geom.features.properties._id',
-              'geom.features.properties._id': '$_id',
-              'geom.features.properties.systemLength': '$systemLenght',
-              'geom.features.properties.capacityTBPS': '$capacityTBPS',
-              'geom.features.properties.terrestrial': '$terrestrial',
-              'geom.features.properties.category': '$category',
-              'geom.features.properties.activationDateTime': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
-              // 'geom.features.properties.facilities': '$facilities',
             },
           },
           {
