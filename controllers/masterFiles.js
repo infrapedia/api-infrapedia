@@ -94,7 +94,7 @@ module.exports = {
               'geom.features.properties.name': '$name',
               'geom.features.properties.status': { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }] }, then: 1, else: 0 } },
               'geom.features.properties.activation': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
-              'geom.features.properties.hasutage': { $cond: { if: { $eq: ['$category', 'fault'] }, then: 'true', else: 'false' } },
+              'geom.features.properties.hasoutage': { $cond: { if: { $eq: ['$category', 'fault'] }, then: 'true', else: 'false' } },
               'geom.features.properties.haspartial': { $cond: { if: { $eq: ['$geom.features.properties.status', 'Inactive'] }, then: 'true', else: 'false' } },
               'geom.features.properties.terrestrial': { $toString: '$terrestrial' },
               'geom.features.properties.segment': '$geom.features.properties._id',
