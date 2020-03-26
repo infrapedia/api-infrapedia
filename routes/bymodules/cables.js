@@ -63,5 +63,10 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+    router.get(`${process.env._ROUTE}/cables/relationstransfer`, statics, (req, res) => {
+      controllers.cables.relationsTransfer()
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
   },
 };

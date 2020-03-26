@@ -652,14 +652,7 @@ class Cable {
                       $and: [
                         {
                           $expr: {
-                            $in: ['$_id', {
-                              $cond: {
-                                if: { $isArray: { $arrayElemAt: ['$$f', 0] } },
-                                then: '$$f',
-                                else: [],
-                              },
-                            },
-                            ],
+                            $in: ['$_id', '$$f'],
                           },
                         },
                         {
@@ -764,6 +757,64 @@ class Cable {
           });
         });
       } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  relationsTransfer() {
+    return new Promise((resolve, reject) => {
+      const cls = require('../../models/cls.model');
+      this.model().then((cables) => {
+        cables.aggregate([
+          {
+            $project: {
+              _id: 1,
+              cableid: 1,
+            },
+          },
+        ]).toArray((err, ids) => {
+          // eslint-disable-next-line import/no-unresolved
+          const pool = require('../../config/pgSQL.js');
+          ids.map((id) => {
+            const SQLQuery = `SELECT id, cable_id, point_id FROM public.cable_points WHERE cable_id = ${id.cableid}`;
+            // pool.query(SQLQuery, async (error, results) => {
+            //   if (results !== undefined) {
+            //     cls().then((cls) => {
+            //       results.rows.map((points) => {
+            //         // checkIds.push({ _id: ObjectId("5e79b3899db3570f49c267cc") }points.point_id);
+            //         // search the cls
+            //         console.log('CLS', points.point_id);
+            //         cls.updateOne({ cid: points.point_id }, { $push: { cables: new ObjectID(id._id) } }, (err, u) => { // new ObjectID(id.cableid)
+            //           console.log(u);
+            //         });
+            //       });
+            //     });
+            //   }
+            // });
+            // ORGS
+            const SQLQueryOrg = `SELECT cable_id, org_id FROM cable_org WHERE cable_id = ${id.cableid}`;
+            pool.query(SQLQueryOrg, async (error, results) => {
+              if (results !== undefined) {
+                const orgmodel = require('../../models/organization.model');
+                orgmodel().then((org) => {
+                  results.rows.map((orgid) => {
+                    if (orgid !== null) {
+                      org.findOne({ ooid: String(orgid.org_id) }, (err, idorg) => {
+                        console.log(idorg);
+                        if (idorg !== null && ObjectID.isValid(idorg._id)) {
+                          cables.updateOne({ _id: new ObjectID(id._id) }, { $push: { owners: new ObjectID(idorg._id) } }, (err, u) => { // new ObjectID(idorg._id)
+                            console.log(u);
+                          });
+                        } else { console.log('Not defined'); }
+                      });
+                      // });
+                    }
+                  });
+                });
+              }
+            });
+          });
+        });
+      }).catch((e) => { reject(e); });
     });
   }
 }

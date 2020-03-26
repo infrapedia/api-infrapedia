@@ -14,4 +14,5 @@ module.exports = {
   search: (usr, id) => Cable.search(usr, id),
   getElementGeom: (usr, id) => Cable.getElementGeom(id),
   getMultiElementsGeom: (usr, ids) => Cable.getMultiElementsGeom(ids),
+  relationsTransfer: () => Cable.relationsTransfer(),
 };
