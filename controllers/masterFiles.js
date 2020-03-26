@@ -1,73 +1,124 @@
-const cp = require('child_process');
+const path = require('path');
 const fs = require('fs');
+const { ObjectID } = require('mongodb');
 
 const notifications = function (a) { return a; };
 
 module.exports = {
+  buildMasterFileTerrestrial: (layer) => new Promise((resolve, reject) => {
+    try {
+      const directoryPath = path.join(__dirname, `../temp/${layer}/`);
+      // passsing directoryPath and callback function
+      fs.readdir(directoryPath, (err, files) => {
+        // handling error
+        if (err) {
+          reject('Unable to scan directory: ');
+        }
+        fs.createWriteStream(path.join(__dirname, `../temp/${layer}.json`)).end();
+        fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), '{\n'
+          + '                              "type": "FeatureCollection",\n'
+          + '                              "features":[', 'utf8');
+        // listing all files using forEach
+        let filesReaded = 0;
+        files.forEach((file) => {
+          // Do whatever you want to do with the file
+          let data = '';
+          const stream = fs.createReadStream(path.join(__dirname, `../temp/${layer}/${file}`));
+          stream.on('data', (chunk) => data += chunk);
+          stream.on('end', () => {
+            filesReaded += 1;
+            console.log(filesReaded);
+            data = JSON.parse(data);
+            if(data.features[0] !== undefined){
+              // masterFile.write = JSON.stringify(data.features[0]);
+              fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), (filesReaded < files.length) ? `\n${JSON.stringify(data.features[0])},` : `\n${JSON.stringify(data.features[0])}`, 'utf8');
+              fs.unlink(path.join(__dirname, `../temp/${layer}/${file}`), () => {
+                if (filesReaded === files.length) {
+                  fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), ']}', 'utf8');
+                  // masterFile.write = ']}';
+                  // masterFile.end();
+                  resolve();
+                }
+              });
+            }
+          });
+        });
+      });
+    } catch (e) {
+      reject(e);
+    }
+  }),
   cablesT: () => {
     try {
       const cable = require('../models/cable.model');
       cable().then((cable) => {
         cable.aggregate([
           {
-            $match: {
-              terrestrial: true,
-            },
+            $match: { $and: [{ terrestrial: true }, { 'geom.features': { $ne: [] } }] },
           },
           {
-            $unwind:
+            $project: {
+              _id: 1,
+            },
+          },
+        ]).toArray(async (err, ids) => {
+          let checkedFiles = 0;
+          await ids.map((id) => {
+            cable.aggregate([
               {
-                path: '$geom.features',
-                preserveNullAndEmptyArrays: false,
+                $match: {
+                  _id: new ObjectID(id._id),
+                },
               },
-          },
-          {
-            $addFields: {
-              'geom.features.properties.name': '$name',
-              'geom.features.properties.status': { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }] }, then: 1, else: 0 } },
-              'geom.features.properties.activationDateTime': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
-              'geom.features.properties.hasoutage': { $cond: { if: { $eq: ['$category', 'fault'] }, then: 'true', else: 'false' } },
-              'geom.features.properties.haspartial': { $cond: { if: { $eq: ['$geom.features.properties.status', 'Inactive'] }, then: 'true', else: 'false' } },
-              'geom.features.properties.terrestrial': { $toString: '$terrestrial' },
-              'geom.features.properties.segment': '$geom.features.properties._id',
-            },
-          },
-          {
-            $project: {
-              'geom.features.id': 0,
-            },
-          },
-          {
-            $project: {
-              geom: 1,
-            },
-          },
-          {
-            $addFields: {
-              geom: '$geom.features',
-            },
-          },
-        ], { allowDiskUse: false }).toArray(async (err, lines) => {
-          if (err) return 'Error';
-          // we'll going to create the master file for ixps
-          lines = await lines.reduce((total, value) => total.concat(value.geom), []);
-          lines = `{
-                              "type": "FeatureCollection",
-                              "features": ${JSON.stringify(lines)}
-                          }`;
-          try {
-            const stream = await fs.createWriteStream('./temp/cables_terrestrial.json');
-            stream.write(lines);
-            stream.on('err', () => {
-              console.log('Error to create the file');
+              {
+                $unwind:
+                  {
+                    path: '$geom.features',
+                    preserveNullAndEmptyArrays: false,
+                  },
+              },
+              {
+                $project: {
+                  type: 'Feature',
+                  'properties.name': '$name',
+                  'properties.status': { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }] }, then: 1, else: 0 } },
+                  'properties.activationDateTime': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
+                  'properties.hasoutage': { $cond: { if: { $eq: ['$category', 'fault'] }, then: 'true', else: 'false' } },
+                  'properties.haspartial': { $cond: { if: { $eq: ['$geom.features.properties.status', 'Inactive'] }, then: 'true', else: 'false' } },
+                  'properties.terrestrial': { $toString: '$terrestrial' },
+                  'properties.segment': '$geom.features.properties._id',
+                  'properties._id': '$_id',
+                  geometry: '$geom.features.geometry',
+
+                },
+              },
+            ], { allowDiskUse: true }).toArray(async (err, lines) => {
+              if (err) return 'Error';
+              // we'll going to create the master file for ixps
+              // lines = await lines.reduce((total, value) => total.concat(value.geom), []);
+              lines = `{
+                                  "type": "FeatureCollection",
+                                  "features": ${JSON.stringify(lines)}
+                              }`;
+              if (!fs.existsSync(path.join(__dirname, '../temp/terrestrial'))) fs.mkdirSync(path.join(__dirname, '../temp/terrestrial'));
+              try {
+                const stream = await fs.createWriteStream(`./temp/terrestrial/${id._id}.json`);
+                stream.write(lines);
+                stream.on('err', () => {
+                  console.log('Error to create the file');
+                });
+                stream.end(async () => {
+                  checkedFiles += 1;
+                  console.log(checkedFiles);
+                  if (checkedFiles === ids.length) {
+                    module.exports.buildMasterFileTerrestrial('terrestrial').then((mf) => {
+                      console.log('Finish');
+                    }).catch((e) => console.log(e));
+                  }
+                });
+              } catch (err) { return err; }
             });
-            stream.end(async () => {
-              const stream = await fs.createWriteStream('./temp/cables_terrestrial.txt');
-              stream.write('');
-              // stream.on('err', () => notifications('Master file of subsea cables wasn\'t created', new Date()));
-              // stream.end(() => notifications('Master file of subsea cables was created', new Date()));
-            });
-          } catch (err) { return err; }
+          });
         });
       }).catch((e) => e);
     } catch (e) { return e; }
@@ -78,68 +129,132 @@ module.exports = {
       cable().then((cable) => {
         cable.aggregate([
           {
-            $match: {
-              terrestrial: false,
-            },
+            $match: { $and: [{ terrestrial: false }, { 'geom.features': { $ne: [] } }] },
           },
           {
-            $unwind:
+            $project: {
+              _id: 1,
+            },
+          },
+        ]).toArray(async (err, ids) => {
+          let checkedFiles = 0;
+          await ids.map((id) => {
+            cable.aggregate([
               {
-                path: '$geom.features',
-                preserveNullAndEmptyArrays: false,
+                $match: {
+                  _id: new ObjectID(id._id),
+                },
               },
-          },
-          {
-            $addFields: {
-              'geom.features.properties.name': '$name',
-              'geom.features.properties.status': { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }] }, then: 1, else: 0 } },
-              'geom.features.properties.activation': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
-              'geom.features.properties.hasoutage': { $cond: { if: { $eq: ['$category', 'fault'] }, then: 'true', else: 'false' } },
-              'geom.features.properties.haspartial': { $cond: { if: { $eq: ['$geom.features.properties.status', 'Inactive'] }, then: 'true', else: 'false' } },
-              'geom.features.properties.terrestrial': { $toString: '$terrestrial' },
-              'geom.features.properties.segment': '$geom.features.properties._id',
-            },
-          },
-          {
-            $project: {
-              'geom.features.id': 0,
-            },
-          },
-          {
-            $project: {
-              geom: 1,
-            },
-          },
-          {
-            $addFields: {
-              geom: '$geom.features',
-            },
-          },
-        ], { allowDiskUse: false }).toArray(async (err, lines) => {
-          if (err) return 'Error';
-          // we'll going to create the master file for ixps
-          lines = await lines.reduce((total, value) => total.concat(value.geom), []);
-          lines = `{
-                              "type": "FeatureCollection",
-                              "features": ${JSON.stringify(lines)}
-                          }`;
-          try {
-            const stream = await fs.createWriteStream('./temp/cables_subsea.json');
-            stream.write(lines);
-            stream.on('err', () => {
-              console.log('Error to create the file');
+              {
+                $unwind:
+                  {
+                    path: '$geom.features',
+                    preserveNullAndEmptyArrays: false,
+                  },
+              },
+              {
+                $project: {
+                  type: 'Feature',
+                  'properties.name': '$name',
+                  'properties.status': { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }] }, then: 1, else: 0 } },
+                  'properties.activationDateTime': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
+                  'properties.hasoutage': { $cond: { if: { $eq: ['$category', 'fault'] }, then: 'true', else: 'false' } },
+                  'properties.haspartial': { $cond: { if: { $eq: ['$geom.features.properties.status', 'Inactive'] }, then: 'true', else: 'false' } },
+                  'properties.terrestrial': { $toString: '$terrestrial' },
+                  'properties.segment': '$geom.features.properties._id',
+                  'properties._id': '$_id',
+                  geometry: '$geom.features.geometry',
+
+                },
+              },
+            ], { allowDiskUse: true }).toArray(async (err, lines) => {
+              if (err) return 'Error';
+              // we'll going to create the master file for ixps
+              // lines = await lines.reduce((total, value) => total.concat(value.geom), []);
+              lines = `{
+                                  "type": "FeatureCollection",
+                                  "features": ${JSON.stringify(lines)}
+                              }`;
+              if (!fs.existsSync(path.join(__dirname, '../temp/subsea'))) fs.mkdirSync(path.join(__dirname, '../temp/subsea'));
+              try {
+                const stream = await fs.createWriteStream(`./temp/subsea/${id._id}.json`);
+                stream.write(lines);
+                stream.on('err', () => {
+                  console.log('Error to create the file');
+                });
+                stream.end(async () => {
+                  checkedFiles += 1;
+                  console.log(checkedFiles);
+                  if (checkedFiles === ids.length) {
+                    module.exports.buildMasterFileTerrestrial('subsea').then((mf) => {
+                      console.log('Finish');
+                    }).catch((e) => console.log(e));
+                  }
+                });
+              } catch (err) { return err; }
             });
-            stream.end(async () => {
-              const stream = await fs.createWriteStream('./temp/cables_subsea.txt');
-              stream.write('');
-              // stream.on('err', () => notifications('Master file of subsea cables wasn\'t created', new Date()));
-              // stream.end(() => notifications('Master file of subsea cables was created', new Date()));
-            });
-          } catch (err) { return err; }
+          });
         });
       }).catch((e) => e);
     } catch (e) { return e; }
   },
+  // cablesS: () => {
+  //   try {
+  //     const cable = require('../models/cable.model');
+  //     cable().then((cable) => {
+  //       cable.aggregate([
+  //         {
+  //           $match: {
+  //             terrestrial: false,
+  //           },
+  //         },
+  //         {
+  //           $unwind:
+  //             {
+  //               path: '$geom.features',
+  //               preserveNullAndEmptyArrays: false,
+  //             },
+  //         },
+  //         {
+  //           $project: {
+  //             type: 'Feature',
+  //             'properties.name': '$name',
+  //             'properties.status': { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }] }, then: 1, else: 0 } },
+  //             'properties.activationDateTime': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
+  //             'properties.hasoutage': { $cond: { if: { $eq: ['$category', 'fault'] }, then: 'true', else: 'false' } },
+  //             'properties.haspartial': { $cond: { if: { $eq: ['$geom.features.properties.status', 'Inactive'] }, then: 'true', else: 'false' } },
+  //             'properties.terrestrial': { $toString: '$terrestrial' },
+  //             'properties.segment': '$geom.features.properties._id',
+  //             'properties._id': '$_id',
+  //             geometry: '$geom.features.geometry',
+  //
+  //           },
+  //         },
+  //       ], { allowDiskUse: true }).toArray(async (err, lines) => {
+  //         if (err) return 'Error';
+  //         // we'll going to create the master file for ixps
+  //         // lines = await lines.reduce((total, value) => total.concat(value.geom), []);
+  //         lines = `{
+  //                             "type": "FeatureCollection",
+  //                             "features": ${JSON.stringify(lines)}
+  //                         }`;
+  //         try {
+  //           const stream = await fs.createWriteStream('./temp/cables_subsea.json');
+  //           stream.write(lines);
+  //           stream.on('err', () => {
+  //             console.log('Error to create the file');
+  //           });
+  //           stream.end(async () => {
+  //             const stream = await fs.createWriteStream('./temp/cables_subsea.txt');
+  //             stream.write('');
+  //             // stream.on('err', () => notifications('Master file of subsea cables wasn\'t created', new Date()));
+  //             // stream.end(() => notifications('Master file of subsea cables was created', new Date()));
+  //           });
+  //         } catch (err) { return err; }
+  //       });
+  //     }).catch((e) => e);
+  //   } catch (e) { return e; }
+  // },
   cls: () => {
     try {
       const cls = require('../models/cls.model');
