@@ -17,7 +17,7 @@ module.exports = {
         fs.createWriteStream(path.join(__dirname, `../temp/${layer}.json`)).end();
         fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), '{\n'
           + '                              "type": "FeatureCollection",\n'
-          + '                              "features":[', 'utf8');
+          + '                              "features":', 'utf8');
         // listing all files using forEach
         let filesReaded = 0;
         files.forEach((file) => {
@@ -28,17 +28,23 @@ module.exports = {
           stream.on('end', () => {
             filesReaded += 1;
             data = JSON.parse(data);
-            if(data.features[0] !== undefined){
+            if (data.features[0] !== undefined) {
               // masterFile.write = JSON.stringify(data.features[0]);
-              fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), (filesReaded < files.length) ? `\n${JSON.stringify(data.features[0])},` : `\n${JSON.stringify(data.features[0])}`, 'utf8');
-              fs.unlink(path.join(__dirname, `../temp/${layer}/${file}`), () => {
-                if (filesReaded === files.length) {
-                  fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), ']}', 'utf8');
-                  // masterFile.write = ']}';
-                  // masterFile.end();
-                  resolve();
-                }
-              });
+              fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), (filesReaded < files.length) ? `\n${JSON.stringify(data.features)},` : `\n${JSON.stringify(data.features)}`, 'utf8');
+              if (filesReaded === files.length) {
+                fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), '}', 'utf8');
+                // masterFile.write = ']}';
+                // masterFile.end();
+                resolve();
+              }
+              // fs.unlink(path.join(__dirname, `../temp/${layer}/${file}`), () => {
+              //   if (filesReaded === files.length) {
+              //     fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), ']}', 'utf8');
+              //     // masterFile.write = ']}';
+              //     // masterFile.end();
+              //     resolve();
+              //   }
+              // });
             }
           });
         });
@@ -53,7 +59,7 @@ module.exports = {
       cable().then((cable) => {
         cable.aggregate([
           {
-            $match: { $and: [{ terrestrial: true }, { 'geom.features': { $ne: [] } }] },
+            $match: { $and: [{ terrestrial: true }] },
           },
           {
             $project: {
@@ -70,9 +76,17 @@ module.exports = {
                 },
               },
               {
+                $lookup: {
+                  from: 'cables_segments',
+                  localField: '_id',
+                  foreignField: 'cable_id',
+                  as: 'geom',
+                },
+              },
+              {
                 $unwind:
                   {
-                    path: '$geom.features',
+                    path: '$geom',
                     preserveNullAndEmptyArrays: false,
                   },
               },
@@ -81,13 +95,14 @@ module.exports = {
                   type: 'Feature',
                   'properties.name': '$name',
                   'properties.status': { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }] }, then: 1, else: 0 } },
+                  'properties.category': { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }] }, then: 'active', else: '$category' } },
                   'properties.activationDateTime': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
                   'properties.hasoutage': { $cond: { if: { $eq: ['$category', 'fault'] }, then: 'true', else: 'false' } },
-                  'properties.haspartial': { $cond: { if: { $eq: ['$geom.features.properties.status', 'Inactive'] }, then: 'true', else: 'false' } },
+                  'properties.haspartial': { $cond: { if: { $eq: ['$geom.properties.status', 'Inactive'] }, then: 'true', else: 'false' } },
                   'properties.terrestrial': { $toString: '$terrestrial' },
-                  'properties.segment': '$geom.features.properties._id',
+                  'properties.segment': '$geom.properties._id',
                   'properties._id': '$_id',
-                  geometry: '$geom.features.geometry',
+                  geometry: '$geom.geometry',
 
                 },
               },
@@ -96,9 +111,10 @@ module.exports = {
               // we'll going to create the master file for ixps
               // lines = await lines.reduce((total, value) => total.concat(value.geom), []);
               lines = `{
-                                  "type": "FeatureCollection",
+                                  "type": "FeatureCollection2",
                                   "features": ${JSON.stringify(lines)}
                               }`;
+
               if (!fs.existsSync(path.join(__dirname, '../temp/terrestrial'))) fs.mkdirSync(path.join(__dirname, '../temp/terrestrial'));
               try {
                 const stream = await fs.createWriteStream(`./temp/terrestrial/${id._id}.json`);
@@ -128,7 +144,7 @@ module.exports = {
       cable().then((cable) => {
         cable.aggregate([
           {
-            $match: { $and: [{ terrestrial: false }, { 'geom.features': { $ne: [] } }] },
+            $match: { $and: [{ terrestrial: false }] },
           },
           {
             $project: {
@@ -137,6 +153,7 @@ module.exports = {
           },
         ]).toArray(async (err, ids) => {
           let checkedFiles = 0;
+          console.log(ids);
           await ids.map((id) => {
             cable.aggregate([
               {
@@ -145,9 +162,17 @@ module.exports = {
                 },
               },
               {
+                $lookup: {
+                  from: 'cables_segments',
+                  localField: '_id',
+                  foreignField: 'cable_id',
+                  as: 'geom',
+                },
+              },
+              {
                 $unwind:
                   {
-                    path: '$geom.features',
+                    path: '$geom',
                     preserveNullAndEmptyArrays: false,
                   },
               },
@@ -156,13 +181,14 @@ module.exports = {
                   type: 'Feature',
                   'properties.name': '$name',
                   'properties.status': { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }] }, then: 1, else: 0 } },
+                  'properties.category': { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }] }, then: 'active', else: '$category' } },
                   'properties.activationDateTime': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
                   'properties.hasoutage': { $cond: { if: { $eq: ['$category', 'fault'] }, then: 'true', else: 'false' } },
-                  'properties.haspartial': { $cond: { if: { $eq: ['$geom.features.properties.status', 'Inactive'] }, then: 'true', else: 'false' } },
+                  'properties.haspartial': { $cond: { if: { $eq: ['$geom.properties.status', 'Inactive'] }, then: 'true', else: 'false' } },
                   'properties.terrestrial': { $toString: '$terrestrial' },
-                  'properties.segment': '$geom.features.properties._id',
+                  'properties.segment': '$geom.properties._id',
                   'properties._id': '$_id',
-                  geometry: '$geom.features.geometry',
+                  geometry: '$geom.geometry',
 
                 },
               },

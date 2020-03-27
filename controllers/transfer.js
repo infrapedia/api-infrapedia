@@ -4,6 +4,7 @@ let Organization = require('./class/Organization');
 let IXP = require('./class/InternetExchangePoint');
 let CLS = require('./class/CableLandingStation');
 let CABLES = require('./class/Cable');
+const { ObjectID } = require('mongodb');
 
 module.exports = {
   organizations: () => new Promise((resolve, reject) => {
@@ -94,6 +95,8 @@ FROM facility`;
           throw error;
         }
         let segmentID = 0;
+        // console.log(f.cable_id);
+        // console.log(results.rows)
         const cable = {
           cableid: f.cable_id,
           name: f.name,
@@ -104,22 +107,24 @@ FROM facility`;
           terrestrial: String(f.is_terrestrial),
           capacityTBPS: f.capacity_tbps,
           fiberPairs: f.fiber_pairs,
-          geom: {
+          geom: results.rows,
+        };
+        /* {
             type: 'FeatureCollection',
             features: await Object.keys(results.rows).map((key) => {
               // console.log(y.segments.rows[key]);
-              results.rows[key].geom = results.rows[key].geom;// JSON.parse(results.rows[key].geom);
+              // eslint-disable-next-line max-len
+              // results.rows[key].geom = results.rows[key].geom;// JSON.parse(results.rows[key].geom);
               results.rows[key].geom.id = segmentID;
               segmentID += 1;
               return {
+                // elemnt: new ObjectID(f.cable_id),
                 type: 'Feature',
                 properties: { id: String(segmentID) },
                 geometry: results.rows[key].geom,
               };
             }),
-          },
-        };
-        console.log(f.name);
+          }, */
         CABLES.addByTransfer(cable);
       });
     }

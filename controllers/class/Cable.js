@@ -5,6 +5,7 @@ const fs = require('fs');
 
 const { ObjectID } = require('mongodb');
 const { adms } = require('../helpers/adms');
+var segmentsCounts = 0;
 
 class Cable {
   constructor() {
@@ -63,6 +64,7 @@ class Cable {
     return new Promise((resolve, reject) => {
       try {
         this.model().then(async (cables) => {
+          // eslint-disable-next-line camelcase
           cables.find({ cableid: String(data.cableid) }).count(async (err, c) => {
             if (err) resolve({ m: err });
             else if (c > 0) resolve({ m: 'We have registered in our system more than one organization with the same name' });
@@ -70,6 +72,8 @@ class Cable {
               // create file
               const nameFile = Math.floor(Date.now() / 1000);
               // const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
+              console.log(String(data.cableid));
+              let listSegments = data.geom;
               data = {
                 uuid: '',
                 cableid: String(data.cableid),
@@ -85,7 +89,7 @@ class Cable {
                 category: '',
                 facilities: [],
                 owners: [],
-                geom: data.geom,
+                geom: [],
                 tags: [],
                 rgDate: luxon.DateTime.utc(),
                 uDate: luxon.DateTime.utc(),
@@ -95,7 +99,33 @@ class Cable {
               cables.insertOne(data, (err, i) => {
                 // TODO: validation insert
                 if (err) reject({ m: err + 0 });
-                resolve({ m: 'Cable created' });
+                // insert the segments
+                const segments = require('../../models/cable_segments.model');
+                segments().then(async (segments) => {
+                  let ssafe = 0;
+                  listSegments = await listSegments.map(async (sg) => {
+                    await segments.insertOne({
+                      cable_id: new ObjectID(i.insertedId),
+                      type: 'Feature',
+                      properties: {
+                        name: sg.segment_name,
+                        status: (sg.status === 1) ? 'Active' : 'Inactive',
+                        stroke: '#CCCCCC',
+                        'stroke-width': 1.2,
+                        'stroke-opacity': 1,
+                      },
+                      geometry: sg.geom,
+                    }, (err, r) => {
+                      ssafe += 1;
+                      segmentsCounts += 1;
+                      console.log('TRANSFERING ------ ', String(data.cableid), listSegments.length, ssafe);
+                      console.log('TRANSFERED ------------------------------------', segmentsCounts);
+                      resolve({ m: 'Cable created' });
+                    });
+                  });
+                }).catch((e) => {
+                  console.log('error transfer segments');
+                });
               });
             }
           });
@@ -776,20 +806,20 @@ class Cable {
           const pool = require('../../config/pgSQL.js');
           ids.map((id) => {
             const SQLQuery = `SELECT id, cable_id, point_id FROM public.cable_points WHERE cable_id = ${id.cableid}`;
-            // pool.query(SQLQuery, async (error, results) => {
-            //   if (results !== undefined) {
-            //     cls().then((cls) => {
-            //       results.rows.map((points) => {
-            //         // checkIds.push({ _id: ObjectId("5e79b3899db3570f49c267cc") }points.point_id);
-            //         // search the cls
-            //         console.log('CLS', points.point_id);
-            //         cls.updateOne({ cid: points.point_id }, { $push: { cables: new ObjectID(id._id) } }, (err, u) => { // new ObjectID(id.cableid)
-            //           console.log(u);
-            //         });
-            //       });
-            //     });
-            //   }
-            // });
+            pool.query(SQLQuery, async (error, results) => {
+              if (results !== undefined) {
+                cls().then((cls) => {
+                  results.rows.map((points) => {
+                    // checkIds.push({ _id: ObjectId("5e79b3899db3570f49c267cc") }points.point_id);
+                    // search the cls
+                    console.log('CLS', points.point_id);
+                    cls.updateOne({ cid: points.point_id }, { $push: { cables: new ObjectID(id._id) } }, (err, u) => { // new ObjectID(id.cableid) { $push: { cables: new ObjectID(id._id) } }
+                      console.log(u);
+                    });
+                  });
+                });
+              }
+            });
             // ORGS
             const SQLQueryOrg = `SELECT cable_id, org_id FROM cable_org WHERE cable_id = ${id.cableid}`;
             pool.query(SQLQueryOrg, async (error, results) => {
