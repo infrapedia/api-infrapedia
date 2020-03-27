@@ -17,7 +17,7 @@ module.exports = {
         fs.createWriteStream(path.join(__dirname, `../temp/${layer}.json`)).end();
         fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), '{\n'
           + '                              "type": "FeatureCollection",\n'
-          + '                              "features":', 'utf8');
+          + '                              "features":[', 'utf8');
         // listing all files using forEach
         let filesReaded = 0;
         files.forEach((file) => {
@@ -30,9 +30,9 @@ module.exports = {
             data = JSON.parse(data);
             if (data.features[0] !== undefined) {
               // masterFile.write = JSON.stringify(data.features[0]);
-              fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), (filesReaded < files.length) ? `\n${JSON.stringify(data.features)},` : `\n${JSON.stringify(data.features)}`, 'utf8');
+              fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), (filesReaded < files.length) ? `\n${data.features.map((f) => `${JSON.stringify(f) }`)},` : `\n${data.features.map((f) => `${JSON.stringify(f) }`)}`, 'utf8');
               if (filesReaded === files.length) {
-                fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), '}', 'utf8');
+                fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), ']}', 'utf8');
                 // masterFile.write = ']}';
                 // masterFile.end();
                 resolve();
