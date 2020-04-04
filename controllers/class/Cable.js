@@ -5,11 +5,22 @@ const fs = require('fs');
 
 const { ObjectID } = require('mongodb');
 const { adms } = require('../helpers/adms');
-var segmentsCounts = 0;
+
+let segmentsCounts = 0;
 
 class Cable {
   constructor() {
     this.model = require('../../models/cable.model');
+  }
+
+  segments(user, data) {
+    return new Promise((resolve) => {
+      try {
+        const segment = {
+
+        };
+      } catch (e) { resolve(e); }
+    });
   }
 
   add(user, data) {
@@ -39,18 +50,39 @@ class Cable {
                 category: String(data.category),
                 facilities: await (Array.isArray(data.facilities)) ? data.facilities.map((item) => new ObjectID(item)) : [],
                 owners: await (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : [],
-                geom: (geomData !== '') ? JSON.parse(geomData) : {},
+                geom: {}, // (geomData !== '') ? JSON.parse(geomData) : {}
                 tags: data.tags,
                 rgDate: luxon.DateTime.utc(),
                 uDate: luxon.DateTime.utc(),
                 status: false,
                 deleted: false,
               };
+              let listSegments = JSON.parse(geomData);
               cables.insertOne(data, (err, i) => {
                 // TODO: validation insert
                 if (err) reject({ m: err + 0 });
-                fs.unlink(`./temp/${nameFile}.json`, (err) => {
-                  resolve({ m: 'Cable created' });
+                // we going to update the segments
+                // insert the segments
+                const segments = require('../../models/cable_segments.model');
+                segments().then(async (segments) => {
+                  let ssafe = 0;
+                  listSegments = listSegments.features;
+                  await listSegments.map(async (sg) => {
+                    await segments.insertOne({
+                      cable_id: new ObjectID(i.insertedId),
+                      type: 'Feature',
+                      properties: sg.properties,
+                      geometry: sg.geometry,
+                    }, (err, r) => {
+                      ssafe += 1;
+                      segmentsCounts += 1;
+                      fs.unlink(`./temp/${nameFile}.json`, (err) => {
+                        resolve({ m: 'Cable created' });
+                      });
+                    });
+                  });
+                }).catch((e) => {
+                  reject({ m: 'error saving segments' });
                 });
               });
             });
@@ -161,17 +193,42 @@ class Cable {
                 category: String(data.category),
                 facilities: await (Array.isArray(data.facilities)) ? data.facilities.map((item) => new ObjectID(item)) : [],
                 owners: await (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : [],
-                geom: (geomData !== '') ? JSON.parse(geomData) : {},
+                geom: {},// (geomData !== '') ? JSON.parse(geomData) : {},
                 tags: data.tags,
                 uDate: luxon.DateTime.utc(),
               };
               // we're going to search if the user is the own of the cable
+              let listSegments = JSON.parse(geomData);
               cables.find({ _id: id, uuid: String(user) }).count((err, c) => {
                 if (err) reject({ m: err });
-                cables.updateOne({ _id: id, uuid: String(user) }, { $set: data }, (err, u) => {
-                  if (err) reject({ m: err });
-                  else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
-                  else resolve({ m: 'Loaded', r: data });
+                const segments = require('../../models/cable_segments.model');
+                segments().then(async (segments) => {
+                  segments.remove({ cable_id: id }, (err, d) => {
+                    if (err) reject({ m: err });
+                    cables.updateOne({ _id: id, uuid: String(user) }, { $set: data }, async (err, u) => {
+                      if (err) reject({ m: err });
+                      else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
+                      else {
+                        // update the segments
+                        let ssafe = 0;
+                        listSegments = listSegments.features;
+                        await listSegments.map(async (sg) => {
+                          await segments.insertOne({
+                            cable_id: id,
+                            type: 'Feature',
+                            properties: sg.properties,
+                            geometry: sg.geometry,
+                          }, (err, r) => {
+                            ssafe += 1;
+                            segmentsCounts += 1;
+                            fs.unlink(`./temp/${nameFile}.json`, (err) => {
+                              resolve({ m: 'Cable updated' });
+                            });
+                          });
+                        });
+                      }
+                    });
+                  });
                 });
               });
             });
