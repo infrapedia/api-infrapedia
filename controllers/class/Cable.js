@@ -13,16 +13,6 @@ class Cable {
     this.model = require('../../models/cable.model');
   }
 
-  segments(user, data) {
-    return new Promise((resolve) => {
-      try {
-        const segment = {
-
-        };
-      } catch (e) { resolve(e); }
-    });
-  }
-
   add(user, data) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -103,8 +93,6 @@ class Cable {
             else {
               // create file
               const nameFile = Math.floor(Date.now() / 1000);
-              // const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
-              console.log(String(data.cableid));
               let listSegments = data.geom;
               data = {
                 uuid: '',
@@ -193,7 +181,7 @@ class Cable {
                 category: String(data.category),
                 facilities: await (Array.isArray(data.facilities)) ? data.facilities.map((item) => new ObjectID(item)) : [],
                 owners: await (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : [],
-                geom: {},// (geomData !== '') ? JSON.parse(geomData) : {},
+                geom: {}, // (geomData !== '') ? JSON.parse(geomData) : {},
                 tags: data.tags,
                 uDate: luxon.DateTime.utc(),
               };
@@ -442,72 +430,112 @@ class Cable {
     });
   }
 
+  cableInformation(id) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((cables) => {
+          cables.aggregate([
+            {
+              $match: {
+                _id: new ObjectID(id),
+              },
+            },
+            {
+              $lookup: {
+                from: 'facilities',
+                let: { f: '$facilities' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$_id', '$$f'],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      label: '$name',
+                    },
+                  },
+                ],
+                as: 'facilities',
+              },
+            },
+            {
+              $lookup: {
+                from: 'organizations',
+                let: { f: '$owners' },
+                pipeline: [
+                  {
+                    $match: {
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$_id', '$$f'],
+                          },
+                        },
+                        {
+                          deleted: false,
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    $project: {
+                      label: '$name',
+                    },
+                  },
+                ],
+                as: 'owners',
+              },
+            },
+          ], {
+            allowDiskUse: true,
+          }).toArray((err, o) => {
+            if (err) reject(err);
+            resolve(o);
+          });
+        }).catch((e) => reject({ m: e }));
+      } catch (e) { reject(e); }
+    });
+  }
+
+  segments(id) {
+    return new Promise((resolve, reject) => {
+      try {
+        const mSegments = require('../../models/cable_segments.model');
+        mSegments().then((segments) => {
+          segments.aggregate([
+            {
+              $match: {
+                cable_id: new ObjectID(id),
+              },
+            },
+          ], {
+            allowDiskUse: true,
+          }).toArray((err, s) => {
+            if (err) reject(err);
+            resolve(s);
+          });
+        }).catch((e) => { reject(e); });
+      } catch (e) { reject(e); }
+    });
+  }
+
   owner(user, id) {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
-          this.model().then((cables) => {
-            id = new ObjectID(id);
-            cables.aggregate([
-              {
-                $match: {
-                  _id: id,
-                },
-              },
-              {
-                $lookup: {
-                  from: 'facilities',
-                  let: { f: '$facilities' },
-                  pipeline: [
-                    {
-                      $match: {
-                        $expr: {
-                          $in: ['$_id', '$$f'],
-                        },
-                      },
-                    },
-                    {
-                      $project: {
-                        label: '$name',
-                      },
-                    },
-                  ],
-                  as: 'facilities',
-                },
-              },
-              {
-                $lookup: {
-                  from: 'organizations',
-                  let: { f: '$owners' },
-                  pipeline: [
-                    {
-                      $match: {
-                        $and: [
-                          {
-                            $expr: {
-                              $in: ['$_id', '$$f'],
-                            },
-                          },
-                          {
-                            deleted: false,
-                          },
-                        ],
-                      },
-                    },
-                    {
-                      $project: {
-                        label: '$name',
-                      },
-                    },
-                  ],
-                  as: 'owners',
-                },
-              },
-            ]).toArray((err, o) => {
-              if (err) reject(err);
-              resolve({ m: 'Loaded', r: o[0] });
+          Promise.all([this.cableInformation(id), this.segments(id)]).then((r) => {
+            r[0][0].geom = {
+              type: 'FeatureCollection',
+              features: r[1],
+            };
+            resolve({
+              m: 'Loaded',
+              r: r[0][0],
             });
-          }).catch((e) => reject({ m: e }));
+          }).catch((e) => { console.log(e); reject({ m: e }); });
         } else { resolve('Not user found'); }
       } catch (e) { reject({ m: e }); }
     });
