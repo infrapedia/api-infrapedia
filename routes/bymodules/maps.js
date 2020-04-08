@@ -32,5 +32,13 @@ module.exports = {
         })
         .catch((e) => { response.err(res, e); });
     });
+
+    router.get(`${process.env._ROUTE}/map/draw/:subdomain`, (req, res) => {
+      controllers.maps.draw(req.params.subdomain)
+        .then((r) => {
+          res.json(r);
+        })
+        .catch((e) => { response.err(res, e); });
+    });
   },
 };

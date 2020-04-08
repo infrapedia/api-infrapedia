@@ -187,6 +187,12 @@ class Map {
     });
   }
 
+  segments(id) {
+    return new Promise((resolve, reject) => {
+
+    });
+  }
+
   cables(subdomain) {
     return new Promise((resolve, reject) => {
       if (subdomain !== undefined) {
@@ -198,6 +204,19 @@ class Map {
           });
         }).catch((e) => reject({ m: e }));
       } else { reject({ m: 'subdomain undefined' }); }
+    });
+  }
+
+  draw(subdomain) {
+    return new Promise((resolve, reject) => {
+      if (subdomain !== undefined) {
+        this.model().then((draw) => {
+          draw.findOne({ subdomain }, (err, d) => {
+            if (err) reject({ m: err });
+            resolve(JSON.parse(d.draw));
+          });
+        }).catch((e) => reject({ m: e }));
+      }
     });
   }
 
@@ -278,15 +297,6 @@ class Map {
                   {
                     $match: { $expr: { $in: ['$_id', '$$facilities'] } },
                   },
-                  // {
-                  //   $addFields: {
-                  //     'geom.properties': {
-                  //       _id: { $toString: '$_id' },
-                  //       name: '$name',
-                  //       type: 'ixps',
-                  //     },
-                  //   },
-                  // },
                   {
                     $unwind: '$geom.features',
                   },
@@ -349,19 +359,6 @@ class Map {
                   {
                     $match: { $expr: { $in: ['$_id', '$$cls'] } },
                   },
-                  // {
-                  //   $addFields: {
-                  //     feature: {
-                  //       type: 'Feature',
-                  //       geometry: '$geom',
-                  //       properties: {
-                  //         _id: { $toString: '$_id' },
-                  //         name: '$name',
-                  //         type: 'cls',
-                  //       },
-                  //     },
-                  //   },
-                  // },
                   {
                     $unwind: '$geom.features',
                   },

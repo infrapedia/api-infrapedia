@@ -7,4 +7,5 @@ module.exports = {
   ixps: (usr, data) => Map.ixps(usr, data),
   facilities: (usr, data) => Map.facilities(usr, data),
   cls: (usr, data) => Map.cls(usr, data),
+  draw: (usr, data) => Map.draw(usr, data),
 }
