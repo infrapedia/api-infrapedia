@@ -83,9 +83,5 @@ const routes = function (router, controllers) {
         });
     });
   });
-  router.get(`${process.env._ROUTE}/webhook/edgeuno`, (req, res) => {
-    console.log(req.body);
-    res.sendStatus(200);
-  });
 };
 module.exports = routes;

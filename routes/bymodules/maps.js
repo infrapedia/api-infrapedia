@@ -11,5 +11,26 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+    router.get(`${process.env._ROUTE}/map/ixps/:subdomain`, (req, res) => {
+      controllers.maps.ixps(req.params.subdomain)
+        .then((r) => {
+          res.json(r);
+        })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.get(`${process.env._ROUTE}/map/facilities/:subdomain`, (req, res) => {
+      controllers.maps.facilities(req.params.subdomain)
+        .then((r) => {
+          res.json(r);
+        })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.get(`${process.env._ROUTE}/map/cls/:subdomain`, (req, res) => {
+      controllers.maps.cls(req.params.subdomain)
+        .then((r) => {
+          res.json(r);
+        })
+        .catch((e) => { response.err(res, e); });
+    });
   },
 };

@@ -18,66 +18,69 @@ class Cable {
       try {
         if (user !== undefined || user !== '') {
           this.model().then(async (cables) => {
+            this.model().then(async (cables) => {
             // create file
-            const nameFile = Math.floor(Date.now() / 1000);
-            const stream = await fs.createWriteStream(`./temp/${nameFile}.json`);
-            stream.write(data.geom);
-            stream.end(async () => {
-              const geomData = await fs.readFileSync(`./temp/${nameFile}.json`, 'utf8');
-              const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
-              data = {
-                uuid: String(user),
-                name: String(data.name),
-                // cc: String(data.cc),
-                notes: '', // String(data.notes)
-                systemLength: String(data.systemLength),
-                activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
-                urls: (Array.isArray(data.urls)) ? data.urls : [],
-                terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
-                capacityTBPS: String(data.capacityTBPS),
-                litCapacity: await (Array.isArray(data.litCapacity)) ? data.litCapacity.map((item) => JSON.parse(item)) : [],
-                fiberPairs: String(data.fiberPairs),
-                category: String(data.category),
-                facilities: await (Array.isArray(data.facilities)) ? data.facilities.map((item) => new ObjectID(item)) : [],
-                owners: await (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : [],
-                geom: {}, // (geomData !== '') ? JSON.parse(geomData) : {}
-                tags: data.tags,
-                rgDate: luxon.DateTime.utc(),
-                uDate: luxon.DateTime.utc(),
-                status: false,
-                deleted: false,
-              };
-              let listSegments = JSON.parse(geomData);
-              cables.insertOne(data, (err, i) => {
+              const nameFile = Math.floor(Date.now() / 1000);
+              const stream = await fs.createWriteStream(`./temp/${nameFile}.json`);
+              stream.write(data.geom);
+              stream.end(async () => {
+                const geomData = await fs.readFileSync(`./temp/${nameFile}.json`, 'utf8');
+                const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
+                data = {
+                  uuid: String(user),
+                  name: String(data.name),
+                  // cc: String(data.cc),
+                  notes: '', // String(data.notes)
+                  systemLength: String(data.systemLength),
+                  activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
+                  urls: (Array.isArray(data.urls)) ? data.urls : [],
+                  terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
+                  capacityTBPS: String(data.capacityTBPS),
+                  litCapacity: await (Array.isArray(data.litCapacity)) ? data.litCapacity.map((item) => JSON.parse(item)) : [],
+                  fiberPairs: String(data.fiberPairs),
+                  category: String(data.category),
+                  facilities: await (Array.isArray(data.facilities)) ? data.facilities.map((item) => new ObjectID(item)) : [],
+                  owners: await (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : [],
+                  geom: {}, // (geomData !== '') ? JSON.parse(geomData) : {}
+                  tags: data.tags,
+                  rgDate: luxon.DateTime.utc(),
+                  uDate: luxon.DateTime.utc(),
+                  status: false,
+                  deleted: false,
+                };
+                let listSegments = JSON.parse(geomData);
+                cables.insertOne(data, (err, i) => {
                 // TODO: validation insert
-                if (err) reject({ m: err + 0 });
-                // we going to update the segments
-                // insert the segments
-                const segments = require('../../models/cable_segments.model');
-                segments().then(async (segments) => {
-                  let ssafe = 0;
-                  listSegments = listSegments.features;
-                  await listSegments.map(async (sg) => {
-                    await segments.insertOne({
-                      cable_id: new ObjectID(i.insertedId),
-                      type: 'Feature',
-                      properties: sg.properties,
-                      geometry: sg.geometry,
-                    }, (err, r) => {
-                      ssafe += 1;
-                      segmentsCounts += 1;
-                      fs.unlink(`./temp/${nameFile}.json`, (err) => {
-                        resolve({ m: 'Cable created' });
+                  if (err) reject({ m: err + 0 });
+                  // we going to update the segments
+                  // insert the segments
+                  const segments = require('../../models/cable_segments.model');
+                  segments().then(async (segments) => {
+                    let ssafe = 0;
+                    listSegments = listSegments.features;
+                    await listSegments.map(async (sg) => {
+                      await segments.insertOne({
+                        cable_id: new ObjectID(i.insertedId),
+                        type: 'Feature',
+                        properties: sg.properties,
+                        geometry: sg.geometry,
+                      }, (err, r) => {
+                        ssafe += 1;
+                        segmentsCounts += 1;
+                        fs.unlink(`./temp/${nameFile}.json`, (err) => {
+                          resolve({ m: 'Cable created' });
+                        });
                       });
                     });
+                  }).catch((e) => {
+                    reject({ m: 'error saving segments' });
                   });
-                }).catch((e) => {
-                  reject({ m: 'error saving segments' });
                 });
               });
-            });
+            }).catch((e) => reject({ m: e + 1 }));
           }).catch((e) => reject({ m: e + 1 }));
-        } else { resolve('Not user found'); }
+          // else { resolve('Not user found'); }
+        }
       } catch (e) { reject({ m: e + 2 }); }
     });
   }
