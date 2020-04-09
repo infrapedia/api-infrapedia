@@ -485,9 +485,7 @@ module.exports = {
             },
           },
         ], { allowDiskUse: false }).toArray(async (err, polygon) => {
-          console.log(err);
           if (err) return 'Error';
-          console.log(polygon);
           // we'll going to create the master file for ixps
           polygon = await polygon.reduce((total, value) => total.concat(value.feature), []);
           polygon = `{

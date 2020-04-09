@@ -111,17 +111,17 @@ FROM facility`;
         };
         /* {
             type: 'FeatureCollection',
-            features: await Object.keys(results.rows).map((key) => {
-              // console.log(y.segments.rows[key]);
+            features: await Object.keys(results.rows).map((keys) => {
+              // console.log(y.segments.rows[keys]);
               // eslint-disable-next-line max-len
-              // results.rows[key].geom = results.rows[key].geom;// JSON.parse(results.rows[key].geom);
-              results.rows[key].geom.id = segmentID;
+              // results.rows[keys].geom = results.rows[keys].geom;// JSON.parse(results.rows[keys].geom);
+              results.rows[keys].geom.id = segmentID;
               segmentID += 1;
               return {
                 // elemnt: new ObjectID(f.cable_id),
                 type: 'Feature',
                 properties: { id: String(segmentID) },
-                geometry: results.rows[key].geom,
+                geometry: results.rows[keys].geom,
               };
             }),
           }, */
@@ -172,15 +172,15 @@ FROM facility`;
       //           fiberPairs: y.info.fiber_pairs,
       //           geom: {
       //             type: 'FeatureCollection',
-      //             features: await Object.keys(y.segments.rows).map((key) => {
-      //               // console.log(y.segments.rows[key]);
-      //               y.segments.rows[key].geom = JSON.parse(y.segments.rows[key].geom);
-      //               y.segments.rows[key].geom.id = segmentID;
+      //             features: await Object.keys(y.segments.rows).map((keys) => {
+      //               // console.log(y.segments.rows[keys]);
+      //               y.segments.rows[keys].geom = JSON.parse(y.segments.rows[keys].geom);
+      //               y.segments.rows[keys].geom.id = segmentID;
       //               segmentID += 1;
       //               return {
       //                 type: 'Feature',
       //                 properties: { id: String(segmentID) },
-      //                 geometry: y.segments.rows[key].geom,
+      //                 geometry: y.segments.rows[keys].geom,
       //               };
       //             }),
       //           },

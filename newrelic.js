@@ -12,7 +12,7 @@ exports.config = {
    */
   app_name: [process.env._NR_APP_NAME],
   /**
-   * Your New Relic license key.
+   * Your New Relic license keys.
    */
   license_key: process.env._NR_LICENSE_KEY,
   logging: {

@@ -255,7 +255,7 @@ class Map {
                 type: 'FeatureCollection',
                 features: await multiLines.reduce((total, value) => total.concat(value), []),
               };
-              gcloud.uploadFilesCustomMap(multiLines,'ixps', subdomain).then((r) => {
+              gcloud.uploadFilesCustomMap(multiLines,'cables', subdomain).then((r) => {
                 resolve(multiLines);
               }).catch((e) => reject(e));
             }).catch((e) => reject({ m: e }));
@@ -271,9 +271,9 @@ class Map {
         this.model().then((draw) => {
           draw.findOne({ subdomain }, (err, d) => {
             if (err) reject({ m: err });
-            gcloud.uploadFilesCustomMap(JSON.parse(d.draw),'ixps', subdomain).then((r) => {
-              resolve(JSON.parse(d.draw));
-            }).catch((e) => reject(e));
+            gcloud.uploadFilesCustomMap(d.draw,'draw', subdomain).then((r) => {
+              resolve(d.draw);
+            }).catch((e) => { reject(e); });
           });
         }).catch((e) => reject({ m: e }));
       }
@@ -397,7 +397,7 @@ class Map {
               type: 'FeatureCollection',
               features: multipolygon,
             };
-            gcloud.uploadFilesCustomMap(multipolygon, 'ixps', subdomain).then((r) => {
+            gcloud.uploadFilesCustomMap(multipolygon, 'facilities', subdomain).then((r) => {
               resolve(multipolygon);
             }).catch((e) => reject(e));
           });
@@ -461,7 +461,7 @@ class Map {
               type: 'FeatureCollection',
               features: multipoints,
             };
-            gcloud.uploadFilesCustomMap(multipoints, 'ixps', subdomain).then((r) => {
+            gcloud.uploadFilesCustomMap(multipoints, 'cls', subdomain).then((r) => {
               resolve(multipoints);
             }).catch((e) => reject(e));
           });

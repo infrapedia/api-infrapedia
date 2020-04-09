@@ -112,7 +112,6 @@ function uElementsFileCustomMap(path, type, subdomain) {
     if (allowedExtensionsGeoJson.exec(path) || allowedExtensionsKmz.exec(path)) {
       const allowedExtensions = (allowedExtensionsKmz.exec(path)) ? allowedExtensionsKmz.exec(path) : allowedExtensionsGeoJson.exec(path);
       const ufile = `${subdomain}_${type}${allowedExtensions[1]}`;
-      console.log(ufile);
       const bucketFile = bucket.file(`clients/${ufile}`);
       fs.createReadStream(path)
         .pipe(bucketFile.createWriteStream({
@@ -176,7 +175,6 @@ module.exports = {
       stream.write(JSON.stringify(data));
       stream.on('err', () => { console.log('Error to create the file'); });
       stream.end(() => {
-        console.log('finalizo');
         uElementsFileCustomMap(stream.path, type, subdomain).then((fileArray) => { resolve(); }).catch((e) => { reject(e); });
       });
     } catch (err) { resolve(err); }
