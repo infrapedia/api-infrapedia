@@ -8,4 +8,5 @@ module.exports = {
   facilities: (usr, data) => Map.facilities(usr, data),
   cls: (usr, data) => Map.cls(usr, data),
   draw: (usr, data) => Map.draw(usr, data),
+  cables: (usr, data) => Map.cables(usr, data),
 }

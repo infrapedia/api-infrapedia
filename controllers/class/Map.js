@@ -1,6 +1,6 @@
 const luxon = require('luxon');
 const { ObjectID } = require('mongodb');
-
+const gcloud = require('../helpers/gcloudStorage');
 class Map {
   constructor() {
     this.model = require('../../models/map.model');
@@ -187,9 +187,31 @@ class Map {
     });
   }
 
-  segments(id) {
+  segments(id, name) {
     return new Promise((resolve, reject) => {
-
+      try {
+        console.log(id, name);
+        const mSegments = require('../../models/cable_segments.model');
+        mSegments().then((segments) => {
+          segments.aggregate([
+            {
+              $match: {
+                cable_id: new ObjectID(id),
+              },
+            },
+            {
+              $addFields: {
+                'properties.nameCable': name,
+              },
+            },
+          ], {
+            allowDiskUse: true,
+          }).toArray((err, s) => {
+            if (err) reject(err);
+            resolve(s);
+          });
+        }).catch((e) => { reject(e); });
+      } catch (e) { reject(e); }
     });
   }
 
@@ -198,9 +220,45 @@ class Map {
       if (subdomain !== undefined) {
         this.model().then((cables) => {
           cables.aggregate([
-            // think better
-          ], { allowDiskUse: true }).toArray((err, cs) => {
+            {
+              $match: {
+                subdomain,
+              },
+            },
+            {
+              $lookup: {
+                from: 'cables',
+                let: { cables: '$cables' },
+                pipeline: [
+                  {
+                    $match: { $expr: { $in: ['$_id', '$$cables'] } },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'cables',
+              },
+            },
+            {
+              $project: {
+                cables: 1,
+              },
+            },
+          ], { allowDiskUse: true }).toArray(async (err, cables) => {
             if (err) reject({ m: err });
+            Promise.all(cables[0].cables.map((c) => this.segments(c._id, c.name))).then(async (multiLines) => {
+              multiLines = {
+                type: 'FeatureCollection',
+                features: await multiLines.reduce((total, value) => total.concat(value), []),
+              };
+              gcloud.uploadFilesCustomMap(multiLines,'ixps', subdomain).then((r) => {
+                resolve(multiLines);
+              }).catch((e) => reject(e));
+            }).catch((e) => reject({ m: e }));
           });
         }).catch((e) => reject({ m: e }));
       } else { reject({ m: 'subdomain undefined' }); }
@@ -213,7 +271,9 @@ class Map {
         this.model().then((draw) => {
           draw.findOne({ subdomain }, (err, d) => {
             if (err) reject({ m: err });
-            resolve(JSON.parse(d.draw));
+            gcloud.uploadFilesCustomMap(JSON.parse(d.draw),'ixps', subdomain).then((r) => {
+              resolve(JSON.parse(d.draw));
+            }).catch((e) => reject(e));
           });
         }).catch((e) => reject({ m: e }));
       }
@@ -272,7 +332,10 @@ class Map {
               type: 'FeatureCollection',
               features: multipoints,
             };
-            resolve(multipoints);
+            gcloud.uploadFilesCustomMap(multipoints,'ixps', subdomain).then((r) => {
+              resolve(multipoints);
+            }).catch((e) => reject(e));
+            // resolve(multipoints);
           });
         }).catch((e) => reject({ m: e }));
       } else { reject({ m: 'subdomain undefined' }); }
@@ -334,7 +397,9 @@ class Map {
               type: 'FeatureCollection',
               features: multipolygon,
             };
-            resolve(multipolygon);
+            gcloud.uploadFilesCustomMap(multipolygon, 'ixps', subdomain).then((r) => {
+              resolve(multipolygon);
+            }).catch((e) => reject(e));
           });
         }).catch((e) => reject({ m: e }));
       } else { reject({ m: 'subdomain undefined' }); }
@@ -396,7 +461,9 @@ class Map {
               type: 'FeatureCollection',
               features: multipoints,
             };
-            resolve(multipoints);
+            gcloud.uploadFilesCustomMap(multipoints, 'ixps', subdomain).then((r) => {
+              resolve(multipoints);
+            }).catch((e) => reject(e));
           });
         }).catch((e) => reject({ m: e }));
       } else { reject({ m: 'subdomain undefined' }); }

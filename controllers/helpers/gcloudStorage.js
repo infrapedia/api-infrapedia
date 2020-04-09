@@ -21,6 +21,7 @@ function uploadFileLogo(path, user, allowedExtensions, folder) {
         .pipe(bucketFile.createWriteStream({
           metadata: {
             contentType: mime.getType(path),
+            'Cache-Control': 'public, max-age=3600',
           },
         })).on('error', (err) => { reject(err); }).on('finish', () => {
           bucketFile.makePublic().then(() => {
@@ -43,6 +44,7 @@ function uploadFileKmz(path, user, allowedExtensions, folder) {
         .pipe(bucketFile.createWriteStream({
           metadata: {
             contentType: mime.getType(path),
+            'Cache-Control': 'public, max-age=3600',
           },
         })).on('error', (err) => { reject(err); }).on('finish', () => {
           bucketFile.makePublic().then(() => {
@@ -66,6 +68,7 @@ function upload(path, user, allowedExtensions, folder) {
         .pipe(bucketFile.createWriteStream({
           metadata: {
             contentType: mime.getType(path),
+            'Cache-Control': 'public, max-age=3600',
           },
         })).on('error', (err) => { reject(err); }).on('finish', () => {
           bucketFile.makePublic().then(() => {
@@ -83,7 +86,6 @@ function upload(path, user, allowedExtensions, folder) {
 function uElementsFile(path, user, folder) {
   return new Promise((resolve, reject) => {
     if (allowedExtensionsGeoJson.exec(path) || allowedExtensionsKmz.exec(path)) {
-      console.log(path);
       let allowedExtensions = (allowedExtensionsKmz.exec(path)) ? allowedExtensionsKmz.exec(path) : allowedExtensionsGeoJson.exec(path);
       const ufile = `${folder}-${uuidv4()}${allowedExtensions[1]}`;
       const bucketFile = bucket.file(`${folder}/${user}/${ufile}`);
@@ -91,6 +93,7 @@ function uElementsFile(path, user, folder) {
         .pipe(bucketFile.createWriteStream({
           metadata: {
             contentType: mime.getType(path),
+            'Cache-Control': 'public, max-age=3600',
           },
         })).on('error', (err) => { reject(err); }).on('finish', () => {
           bucketFile.makePublic().then(() => {
@@ -100,6 +103,33 @@ function uElementsFile(path, user, folder) {
         });
     } else {
       resolve(0);
+    }
+  });
+}
+
+function uElementsFileCustomMap(path, type, subdomain) {
+  return new Promise((resolve, reject) => {
+    if (allowedExtensionsGeoJson.exec(path) || allowedExtensionsKmz.exec(path)) {
+      const allowedExtensions = (allowedExtensionsKmz.exec(path)) ? allowedExtensionsKmz.exec(path) : allowedExtensionsGeoJson.exec(path);
+      const ufile = `${subdomain}_${type}${allowedExtensions[1]}`;
+      console.log(ufile);
+      const bucketFile = bucket.file(`clients/${ufile}`);
+      fs.createReadStream(path)
+        .pipe(bucketFile.createWriteStream({
+          metadata: {
+            contentType: mime.getType(path),
+            'Cache-Control': 'public, max-age=3600',
+          },
+        })).on('error', (err) => { console.log(err); reject(err); }).on('finish', () => {
+          bucketFile.makePublic().then(() => {
+          // resolve(`https://clients.agrimanager.app/${process.env._GG_CLOUD_BUCKET_FOLDER_LOGOS}/${ufile}`);
+            fs.unlink(path, (err, u) => {
+              resolve(`${process.env._CDN_ROUTE_FILES}/clients/${ufile}`);
+            });
+          });
+        });
+    } else {
+      reject(0);
     }
   });
 }
@@ -138,6 +168,17 @@ module.exports = {
           resolve(filesArray.filter(Boolean));
         }).catch(() => { resolve([]); });
       } else { uElementsFile(files.path, user, process.env._GG_CLOUD_BUCKET_FOLDER_EEDITED).then((fileArray) => { resolve((fileArray !== 0) ? [fileArray] : []); }).catch(() => { resolve([]); }); }
+    } catch (err) { resolve(err); }
+  }),
+  uploadFilesCustomMap: (data, type, subdomain) => new Promise((resolve, reject) => {
+    try {
+      const stream = fs.createWriteStream(`./temp/${subdomain}_${type}.geojson`);
+      stream.write(JSON.stringify(data));
+      stream.on('err', () => { console.log('Error to create the file'); });
+      stream.end(() => {
+        console.log('finalizo');
+        uElementsFileCustomMap(stream.path, type, subdomain).then((fileArray) => { resolve(); }).catch((e) => { reject(e); });
+      });
     } catch (err) { resolve(err); }
   }),
 };

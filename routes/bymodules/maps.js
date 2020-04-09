@@ -40,5 +40,13 @@ module.exports = {
         })
         .catch((e) => { response.err(res, e); });
     });
+
+    router.get(`${process.env._ROUTE}/map/cables/:subdomain`, (req, res) => {
+      controllers.maps.cables(req.params.subdomain)
+        .then((r) => {
+          res.json(r);
+        })
+        .catch((e) => { response.err(res, e); });
+    });
   },
 };
