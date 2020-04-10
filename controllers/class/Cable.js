@@ -1,9 +1,10 @@
 const luxon = require('luxon');
 const GJV = require('geojson-validation');
 const fs = require('fs');
+const { ObjectID } = require('mongodb');
+const redisClient = require('../../config/redis');
 // const geojsonHint = require('@mapbox/geojsonhint');
 
-const { ObjectID } = require('mongodb');
 const { adms } = require('../helpers/adms');
 
 let segmentsCounts = 0;
@@ -14,7 +15,7 @@ class Cable {
   }
 
   add(user, data) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
           this.model().then(async (cables) => {
@@ -544,7 +545,7 @@ class Cable {
     });
   }
 
-  bbox(user, id) {
+  bbox(id) {
     return new Promise((resolve, reject) => {
       try {
         this.model().then((cables) => {
@@ -555,29 +556,48 @@ class Cable {
               },
             },
             {
-              $addFields: {
-                coordinates: { $map: { input: '$geom.features.geometry.coordinates', as: 'feature', in: '$$feature' } },
+              $lookup: {
+                from: 'cables_segments',
+                localField: '_id',
+                foreignField: 'cable_id',
+                as: 'geom',
               },
             },
+            // {
+            //   $addFields: {
+            //     coordinates: { $cond: { if: { $eq: [{ $size: '$geom' }, 0] }, then: [], else: '$geom' } },
+            //   },
+            // },
             {
               $addFields: {
-                v: { $arrayElemAt: ['$geom.features.geometry.coordinates', 0] },
-                b: { $arrayElemAt: ['$geom.features.geometry.coordinates', -1] },
+                v: { $arrayElemAt: ['$geom.geometry.coordinates', 0] },
+                b: { $arrayElemAt: ['$geom.geometry.coordinates', -1] },
               },
             },
+            // {
+            //   $addFields: {
+            //     v: { $ifNull: ['$v', []] },
+            //     b: { $ifNull: ['$b', []] },
+            //   },
+            // },
             {
               $addFields: {
                 position: { $toInt: { $divide: [{ $size: { $arrayElemAt: ['$v', 0] } }, 2] } },
               },
             },
             {
+              $addFields: {
+                position: { $cond: { if: { position: 1 }, then: 1, else: '$position' } },
+              },
+            },
+            {
               $project: {
                 _id: 1,
-                coordinates: { $cond: { if: { $eq: [{ $size: '$v' }, 0] }, then: { $arrayElemAt: [{ $arrayElemAt: ['$v', 0] }, '$position'] }, else: { $arrayElemAt: ['$b', -1] } } },
+                coordinates: { $cond: { if: { $eq: [{ $size: '$v' }, 1] }, then: { $arrayElemAt: [{ $arrayElemAt: ['$v', 0] }, '$position'] }, else: { $arrayElemAt: ['$b', -1] } } },
               },
             },
           ]).toArray((err, c) => {
-            if (err) reject(err);
+            if (err) { console.log(id); reject(err); }
             resolve({ m: 'Loaded', r: c });
           });
         });
@@ -614,207 +634,214 @@ class Cable {
   view(user, id) {
     return new Promise((resolve, reject) => {
       try {
-        this.model().then((cables) => {
-          cables.aggregate([
-            {
-              $match: {
-                _id: new ObjectID(id),
-              },
-            },
-            {
-              $project: { geom: 0 },
-            },
-            {
-              $lookup: {
-                from: 'facilities',
-                let: { f: '$facilities' },
-                pipeline: [
-                  {
-                    $match: {
-                      $and: [
-                        {
-                          $expr: {
-                            $in: ['$_id', {
-                              $cond: {
-                                if: { $isArray: { $arrayElemAt: ['$$f', 0] } },
-                                then: '$$f',
-                                else: [],
+        redisClient.redisClient.get(`v_cable_${id}`, (err, reply) => {
+          if (err) reject({ m: err });
+          else if (reply) resolve(((JSON.parse(reply))));
+          else {
+            this.model().then((cables) => {
+              cables.aggregate([
+                {
+                  $match: {
+                    _id: new ObjectID(id),
+                  },
+                },
+                {
+                  $project: { geom: 0 },
+                },
+                {
+                  $lookup: {
+                    from: 'facilities',
+                    let: { f: '$facilities' },
+                    pipeline: [
+                      {
+                        $match: {
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$_id', {
+                                  $cond: {
+                                    if: { $isArray: { $arrayElemAt: ['$$f', 0] } },
+                                    then: '$$f',
+                                    else: [],
+                                  },
+                                },
+                                ],
                               },
                             },
-                            ],
-                          },
+                            {
+                              deleted: false,
+                            },
+                          ],
                         },
-                        {
-                          deleted: false,
+                      },
+                      {
+                        $project: {
+                          _id: 1,
+                          name: 1,
                         },
-                      ],
-                    },
+                      },
+                    ],
+                    as: 'facilities',
                   },
-                  {
-                    $project: {
-                      _id: 1,
-                      name: 1,
-                    },
-                  },
-                ],
-                as: 'facilities',
-              },
-            },
-            {
-              $lookup: {
-                from: 'cls',
-                let: { cables: '$_id' },
-                pipeline: [
-                  {
-                    $match: {
-                      $and: [
-                        {
-                          $expr: {
-                            $in: ['$$cables', '$cables'],
-                          },
-                        },
-                        {
-                          deleted: false,
-                        },
-                      ],
-                    },
-                  },
-                  {
-                    $project: {
-                      _id: 1,
-                      name: 1,
-                    },
-                  },
-                ],
-                as: 'cls',
-              },
-            },
-            {
-              $lookup: {
-                from: 'networks',
-                let: { cable: '$_id' },
-                pipeline: [
-                  {
-                    $match: {
-                      $and: [
-                        {
-                          $expr: {
-                            $in: ['$$cable', '$cables'],
-                          },
-                        },
-                        {
-                          deleted: false,
-                        },
-                      ],
-                    },
-                  },
-                  {
-                    $project: {
-                      _id: 1,
-                      name: 1,
-                      organizations: 1,
-                    },
-                  },
-                ],
-                as: 'networks',
-              },
-            },
-            {
-              $lookup: {
-                from: 'organizations',
-                let: { networks: '$networks' },
-                pipeline: [
-                  {
-                    $addFields: {
-                      idsorgs: { $map: { input: '$$networks.organizations', as: 'orgs', in: '$$orgs' } },
-                    },
-                  },
-                  {
-                    $match: {
-                      $and: [
-                        {
-                          $expr: {
-                            $in: ['$_id', {
-                              $cond: {
-                                if: { $isArray: { $arrayElemAt: ['$idsorgs', 0] } },
-                                then: { $arrayElemAt: ['$idsorgs', 0] },
-                                else: [],
+                },
+                {
+                  $lookup: {
+                    from: 'cls',
+                    let: { cables: '$_id' },
+                    pipeline: [
+                      {
+                        $match: {
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$$cables', '$cables'],
                               },
                             },
-                            ],
-                          },
+                            {
+                              deleted: false,
+                            },
+                          ],
                         },
-                        {
-                          deleted: false,
+                      },
+                      {
+                        $project: {
+                          _id: 1,
+                          name: 1,
                         },
-                      ],
-                    },
+                      },
+                    ],
+                    as: 'cls',
                   },
-                  {
-                    $project: {
-                      _id: 1,
-                      name: 1,
-                    },
-                  },
-                ],
-                as: 'organizations',
-              },
-            },
-            {
-              $lookup: {
-                from: 'organizations',
-                let: { f: '$owners' },
-                pipeline: [
-                  {
-                    $match: {
-                      $and: [
-                        {
-                          $expr: {
-                            $in: ['$_id', '$$f'],
-                          },
+                },
+                {
+                  $lookup: {
+                    from: 'networks',
+                    let: { cable: '$_id' },
+                    pipeline: [
+                      {
+                        $match: {
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$$cable', '$cables'],
+                              },
+                            },
+                            {
+                              deleted: false,
+                            },
+                          ],
                         },
-                        {
-                          deleted: false,
+                      },
+                      {
+                        $project: {
+                          _id: 1,
+                          name: 1,
+                          organizations: 1,
                         },
-                      ],
-                    },
+                      },
+                    ],
+                    as: 'networks',
                   },
-                  {
-                    $project: {
-                      _id: 1,
-                      name: 1,
-                    },
+                },
+                {
+                  $lookup: {
+                    from: 'organizations',
+                    let: { networks: '$networks' },
+                    pipeline: [
+                      {
+                        $addFields: {
+                          idsorgs: { $map: { input: '$$networks.organizations', as: 'orgs', in: '$$orgs' } },
+                        },
+                      },
+                      {
+                        $match: {
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$_id', {
+                                  $cond: {
+                                    if: { $isArray: { $arrayElemAt: ['$idsorgs', 0] } },
+                                    then: { $arrayElemAt: ['$idsorgs', 0] },
+                                    else: [],
+                                  },
+                                },
+                                ],
+                              },
+                            },
+                            {
+                              deleted: false,
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        $project: {
+                          _id: 1,
+                          name: 1,
+                        },
+                      },
+                    ],
+                    as: 'organizations',
                   },
-                ],
-                as: 'owners',
-              },
-            },
-            {
-              $lookup: {
-                from: 'alerts',
-                let: { elemnt: { $toString: '$_id' } },
-                pipeline: [
-                  {
-                    $match: { $and: [{ $expr: { elemnt: '$$elemnt' } }, { t: '1' }, { uuid: user }, { disabled: false }] },
+                },
+                {
+                  $lookup: {
+                    from: 'organizations',
+                    let: { f: '$owners' },
+                    pipeline: [
+                      {
+                        $match: {
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$_id', '$$f'],
+                              },
+                            },
+                            {
+                              deleted: false,
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        $project: {
+                          _id: 1,
+                          name: 1,
+                        },
+                      },
+                    ],
+                    as: 'owners',
                   },
-                ],
-                as: 'alert',
-              },
-            },
-            {
-              $addFields: { alert: { $size: '$alert' } },
-            },
-            {
-              $project: {
-                geom: 0,
-                status: 0,
-                deleted: 0,
-              },
-            },
-          ]).toArray((err, c) => {
-            if (err) reject(err);
-            resolve({ m: 'Loaded', r: c });
-          });
+                },
+                {
+                  $lookup: {
+                    from: 'alerts',
+                    let: { elemnt: { $toString: '$_id' } },
+                    pipeline: [
+                      {
+                        $match: { $and: [{ $expr: { elemnt: '$$elemnt' } }, { t: '1' }, { uuid: user }, { disabled: false }] },
+                      },
+                    ],
+                    as: 'alert',
+                  },
+                },
+                {
+                  $addFields: { alert: { $size: '$alert' } },
+                },
+                {
+                  $project: {
+                    geom: 0,
+                    status: 0,
+                    deleted: 0,
+                  },
+                },
+              ]).toArray((err, c) => {
+                if (err) reject(err);
+                redisClient.set(`v_cable_${id}`, JSON.stringify({ m: 'Loaded', r: c }), 'EX', 172800)
+                resolve({ m: 'Loaded', r: c });
+              });
+            });
+          }
         });
       } catch (e) { reject({ m: e }); }
     });
@@ -933,6 +960,54 @@ class Cable {
           });
         });
       }).catch((e) => { reject(e); });
+    });
+  }
+
+  createBBOXs() {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((bboxQuery) => {
+          bboxQuery.aggregate([{
+            $project: {
+              _id: 1,
+            },
+          }], { allowDiskUse: true }).toArray(async (err, results) => {
+            if (err) reject(err);
+            else if (results.length !== []) {
+              await results.map((element) => {
+                this.bbox(element._id).then((bbox) => redisClient.set(`cable_${element._id}`, JSON.stringify(bbox)));
+              });
+            }
+            resolve({ m: 'loaded' });
+          });
+        });
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
+  createDATA() {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((bboxQuery) => {
+          bboxQuery.aggregate([{
+            $project: {
+              _id: 1,
+            },
+          }], { allowDiskUse: true }).toArray(async (err, results) => {
+            if (err) reject(err);
+            else if (results.length !== []) {
+              await results.map((element) => {
+                this.view('', element._id);
+              });
+            }
+            resolve({ m: 'loaded' });
+          });
+        });
+      } catch (e) {
+        reject(e);
+      }
     });
   }
 }

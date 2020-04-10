@@ -1,4 +1,6 @@
 const pool = require('../config/pgSQL.js');
+const redisClient = require('../config/redis');
+
 let Facility = require('./class/Facility');
 
 Facility = new Facility();
@@ -26,7 +28,12 @@ FROM facility`;
     });
   }),
   view: (usr, id) => Facility.view(usr, id),
-  bbox: (usr, id) => Facility.bbox(usr, id),
+  bbox: (user, id) => new Promise((resolve, reject) => {
+    redisClient.redisClient.get(`facility_${id}`, (err, reply) => {
+      if (err) reject({ m: err });
+      resolve(JSON.parse(reply));
+    });
+  }),
   getElementGeom: (usr, id) => Facility.getElementGeom(id),
   getMultiElementsGeom: (usr, ids) => Facility.getMultiElementsGeom(ids),
 };

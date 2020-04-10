@@ -1,3 +1,5 @@
+// eslint-disable-next-line import/no-unresolved
+
 const routes = function (router, controllers) {
   const response = {
     success: (res, answ, n) => {
@@ -82,6 +84,24 @@ const routes = function (router, controllers) {
           res.render('shortener', { url: r.value.original_url });
         });
     });
+  });
+  router.get(`${process.env._ROUTE}/createbbox`, (req, res) => {
+    Promise.all([controllers.BBOXS.cls(), controllers.BBOXS.facilities(), controllers.BBOXS.ixps()]).then(() => {
+      controllers.BBOXS.cables().then(() => {
+        res.sendStatus(200);
+      }).catch(() => res.sendStatus(500));
+    }).catch(() => res.sendStatus(500));
+  });
+  router.get(`${process.env._ROUTE}/createdata`, (req, res) => {
+    Promise.all([controllers.BBOXS.dataCLS(), controllers.BBOXS.dataIXPS(), controllers.BBOXS.dataFacilities()])
+      .then(() => {
+        res.sendStatus(200);
+      }).catch(() => res.sendStatus(500));
+  });
+  router.get(`${process.env._ROUTE}/createdatacables`, (req, res) => {
+    controllers.BBOXS.dataCables().then(() => {
+      res.sendStatus(200);
+    }).catch(() => res.sendStatus(500));
   });
 };
 module.exports = routes;

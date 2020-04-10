@@ -1,4 +1,5 @@
 let CLS = require('./class/CableLandingStation');
+const redisClient = require('../config/redis');
 
 CLS = new CLS();
 module.exports = {
@@ -7,7 +8,12 @@ module.exports = {
   list: (usr, page) => CLS.list(usr, page),
   delete: (usr, id) => CLS.delete(usr, id),
   owner: (usr, id) => CLS.owner(usr, id),
-  bbox: (usr, id) => CLS.bbox(usr, id),
+  bbox: (user, id) => new Promise((resolve, reject) => {
+    redisClient.redisClient.get(`cls_${id}`, (err, reply) => {
+      if (err) reject({ m: err });
+      resolve(JSON.parse(reply));
+    });
+  }),
   view: (usr, id) => CLS.view(usr, id),
   search: (usr, id) => CLS.search(usr, id),
   getElementGeom: (usr, id) => CLS.getElementGeom(id),

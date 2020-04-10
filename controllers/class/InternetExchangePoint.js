@@ -1,5 +1,6 @@
 const luxon = require('luxon');
 const GJV = require('geojson-validation');
+const redisClient = require('../../config/redis');
 const { ObjectID } = require('mongodb');
 const countries = require('../helpers/isoCountries');
 
@@ -79,148 +80,155 @@ class IXP {
   view(user, id) {
     return new Promise((resolve, reject) => {
       try {
-        this.model().then((ixp) => {
-          ixp.aggregate([
-            {
-              $match: {
-                _id: new ObjectID(id),
-              },
-            },
-            {
-              $project: { geom: 0 },
-            },
-            {
-              $lookup: {
-                from: 'facilities',
-                let: { ixps: '$_id' },
-                pipeline: [
-                  {
-                    $match: {
-                      $and: [
-                        {
-                          $expr: {
-                            $in: ['$$ixps', '$ixps'],
-                          },
-                        },
-                        {
-                          deleted: false,
-                        },
-                      ],
-                    },
+        redisClient.redisClient.get(`v_ixp_${id}`, (err, reply) => {
+          if (err) reject({ m: err });
+          else if (reply) resolve(((JSON.parse(reply))));
+          else {
+            this.model().then((ixp) => {
+              ixp.aggregate([
+                {
+                  $match: {
+                    _id: new ObjectID(id),
                   },
-                  {
-                    $project: {
-                      _id: 1,
-                      name: 1,
-                    },
-                  },
-                ],
-                as: 'facilities',
-              },
-            },
-            {
-              $lookup: {
-                from: 'networks',
-                let: { ixps: '$_id' },
-                pipeline: [
-                  {
-                    $match: {
-                      $and: [
-                        {
-                          $expr: {
-                            $in: ['$$ixps', '$ixps'],
-                          },
-                        },
-                        {
-                          deleted: false,
-                        },
-                      ],
-                    },
-                  },
-                  {
-                    $project: {
-                      _id: 1,
-                      name: 1,
-                      organizations: 1,
-                    },
-                  },
-                ],
-                as: 'networks',
-              },
-            },
-            {
-              $lookup: {
-                from: 'organizations',
-                let: { networks: '$networks' },
-                pipeline: [
-                  {
-                    $addFields: {
-                      idsorgs: { $map: { input: '$$networks.organizations', as: 'orgs', in: '$$orgs' } },
-                    },
-                  },
-                  {
-                    $match: {
-                      $and: [
-                        {
-                          $expr: {
-                            $in: ['$_id', {
-                              $cond: {
-                                if: { $isArray: { $arrayElemAt: ['$idsorgs', 0] } },
-                                then: { $arrayElemAt: ['$idsorgs', 0] },
-                                else: [],
+                },
+                {
+                  $project: { geom: 0 },
+                },
+                {
+                  $lookup: {
+                    from: 'facilities',
+                    let: { ixps: '$_id' },
+                    pipeline: [
+                      {
+                        $match: {
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$$ixps', '$ixps'],
                               },
                             },
-                            ],
-                          },
+                            {
+                              deleted: false,
+                            },
+                          ],
                         },
-                        {
-                          deleted: false,
+                      },
+                      {
+                        $project: {
+                          _id: 1,
+                          name: 1,
                         },
-                      ],
-                    },
+                      },
+                    ],
+                    as: 'facilities',
                   },
-                  {
-                    $project: {
-                      _id: 1,
-                      name: 1,
-                    },
+                },
+                {
+                  $lookup: {
+                    from: 'networks',
+                    let: { ixps: '$_id' },
+                    pipeline: [
+                      {
+                        $match: {
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$$ixps', '$ixps'],
+                              },
+                            },
+                            {
+                              deleted: false,
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        $project: {
+                          _id: 1,
+                          name: 1,
+                          organizations: 1,
+                        },
+                      },
+                    ],
+                    as: 'networks',
                   },
-                ],
-                as: 'organizations',
-              },
-            },
-            {
-              $lookup: {
-                from: 'alerts',
-                let: { elemnt: { $toString: '$_id' } },
-                pipeline: [
-                  {
-                    $match: { $and: [{ $expr: { elemnt: '$$elemnt' } }, { t: '4' }, { uuid: user }, { disabled: false }] },
+                },
+                {
+                  $lookup: {
+                    from: 'organizations',
+                    let: { networks: '$networks' },
+                    pipeline: [
+                      {
+                        $addFields: {
+                          idsorgs: { $map: { input: '$$networks.organizations', as: 'orgs', in: '$$orgs' } },
+                        },
+                      },
+                      {
+                        $match: {
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$_id', {
+                                  $cond: {
+                                    if: { $isArray: { $arrayElemAt: ['$idsorgs', 0] } },
+                                    then: { $arrayElemAt: ['$idsorgs', 0] },
+                                    else: [],
+                                  },
+                                },
+                                ],
+                              },
+                            },
+                            {
+                              deleted: false,
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        $project: {
+                          _id: 1,
+                          name: 1,
+                        },
+                      },
+                    ],
+                    as: 'organizations',
                   },
-                ],
-                as: 'alert',
-              },
-            },
-            {
-              $addFields: { alert: { $size: '$alert' } },
-            },
-            {
-              $project: {
-                geom: 0,
-                status: 0,
-                deleted: 0,
-              },
-            },
-          ]).toArray((err, c) => {
-            if (err) reject(err);
-            resolve({ m: 'Loaded', r: c });
-          });
+                },
+                {
+                  $lookup: {
+                    from: 'alerts',
+                    let: { elemnt: { $toString: '$_id' } },
+                    pipeline: [
+                      {
+                        $match: { $and: [{ $expr: { elemnt: '$$elemnt' } }, { t: '4' }, { uuid: user }, { disabled: false }] },
+                      },
+                    ],
+                    as: 'alert',
+                  },
+                },
+                {
+                  $addFields: { alert: { $size: '$alert' } },
+                },
+                {
+                  $project: {
+                    geom: 0,
+                    status: 0,
+                    deleted: 0,
+                  },
+                },
+              ]).toArray((err, c) => {
+                if (err) reject(err);
+                redisClient.set(`v_ixp_${id}`, JSON.stringify({ m: 'Loaded', r: c }), 'EX', 172800)
+                resolve({ m: 'Loaded', r: c });
+              });
+            });
+          }
         });
       } catch (e) { reject({ m: e }); }
     });
   }
 
-  bbox(user, id) {
+  bbox(id) {
     return new Promise((resolve, reject) => {
       try {
         this.model().then((cls) => {
@@ -350,6 +358,54 @@ class IXP {
           });
         });
       } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  createBBOXs() {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((bboxQuery) => {
+          bboxQuery.aggregate([{
+            $project: {
+              _id: 1,
+            },
+          }], { allowDiskUse: true }).toArray(async (err, results) => {
+            if (err) reject(err);
+            else if (results.length !== []) {
+              await results.map((element) => {
+                this.bbox(element._id).then((bbox) => redisClient.set(`ixp_${element._id}`, JSON.stringify(bbox)));
+              });
+            }
+            resolve({ m: 'loaded' });
+          });
+        });
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
+  createDATA() {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((bboxQuery) => {
+          bboxQuery.aggregate([{
+            $project: {
+              _id: 1,
+            },
+          }], { allowDiskUse: true }).toArray(async (err, results) => {
+            if (err) reject(err);
+            else if (results.length !== []) {
+              await results.map((element) => {
+                this.view('', element._id);
+              });
+            }
+            resolve({ m: 'loaded' });
+          });
+        });
+      } catch (e) {
+        reject(e);
+      }
     });
   }
 }

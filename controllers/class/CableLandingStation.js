@@ -1,5 +1,6 @@
 const luxon = require('luxon');
 const GJV = require('geojson-validation');
+const redisClient = require('../../config/redis');
 const { ObjectID } = require('mongodb');
 const { adms } = require('../helpers/adms');
 
@@ -169,42 +170,42 @@ class CLS {
         if (ObjectID.isValid(idcls)) {
           this.model().then((cls) => {
             cls.aggregate([
-            {
-              $match: {
-                $and: [
-                  { _id: new ObjectID(idcls) },
-                ],
+              {
+                $match: {
+                  $and: [
+                    { _id: new ObjectID(idcls) },
+                  ],
+                },
               },
-            },
-            {
-              $lookup: {
-                from: 'cables',
-                let: { cables: '$cables' },
-                pipeline: [
-                  {
-                    $match: {
-                      $expr: {
-                        $in: ['$_id', '$$cables'],
+              {
+                $lookup: {
+                  from: 'cables',
+                  let: { cables: '$cables' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $in: ['$_id', '$$cables'],
+                        },
                       },
                     },
-                  },
-                  {
-                    $project: {
-                      _id: 1,
-                      name: 1,
+                    {
+                      $project: {
+                        _id: 1,
+                        name: 1,
+                      },
                     },
-                  },
-                ],
-                as: 'cables',
+                  ],
+                  as: 'cables',
+                },
               },
-            },
-            { $unwind: { path: '$cables', preserveNullAndEmptyArrays: false } },
-            {
-              $project: {
-                _id: '$cables._id',
-                value: '$cables.name',
-              },
-            }]).toArray((err, rNetwork) => {
+              { $unwind: { path: '$cables', preserveNullAndEmptyArrays: false } },
+              {
+                $project: {
+                  _id: '$cables._id',
+                  value: '$cables.name',
+                },
+              }]).toArray((err, rNetwork) => {
               if (err) reject(err);
               resolve({ m: 'Loaded', r: rNetwork });
             });
@@ -256,60 +257,60 @@ class CLS {
               {
                 $sort: { _id: 1 },
               }, {
-              $match: {
-                $and: [
-                  adms(user),
-                  { deleted: false },
-                ],
+                $match: {
+                  $and: [
+                    adms(user),
+                    { deleted: false },
+                  ],
+                },
               },
-            },
               { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit) > 0) ? (parseInt(limit) * parseInt(page)) - parseInt(limit) : 0 },
               { $limit: limit },
-            //   {
-            //   $lookup: {
-            //     from: 'cables',
-            //     let: { cables: '$cables' },
-            //     pipeline: [
-            //       {
-            //         $match: {
-            //           $expr: {
-            //             $in: ['$_id', '$$cables'],
-            //           },
-            //         },
-            //       },
-            //       {
-            //         $project: {
-            //           _id: 1,
-            //           name: 1,
-            //         },
-            //       },
-            //     ],
-            //     as: 'cables',
-            //   },
-            // },
-            {
-              $lookup: {
-                from: 'alerts',
-                let: { elemnt: { $toString: '$_id' } },
-                pipeline: [
-                  {
-                    $match: { $expr: { $and: [{ $eq: ['$elemnt', '$$elemnt'] }] } },
-                  },
-                  { $count: 'elmnt' },
-                ],
-                as: 'alerts',
+              //   {
+              //   $lookup: {
+              //     from: 'cables',
+              //     let: { cables: '$cables' },
+              //     pipeline: [
+              //       {
+              //         $match: {
+              //           $expr: {
+              //             $in: ['$_id', '$$cables'],
+              //           },
+              //         },
+              //       },
+              //       {
+              //         $project: {
+              //           _id: 1,
+              //           name: 1,
+              //         },
+              //       },
+              //     ],
+              //     as: 'cables',
+              //   },
+              // },
+              {
+                $lookup: {
+                  from: 'alerts',
+                  let: { elemnt: { $toString: '$_id' } },
+                  pipeline: [
+                    {
+                      $match: { $expr: { $and: [{ $eq: ['$elemnt', '$$elemnt'] }] } },
+                    },
+                    { $count: 'elmnt' },
+                  ],
+                  as: 'alerts',
+                },
               },
-            },
-            {
-              $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
-            },
-            {
-              $project: {
-                uuid: 0,
-                geom: 0,
-                deleted: 0,
+              {
+                $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
               },
-            }]).toArray((err, rNetwork) => {
+              {
+                $project: {
+                  uuid: 0,
+                  geom: 0,
+                  deleted: 0,
+                },
+              }]).toArray((err, rNetwork) => {
               if (err) reject(err);
               resolve({ m: 'Loaded', r: rNetwork });
             });
@@ -395,7 +396,7 @@ class CLS {
     });
   }
 
-  bbox(user, id) {
+  bbox(id) {
     return new Promise((resolve, reject) => {
       try {
         this.model().then((cls) => {
@@ -459,140 +460,147 @@ class CLS {
   view(user, id) {
     return new Promise((resolve, reject) => {
       try {
-        this.model().then((cls) => {
-          cls.aggregate([
-            {
-              $match: {
-                _id: new ObjectID(id),
-              },
-            },
-            {
-              $project: { geom: 0 },
-            },
-            {
-              $lookup: {
-                from: 'cables',
-                let: { cables: '$cables' },
-                pipeline: [
-                  {
-                    $match: {
-                      $and: [
-                        {
-                          $expr: {
-                            $in: ['$_id', '$$cables'],
-                          },
+        redisClient.redisClient.get(`v_cls_${id}`, (err, reply) => {
+          if (err) reject({ m: err });
+          else if (reply) resolve(((JSON.parse(reply))));
+          else {
+            this.model().then((cls) => {
+              cls.aggregate([
+                {
+                  $match: {
+                    _id: new ObjectID(id),
+                  },
+                },
+                {
+                  $project: { geom: 0 },
+                },
+                {
+                  $lookup: {
+                    from: 'cables',
+                    let: { cables: '$cables' },
+                    pipeline: [
+                      {
+                        $match: {
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$_id', '$$cables'],
+                              },
+                            },
+                            {
+                              deleted: false,
+                            },
+                          ],
                         },
-                        {
-                          deleted: false,
+                      },
+                      {
+                        $project: {
+                          _id: 1,
+                          name: 1,
                         },
-                      ],
-                    },
+                      },
+                    ],
+                    as: 'cables',
                   },
-                  {
-                    $project: {
-                      _id: 1,
-                      name: 1,
-                    },
-                  },
-                ],
-                as: 'cables',
-              },
-            },
-            {
-              $lookup: {
-                from: 'networks',
-                let: { cls: '$_id' },
-                pipeline: [
-                  {
-                    $match: {
-                      $and: [
-                        {
-                          $expr: {
-                            $in: ['$$cls', '$cls'],
-                          },
+                },
+                {
+                  $lookup: {
+                    from: 'networks',
+                    let: { cls: '$_id' },
+                    pipeline: [
+                      {
+                        $match: {
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$$cls', '$cls'],
+                              },
+                            },
+                            {
+                              deleted: false,
+                            },
+                          ],
                         },
-                        {
-                          deleted: false,
+                      },
+                      {
+                        $project: {
+                          _id: 1,
+                          name: 1,
+                          organizations: 1,
                         },
-                      ],
-                    },
+                      },
+                    ],
+                    as: 'networks',
                   },
-                  {
-                    $project: {
-                      _id: 1,
-                      name: 1,
-                      organizations: 1,
-                    },
-                  },
-                ],
-                as: 'networks',
-              },
-            },
-            {
-              $lookup: {
-                from: 'organizations',
-                let: { networks: '$networks' },
-                pipeline: [
-                  {
-                    $addFields: {
-                      idsorgs: { $map: { input: '$$networks.organizations', as: 'orgs', in: '$$orgs' } },
-                    },
-                  },
-                  {
-                    $addFields: {
-                      norgs: { $size: '$idsorgs' },
-                    },
-                  },
-                  {
-                    $match: {
-                      $and: [
-                        {
-                          $expr: {
-                            $in: ['$_id', { $cond: { if: { $eq: ['$norgs', 0] }, then: [], else: { $arrayElemAt: ['$idsorgs', 0] } } }],
-                          },
+                },
+                {
+                  $lookup: {
+                    from: 'organizations',
+                    let: { networks: '$networks' },
+                    pipeline: [
+                      {
+                        $addFields: {
+                          idsorgs: { $map: { input: '$$networks.organizations', as: 'orgs', in: '$$orgs' } },
                         },
-                        {
-                          deleted: false,
+                      },
+                      {
+                        $addFields: {
+                          norgs: { $size: '$idsorgs' },
                         },
-                      ],
-                    },
+                      },
+                      {
+                        $match: {
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$_id', { $cond: { if: { $eq: ['$norgs', 0] }, then: [], else: { $arrayElemAt: ['$idsorgs', 0] } } }],
+                              },
+                            },
+                            {
+                              deleted: false,
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        $project: {
+                          _id: 1,
+                          name: 1,
+                        },
+                      },
+                    ],
+                    as: 'organizations',
                   },
-                  {
-                    $project: {
-                      _id: 1,
-                      name: 1,
-                    },
+                },
+                {
+                  $lookup: {
+                    from: 'alerts',
+                    let: { elemnt: { $toString: '$_id' } },
+                    pipeline: [
+                      {
+                        $match: { $and: [{ $expr: { elemnt: '$$elemnt' } }, { t: '2' }, { uuid: user }, { disabled: false }] },
+                      },
+                    ],
+                    as: 'alert',
                   },
-                ],
-                as: 'organizations',
-              },
-            },
-            {
-              $lookup: {
-                from: 'alerts',
-                let: { elemnt: { $toString: '$_id' } },
-                pipeline: [
-                  {
-                    $match: { $and: [{ $expr: { elemnt: '$$elemnt' } }, { t: '2' }, { uuid: user }, { disabled: false }] },
+                },
+                {
+                  $addFields: { alert: { $size: '$alert' } },
+                },
+                {
+                  $project: {
+                    geom: 0,
+                    status: 0,
+                    deleted: 0,
                   },
-                ],
-                as: 'alert',
-              },
-            },
-            {
-              $addFields: { alert: { $size: '$alert' } },
-            },
-            {
-              $project: {
-                geom: 0,
-                status: 0,
-                deleted: 0,
-              },
-            },
-          ]).toArray((err, c) => {
-            if (err) reject(err);
-            resolve({ m: 'Loaded', r: c });
-          });
+                },
+              ]).toArray((err, c) => {
+                if (err) reject(err);
+                redisClient.set(`v_cls_${id}`, JSON.stringify({ m: 'Loaded', r: c }), 'EX', 172800)
+                resolve({ m: 'Loaded', r: c });
+              });
+            });
+          }
         });
       } catch (e) { reject({ m: e }); }
     });
@@ -653,6 +661,54 @@ class CLS {
           });
         });
       } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  createBBOXs() {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((bboxQuery) => {
+          bboxQuery.aggregate([{
+            $project: {
+              _id: 1,
+            },
+          }], { allowDiskUse: true }).toArray(async (err, results) => {
+            if (err) reject(err);
+            else if (results.length !== []) {
+              await results.map((element) => {
+                this.bbox(element._id).then((bbox) => redisClient.set(`cls_${element._id}`, JSON.stringify(bbox)));
+              });
+            }
+            resolve({ m: 'loaded' });
+          });
+        });
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
+  createDATA() {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((bboxQuery) => {
+          bboxQuery.aggregate([{
+            $project: {
+              _id: 1,
+            },
+          }], { allowDiskUse: true }).toArray(async (err, results) => {
+            if (err) reject(err);
+            else if (results.length !== []) {
+              await results.map((element) => {
+                this.view('', element._id);
+              });
+            }
+            resolve({ m: 'loaded' });
+          });
+        });
+      } catch (e) {
+        reject(e);
+      }
     });
   }
 }

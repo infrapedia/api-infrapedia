@@ -1,3 +1,5 @@
+const redisClient = require('../config/redis');
+
 let Cable = require('./class/Cable');
 
 Cable = new Cable();
@@ -9,7 +11,12 @@ module.exports = {
   shortList: (usr) => Cable.shortList(usr),
   delete: (usr, id) => Cable.delete(usr, id),
   owner: (usr, id) => Cable.owner(usr, id),
-  bbox: (usr, id) => Cable.bbox(usr, id),
+  bbox: (user, id) => new Promise((resolve, reject) => {
+    redisClient.redisClient.get(`cable_${id}`, (err, reply) => {
+      if (err) reject({ m: err });
+      resolve(JSON.parse(reply));
+    });
+  }),
   view: (usr, id) => Cable.view(usr, id),
   search: (usr, id) => Cable.search(usr, id),
   getElementGeom: (usr, id) => Cable.getElementGeom(id),
