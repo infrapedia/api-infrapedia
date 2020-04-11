@@ -1,6 +1,8 @@
 const luxon = require('luxon');
 const { ObjectID } = require('mongodb');
 
+const { adms } = require('../helpers/adms');
+
 class Message {
   constructor() {
     this.model = require('../../models/messages.model');
@@ -27,7 +29,6 @@ class Message {
               viewed: false,
               deleted: false,
             };
-
             issues.insertOne(issue, (err, I) => {
               if (err) reject({ m: err });
               resolve({ m: 'Thank you, your message was registered in our system' });
@@ -46,7 +47,7 @@ class Message {
           page = (parseInt(page) < 1) ? 1 : parseInt(page);
           const limit = 50;
           cable.aggregate([
-            { $match: { uuid: String(user) } },
+            { $match: adms(user) },
             { $sort: { uDate: -1 } },
             {
               $lookup: {
@@ -100,7 +101,7 @@ class Message {
           page = (parseInt(page) < 1) ? 1 : parseInt(page);
           const limit = 50;
           cls.aggregate([
-            { $match: { uuid: String(user) } },
+            { $match: adms(user) },
             { $sort: { uDate: -1 } },
             {
               $lookup: {
@@ -163,7 +164,7 @@ class Message {
           page = (parseInt(page) < 1) ? 1 : parseInt(page);
           const limit = 50;
           issues.aggregate([
-            { $match: { $and: [{ uuid: String(user) }, { t: '2' }] } },
+            { $match: { $and: [adms(user), { t: '2' }] } },
             { $sort: { uDate: -1 } },
             { $skip: Math.abs((limit * page) - limit) },
             { $limit: limit },
@@ -219,7 +220,7 @@ class Message {
           page = (parseInt(page) < 1) ? 1 : parseInt(page);
           const limit = 50;
           issues.aggregate([
-            { $match: { $and: [{ uuid: String(user) }, { t: '1' }] } },
+            { $match: { $and: [adms(user), { t: '1' }] } },
             { $sort: { uDate: -1 } },
             { $skip: Math.abs((limit * page) - limit) },
             { $limit: limit },

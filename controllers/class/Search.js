@@ -20,6 +20,7 @@ class Search {
                 deleted: 1,
                 'address.city': 1,
                 'address.state': 1,
+                t: 'org',
               },
             },
             {
