@@ -563,38 +563,28 @@ class Cable {
                 as: 'geom',
               },
             },
-            // {
-            //   $addFields: {
-            //     coordinates: { $cond: { if: { $eq: [{ $size: '$geom' }, 0] }, then: [], else: '$geom' } },
-            //   },
-            // },
             {
               $addFields: {
                 v: { $arrayElemAt: ['$geom.geometry.coordinates', 0] },
                 b: { $arrayElemAt: ['$geom.geometry.coordinates', -1] },
               },
             },
-            // {
-            //   $addFields: {
-            //     v: { $ifNull: ['$v', []] },
-            //     b: { $ifNull: ['$b', []] },
-            //   },
-            // },
             {
               $addFields: {
-                position: { $toInt: { $divide: [{ $size: { $arrayElemAt: ['$v', 0] } }, 2] } },
-              },
-            },
-            {
-              $addFields: {
-                position: { $cond: { if: { position: 1 }, then: 1, else: '$position' } },
+                v: { $arrayElemAt: ['$v', 0] },
+                b: { $arrayElemAt: ['$b', 0] },
               },
             },
             {
               $project: {
                 _id: 1,
-                coordinates: { $cond: { if: { $eq: [{ $size: '$v' }, 1] }, then: { $arrayElemAt: [{ $arrayElemAt: ['$v', 0] }, '$position'] }, else: { $arrayElemAt: ['$b', -1] } } },
+                coordinates: {
+                  $concatArrays: ['$v', '$b'],
+                },
               },
+            },
+            {
+              $addFields: { coordinates: [{ $arrayElemAt: ['$coordinates', 0] }, { $arrayElemAt: ['$coordinates', -1] }] },
             },
           ]).toArray((err, c) => {
             if (err) { console.log(id); reject(err); }
@@ -837,7 +827,7 @@ class Cable {
                 },
               ]).toArray((err, c) => {
                 if (err) reject(err);
-                redisClient.set(`v_cable_${id}`, JSON.stringify({ m: 'Loaded', r: c }), 'EX', 172800)
+                redisClient.set(`v_cable_${id}`, JSON.stringify({ m: 'Loaded', r: c }), 'EX', 172800);
                 resolve({ m: 'Loaded', r: c });
               });
             });
