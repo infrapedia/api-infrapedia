@@ -168,6 +168,7 @@ class Search {
                 _id: 1,
                 name: 1,
                 deleted: 1,
+                terrestrial: 1,
               },
             },
             {
@@ -202,6 +203,7 @@ class Search {
                 _id: 1,
                 name: 1,
                 networks: 1,
+                terrestrial: 1,
                 t: 'cable',
               },
             },
