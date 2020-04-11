@@ -12,33 +12,43 @@ class Search {
         this.model = require('../../models/organization.model');
         this.model().then((organization) => {
           organization.aggregate([
-            { $sort: { name: 1 } },
-            {
-              $match: {
-                deleted: false,
-              },
-            },
-            {
-              $match: {
-                $or: [
-                  { _id: { $regex: search, $options: 'i' } },
-                  { name: { $regex: search, $options: 'i' } },
-                  { 'address.state': { $regex: search, $options: 'i' } },
-                  { 'address.city': { $regex: search, $options: 'i' } },
-                ],
-              },
-            },
-            { $limit: 10 },
             {
               $project: {
                 _id: 1,
                 name: 1,
                 premium: 1,
+                deleted: 1,
                 'address.city': 1,
                 'address.state': 1,
-                t: 'org',
               },
             },
+            {
+              $match: {
+                $and: [
+                  { deleted: false },
+                  {
+                    $or: [
+                      { _id: { $regex: search, $options: 'i' } },
+                      { name: { $regex: search, $options: 'i' } },
+                      { 'address.state': { $regex: search, $options: 'i' } },
+                      { 'address.city': { $regex: search, $options: 'i' } },
+                    ],
+                  },
+                ],
+              },
+            },
+            { $limit: 10 },
+            { $sort: { name: 1 } },
+            // {
+            //   $project: {
+            //     _id: 1,
+            //     name: 1,
+            //     premium: 1,
+            //     'address.city': 1,
+            //     'address.state': 1,
+            //     t: 'org',
+            //   },
+            // },
           ]).toArray((err, r) => {
             resolve(r);
           });
@@ -53,35 +63,58 @@ class Search {
         this.model = require('../../models/network.model');
         this.model().then((network) => {
           network.aggregate([
-            { $sort: { name: 1 } },
             {
-              $match: {
-                deleted: false,
+              $project: {
+                id: 1,
+                name: 1,
+                deleted: 1,
+                address: 1,
               },
             },
+            {
+              $match: {
+                $and: [
+                  {
+                    $or: [
+                      { 'address.city': { $regex: search, $options: 'i' } },
+                      { 'address.state': { $regex: search, $options: 'i' } },
+                      { name: { $regex: search, $options: 'i' } },
+                    ],
+                  },
+                  {
+                    deleted: false,
+                  },
+                ],
+              },
+            },
+            { $limit: 10 },
             {
               $lookup: {
                 from: 'organizations',
                 let: { orgs: '$organizations' },
                 pipeline: [
                   {
-                    $addFields: {
-                      idsorgs: '$$orgs',
+                    $project: {
+                      _id: 1,
+                      premium: 1,
+                      city: '$address.city',
+                      state: '$address.state',
+                      deleted: 1,
                     },
                   },
                   {
                     $match: {
-                      $expr: {
-                        $in: ['$_id', '$idsorgs'],
-                      },
+                      $and: [{
+                        $expr: {
+                          $in: ['$_id', '$$orgs'],
+                        },
+                      }, { deleted: false }],
+
                     },
                   },
                   {
                     $unwind: '$address',
                   },
-                  // {
-                  //   $unwind: "$state"
-                  // },
                   {
                     $match: {
                       $or: [
@@ -102,6 +135,7 @@ class Search {
                 as: 'address',
               },
             },
+            { $sort: { name: 1 } },
             {
               $project: {
                 id: 1,
@@ -110,16 +144,6 @@ class Search {
                 t: 'groups',
               },
             },
-            {
-              $match: {
-                $or: [
-                  { 'address.city': { $regex: search, $options: 'i' } },
-                  { 'address.state': { $regex: search, $options: 'i' } },
-                  { name: { $regex: search, $options: 'i' } },
-                ],
-              },
-            },
-            { $limit: 10 },
             {
               $addFields: {
                 premium: { $arrayElemAt: ['$address.premium', 0] },
@@ -139,17 +163,28 @@ class Search {
         this.model = require('../../models/cable.model');
         this.model().then((cable) => {
           cable.aggregate([
-            { $sort: { name: 1 } },
             {
-              $match: {
-                deleted: false,
+              $project: {
+                _id: 1,
+                name: 1,
+                deleted: 1,
               },
             },
+            {
+              $match: { $and: [{ deleted: false }, { name: { $regex: search, $options: 'i' } }] },
+            },
+            { $limit: 10 },
             {
               $lookup: {
                 from: 'networks',
                 let: { cable: '$_id' },
                 pipeline: [
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
                   {
                     $match: {
                       $expr: {
@@ -157,20 +192,11 @@ class Search {
                       },
                     },
                   },
-                  {
-                    $project: {
-                      _id: 1,
-                      name: 1,
-                    },
-                  },
                 ],
                 as: 'networks',
               },
             },
-            {
-              $match: { name: { $regex: search, $options: 'i' } },
-            },
-            { $limit: 10 },
+            { $sort: { name: 1 } },
             {
               $project: {
                 _id: 1,
@@ -193,17 +219,33 @@ class Search {
         this.model = require('../../models/cls.model');
         this.model().then((cls) => {
           cls.aggregate([
-            { $sort: { name: 1 } },
             {
-              $match: {
-                deleted: false,
+              $project: {
+                _id: 1, name: 1, deleted: 1,
               },
             },
+            {
+              $match: {
+                $and: [
+                  { name: { $regex: search, $options: 'i' } },
+                  {
+                    deleted: false,
+                  },
+                ],
+              },
+            },
+            { $limit: 10 },
             {
               $lookup: {
                 from: 'networks',
                 let: { cls: '$_id' },
                 pipeline: [
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
                   {
                     $match: {
                       $expr: {
@@ -211,20 +253,11 @@ class Search {
                       },
                     },
                   },
-                  {
-                    $project: {
-                      _id: 1,
-                      name: 1,
-                    },
-                  },
                 ],
                 as: 'networks',
               },
             },
-            {
-              $match: { name: { $regex: search, $options: 'i' } },
-            },
-            { $limit: 10 },
+            { $sort: { name: 1 } },
             {
               $project: {
                 _id: 1,
@@ -246,18 +279,31 @@ class Search {
       try {
         this.model = require('../../models/facility.model');
         this.model().then((facility) => {
+          console.log(search);
           facility.aggregate([
-            { $sort: { name: 1 } },
             {
-              $match: {
-                deleted: false,
+              $project: {
+                _id: 1, name: 1,
               },
             },
+            {
+              $match: {
+                $and: [{ name: { $regex: search, $options: 'i' } }],
+              },
+            },
+            { $limit: 10 },
             {
               $lookup: {
                 from: 'networks',
                 let: { facility: '$_id' },
                 pipeline: [
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                      facilities: 1,
+                    },
+                  },
                   {
                     $match: {
                       $expr: {
@@ -265,20 +311,11 @@ class Search {
                       },
                     },
                   },
-                  {
-                    $project: {
-                      _id: 1,
-                      name: 1,
-                    },
-                  },
                 ],
                 as: 'networks',
               },
             },
-            {
-              $match: { name: { $regex: search, $options: 'i' } },
-            },
-            { $limit: 10 },
+            { $sort: { name: 1 } },
             {
               $project: {
                 _id: 1,
@@ -301,38 +338,43 @@ class Search {
         this.model = require('../../models/ixp.model');
         this.model().then((ixp) => {
           ixp.aggregate([
-            { $sort: { name: 1 } },
             {
-              $match: {
-                deleted: false,
+              $project: {
+                _id: 1, name: 1, nameLong: 1
               },
             },
+            {
+              $match: {
+                $or: [{ name: { $regex: search, $options: 'i' } }, { nameLong: { $regex: search, $options: 'i' } }],
+              },
+            },
+            { $limit: 10 },
             {
               $lookup: {
                 from: 'networks',
                 let: { ixps: '$_id' },
                 pipeline: [
                   {
-                    $match: {
-                      $expr: {
-                        $in: ['$$ixps', '$ixps'],
-                      },
-                    },
-                  },
-                  {
                     $project: {
                       _id: 1,
                       name: 1,
+                      deleted: 1,
+                    },
+                  },
+                  {
+                    $match: {
+                      $and: [{
+                        $expr: {
+                          $in: ['$$ixps', '$ixps'],
+                        },
+                      }, { deleted: false }],
                     },
                   },
                 ],
                 as: 'networks',
               },
             },
-            {
-              $match: { name: { $regex: search, $options: 'i' } },
-            },
-            { $limit: 10 },
+            { $sort: { name: 1 } },
             {
               $addFields: { name: { $concat: ['$name', ' (', '$nameLong', ')'] } },
             },
