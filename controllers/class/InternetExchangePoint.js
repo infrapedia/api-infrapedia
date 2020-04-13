@@ -50,6 +50,7 @@ class IXP {
                   rgDate: luxon.DateTime.utc(),
                   uDate: luxon.DateTime.utc(),
                   status: true,
+                  deleted: false,
                 };
                 // we need search about the information
                 ixps.findOneAndUpdate({ ix_id: data.ix_id }, {

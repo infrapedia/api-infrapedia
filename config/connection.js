@@ -1,4 +1,4 @@
-const MongoClient = require('mongodb');
+const { MongoClient } = require('mongodb');
 const fs = require('fs');
 
 let state = { db: null };
@@ -8,13 +8,15 @@ module.exports = {
   connect: (url, dbasename, done) => {
     if (state.db) return done()
     const ca = fs.readFileSync(`${__dirname}/certs/mongoIBM.pem`);
+    console.log(url);
     MongoClient.connect(url, {
       useNewUrlParser: true,
+      useUnifiedTopology: true,
       connectTimeoutMS: 10000,
       auto_reconnect: true,
       native_parser: true,
-      sslValidate: true,
-      sslCA: ca,
+      // sslValidate: true,
+      // sslCA: ca,
     }, (err, db) => {
       if (err) throw err
       else state.db = db.db(dbasename); return done();

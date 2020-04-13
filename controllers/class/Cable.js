@@ -941,7 +941,6 @@ class Cable {
                           });
                         } else { console.log('Not defined'); }
                       });
-                      // });
                     }
                   });
                 });

@@ -50,6 +50,7 @@ class Facility {
                 rgDate: luxon.DateTime.utc(),
                 uDate: luxon.DateTime.utc(),
                 status: true,
+                deleted: false,
               };// we need search about the information
               facility.insertOne(data, (err, i) => {
                 if (err) resolve({ m: err + 0 });

@@ -93,6 +93,114 @@ class Message {
     });
   }
 
+  facilities(user, page) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model = require('../../models/facility.model');
+        this.model().then((cable) => {
+          page = (parseInt(page) < 1) ? 1 : parseInt(page);
+          const limit = 50;
+          cable.aggregate([
+            { $match: adms(user) },
+            { $sort: { uDate: -1 } },
+            {
+              $lookup: {
+                from: 'messages',
+                localField: '_id',
+                foreignField: 'elemnt',
+                as: 'elemnt_id',
+              },
+            },
+            { $unwind: { path: '$elemnt_id', preserveNullAndEmptyArrays: false } },
+            {
+              $addFields: {
+                rgDate: '$elemnt_id.rgDate',
+                uDate: '$elemnt_id.rgDate',
+                viewed: '$elemnt_id.viewed',
+                idMessage: '$elemnt_id._id',
+                deleted: '$elemnt_id.deleted',
+                elemntStatus: '$status',
+              },
+            },
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                elemntStatus: 1,
+                rgDate: 1,
+                uDate: 1,
+                status: 1,
+                viewed: 1,
+                idMessage: 1,
+                deleted: 1,
+                t: 'cable',
+              },
+            },
+            { $skip: Math.abs((limit * page) - limit) },
+            { $limit: limit },
+          ]).toArray((err, r) => {
+            if (err) reject(err);
+            resolve(r);
+          });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  cls(user, page) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model = require('../../models/cls.model');
+        this.model().then((cable) => {
+          page = (parseInt(page) < 1) ? 1 : parseInt(page);
+          const limit = 50;
+          cable.aggregate([
+            { $match: adms(user) },
+            { $sort: { uDate: -1 } },
+            {
+              $lookup: {
+                from: 'messages',
+                localField: '_id',
+                foreignField: 'elemnt',
+                as: 'elemnt_id',
+              },
+            },
+            { $unwind: { path: '$elemnt_id', preserveNullAndEmptyArrays: false } },
+            {
+              $addFields: {
+                rgDate: '$elemnt_id.rgDate',
+                uDate: '$elemnt_id.rgDate',
+                viewed: '$elemnt_id.viewed',
+                idMessage: '$elemnt_id._id',
+                deleted: '$elemnt_id.deleted',
+                elemntStatus: '$status',
+              },
+            },
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                elemntStatus: 1,
+                rgDate: 1,
+                uDate: 1,
+                status: 1,
+                viewed: 1,
+                idMessage: 1,
+                deleted: 1,
+                t: 'cable',
+              },
+            },
+            { $skip: Math.abs((limit * page) - limit) },
+            { $limit: limit },
+          ]).toArray((err, r) => {
+            if (err) reject(err);
+            resolve(r);
+          });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
   CableLandingStations(user, page) {
     return new Promise((resolve, reject) => {
       try {
@@ -146,15 +254,6 @@ class Message {
       } catch (e) { reject({ m: e }); }
     });
   }
-
-  Facilities() {
-    try {
-    } catch (e) { reject({ m: e }); }
-  }
-
-  Networks() {}
-
-  Organization() {}
 
   myMessagesCLS(user, page) {
     return new Promise((resolve, reject) => {
@@ -271,7 +370,7 @@ class Message {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
-          Promise.all([this.CableLandingStations(user, page), this.Cables(user, page)]).then(async (r) => {
+          Promise.all([this.CableLandingStations(user, page), this.Cables(user, page), this.facilities(user, page), this.cls(user, page)]).then(async (r) => {
             r = await r.reduce((total, value) => total.concat(value), []);
             resolve({ m: 'loaded', r });
           }).catch((e) => { reject({ m: e }); });
