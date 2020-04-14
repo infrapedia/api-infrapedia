@@ -5,7 +5,7 @@ const { ObjectID } = require('mongodb');
 const notifications = function (a) { return a; };
 
 module.exports = {
-  buildMasterFileTerrestrial: (layer) => new Promise((resolve, reject) => {
+  buildMasterFile: (layer) => new Promise((resolve, reject) => {
     try {
       const directoryPath = path.join(__dirname, `../temp/${layer}/`);
       // passsing directoryPath and callback function
@@ -53,6 +53,94 @@ module.exports = {
       reject(e);
     }
   }),
+  cables: () => {
+    try {
+      const cable = require('../models/cable.model');
+      cable().then((cable) => {
+        cable.aggregate([
+          // {
+          //   $match: { $and: [{ terrestrial: true }] },
+          // },
+          {
+            $match: { $and: [{ deleted: false }] },
+          },
+          {
+            $project: {
+              _id: 1,
+            },
+          },
+        ]).toArray(async (err, ids) => {
+          let checkedFiles = 0;
+          await ids.map((id) => {
+            cable.aggregate([
+              {
+                $match: {
+                  _id: new ObjectID(id._id),
+                },
+              },
+              {
+                $lookup: {
+                  from: 'cables_segments',
+                  localField: '_id',
+                  foreignField: 'cable_id',
+                  as: 'geom',
+                },
+              },
+              {
+                $unwind:
+                  {
+                    path: '$geom',
+                    preserveNullAndEmptyArrays: false,
+                  },
+              },
+              {
+                $project: {
+                  type: 'Feature',
+                  'properties.name': '$name',
+                  'properties.status': { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }] }, then: 1, else: 0 } },
+                  'properties.category': { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }] }, then: 'active', else: '$category' } },
+                  'properties.activationDateTime': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
+                  'properties.hasoutage': { $cond: { if: { $eq: ['$category', 'fault'] }, then: 'true', else: 'false' } },
+                  'properties.haspartial': { $cond: { if: { $eq: ['$geom.properties.status', 'Inactive'] }, then: 'true', else: 'false' } },
+                  'properties.terrestrial': { $toString: '$terrestrial' },
+                  'properties.segment': '$geom.properties._id',
+                  'properties._id': '$_id',
+                  geometry: '$geom.geometry',
+
+                },
+              },
+            ], { allowDiskUse: true }).toArray(async (err, lines) => {
+              if (err) return 'Error';
+              // we'll going to create the master file for ixps
+              // lines = await lines.reduce((total, value) => total.concat(value.geom), []);
+              lines = `{
+                                  "type": "FeatureCollection2",
+                                  "features": ${JSON.stringify(lines)}
+                              }`;
+
+              if (!fs.existsSync(path.join(__dirname, '../temp/cables'))) fs.mkdirSync(path.join(__dirname, '../temp/cables'));
+              try {
+                const stream = await fs.createWriteStream(`./temp/cables/${id._id}.json`);
+                stream.write(lines);
+                stream.on('err', () => {
+                  console.log('Error to create the file');
+                });
+                stream.end(async () => {
+                  checkedFiles += 1;
+                  console.log(checkedFiles);
+                  if (checkedFiles === ids.length) {
+                    module.exports.buildMasterFile('cables').then((mf) => {
+                      console.log('Finish');
+                    }).catch((e) => console.log(e));
+                  }
+                });
+              } catch (err) { return err; }
+            });
+          });
+        });
+      }).catch((e) => e);
+    } catch (e) { return e; }
+  },
   cablesT: () => {
     try {
       const cable = require('../models/cable.model');
@@ -126,7 +214,7 @@ module.exports = {
                   checkedFiles += 1;
                   console.log(checkedFiles);
                   if (checkedFiles === ids.length) {
-                    module.exports.buildMasterFileTerrestrial('terrestrial').then((mf) => {
+                    module.exports.buildMasterFile('terrestrial').then((mf) => {
                       console.log('Finish');
                     }).catch((e) => console.log(e));
                   }
@@ -211,7 +299,7 @@ module.exports = {
                   checkedFiles += 1;
                   console.log(checkedFiles);
                   if (checkedFiles === ids.length) {
-                    module.exports.buildMasterFileTerrestrial('subsea').then((mf) => {
+                    module.exports.buildMasterFile('subsea').then((mf) => {
                       console.log('Finish');
                     }).catch((e) => console.log(e));
                   }

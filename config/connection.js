@@ -7,16 +7,15 @@ module.exports = {
   // eslint-disable-next-line consistent-return
   connect: (url, dbasename, done) => {
     if (state.db) return done()
-    const ca = fs.readFileSync(`${__dirname}/certs/mongoIBM.pem`);
-    console.log(url);
+    // const ca = fs.readFileSync(`${__dirname}/certs/mongoIBM.pem`);
     MongoClient.connect(url, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      connectTimeoutMS: 10000,
-      auto_reconnect: true,
-      native_parser: true,
-      // sslValidate: true,
-      // sslCA: ca,
+      // connectTimeoutMS: 10000,
+      // auto_reconnect: true,
+      // native_parser: true,
+      // // sslValidate: true,
+      // // sslCA: ca,
     }, (err, db) => {
       if (err) throw err
       else state.db = db.db(dbasename); return done();

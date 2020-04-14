@@ -13,6 +13,7 @@ module.exports = {
     const SQLQuery = 'SELECT org_id as ooid, name, website as url, notes, address1, address2, city, country, state, zipcode, created, updated, status, non_peering, premium, logo FROM org';
     pool.query(SQLQuery, async (error, results) => {
       if (error) { throw error; }
+      console.log(results);
       Promise.all(results.rows.map((f) => Organization.addByTransfer(f))).then((r) => {
         resolve({ m: 'The transfer was finished' });
       }).catch((e) => {

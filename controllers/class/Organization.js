@@ -60,7 +60,9 @@ class Organization {
         this.model().then((organization) => {
           // we need to validate if  don't have another organization with the same name
           // TODO: discard deleted files
-          organization.find({ ooid: String(data.ooid) }).count(async (err, c) => {
+          console.log(data.name);
+          organization.find({ ooid: String(data.ooid) }).count((err, c) => {
+            console.log(c);
             if (err) resolve({ m: err });
             else if (c > 0) resolve({ m: 'We have registered in our system more than one organization with the same name' });
             else {
@@ -154,37 +156,37 @@ class Organization {
             organization.aggregate([
               {
                 $sort: { _id: 1 },
-              },{
-              $match: {
-                $and: [
-                  adms(user),
-                  { deleted: false },
-                ],
+              }, {
+                $match: {
+                  $and: [
+                    adms(user),
+                    { deleted: false },
+                  ],
+                },
               },
-            },
               { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit) > 0) ? (parseInt(limit) * parseInt(page)) - parseInt(limit) : 0 },
               { $limit: limit },
               {
-              $lookup: {
-                from: 'alerts',
-                let: { elemnt: { $toString: '$_id' } },
-                pipeline: [
-                  {
-                    $match: { $expr: { $and: [{ $eq: ['$elemnt', '$$elemnt'] }] } },
-                  },
-                  { $count: 'elmnt' },
-                ],
-                as: 'alerts',
+                $lookup: {
+                  from: 'alerts',
+                  let: { elemnt: { $toString: '$_id' } },
+                  pipeline: [
+                    {
+                      $match: { $expr: { $and: [{ $eq: ['$elemnt', '$$elemnt'] }] } },
+                    },
+                    { $count: 'elmnt' },
+                  ],
+                  as: 'alerts',
+                },
               },
-            },
-            {
-              $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
-            },
-            {
-              $project: {
-                uuid: 0,
+              {
+                $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
               },
-            }]).toArray((err, rOrganizations) => {
+              {
+                $project: {
+                  uuid: 0,
+                },
+              }]).toArray((err, rOrganizations) => {
               if (err) reject(err);
               resolve({ m: 'Loaded', r: rOrganizations });
             });

@@ -9,6 +9,18 @@ class Facility {
     this.model = require('../../models/facility.model');
   }
 
+  add(user, data){
+    return new Promise((resolve, reject) => {
+
+    });
+  }
+
+  edit(user, data){
+    return new Promise((resolve, reject) => {
+
+    });
+  }
+
   addByTransfer(data) {
     return new Promise((resolve, reject) => {
       try {

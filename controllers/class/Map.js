@@ -469,5 +469,11 @@ class Map {
       } else { reject({ m: 'subdomain undefined' }); }
     });
   }
+
+  getinfo(subdomain){
+    return new Promise((resolve, reject) => {
+
+    });
+  }
 }
 module.exports = Map;
