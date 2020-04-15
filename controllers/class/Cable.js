@@ -979,6 +979,7 @@ class Cable {
   createDATA() {
     return new Promise((resolve, reject) => {
       try {
+        console.log('Create data cable');
         this.model().then((bboxQuery) => {
           bboxQuery.aggregate([{
             $project: {
