@@ -46,7 +46,7 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.get(`${process.env._ROUTE}/auth/auth/facilities/all`, (req, res) => {
+    router.get(`${process.env._ROUTE}/auth/facilities/all`, (req, res) => {
       controllers.facilities.list(req.headers.userid, req.query.p)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
