@@ -1,5 +1,6 @@
 const luxon = require('luxon');
 const { ObjectID } = require('mongodb');
+const sendEmail = require('../helpers/sendNotificationEmailUsingMandrill');
 
 const { adms } = require('../helpers/adms');
 
@@ -31,6 +32,19 @@ class Message {
             };
             issues.insertOne(issue, (err, I) => {
               if (err) reject({ m: err });
+              const ejs = require('ejs');
+              console.log(I);
+              ejs.renderFile('templates/email/email_notification.ejs', {
+                subject: 'A user wrote a message on the app',
+                email: issue.email,
+                phone: issue.phone,
+                message: issue.message,
+                element: issue.elemnt,
+                type: issue.t,
+                url: process.env._BASEURL,
+              }, (err, html) => {
+                sendEmail('', 'A user wrote a message on the app', html, issue.email);
+              });
               resolve({ m: 'Thank you, your message was registered in our system' });
             });
           }).catch((e) => { reject({ m: e }); });

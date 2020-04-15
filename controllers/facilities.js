@@ -36,4 +36,6 @@ FROM facility`;
   }),
   getElementGeom: (usr, id) => Facility.getElementGeom(id),
   getMultiElementsGeom: (usr, ids) => Facility.getMultiElementsGeom(ids),
+  add: (usr, data) => Facility.add(usr, data),
+  edit: (usr, data) => Facility.edit(usr, data),
 };

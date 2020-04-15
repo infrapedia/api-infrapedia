@@ -14,4 +14,6 @@ module.exports = {
   }),
   getElementGeom: (usr, id) => IXP.getElementGeom(id),
   getMultiElementsGeom: (usr, ids) => IXP.getMultiElementsGeom(ids),
+  add: (usr, data) => IXP.add(usr, data),
+  edit: (usr, data) => IXP.edit(usr, data),
 };

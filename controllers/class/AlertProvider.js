@@ -63,7 +63,7 @@ class AlertProvider {
         // we need to search the provider configured
         provider().then((provider) => {
           provider.findOne({
-            uuid: 'auth0|5d9ca4fcabdb280e0e369d1e',
+            uuid: user,
           }, (err, options) => {
             if (err) reject({ m: err });
             const ejs = require('ejs');

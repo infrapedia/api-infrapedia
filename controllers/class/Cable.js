@@ -999,5 +999,21 @@ class Cable {
       }
     });
   }
+
+  // owner(id) {
+  //   return new Promise((resolve, reject) => {
+  //     // eslint-disable-next-line no-empty
+  //     try {
+  //       this.model().then((owner) => {
+  //         owner.aggregate([{ $project: { _id: 1, uuid: 1 } }, { $match: { _id: new ObjectId(id)}}]).toArray((err, r) => {
+  //           if (err) reject(err);
+  //           resolve(r.[0].uuid)
+  //         });
+  //       });
+  //     } catch (e) {
+  //       reject(e);
+  //     }
+  //   });
+  // }
 }
 module.exports = Cable;

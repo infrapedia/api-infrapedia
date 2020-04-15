@@ -4,9 +4,10 @@ Map = new Map();
 module.exports = {
   myMap: (usr, data) => Map.myMap(usr, data),
   getMyMap: (usr, data) => Map.getMyMap(usr, data),
-  ixps: (usr, data) => Map.ixps(usr, data),
-  facilities: (usr, data) => Map.facilities(usr, data),
-  cls: (usr, data) => Map.cls(usr, data),
-  draw: (usr, data) => Map.draw(usr, data),
-  cables: (usr, data) => Map.cables(usr, data),
+  ixps: (subdomain) => Map.ixps(subdomain),
+  facilities: (subdomain) => Map.facilities(subdomain),
+  cls: (subdomain) => Map.cls(subdomain),
+  draw: (subdomain) => Map.draw(subdomain),
+  cables: (subdomain) => Map.cables(subdomain),
+  getInfo: (subdomain) => Map.getinfo(subdomain),
 }

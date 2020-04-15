@@ -1,6 +1,7 @@
 const luxon = require('luxon');
 const { ObjectID } = require('mongodb');
 const gcloud = require('../helpers/gcloudStorage');
+
 class Map {
   constructor() {
     this.model = require('../../models/map.model');
@@ -255,7 +256,7 @@ class Map {
                 type: 'FeatureCollection',
                 features: await multiLines.reduce((total, value) => total.concat(value), []),
               };
-              gcloud.uploadFilesCustomMap(multiLines,'cables', subdomain).then((r) => {
+              gcloud.uploadFilesCustomMap(multiLines, 'cables', subdomain).then((r) => {
                 resolve(multiLines);
               }).catch((e) => reject(e));
             }).catch((e) => reject({ m: e }));
@@ -271,7 +272,7 @@ class Map {
         this.model().then((draw) => {
           draw.findOne({ subdomain }, (err, d) => {
             if (err) reject({ m: err });
-            gcloud.uploadFilesCustomMap(d.draw,'draw', subdomain).then((r) => {
+            gcloud.uploadFilesCustomMap(d.draw, 'draw', subdomain).then((r) => {
               resolve(d.draw);
             }).catch((e) => { reject(e); });
           });
@@ -332,7 +333,7 @@ class Map {
               type: 'FeatureCollection',
               features: multipoints,
             };
-            gcloud.uploadFilesCustomMap(multipoints,'ixps', subdomain).then((r) => {
+            gcloud.uploadFilesCustomMap(multipoints, 'ixps', subdomain).then((r) => {
               resolve(multipoints);
             }).catch((e) => reject(e));
             // resolve(multipoints);
@@ -470,9 +471,18 @@ class Map {
     });
   }
 
-  getinfo(subdomain){
+  getinfo(subdomain) {
     return new Promise((resolve, reject) => {
-
+      try {
+        this.model().then((map) => {
+          map.aggregate([
+            { $project: { subdomain: 1, logos: 1 } },
+            { $match: { subdomain } }], (err, result) => {
+            if (err) reject({ m: err });
+            resolve({ m: 'loaded', r: result });
+          });
+        }).catch((e) => reject({ m: e }));
+      } catch (e) { reject({ m: e }); }
     });
   }
 }
