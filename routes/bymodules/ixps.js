@@ -32,17 +32,17 @@ module.exports = {
         .catch((e) => { response.err(res, e); });
     });
     router.post(`${process.env._ROUTE}/ixps/add`, statics, (req, res) => {
-      controllers.ixps.add(req.headers.userid, req.body)
+      controllers.InternetExchangePoints.add(req.headers.userid, req.body)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
     router.put(`${process.env._ROUTE}/ixps/edit`, statics, (req, res) => {
-      controllers.ixps.edit(req.headers.userid, req.body)
+      controllers.InternetExchangePoints.edit(req.headers.userid, req.body)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
     router.get(`${process.env._ROUTE}/auth/ixps/all`, (req, res) => {
-      controllers.ixps.list(req.headers.userid, req.query.p)
+      controllers.InternetExchangePoints.list(req.headers.userid, req.query.p)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });

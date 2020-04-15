@@ -139,6 +139,8 @@ class Facility {
                   name: 1,
                   fac_id: 1,
                   website: 1,
+                  uuid: 1,
+                  deleted: 1,
                 },
               },
               {

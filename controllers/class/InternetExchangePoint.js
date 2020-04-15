@@ -94,6 +94,8 @@ class IXP {
                   proto_unicast: 1,
                   techEmail: 1,
                   techPhone: 1,
+                  uuid: 1,
+                  deleted: 1,
                 },
               },
               {
