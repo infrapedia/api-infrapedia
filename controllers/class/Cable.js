@@ -988,6 +988,7 @@ class Cable {
             if (err) reject(err);
             else if (results.length !== []) {
               await results.map((element) => {
+                console.log(element._id);
                 this.view('', element._id);
               });
             }
