@@ -310,6 +310,57 @@ class Facility {
     });
   }
 
+
+  owner(user, id) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (user !== undefined || user !== '') {
+          this.model().then((facility) => {
+            id = new ObjectID(id);
+            facility.aggregate([
+              {
+                $match: {
+                  _id: id,
+                },
+              },
+              {
+                $lookup: {
+                  from: 'ixps',
+                  let: { f: '$ixps' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $in: ['$_id', '$$f'],
+                        },
+                      },
+                    },
+                    {
+                      $addFields: {
+                        label: '$name',
+                        value: '$_id',
+                      },
+                    },
+                    {
+                      $project: {
+                        label: 1,
+                        value: 1,
+                      },
+                    },
+                  ],
+                  as: 'ixps',
+                },
+              },
+            ]).toArray((err, o) => {
+              if (err) reject(err);
+              resolve({ m: 'Loaded', r: o[0] });
+            });
+          });
+        } else { resolve('Not user found'); }
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
   bbox(id) {
     return new Promise((resolve, reject) => {
       try {

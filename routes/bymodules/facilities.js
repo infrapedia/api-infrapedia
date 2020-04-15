@@ -11,6 +11,11 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+    router.get(`${process.env._ROUTE}/auth/facilities/owner/:id`, (req, res) => {
+      controllers.facilities.owner(req.headers.userid, req.params.id)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
     router.get(`${process.env._ROUTE}/auth/facilities/view/:id`, statics, (req, res) => {
       controllers.facilities.view(req.headers.userid, req.params.id)
         .then((r) => { response.success(res, r, false); })
@@ -31,17 +36,17 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.post(`${process.env._ROUTE}/facilities/add`, statics, (req, res) => {
+    router.post(`${process.env._ROUTE}/auth/facilities/add`, statics, (req, res) => {
       controllers.facilities.add(req.headers.userid, req.body)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.put(`${process.env._ROUTE}/facilities/edit`, statics, (req, res) => {
+    router.put(`${process.env._ROUTE}/auth/facilities/edit`, statics, (req, res) => {
       controllers.facilities.edit(req.headers.userid, req.body)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.get(`${process.env._ROUTE}/auth/facilities/all`, (req, res) => {
+    router.get(`${process.env._ROUTE}/auth/auth/facilities/all`, (req, res) => {
       controllers.facilities.list(req.headers.userid, req.query.p)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });

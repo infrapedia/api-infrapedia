@@ -11,6 +11,11 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+    router.get(`${process.env._ROUTE}/auth/ixps/owner/:id`, (req, res) => {
+      controllers.InternetExchangePoints.owner(req.headers.userid, req.params.id)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
     router.get(`${process.env._ROUTE}/auth/ixps/view/:id`, statics, (req, res) => {
       controllers.InternetExchangePoints.view(req.headers.userid, req.params.id)
         .then((r) => { response.success(res, r, false); })
@@ -31,12 +36,12 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.post(`${process.env._ROUTE}/ixps/add`, statics, (req, res) => {
+    router.post(`${process.env._ROUTE}/auth/ixps/add`, statics, (req, res) => {
       controllers.InternetExchangePoints.add(req.headers.userid, req.body)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.put(`${process.env._ROUTE}/ixps/edit`, statics, (req, res) => {
+    router.put(`${process.env._ROUTE}/auth/ixps/edit`, statics, (req, res) => {
       controllers.InternetExchangePoints.edit(req.headers.userid, req.body)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });

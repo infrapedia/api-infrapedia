@@ -341,6 +341,28 @@ class IXP {
     });
   }
 
+  owner(user, id) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (user !== undefined || user !== '') {
+          this.model().then((ixp) => {
+            id = new ObjectID(id);
+            ixp.aggregate([
+              {
+                $match: {
+                  _id: id,
+                },
+              },
+            ]).toArray((err, o) => {
+              if (err) reject(err);
+              resolve({ m: 'Loaded', r: o[0] });
+            });
+          });
+        } else { resolve('Not user found'); }
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
   bbox(id) {
     return new Promise((resolve, reject) => {
       try {

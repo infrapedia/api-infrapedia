@@ -27,6 +27,7 @@ FROM facility`;
       });
     });
   }),
+  owner: (usr, id) => Facility.owner(usr, id),
   view: (usr, id) => Facility.view(usr, id),
   bbox: (user, id) => new Promise((resolve, reject) => {
     redisClient.redisClient.get(`facility_${id}`, (err, reply) => {
@@ -39,4 +40,5 @@ FROM facility`;
   add: (usr, data) => Facility.add(usr, data),
   edit: (usr, data) => Facility.edit(usr, data),
   list: (usr, page) => Facility.list(usr, page),
+
 };
