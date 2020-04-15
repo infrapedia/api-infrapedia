@@ -16,9 +16,11 @@ class IXP {
       try {
         this.model.then(async (ixps) => {
           if (data) {
+            const geometry = JSON.parse(data.geometry);
             const element = {
               name: String(data.name),
               nameLong: String(data.nameLong),
+              geom: geometry.features[0].geometry,
               address: await data.address.map((address) => JSON.parse(address)),
               media: String(data.media),
               policyEmail: String(data.policyEmail),
@@ -52,6 +54,7 @@ class IXP {
             const element = {
               name: String(data.name),
               nameLong: String(data.nameLong),
+              geom: geometry.features[0].geometry,
               address: await data.address.map((address) => JSON.parse(address)),
               media: String(data.media),
               policyEmail: String(data.policyEmail),
