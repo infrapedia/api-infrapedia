@@ -16,11 +16,11 @@ const bboxs = {
     Facility.createBBOXs().then(() => resolve()).catch(() => reject());
   }),
   dataCables: () => new Promise((resolve, reject) => {
-    let Cable = require('./class/Cable'); Cable = new Facility();
+    let Cable = require('./class/Cable'); Cable = new Cable();
     Cable.createDATA().then(() => resolve()).catch(() => reject());
   }),
   dataCLS: () => new Promise((resolve, reject) => {
-    let CLS = require('./class/CableLandingStation'); CLS = new Facility();
+    let CLS = require('./class/CableLandingStation'); CLS = new CLS();
     CLS.createDATA().then(() => resolve()).catch(() => reject());
   }),
   dataIXPS: () => new Promise((resolve, reject) => {

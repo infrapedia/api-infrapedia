@@ -4,23 +4,121 @@ const redisClient = require('../../config/redis');
 const { ObjectID } = require('mongodb');
 const countries = require('../helpers/isoCountries');
 
+const { adms } = require('../helpers/adms');
+
 let transfer = 0;
 const repeat = 0;
 class IXP {
   constructor() { this.model = require('../../models/ixp.model'); }
 
-  add(user, data){
+  add(user, data) {
     return new Promise((resolve, reject) => {
-
+      try {
+        this.model.then(async (ixps) => {
+          if (data) {
+            const element = {
+              name: String(data.name),
+              nameLong: String(data.nameLong),
+              address: await data.address.map((address) => JSON.parse(address)),
+              media: String(data.media),
+              policyEmail: String(data.policyEmail),
+              policyPhone: String(data.policyPhone),
+              proto_ipv6: (data.proto_ipv6 === 'true' || data.proto_ipv6 === 'True' || data.proto_ipv6 === true),
+              proto_multicast: (data.proto_multicast === 'true' || data.proto_multicast === 'True' || data.proto_multicast === true),
+              proto_unicast: (data.proto_unicast === 'true' || data.proto_unicast === 'True' || data.proto_unicast === true),
+              techEmail: String(data.techEmail),
+              techPhone: String(data.techPhone),
+              tags: data.tags,
+              rgDate: luxon.DateTime.utc(),
+              uDate: luxon.DateTime.utc(),
+              status: false,
+              deleted: false,
+            };
+            ixps.insertOne(element, (err, f) => {
+              if (err) reject({ m: err + 0 });
+              resolve({ m: 'Facility created' });
+            });
+          } else { reject({ m: 'Error' }); }
+        });
+      } catch (e) { reject({ m: e }); }
     });
   }
 
-  edit(user, data){
+  edit(user, data) {
     return new Promise((resolve, reject) => {
-
+      try {
+        this.model.then(async (ixps) => {
+          if (data) {
+            const element = {
+              name: String(data.name),
+              nameLong: String(data.nameLong),
+              address: await data.address.map((address) => JSON.parse(address)),
+              media: String(data.media),
+              policyEmail: String(data.policyEmail),
+              policyPhone: String(data.policyPhone),
+              proto_ipv6: (data.proto_ipv6 === 'true' || data.proto_ipv6 === 'True' || data.proto_ipv6 === true),
+              proto_multicast: (data.proto_multicast === 'true' || data.proto_multicast === 'True' || data.proto_multicast === true),
+              proto_unicast: (data.proto_unicast === 'true' || data.proto_unicast === 'True' || data.proto_unicast === true),
+              techEmail: String(data.techEmail),
+              techPhone: String(data.techPhone),
+              tags: data.tags,
+              rgDate: luxon.DateTime.utc(),
+              uDate: luxon.DateTime.utc(),
+              status: false,
+              deleted: false,
+            };
+            ixps.updateOne({ _id: new ObjectID(data._id) }, { $set: element }, (err, f) => {
+              if (err) reject({ m: err + 0 });
+              resolve({ m: 'Facility created' });
+            });
+          } else { reject({ m: 'Error' }); }
+        });
+      } catch (e) { reject({ m: e }); }
     });
   }
-  
+
+  list(user, page) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (user !== undefined || user !== '') {
+          const limit = 40;
+          this.model().then((ixps) => {
+            ixps.aggregate([
+              {
+                $project: {
+                  name: 1,
+                  nameLong: 1,
+                  ix_id: 1,
+                  proto_ipv6: 1,
+                  proto_multicast: 1,
+                  proto_unicast: 1,
+                  techEmail: 1,
+                  techPhone: 1,
+                },
+              },
+              {
+                $sort: { name: 1 },
+              },
+              {
+                $match: {
+                  $and: [
+                    adms(user),
+                    { deleted: false },
+                  ],
+                },
+              },
+              { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit) > 0) ? (parseInt(limit) * parseInt(page)) - parseInt(limit) : 0 },
+              { $limit: limit },
+            ]).toArray((err, rCables) => {
+              if (err) reject(err);
+              resolve({ m: 'Loaded', r: rCables });
+            });
+          });
+        } else { resolve('Not user found'); }
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
   addByTransfer(data) {
     return new Promise((resolve, reject) => {
       try {

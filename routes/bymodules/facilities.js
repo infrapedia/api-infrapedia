@@ -31,5 +31,20 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+    router.post(`${process.env._ROUTE}/facilities/add`, statics, (req, res) => {
+      controllers.facilities.add(req.headers.userid, req.body)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.put(`${process.env._ROUTE}/facilities/edit`, statics, (req, res) => {
+      controllers.facilities.edit(req.headers.userid, req.body)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.get(`${process.env._ROUTE}/auth/facilities/all`, (req, res) => {
+      controllers.facilities.list(req.headers.userid, req.query.p)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
   },
 };

@@ -1,23 +1,74 @@
 const luxon = require('luxon');
 const GJV = require('geojson-validation');
-const redisClient = require('../../config/redis');
 const { ObjectID } = require('mongodb');
+const redisClient = require('../../config/redis');
 const countries = require('../helpers/isoCountries');
+
+const { adms } = require('../helpers/adms');
+
 
 class Facility {
   constructor() {
     this.model = require('../../models/facility.model');
   }
 
-  add(user, data){
+  add(user, data) {
     return new Promise((resolve, reject) => {
-
+      try {
+        this.model.then(async (facility) => {
+          if (data) {
+            const element = {
+              name: String(data.name),
+              point: {},
+              address: await data.address.map((address) => JSON.parse(address)),
+              website: data.website,
+              geom: JSON.parse(data.geometry),
+              ixps: await data.ixps.map((ixp) => new ObjectID(ixp)),
+              tags: data.tags,
+              t: data.t,
+              StartDate: String(data.StartDate),
+              building: String(data.building),
+              rgDate: luxon.DateTime.utc(),
+              uDate: luxon.DateTime.utc(),
+              status: false,
+              deleted: false,
+            };
+            facility.insertOne(element, (err, f) => {
+              if (err) reject({ m: err + 0 });
+              resolve({ m: 'Facility created' });
+            });
+          } else { reject({ m: 'Error' }); }
+        });
+      } catch (e) { reject({ m: e }); }
     });
   }
 
-  edit(user, data){
+  edit(user, data) {
     return new Promise((resolve, reject) => {
-
+      try {
+        this.model.then(async (facility) => {
+          if (data) {
+            const element = {
+              name: String(data.name),
+              point: {},
+              address: await data.address.map((address) => JSON.parse(address)),
+              website: data.website,
+              geom: JSON.parse(data.geometry),
+              ixps: await data.ixps.map((ixp) => new ObjectID(ixp)),
+              tags: data.tags,
+              t: data.t,
+              StartDate: String(data.StartDate),
+              building: String(data.building),
+              uDate: luxon.DateTime.utc(),
+              deleted: false,
+            };
+            facility.updateOne({ _id: new ObjectID(data._id) }, { $set: element }, (err, f) => {
+              if (err) reject({ m: err + 0 });
+              resolve({ m: 'Facility created' });
+            });
+          } else { reject({ m: 'Error' }); }
+        });
+      } catch (e) { reject({ m: e }); }
     });
   }
 
@@ -73,6 +124,43 @@ class Facility {
           });
         }).catch((e) => reject({ m: e + 1 }));
       } catch (e) { reject({ m: e + 2 }); }
+    });
+  }
+
+  list(user, page) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (user !== undefined || user !== '') {
+          const limit = 40;
+          this.model().then((facilities) => {
+            facilities.aggregate([
+              {
+                $project: {
+                  name: 1,
+                  fac_id: 1,
+                  website: 1,
+                },
+              },
+              {
+                $sort: { name: 1 },
+              },
+              {
+                $match: {
+                  $and: [
+                    adms(user),
+                    { deleted: false },
+                  ],
+                },
+              },
+              { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit) > 0) ? (parseInt(limit) * parseInt(page)) - parseInt(limit) : 0 },
+              { $limit: limit },
+              ]).toArray((err, rCables) => {
+              if (err) reject(err);
+              resolve({ m: 'Loaded', r: rCables });
+            });
+          });
+        } else { resolve('Not user found'); }
+      } catch (e) { reject({ m: e }); }
     });
   }
 
@@ -210,13 +298,12 @@ class Facility {
                 },
               ]).toArray((err, c) => {
                 if (err) reject(err);
-                redisClient.set(`v_facility_${id}`, JSON.stringify({ m: 'Loaded', r: c }), 'EX', 172800)
+                redisClient.set(`v_facility_${id}`, JSON.stringify({ m: 'Loaded', r: c }), 'EX', 172800);
                 resolve({ m: 'Loaded', r: c });
               });
             });
           }
         });
-
       } catch (e) { reject({ m: e }); }
     });
   }
