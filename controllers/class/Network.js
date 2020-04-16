@@ -1,5 +1,6 @@
 const luxon = require('luxon');
 const { ObjectID } = require('mongodb');
+const { adms } = require('../helpers/adms');
 
 class Network {
   constructor() {
@@ -78,118 +79,118 @@ class Network {
             network.aggregate([
               {
                 $sort: { _id: 1 },
-              },{
-              $match: {
-                $and: [
-                  { uuid: user },
-                  { deleted: false },
-                ],
+              }, {
+                $match: {
+                  $and: [
+                    adms(user),
+                    { deleted: false },
+                  ],
+                },
               },
-            },
               { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit) > 0) ? (parseInt(limit) * parseInt(page)) - parseInt(limit) : 0 },
               { $limit: limit },
               {
-              $lookup: {
-                from: 'alerts',
-                let: { elemnt: { $toString: '$_id' } },
-                pipeline: [
-                  {
-                    $match: { $expr: { $and: [{ $eq: ['$elemnt', '$$elemnt'] }] } },
-                  },
-                  { $count: 'elmnt' },
-                ],
-                as: 'alerts',
-              },
-            },
-            {
-              $lookup: {
-                from: 'organizations',
-                let: { orgs: '$organizations' },
-                pipeline: [
-                  {
-                    $addFields: {
-                      idsorgs: '$$orgs',
+                $lookup: {
+                  from: 'alerts',
+                  let: { elemnt: { $toString: '$_id' } },
+                  pipeline: [
+                    {
+                      $match: { $expr: { $and: [{ $eq: ['$elemnt', '$$elemnt'] }] } },
                     },
-                  },
-                  {
-                    $match: {
-                      $expr: {
-                        $in: ['$_id', '$idsorgs'],
+                    { $count: 'elmnt' },
+                  ],
+                  as: 'alerts',
+                },
+              },
+              {
+                $lookup: {
+                  from: 'organizations',
+                  let: { orgs: '$organizations' },
+                  pipeline: [
+                    {
+                      $addFields: {
+                        idsorgs: '$$orgs',
                       },
                     },
-                  },
-                  {
-                    $project: {
-                      _id: 1,
-                      name: 1,
-                    },
-                  },
-                ],
-                as: 'organizations',
-              },
-            },
-            {
-              $lookup: {
-                from: 'cables',
-                let: { cables: '$cables' },
-                pipeline: [
-                  {
-                    $addFields: {
-                      idscables: '$$cables',
-                    },
-                  },
-                  {
-                    $match: {
-                      $expr: {
-                        $in: ['$_id', '$idscables'],
+                    {
+                      $match: {
+                        $expr: {
+                          $in: ['$_id', '$idsorgs'],
+                        },
                       },
                     },
-                  },
-                  {
-                    $project: {
-                      _id: 1,
-                      name: 1,
-                    },
-                  },
-                ],
-                as: 'cables',
-              },
-            },
-            {
-              $lookup: {
-                from: 'cls',
-                let: { cls: '$cls' },
-                pipeline: [
-                  {
-                    $addFields: {
-                      idscls: '$$cls',
-                    },
-                  },
-                  {
-                    $match: {
-                      $expr: {
-                        $in: ['$_id', '$idscls'],
+                    {
+                      $project: {
+                        _id: 1,
+                        name: 1,
                       },
                     },
-                  },
-                  {
-                    $project: {
-                      _id: 1,
-                      name: 1,
+                  ],
+                  as: 'organizations',
+                },
+              },
+              {
+                $lookup: {
+                  from: 'cables',
+                  let: { cables: '$cables' },
+                  pipeline: [
+                    {
+                      $addFields: {
+                        idscables: '$$cables',
+                      },
                     },
-                  },
-                ],
-                as: 'cls',
+                    {
+                      $match: {
+                        $expr: {
+                          $in: ['$_id', '$idscables'],
+                        },
+                      },
+                    },
+                    {
+                      $project: {
+                        _id: 1,
+                        name: 1,
+                      },
+                    },
+                  ],
+                  as: 'cables',
+                },
               },
-            },
-            {
-              $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
-            },
-            {
-              $project: {
-                uuid: 0,
+              {
+                $lookup: {
+                  from: 'cls',
+                  let: { cls: '$cls' },
+                  pipeline: [
+                    {
+                      $addFields: {
+                        idscls: '$$cls',
+                      },
+                    },
+                    {
+                      $match: {
+                        $expr: {
+                          $in: ['$_id', '$idscls'],
+                        },
+                      },
+                    },
+                    {
+                      $project: {
+                        _id: 1,
+                        name: 1,
+                      },
+                    },
+                  ],
+                  as: 'cls',
+                },
               },
-            }]).toArray((err, rNetwork) => {
+              {
+                $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
+              },
+              {
+                $project: {
+                  uuid: 0,
+                },
+              }]).toArray((err, rNetwork) => {
               if (err) reject(err);
               resolve({ m: 'Loaded', r: rNetwork });
             });
@@ -364,9 +365,10 @@ class Network {
     return new Promise((resolve, reject) => {
       try {
         this.model().then((cable) => {
+          const uuid = (search.psz === 1) ? adms(user) : {};
           cable.aggregate([
             {
-              $match: { name: { $regex: search, $options: 'i' } },
+              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {

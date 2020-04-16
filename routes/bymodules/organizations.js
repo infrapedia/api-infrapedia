@@ -32,7 +32,7 @@ module.exports = {
         .catch((e) => { response.err(res, e); });
     });
     router.get(`${process.env._ROUTE}/organization/search`, statics, (req, res) => {
-      controllers.organizations.search(req.headers.userid, req.query.s)
+      controllers.organizations.search(req.headers.userid, req.query)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });

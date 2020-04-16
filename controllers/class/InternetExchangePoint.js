@@ -395,10 +395,11 @@ class IXP {
     return new Promise((resolve, reject) => {
       try {
         this.model().then((facility) => {
+          const uuid = (search.psz === 1) ? adms(user) : {};
           facility.aggregate([
             { $sort: { name: 1 } },
             {
-              $match: { $and: [{ name: { $regex: search, $options: 'i' } }, { nameLong: { $regex: search, $options: 'i' } }] },
+              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { nameLong: { $regex: search.s, $options: 'i' } }] },
             },
             // {
             //   $addFields: { name: { $concat: ['$name', ' (', { $arrayElemAt: ['$address.city', 0] }, ', ', { $arrayElemAt: ['$address.country', 0] }, ')'] } },

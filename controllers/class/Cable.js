@@ -625,10 +625,11 @@ class Cable {
   searchT(user, search) {
     return new Promise((resolve, reject) => {
       try {
+        const uuid = (search.psz === 1) ? adms(user) : {};
         this.model().then((cable) => {
           cable.aggregate([
             {
-              $match: { $and: [{ name: { $regex: search, $options: 'i' } }, { terrestrial: true }] },
+              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { terrestrial: true }] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {
@@ -651,10 +652,11 @@ class Cable {
   searchS(user, search) {
     return new Promise((resolve, reject) => {
       try {
+        const uuid = (search.psz === 1) ? adms(user) : {};
         this.model().then((cable) => {
           cable.aggregate([
             {
-              $match: { $and: [{ name: { $regex: search, $options: 'i' } }, { terrestrial: false }] },
+              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { terrestrial: false }] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {

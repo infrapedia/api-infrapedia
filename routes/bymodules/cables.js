@@ -53,12 +53,12 @@ module.exports = {
         .catch((e) => { response.err(res, e); });
     });
     router.get(`${process.env._ROUTE}/cables/search/s`, statics, (req, res) => {
-      controllers.cables.searchS(req.headers.userid, req.query.s)
+      controllers.cables.searchS(req.headers.userid, req.query)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
     router.get(`${process.env._ROUTE}/cables/search/t`, statics, (req, res) => {
-      controllers.cables.searchT(req.headers.userid, req.query.s)
+      controllers.cables.searchT(req.headers.userid, req.query)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });

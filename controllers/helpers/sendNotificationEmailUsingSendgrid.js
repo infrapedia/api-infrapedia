@@ -1,20 +1,22 @@
-// eslint-disable-next-line camelcase
+const sgMail = require('@sendgrid/mail');
+
 function sendNotificationEmailUsingMandrill(emailReceive, subject, html, replyToEmail) {
   return new Promise((resolve, reject) => {
     try {
-      const Mandrill = require('node-mandrill')(process.env.MANDRILLAPIKEY);
       const email = (emailReceive === '') ? process.env.EMAILNOTIFICATIONS : emailReceive;
-      Mandrill('/messages/send', {
-        message: {
-          to: [{ email }],//(email !== '') ? [] : [{ email }],
-          // 'Reply-To': (replyToEmail) || '',
-          from_email: process.env.MANDRILL_EMAIL,
-          subject,
-          html,
-        },
-      }, (err, response) => {
-        if (err) reject({ m: err });
-        resolve({ m: response });
+      sgMail.setApiKey(process.env.APIKEYSENDGRID)
+      const msg = {
+        to: email,
+        cc: (emailReceive !== '') ? process.env.EMAILNOTIFICATIONS : '',
+        from: process.env.EMAILSENDER,
+        subject,
+        html,
+      };
+      sgMail.send(msg).then(() => resolve(), (error) => {
+        if (error.response) {
+          console.error(error.response.body);
+        }
+        reject();
       });
     } catch (e) { reject({ m: e }); }
   });

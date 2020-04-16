@@ -34,7 +34,7 @@ module.exports = {
         .catch((e) => { response.err(res, e); });
     });
     router.get(`${process.env._ROUTE}/network/search`, statics, (req, res) => {
-      controllers.networks.search(req.headers.userid, req.query.s)
+      controllers.networks.search(req.headers.userid, req.query)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });

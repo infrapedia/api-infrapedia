@@ -1,7 +1,7 @@
 const luxon = require('luxon');
 const GJV = require('geojson-validation');
-const redisClient = require('../../config/redis');
 const { ObjectID } = require('mongodb');
+const redisClient = require('../../config/redis');
 const { adms } = require('../helpers/adms');
 
 class CLS {
@@ -435,10 +435,11 @@ class CLS {
   search(user, search) {
     return new Promise((resolve, reject) => {
       try {
+        const uuid = (search.psz === 1) ? adms(user) : {};
         this.model().then((cable) => {
           cable.aggregate([
             {
-              $match: { name: { $regex: search, $options: 'i' } },
+              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {
@@ -596,7 +597,7 @@ class CLS {
                 },
               ]).toArray((err, c) => {
                 if (err) reject(err);
-                redisClient.set(`v_cls_${id}`, JSON.stringify({ m: 'Loaded', r: c }), 'EX', 172800)
+                redisClient.set(`v_cls_${id}`, JSON.stringify({ m: 'Loaded', r: c }), 'EX', 172800);
                 resolve({ m: 'Loaded', r: c });
               });
             });

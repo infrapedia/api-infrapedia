@@ -41,7 +41,7 @@ module.exports = {
         .catch((e) => { response.err(res, e); });
     });
     router.get(`${process.env._ROUTE}/cls/search`, statics, (req, res) => {
-      controllers.cableLandingStations.search(req.headers.userid, req.query.s)
+      controllers.cableLandingStations.search(req.headers.userid, req.query)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });

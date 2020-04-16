@@ -1,6 +1,6 @@
 const luxon = require('luxon');
 const { ObjectID } = require('mongodb');
-const sendEmail = require('../helpers/sendNotificationEmailUsingMandrill');
+const sendEmail = require('../helpers/sendNotificationEmailUsingSendgrid');
 
 const { adms } = require('../helpers/adms');
 
@@ -36,14 +36,13 @@ class Message {
   getElementOwner (user, id, type) {
     return new Promise((resolve, reject) => {
       try {
-        console.log(user, id, type);
         let Elemnt;
         switch (String(type)) {
           case '1':
             Elemnt = require('./Cable');
             Elemnt = new Elemnt();
             Elemnt.view(user, id).then((r) => {
-              resolve([r.r[0].uuid, r.r[0].name]);
+              resolve([r.r[0].uuid, r.r[0].name, 'Cable']);
             }).catch(() => {
               reject();
             });
@@ -52,7 +51,7 @@ class Message {
             Elemnt = require('./CableLandingStation');
             Elemnt = new Elemnt();
             Elemnt.view(user, id).then((r) => {
-              resolve([r.r[0].uuid, r.r[0].name]);
+              resolve([r.r[0].uuid, r.r[0].name, 'Cable Landing Station']);
             }).catch(() => {
               reject();
             });
@@ -61,7 +60,7 @@ class Message {
             Elemnt = require('./Facility');
             Elemnt = new Elemnt();
             Elemnt.view(user, id).then((r) => {
-              resolve([r.r[0].uuid, r.r[0].name]);
+              resolve([r.r[0].uuid, r.r[0].name, 'Facility']);
             }).catch(() => {
               reject();
             });
@@ -70,7 +69,7 @@ class Message {
             Elemnt = require('./InternetExchangePoint');
             Elemnt = new Elemnt();
             Elemnt.view(user, id).then((r) => {
-              resolve([r.r[0].uuid, r.r[0].name]);
+              resolve([r.r[0].uuid, r.r[0].name, 'Internet Exchange Point']);
             }).catch(() => {
               reject();
             });
@@ -79,7 +78,7 @@ class Message {
             Elemnt = require('./Network');
             Elemnt = new Elemnt();
             Elemnt.view(user, id).then((r) => {
-              resolve([r.r[0].uuid, r.r[0].name]);
+              resolve([r.r[0].uuid, r.r[0].name, 'Group']);
             }).catch(() => {
               reject();
             });
@@ -88,7 +87,7 @@ class Message {
             Elemnt = require('./Organization');
             Elemnt = new Elemnt();
             Elemnt.view(user, id).then((r) => {
-              resolve([r.r[0].uuid, r.r[0].name]);
+              resolve([r.r[0].uuid, r.r[0].name, 'Organization']);
             }).catch(() => {
               reject();
             });
@@ -122,6 +121,7 @@ class Message {
               const ejs = require('ejs');
               // User receives message
               this.getElementOwner(user, data.elemnt, data.t).then((r) => {
+                const elemntName = r[1], elemntType = r[2];
                 this.getEmail(r[0], token).then((r) => {
                   r = JSON.parse(r);
                   ejs.renderFile('templates/email/email_notification.ejs', {
@@ -129,8 +129,8 @@ class Message {
                     email: issue.email,
                     phone: issue.phone,
                     message: issue.message,
-                    element: issue.elemnt,
-                    type: issue.t,
+                    element: elemntName,
+                    type: elemntType,
                     url: process.env._BASEURL,
                   }, (err, html) => {
                     console.log(r);
@@ -142,8 +142,8 @@ class Message {
                     email: issue.email,
                     phone: issue.phone,
                     message: issue.message,
-                    element: issue.elemnt,
-                    type: issue.t,
+                    element: elemntName,
+                    type: elemntType,
                     url: process.env._BASEURL,
                   }, (err, html) => {
                     sendEmail('', 'A user wrote a message on the app', html, issue.email);
