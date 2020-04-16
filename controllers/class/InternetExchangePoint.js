@@ -16,7 +16,7 @@ class IXP {
       try {
         this.model().then(async (ixps) => {
           if (data) {
-            const geometry = JSON.parse(data.geom);
+            const geom = JSON.parse(data.geom);
             const element = {
               name: String(data.name),
               nameLong: String(data.nameLong),
@@ -51,7 +51,7 @@ class IXP {
       try {
         this.model().then(async (ixps) => {
           if (data) {
-            const geometry = JSON.parse(data.geom);
+            const geom = JSON.parse(data.geom);
             const element = {
               name: String(data.name),
               nameLong: String(data.nameLong),
