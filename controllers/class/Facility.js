@@ -20,7 +20,7 @@ class Facility {
             const element = {
               name: String(data.name),
               point: {},
-              address: await data.address.map((address) => JSON.parse(address)),
+              address: (Array.isArray(data.address)) ? await data.address.map((address) => JSON.parse(address)) : [],
               website: data.website,
               geom: JSON.parse(data.geom),
               ixps: await data.ixps.map((ixp) => new ObjectID(ixp)),
@@ -51,7 +51,7 @@ class Facility {
             const element = {
               name: String(data.name),
               point: {},
-              address: await data.address.map((address) => JSON.parse(address)),
+              address: (Array.isArray(data.address)) ? await data.address.map((address) => JSON.parse(address)) : [],
               website: data.website,
               geom: JSON.parse(data.geom),
               ixps: await data.ixps.map((ixp) => new ObjectID(ixp)),
