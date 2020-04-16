@@ -141,8 +141,8 @@ class Message {
                     email: issue.email,
                     phone: issue.phone,
                     message: issue.message,
-                    element: elemntName,
-                    type: elemntType,
+                    element: data.t,
+                    type: issue.t,
                     url: process.env._BASEURL,
                   }, (err, html) => {
                     sendEmail('', 'A user wrote a message on the app', html, issue.email);
