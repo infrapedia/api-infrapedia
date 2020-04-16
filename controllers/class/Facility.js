@@ -18,6 +18,7 @@ class Facility {
         this.model().then(async (facility) => {
           if (data) {
             const element = {
+              uuid: user,
               name: String(data.name),
               point: {},
               address: (Array.isArray(data.address)) ? await data.address.map((address) => JSON.parse(address)) : [],

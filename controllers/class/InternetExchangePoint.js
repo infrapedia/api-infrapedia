@@ -18,9 +18,10 @@ class IXP {
           if (data) {
             const geom = JSON.parse(data.geom);
             const element = {
+              uuid: user,
               name: String(data.name),
               nameLong: String(data.nameLong),
-              geom: geom.features[0].geom,
+              geom: geom.features[0].geometry,
               media: String(data.media),
               policyEmail: String(data.policyEmail),
               policyPhone: String(data.policyPhone),
@@ -54,7 +55,7 @@ class IXP {
             const element = {
               name: String(data.name),
               nameLong: String(data.nameLong),
-              geom: geom.features[0].geom,
+              geom: geom.features[0].geometry,
               media: String(data.media),
               policyEmail: String(data.policyEmail),
               policyPhone: String(data.policyPhone),
