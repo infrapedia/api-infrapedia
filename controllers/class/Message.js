@@ -133,6 +133,7 @@ class Message {
                     type: issue.t,
                     url: process.env._BASEURL,
                   }, (err, html) => {
+                    console.log(r);
                     sendEmail(r.email, 'Someone has sent you a message on Infrapedia', html, issue.email);
                   });
                 }).catch(() => {
