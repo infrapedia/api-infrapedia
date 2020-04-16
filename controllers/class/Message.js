@@ -33,7 +33,7 @@ class Message {
     });
   }
 
-  getElementOwner (user, id, type) {
+  getElementOwner(user, id, type) {
     return new Promise((resolve, reject) => {
       try {
         let Elemnt;
@@ -121,7 +121,8 @@ class Message {
               const ejs = require('ejs');
               // User receives message
               this.getElementOwner(user, data.elemnt, data.t).then((r) => {
-                const elemntName = r[1], elemntType = r[2];
+                const elemntName = r[1];
+                const elemntType = r[2];
                 this.getEmail(r[0], token).then((r) => {
                   r = JSON.parse(r);
                   ejs.renderFile('templates/email/email_notification.ejs', {
@@ -141,7 +142,7 @@ class Message {
                     email: issue.email,
                     phone: issue.phone,
                     message: issue.message,
-                    element: data.t,
+                    element: issue.elemnt,
                     type: issue.t,
                     url: process.env._BASEURL,
                   }, (err, html) => {
@@ -159,7 +160,8 @@ class Message {
                   url: process.env._BASEURL,
                 }, (err, html) => {
                   sendEmail('', 'A user wrote a message on the app', html, issue.email);
-                });              });
+                });
+              });
               resolve({ m: 'Thank you, your message was registered in our system' });
             });
           }).catch((e) => { reject({ m: e }); });
