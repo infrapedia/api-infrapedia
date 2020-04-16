@@ -20,7 +20,7 @@ class IXP {
             const element = {
               name: String(data.name),
               nameLong: String(data.nameLong),
-              geom: geometry.features[0].geometry,
+              geom: geom.features[0].geom,
               address: await data.address.map((address) => JSON.parse(address)),
               media: String(data.media),
               policyEmail: String(data.policyEmail),
@@ -55,7 +55,7 @@ class IXP {
             const element = {
               name: String(data.name),
               nameLong: String(data.nameLong),
-              geom: geometry.features[0].geometry,
+              geom: geom.features[0].geom,
               address: await data.address.map((address) => JSON.parse(address)),
               media: String(data.media),
               policyEmail: String(data.policyEmail),
