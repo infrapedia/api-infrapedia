@@ -625,7 +625,7 @@ class Cable {
   searchT(user, search) {
     return new Promise((resolve, reject) => {
       try {
-        const uuid = (search.psz === 1) ? adms(user) : {};
+        const uuid = (search.psz === '1') ? adms(user) : {};
         this.model().then((cable) => {
           cable.aggregate([
             {
@@ -652,7 +652,7 @@ class Cable {
   searchS(user, search) {
     return new Promise((resolve, reject) => {
       try {
-        const uuid = (search.psz === 1) ? adms(user) : {};
+        const uuid = (search.psz === '1') ? adms(user) : {};
         this.model().then((cable) => {
           cable.aggregate([
             {

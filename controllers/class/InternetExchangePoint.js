@@ -395,7 +395,7 @@ class IXP {
     return new Promise((resolve, reject) => {
       try {
         this.model().then((facility) => {
-          const uuid = (search.psz === 1) ? adms(user) : {};
+          const uuid = (search.psz === '1') ? adms(user) : {};
           facility.aggregate([
             { $sort: { name: 1 } },
             {

@@ -365,7 +365,7 @@ class Network {
     return new Promise((resolve, reject) => {
       try {
         this.model().then((cable) => {
-          const uuid = (search.psz === 1) ? adms(user) : {};
+          const uuid = (search.psz === '1') ? adms(user) : {};
           cable.aggregate([
             {
               $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }] },

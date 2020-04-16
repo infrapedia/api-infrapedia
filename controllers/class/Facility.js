@@ -391,7 +391,7 @@ class Facility {
     return new Promise((resolve, reject) => {
       try {
         this.model().then((facility) => {
-          const uuid = (search.psz === 1) ? adms(user) : {};
+          const uuid = (search.psz === '1') ? adms(user) : {};
           facility.aggregate([
             {
               $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }] },
