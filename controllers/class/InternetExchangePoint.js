@@ -14,7 +14,7 @@ class IXP {
   add(user, data) {
     return new Promise((resolve, reject) => {
       try {
-        this.model.then(async (ixps) => {
+        this.model().then(async (ixps) => {
           if (data) {
             const geometry = JSON.parse(data.geometry);
             const element = {
@@ -49,7 +49,7 @@ class IXP {
   edit(user, data) {
     return new Promise((resolve, reject) => {
       try {
-        this.model.then(async (ixps) => {
+        this.model().then(async (ixps) => {
           if (data) {
             const geometry = JSON.parse(data.geometry);
             const element = {

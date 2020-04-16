@@ -15,7 +15,7 @@ class Facility {
   add(user, data) {
     return new Promise((resolve, reject) => {
       try {
-        this.model.then(async (facility) => {
+        this.model().then(async (facility) => {
           if (data) {
             const element = {
               name: String(data.name),
@@ -46,7 +46,7 @@ class Facility {
   edit(user, data) {
     return new Promise((resolve, reject) => {
       try {
-        this.model.then(async (facility) => {
+        this.model().then(async (facility) => {
           if (data) {
             const element = {
               name: String(data.name),
