@@ -38,12 +38,12 @@ module.exports = {
     });
     router.post(`${process.env._ROUTE}/auth/facilities/add`, statics, (req, res) => {
       controllers.facilities.add(req.headers.userid, req.body)
-        .then((r) => { response.success(res, r, false); })
+        .then((r) => { response.success(res, r); })
         .catch((e) => { response.err(res, e); });
     });
     router.put(`${process.env._ROUTE}/auth/facilities/edit`, statics, (req, res) => {
       controllers.facilities.edit(req.headers.userid, req.body)
-        .then((r) => { response.success(res, r, false); })
+        .then((r) => { response.success(res, r); })
         .catch((e) => { response.err(res, e); });
     });
     router.get(`${process.env._ROUTE}/auth/facilities/all`, (req, res) => {

@@ -38,12 +38,12 @@ module.exports = {
     });
     router.post(`${process.env._ROUTE}/auth/ixps/add`, statics, (req, res) => {
       controllers.InternetExchangePoints.add(req.headers.userid, req.body)
-        .then((r) => { response.success(res, r, false); })
+        .then((r) => { response.success(res, r); })
         .catch((e) => { response.err(res, e); });
     });
     router.put(`${process.env._ROUTE}/auth/ixps/edit`, statics, (req, res) => {
       controllers.InternetExchangePoints.edit(req.headers.userid, req.body)
-        .then((r) => { response.success(res, r, false); })
+        .then((r) => { response.success(res, r); })
         .catch((e) => { response.err(res, e); });
     });
     router.get(`${process.env._ROUTE}/auth/ixps/all`, (req, res) => {
