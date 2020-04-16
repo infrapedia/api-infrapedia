@@ -3,7 +3,8 @@ module.exports = {
     const statics = require('../../lib/middleware/statics');
     router.post(`${process.env._ROUTE}/auth/message/send`, (req, res) => {
       // console.log(req.body)
-      controllers.messages.add(req.headers.userid, req.body)
+      const token = req.headers.authorization;
+      controllers.messages.add(req.headers.userid, req.body, token)
         .then((r) => { response.success(res, r); })
         .catch((e) => { response.err(res, e); });
     });

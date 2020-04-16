@@ -621,6 +621,59 @@ class Cable {
     });
   }
 
+
+  searchT(user, search) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((cable) => {
+          cable.aggregate([
+            {
+              $match: { $and: [{ name: { $regex: search, $options: 'i' } }, { terrestrial: true }] },
+            },
+            { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                terrestrial: 1,
+                yours: 1,
+              },
+            },
+            { $sort: { yours: -1 } },
+          ]).toArray((err, r) => {
+            resolve(r);
+          });
+        }).catch((e) => { reject({ m: e }); });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  searchS(user, search) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((cable) => {
+          cable.aggregate([
+            {
+              $match: { $and: [{ name: { $regex: search, $options: 'i' } }, { terrestrial: false }] },
+            },
+            { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                terrestrial: 1,
+                yours: 1,
+              },
+            },
+            { $sort: { yours: -1 } },
+          ]).toArray((err, r) => {
+            resolve(r);
+          });
+        }).catch((e) => { reject({ m: e }); });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
   view(user, id) {
     return new Promise((resolve, reject) => {
       try {

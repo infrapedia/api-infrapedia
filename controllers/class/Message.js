@@ -12,7 +12,94 @@ class Message {
   // TODO: issue reports filtered by deleted
   // TODO: validate the update
 
-  add(user, data) {
+  // eslint-disable-next-line class-methods-use-this
+  getEmail(user, token) {
+    return new Promise((resolve, reject) => {
+      try {
+        const request = require('request');
+        const options = {
+          method: 'GET',
+          url: `https://infrapedia.auth0.com/api/v2/users/${user}?fields=email,email_verified`,
+          headers: {
+            'content-type': 'application/json',
+            Authorization: token,
+          },
+        };
+        request(options, (error, response, body) => {
+          if (error || body.hasOwnProperty('statusCode')) reject(`Error:${error}`);
+          resolve(body);
+        });
+      } catch (e) { console.log(e); reject(e); }
+    });
+  }
+
+  getElementOwner (user, id, type) {
+    return new Promise((resolve, reject) => {
+      try {
+        console.log(user, id, type);
+        let Elemnt;
+        switch (String(type)) {
+          case '1':
+            Elemnt = require('./Cable');
+            Elemnt = new Elemnt();
+            Elemnt.view(user, id).then((r) => {
+              resolve([r.r[0].uuid, r.r[0].name]);
+            }).catch(() => {
+              reject();
+            });
+            break;
+          case '2':
+            Elemnt = require('./CableLandingStation');
+            Elemnt = new Elemnt();
+            Elemnt.view(user, id).then((r) => {
+              resolve([r.r[0].uuid, r.r[0].name]);
+            }).catch(() => {
+              reject();
+            });
+            break;
+          case '3':
+            Elemnt = require('./Facility');
+            Elemnt = new Elemnt();
+            Elemnt.view(user, id).then((r) => {
+              resolve([r.r[0].uuid, r.r[0].name]);
+            }).catch(() => {
+              reject();
+            });
+            break;
+          case '5':
+            Elemnt = require('./InternetExchangePoint');
+            Elemnt = new Elemnt();
+            Elemnt.view(user, id).then((r) => {
+              resolve([r.r[0].uuid, r.r[0].name]);
+            }).catch(() => {
+              reject();
+            });
+            break;
+          case '6':
+            Elemnt = require('./Network');
+            Elemnt = new Elemnt();
+            Elemnt.view(user, id).then((r) => {
+              resolve([r.r[0].uuid, r.r[0].name]);
+            }).catch(() => {
+              reject();
+            });
+            break;
+          case '7':
+            Elemnt = require('./Organization');
+            Elemnt = new Elemnt();
+            Elemnt.view(user, id).then((r) => {
+              resolve([r.r[0].uuid, r.r[0].name]);
+            }).catch(() => {
+              reject();
+            });
+            break;
+          default: reject();
+        }
+      } catch (e) { reject(e); }
+    });
+  }
+
+  add(user, data, token) {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
@@ -33,23 +120,51 @@ class Message {
             issues.insertOne(issue, (err, I) => {
               if (err) reject({ m: err });
               const ejs = require('ejs');
-              console.log(I);
-              ejs.renderFile('templates/email/email_notification.ejs', {
-                subject: 'A user wrote a message on the app',
-                email: issue.email,
-                phone: issue.phone,
-                message: issue.message,
-                element: issue.elemnt,
-                type: issue.t,
-                url: process.env._BASEURL,
-              }, (err, html) => {
-                sendEmail('', 'A user wrote a message on the app', html, issue.email);
-              });
+              // User receives message
+              this.getElementOwner(user, data.elemnt, data.t).then((r) => {
+                this.getEmail(r[0], token).then((r) => {
+                  r = JSON.parse(r);
+                  ejs.renderFile('templates/email/email_notification.ejs', {
+                    subject: 'Someone has sent you a message on Infrapedia',
+                    email: issue.email,
+                    phone: issue.phone,
+                    message: issue.message,
+                    element: issue.elemnt,
+                    type: issue.t,
+                    url: process.env._BASEURL,
+                  }, (err, html) => {
+                    sendEmail(r.email, 'Someone has sent you a message on Infrapedia', html, issue.email);
+                  });
+                }).catch(() => {
+                  ejs.renderFile('templates/email/email_notification.ejs', {
+                    subject: 'A user wrote a message on the app - End user did not receive email',
+                    email: issue.email,
+                    phone: issue.phone,
+                    message: issue.message,
+                    element: issue.elemnt,
+                    type: issue.t,
+                    url: process.env._BASEURL,
+                  }, (err, html) => {
+                    sendEmail('', 'A user wrote a message on the app', html, issue.email);
+                  });
+                });
+              }).catch(() => {
+                ejs.renderFile('templates/email/email_notification.ejs', {
+                  subject: 'A user wrote a message on the app - End user did not receive email',
+                  email: issue.email,
+                  phone: issue.phone,
+                  message: issue.message,
+                  element: issue.elemnt,
+                  type: issue.t,
+                  url: process.env._BASEURL,
+                }, (err, html) => {
+                  sendEmail('', 'A user wrote a message on the app', html, issue.email);
+                });              });
               resolve({ m: 'Thank you, your message was registered in our system' });
             });
           }).catch((e) => { reject({ m: e }); });
         } else { resolve('Not user found'); }
-      } catch (e) { reject({ m: e }); }
+      } catch (e) { console.log(e); reject({ m: e }); }
     });
   }
 
@@ -508,7 +623,7 @@ class Message {
               if (err) reject({ m: err });
               else if (c === 0) reject({ m: 'We cannot delete the message' });
               else {
-                message.updateOne( //uuid: String(user)
+                message.updateOne( // uuid: String(user)
                   { _id: id }, { $set: { deleted: true } }, (err, u) => {
                     if (err) reject({ m: err });
                     else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete the message' });
