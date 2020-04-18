@@ -34,9 +34,13 @@ class Facility {
               status: false,
               deleted: false,
             };
-            facility.insertOne(element, (err, f) => {
+            facility.find({ name: data.name }).count((err, c) => {
               if (err) reject({ m: err + 0 });
-              resolve({ m: 'Facility created' });
+              else if (c > 0) reject({ m: 'We have another element with the same name' });
+              facility.insertOne(element, (err, f) => {
+                if (err) reject({ m: err + 0 });
+                resolve({ m: 'Facility created' });
+              });
             });
           } else { reject({ m: 'Error' }); }
         });

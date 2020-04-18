@@ -36,9 +36,13 @@ class IXP {
               status: false,
               deleted: false,
             };
-            ixps.insertOne(element, (err, f) => {
+            ixps.find({ name: data.name }).count((err, c) => {
               if (err) reject({ m: err + 0 });
-              resolve({ m: 'Facility created' });
+              else if (c > 0) reject({ m: 'We have another element with the same name' });
+              ixps.insertOne(element, (err, f) => {
+                if (err) reject({ m: err + 0 });
+                resolve({ m: 'Facility created' });
+              });
             });
           } else { reject({ m: 'Error' }); }
         });

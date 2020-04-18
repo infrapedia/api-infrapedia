@@ -50,31 +50,35 @@ class Cable {
                   deleted: false,
                 };
                 let listSegments = JSON.parse(geomData);
-                cables.insertOne(data, (err, i) => {
-                // TODO: validation insert
+                cables.find({ name: data.name }).count((err, c) => {
                   if (err) reject({ m: err + 0 });
-                  // we going to update the segments
-                  // insert the segments
-                  const segments = require('../../models/cable_segments.model');
-                  segments().then(async (segments) => {
-                    let ssafe = 0;
-                    listSegments = listSegments.features;
-                    await listSegments.map(async (sg) => {
-                      await segments.insertOne({
-                        cable_id: new ObjectID(i.insertedId),
-                        type: 'Feature',
-                        properties: sg.properties,
-                        geometry: sg.geometry,
-                      }, (err, r) => {
-                        ssafe += 1;
-                        segmentsCounts += 1;
-                        fs.unlink(`./temp/${nameFile}.json`, (err) => {
-                          resolve({ m: 'Cable created' });
+                  else if (c > 0) reject({ m: 'We have another element with the same name' });
+                  cables.insertOne(data, (err, i) => {
+                    // TODO: validation insert
+                    if (err) reject({ m: err + 0 });
+                    // we going to update the segments
+                    // insert the segments
+                    const segments = require('../../models/cable_segments.model');
+                    segments().then(async (segments) => {
+                      let ssafe = 0;
+                      listSegments = listSegments.features;
+                      await listSegments.map(async (sg) => {
+                        await segments.insertOne({
+                          cable_id: new ObjectID(i.insertedId),
+                          type: 'Feature',
+                          properties: sg.properties,
+                          geometry: sg.geometry,
+                        }, (err, r) => {
+                          ssafe += 1;
+                          segmentsCounts += 1;
+                          fs.unlink(`./temp/${nameFile}.json`, (err) => {
+                            resolve({ m: 'Cable created' });
+                          });
                         });
                       });
+                    }).catch((e) => {
+                      reject({ m: 'error saving segments' });
                     });
-                  }).catch((e) => {
-                    reject({ m: 'error saving segments' });
                   });
                 });
               });

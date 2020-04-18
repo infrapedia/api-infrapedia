@@ -29,10 +29,14 @@ class CLS {
               status: false,
               deleted: false,
             };
-            cls.insertOne(data, (err, i) => {
-              // TODO: validation insert
-              if (err) reject({ m: err });
-              resolve({ m: 'CLS created' });
+            cls.find({ name: data.name }).count((err, c) => {
+              if (err) reject({ m: err + 0 });
+              else if (c > 0) reject({ m: 'We have another element with the same name' });
+              cls.insertOne(data, (err, i) => {
+                // TODO: validation insert
+                if (err) reject({ m: err });
+                resolve({ m: 'CLS created' });
+              });
             });
           }).catch((e) => { console.log(e); reject({ m: e }); });
         } else { resolve('Not user found'); }

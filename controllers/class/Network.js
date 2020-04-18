@@ -30,10 +30,14 @@ class Network {
               status: false,
               deleted: false,
             };
-            network.insertOne(data, (err, i) => {
-              // TODO: validation insert
-              if (err) reject({ m: err });
-              resolve({ m: 'Connection created' });
+            network.find({ name: data.name }).count((err, c) => {
+              if (err) reject({ m: err + 0 });
+              else if (c > 0) reject({ m: 'We have another element with the same name' });
+              network.insertOne(data, (err, i) => {
+                // TODO: validation insert
+                if (err) reject({ m: err });
+                resolve({ m: 'Connection created' });
+              });
             });
           }).catch((e) => { console.log(e); reject({ m: e + 1 }); });
         } else { resolve('Not user found'); }

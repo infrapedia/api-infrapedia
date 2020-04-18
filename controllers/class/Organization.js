@@ -41,10 +41,14 @@ class Organization {
                   validated: false,
                 };
                 // console.log( JSON.stringify( data ) );
-                organization.insertOne(data, (err, i) => {
-                  // TODO: validation insert
-                  if (err) reject({ m: err });
-                  resolve({ m: 'Organization created' });
+                organization.find({ name: data.name }).count((err, c) => {
+                  if (err) reject({ m: err + 0 });
+                  else if (c > 0) reject({ m: 'We have another element with the same name' });
+                  organization.insertOne(data, (err, i) => {
+                    // TODO: validation insert
+                    if (err) reject({ m: err });
+                    resolve({ m: 'Organization created' });
+                  });
                 });
               }
             });
