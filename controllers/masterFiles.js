@@ -96,6 +96,8 @@ module.exports = {
               {
                 $project: {
                   type: 'Feature',
+                  id: '$_id',
+                  'properties.id': '$_id',
                   'properties.name': '$name',
                   'properties.status': { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }] }, then: 1, else: 0 } },
                   'properties.category': { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }] }, then: 'active', else: '$category' } },
@@ -115,7 +117,7 @@ module.exports = {
               // lines = await lines.reduce((total, value) => total.concat(value.geom), []);
               lines = `{
                                   "id": "${id._id}",
-                                  "type": "FeatureCollection2",
+                                  "type": "FeatureCollection",
                                   "features": ${JSON.stringify(lines)}
                               }`;
 
