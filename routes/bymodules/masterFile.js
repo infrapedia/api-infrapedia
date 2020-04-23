@@ -8,6 +8,10 @@ module.exports = {
       controllers.masterFiles.facilities();
       res.status(200).json({ t: 'success', data: { m: 'The master file is in the process of creation, we will notify you when it is completely ready' } });
     });
+    router.get(`${process.env._ROUTE}/masterfile/facilitiespoints`, (req, res) => {
+      controllers.masterFiles.facilitiesPoints();
+      res.status(200).json({ t: 'success', data: { m: 'The master file is in the process of creation, we will notify you when it is completely ready' } });
+    });
     router.get(`${process.env._ROUTE}/masterfile/cls`, (req, res) => {
       controllers.masterFiles.cls();
       res.status(200).json({ t: 'success', data: { m: 'The master file is in the process of creation, we will notify you when it is completely ready' } });

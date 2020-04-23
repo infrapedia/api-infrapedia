@@ -30,7 +30,7 @@ module.exports = {
             data = JSON.parse(data);
             if (data.features[0] !== undefined) {
               // masterFile.write = JSON.stringify(data.features[0]);
-              fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), (filesReaded < files.length) ? `\n${data.features.map((f) => `${JSON.stringify(f) }`)},` : `\n${data.features.map((f) => `${JSON.stringify(f) }`)}`, 'utf8');
+              fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), (filesReaded < files.length) ? `\n${data.features.map((f) => `${JSON.stringify(f)}`)},` : `\n${data.features.map((f) => `${JSON.stringify(f)}`)}`, 'utf8');
               if (filesReaded === files.length) {
                 fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), ']}', 'utf8');
                 // masterFile.write = ']}';
@@ -114,6 +114,7 @@ module.exports = {
               // we'll going to create the master file for ixps
               // lines = await lines.reduce((total, value) => total.concat(value.geom), []);
               lines = `{
+                                  "id": "${id._id}",
                                   "type": "FeatureCollection2",
                                   "features": ${JSON.stringify(lines)}
                               }`;
@@ -588,6 +589,132 @@ module.exports = {
             });
             stream.end(async () => {
               const stream = await fs.createWriteStream('./temp/facilities.txt');
+              stream.write('');
+              stream.on('err', () => notifications('Master file of facilities cables wasn\'t created', new Date()));
+              stream.end(() => notifications('Master file of facilities cables was created', new Date()));
+            });
+          } catch (err) { return err; }
+        });
+      }).catch((e) => 'Error');
+    } catch (e) { return 'Error'; }
+  },
+  facilitiesPoints: () => {
+    try {
+      const facility = require('../models/facility.model');
+      facility().then((facility) => {
+        facility.aggregate([
+          // {
+          //   $lookup: {
+          //     from: 'networks',
+          //     let: { facility: '$_id' },
+          //     pipeline: [
+          //       {
+          //         $match: {
+          //           $expr: {
+          //             $in: ['$$facility', '$facilities'],
+          //           },
+          //         },
+          //       },
+          //       {
+          //         $project: {
+          //           _id: 1,
+          //           name: 1,
+          //           organizations: 1,
+          //         },
+          //       },
+          //     ],
+          //     as: 'networks',
+          //   },
+          // },
+          // {
+          //   $lookup: {
+          //     from: 'organizations',
+          //     let: { orgs: '$networks.organizations' },
+          //     pipeline: [
+          //       {
+          //         $addFields: {
+          //           idsorgs: { $cond: { if: { $gte: [{ $size: '$$orgs' }, 1] }, then: '$$orgs', else: [] } },
+          //         },
+          //       },
+          //       {
+          //         $addFields: {
+          //           idsorgs: { $cond: { if: { $gt: [{ $size: '$idsorgs' }, 0] }, then: { $arrayElemAt: ['$idsorgs', 0] }, else: [] } },
+          //         },
+          //       },
+          //       {
+          //         $match: {
+          //           $expr: {
+          //             $in: ['$_id', '$idsorgs'],
+          //           },
+          //         },
+          //       },
+          //       {
+          //         $project: {
+          //           _id: 1,
+          //           name: 1,
+          //           premium: 1,
+          //         },
+          //       },
+          //     ],
+          //     as: 'organizations',
+          //   },
+          // },
+          {
+            $addFields: {
+              feature: {
+                type: 'Feature',
+                geometry: { $arrayElemAt: ['$geom.features.geometry', 0] },
+              },
+              height: { $arrayElemAt: ['$geom.features.properties.height', 0] },
+            },
+          },
+          // {
+          //   $addFields: {
+          //     premium: { $cond: { if: { $gt: [{ $size: '$organizations' }, 0] }, then: { $cond: { if: { $in: [true, '$organizations.premium'] }, then: true, else: false } }, else: false } },
+          //   },
+          // },
+          {
+            $addFields: {
+              'feature.properties': {
+                _id: { $toString: '$_id' },
+                name: '$name',
+                address: { $arrayElemAt: ['$address.street', 0] },
+                type: 'facility',
+                height: '$height',
+                premium: '$premium',
+              },
+
+            },
+          },
+          {
+            $project: {
+              'feature.geometry.properties': 0,
+            },
+          },
+          {
+            $project: {
+              feature: 1,
+            },
+          },
+        ], { allowDiskUse: false }).toArray(async (err, polygon) => {
+          if (err) return 'Error';
+          // we'll going to create the master file for ixps
+          const turf = require('@turf/turf');
+          const zero = ",{ type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [0, 0] } }";
+          polygon = await polygon.reduce((total, value) => total.concat(turf.centroid(value.feature)), []);
+          polygon = `{
+                              "type": "FeatureCollection",
+                              "features": ${JSON.stringify(polygon)}
+                          }`;
+          polygon = await polygon.replace(zero, '');
+          try {
+            const stream = await fs.createWriteStream('./temp/facilities.points.json');
+            stream.write(polygon);
+            stream.on('err', () => {
+              console.log('Error to create the file');
+            });
+            stream.end(async () => {
+              const stream = await fs.createWriteStream('./temp/facilities.points.txt');
               stream.write('');
               stream.on('err', () => notifications('Master file of facilities cables wasn\'t created', new Date()));
               stream.end(() => notifications('Master file of facilities cables was created', new Date()));
