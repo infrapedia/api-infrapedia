@@ -14,6 +14,7 @@ module.exports = {
         if (err) {
           reject('Unable to scan directory: ');
         }
+        console.log('Directory scanned')
         fs.createWriteStream(path.join(__dirname, `../temp/${layer}.json`)).end();
         fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), '{\n'
           + '                              "type": "FeatureCollection",\n'
@@ -33,6 +34,7 @@ module.exports = {
               // masterFile.write = JSON.stringify(data.features[0]);
               fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), (filesReaded < files.length) ? `\n${data.features.map((f) => `${JSON.stringify(f)}`)},` : `\n${data.features.map((f) => `${JSON.stringify(f)}`)}`, 'utf8');
               if (filesReaded === files.length) {
+                console.log('Finished', filesReaded);
                 fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), ']}', 'utf8');
                 // masterFile.write = ']}';
                 // masterFile.end();
@@ -133,9 +135,9 @@ module.exports = {
                   checkedFiles += 1;
                   console.log(checkedFiles);
                   if (checkedFiles === ids.length) {
-                    module.exports.buildMasterFile('cables').then((mf) => {
-                      console.log('Finish');
-                    }).catch((e) => console.log(e));
+                    // module.exports.buildMasterFile('cables').then((mf) => {
+                    //   console.log('Finish');
+                    // }).catch((e) => console.log(e));
                   }
                 });
               } catch (err) { return err; }
