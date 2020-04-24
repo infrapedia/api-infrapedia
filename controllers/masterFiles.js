@@ -59,6 +59,7 @@ module.exports = {
   cables: () => {
     try {
       const cable = require('../models/cable.model');
+      let secuencial = 0;
       cable().then((cable) => {
         cable.aggregate([
           // {
@@ -75,6 +76,8 @@ module.exports = {
         ]).toArray(async (err, ids) => {
           let checkedFiles = 0;
           await ids.map((id) => {
+            secuencial += 1;
+            console.log(secuencial);
             cable.aggregate([
               {
                 $match: {
@@ -97,10 +100,16 @@ module.exports = {
                   },
               },
               {
+                $addFields: {
+                  id: { $toInt: secuencial },
+                  'properties.id': { $toInt: secuencial },
+                },
+              },
+              {
                 $project: {
                   type: 'Feature',
-                  id: '$_id',
-                  'properties.id': '$_id',
+                  id: 1,
+                  'properties.id': 1,
                   'properties.name': '$name',
                   'properties.status': { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }] }, then: 1, else: 0 } },
                   'properties.category': { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }] }, then: 'active', else: '$category' } },
