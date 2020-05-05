@@ -82,7 +82,6 @@ class Facility {
       try {
         this.model().then((facility) => {
           facility.find({ fac_id: String(data.fac_id) }).count(async (err, c) => {
-            console.log(c);
             if (err) resolve({ m: err });
             else if (c > 0) resolve({ m: 'We have registered in our system more than one organization with the same name' });
             else {
@@ -161,7 +160,7 @@ class Facility {
               },
               { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit) > 0) ? (parseInt(limit) * parseInt(page)) - parseInt(limit) : 0 },
               { $limit: limit },
-              ]).toArray((err, rCables) => {
+            ]).toArray((err, rCables) => {
               if (err) reject(err);
               resolve({ m: 'Loaded', r: rCables });
             });
@@ -379,12 +378,12 @@ class Facility {
             {
               $project: {
                 _id: 1,
-                coordinates: '$point.coordinates',
+                coordinates: '$geom.features.geometry.coordinates',
               },
             },
           ]).toArray((err, c) => {
             if (err) reject(err);
-            resolve({ m: 'Loaded', r: c });
+            resolve({ m: 'Loaded', r: c.coordinates });
           });
         });
       } catch (e) { reject({ m: e }); }

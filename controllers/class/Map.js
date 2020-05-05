@@ -141,7 +141,7 @@ class Map {
       try {
         this.model().then((maps) => {
           // verify if the user if a owner of map
-          maps.findOne({ subdomain: data.subdomain }, (err, f) => {
+          maps.findOne({ subdomain: data.subdomain }, async (err, f) => {
             if (err) reject({ m: err });
             else if (!f) { // Can insert
               maps.insertOne({
@@ -152,6 +152,11 @@ class Map {
                 ixps: (Array.isArray(data.ixps)) ? data.ixps.map((item) => new ObjectID(item)) : [],
                 cls: (Array.isArray(data.cls)) ? data.cls.map((item) => new ObjectID(item)) : [],
                 cables: (Array.isArray(data.cables)) ? data.cables.map((item) => new ObjectID(item)) : [],
+                address: await (data.address === '') ? [] : data.address.map((item) => JSON.parse(item)),
+                techEmail: data.techEmail,
+                techPhone: data.techPhone,
+                saleEmail: data.saleEmail,
+                salePhone: data.salePhone,
                 config: data.config,
                 logos: data.logos,
                 draw: data.draw,
@@ -170,6 +175,11 @@ class Map {
                   ixps: (Array.isArray(data.ixps)) ? data.ixps.map((item) => new ObjectID(item)) : [],
                   cls: (Array.isArray(data.cls)) ? data.cls.map((item) => new ObjectID(item)) : [],
                   cables: (Array.isArray(data.cables)) ? data.cables.map((item) => new ObjectID(item)) : [],
+                  address: await (data.address === '') ? [] : data.address.map((item) => JSON.parse(item)),
+                  techEmail: data.techEmail,
+                  techPhone: data.techPhone,
+                  saleEmail: data.saleEmail,
+                  salePhone: data.salePhone,
                   config: data.config,
                   logos: (Array.isArray(data.logos)) ? data.logos : [],
                   draw: JSON.parse(data.draw),

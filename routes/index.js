@@ -86,7 +86,8 @@ const routes = function (router, controllers) {
     });
   });
   router.get(`${process.env._ROUTE}/createbbox`, (req, res) => {
-    Promise.all([controllers.BBOXS.cls(), controllers.BBOXS.facilities(), controllers.BBOXS.ixps()]).then(() => {
+    //controllers.BBOXS.cls(), controllers.BBOXS.ixps()
+    Promise.all([controllers.BBOXS.facilities(), controllers.BBOXS.cls(), controllers.BBOXS.ixps()]).then(() => {
       controllers.BBOXS.cables().then(() => {
         res.sendStatus(200);
       }).catch(() => res.sendStatus(500));

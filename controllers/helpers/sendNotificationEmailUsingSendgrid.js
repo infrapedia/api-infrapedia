@@ -3,11 +3,11 @@ const sgMail = require('@sendgrid/mail');
 function sendNotificationEmailUsingMandrill(emailReceive, subject, html, replyToEmail) {
   return new Promise((resolve, reject) => {
     try {
-      const email = (emailReceive === '') ? process.env.EMAILNOTIFICATIONS : emailReceive;
+      const email = (emailReceive === '' || emailReceive === undefined) ? process.env.EMAILNOTIFICATIONS : emailReceive;
       sgMail.setApiKey(process.env.APIKEYSENDGRID)
       const msg = {
         to: email,
-        cc: (emailReceive !== '') ? process.env.EMAILNOTIFICATIONS : '',
+        // cc: (emailReceive !== '') ? process.env.EMAILNOTIFICATIONS : '',
         from: process.env.EMAILSENDER,
         subject,
         html,
