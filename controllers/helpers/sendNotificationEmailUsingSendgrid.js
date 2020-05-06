@@ -7,7 +7,7 @@ function sendNotificationEmailUsingMandrill(emailReceive, subject, html, replyTo
       sgMail.setApiKey(process.env.APIKEYSENDGRID)
       const msg = {
         to: email,
-        // cc: (emailReceive !== '') ? process.env.EMAILNOTIFICATIONS : '',
+        cc: process.env.CCEMAIL,
         from: process.env.EMAILSENDER,
         subject,
         html,
