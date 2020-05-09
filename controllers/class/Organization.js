@@ -117,6 +117,7 @@ class Organization {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
+          console.log(data.logo);
           this.model().then(async (organization) => {
             const id = new ObjectID(data._id);
             // we need to validate if  don't have another organization with the same name
