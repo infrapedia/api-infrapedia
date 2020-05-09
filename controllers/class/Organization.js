@@ -137,13 +137,11 @@ class Organization {
                   tags: [],
                   uDate: luxon.DateTime.utc(),
                 };
-                organization.updateOne(
-                  { _id: id, uuid: String(user) }, { $set: data }, (err, u) => {
-                    if (err) reject(err);
-                    else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
-                    else resolve({ m: 'Loaded', r: data });
-                  },
-                );
+                organization.updateOne({ $and: [adms(user), { _id: id }] }, { $set: data }, (err, u) => {
+                  if (err) reject(err);
+                  else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
+                  else resolve({ m: 'Loaded', r: data });
+                });
               }
             });
           }).catch((e) => reject(e));
