@@ -29,6 +29,7 @@ class Facility {
               t: data.t,
               StartDate: String(data.StartDate),
               building: String(data.building),
+              owners: (Array.isArray(data.owners)) ? await data.owners.map((owner) => new ObjectID(owner)) : [],
               rgDate: luxon.DateTime.utc(),
               uDate: luxon.DateTime.utc(),
               status: false,
@@ -64,6 +65,7 @@ class Facility {
               t: data.t,
               StartDate: String(data.StartDate),
               building: String(data.building),
+              owners: (Array.isArray(data.owners)) ? await data.owners.map((owner) => new ObjectID(owner)) : [],
               uDate: luxon.DateTime.utc(),
               deleted: false,
             };

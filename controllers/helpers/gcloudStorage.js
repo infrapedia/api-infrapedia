@@ -12,8 +12,9 @@ const allowedExtensionsImg = /(\.jpg|\.jpeg)$/i;
 const allowedExtensionsKmz = /(\.kmz|\.KMZ)$/i;
 const allowedExtensionsGeoJson = /(\.geojson|\.GEOJSON)$/i;
 
-function uploadFileLogo(path, user, allowedExtensions, folder) {
+function uploadFileLogo(path, user, allowedExtensions) {
   return new Promise((resolve, reject) => {
+    console.log(path, user, allowedExtensions);
     if (allowedExtensions.exec(path)) {
       const ufile = `logo-${uuidv4()}${allowedExtensionsImg.exec(path)[1]}`;
       const bucketFile = bucket.file(`${process.env._GG_CLOUD_BUCKET_FOLDER_LOGOS}/${user}/${ufile}`);
