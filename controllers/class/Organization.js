@@ -117,7 +117,6 @@ class Organization {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
-          console.log(data.logo);
           this.model().then(async (organization) => {
             const id = new ObjectID(data._id);
             // we need to validate if  don't have another organization with the same name
@@ -211,7 +210,7 @@ class Organization {
               else if (c === 0) reject({ m: 'We cannot delete your organization' });
               else {
                 organization.updateOne(
-                  { _id: id, uuid: String(user) }, { $set: { deleted: true } }, (err, u) => {
+                  { $and: [adms(user), { _id: id }] }, { $set: { deleted: true } }, (err, u) => {
                     if (err) reject(err);
                     else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete your organization' });
                     else resolve({ m: 'Deleted' });
