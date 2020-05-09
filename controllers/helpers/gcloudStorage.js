@@ -28,7 +28,7 @@ function uploadFileLogo(path, user, allowedExtensions) {
         })).on('error', (err) => { reject(err); }).on('finish', () => {
           bucketFile.makePublic().then(() => {
             // resolve(`https://clients.agrimanager.app/${process.env._GG_CLOUD_BUCKET_FOLDER_LOGOS}/${ufile}`);
-            resolve(`https://storage.googleapis.com/${process.env._GG_CLOUD_BUCKET}/${process.env._GG_CLOUD_BUCKET_FOLDER_LOGOS}/${user}/${ufile}`);
+            resolve(`${process.env._CDN_ROUTE_FILES}/${process.env._GG_CLOUD_BUCKET_FOLDER_LOGOS}/${user}/${ufile}`);
           });
         });
     } else {
