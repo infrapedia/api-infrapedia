@@ -356,6 +356,17 @@ class Facility {
                 },
               },
               {
+                $addFields: {
+                  owners: {
+                    $cond: {
+                      $if: { $eq: [{ $type: '$owners' }, 'array'] },
+                      then: '$owners',
+                      else: [],
+                    },
+                  },
+                },
+              },
+              {
                 $lookup: {
                   from: 'ixps',
                   let: { f: '$ixps' },
