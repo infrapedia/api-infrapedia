@@ -424,7 +424,7 @@ class Cable {
               else if (c === 0) reject({ m: 'We cannot delete your cable' });
               else {
                 cables.updateOne(
-                   { $and: [adms(user), { _id: id }] }, { $set: { deleted: true, uDate: luxon.DateTime.utc() } }, (err, u) => {
+                  { $and: [adms(user), { _id: id }] }, { $set: { deleted: true, uDate: luxon.DateTime.utc() } }, (err, u) => {
                     if (err) reject(err);
                     else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete your cable' });
                     else resolve({ m: 'Deleted' });
@@ -549,53 +549,43 @@ class Cable {
     });
   }
 
+  getBoundsCoords(coords) {
+    return new Promise((resolve, reject) => {
+      try {
+        const reduceCoords = [];
+        for (let i = 0; i < coords.length; ++i) {
+          for (let j = 0; j < coords[i].length; ++j) { reduceCoords.push(coords[i][j]); }
+        }
+        resolve(reduceCoords);
+      } catch (e) { reject(e); }
+    });
+  }
+
   bbox(id) {
     return new Promise((resolve, reject) => {
       try {
-        this.model().then((cables) => {
-          cables.aggregate([
+        this.model = require('../../models/cable_segments.model');
+        this.model().then((cablesSegment) => {
+          cablesSegment.aggregate([
             {
-              $project: { _id: 1 },
+              $project: {
+                cable_id: 1,
+                'geometry.coordinates': 1,
+              },
             },
             {
               $match: {
-                _id: new ObjectID(id),
+                cable_id: new ObjectID(id),
               },
-            },
-            {
-              $lookup: {
-                from: 'cables_segments',
-                localField: '_id',
-                foreignField: 'cable_id',
-                as: 'geom',
-              },
-            },
-            {
-              $addFields: {
-                v: { $arrayElemAt: ['$geom.geometry.coordinates', 0] },
-                b: { $arrayElemAt: ['$geom.geometry.coordinates', -1] },
-              },
-            },
-            {
-              $addFields: {
-                v: { $arrayElemAt: ['$v', 0] },
-                b: { $arrayElemAt: ['$b', 0] },
-              },
-            },
-            {
-              $project: {
-                _id: 1,
-                coordinates: {
-                  $concatArrays: ['$v', '$b'],
-                },
-              },
-            },
-            {
-              $addFields: { coordinates: [{ $arrayElemAt: ['$coordinates', 0] }, { $arrayElemAt: ['$coordinates', -1] }] },
             },
           ]).toArray((err, c) => {
             if (err) { reject(err); }
-            resolve({ m: 'Loaded', r: c });
+            const coordinates = [c[0].geometry.coordinates, c[(c.length - 1)].geometry.coordinates];
+            this.getBoundsCoords([].concat(...coordinates)).then((r) => {
+              console.log('--- BBOX created ---', id)
+              console.log([r[0], r[r.length - 1]])
+              resolve({ m: 'Loaded', r: [r[0], r[r.length - 1]] });
+            }).catch((e) => { reject({ m: e }); });
           });
         });
       } catch (e) { reject({ m: e }); }
