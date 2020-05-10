@@ -923,7 +923,7 @@ class Cable {
   getMultiElementsGeom(ids) {
     return new Promise((resolve, reject) => {
       try {
-        if (!Array.isArray(ids) || ids.length === 0) resolve({ m: 'Loaded', r: false });
+        if (!Array.isArray(ids) || ids.length === 0) resolve({ m: 'Loaded', r: [] });
         ids = ids.map((i) => new ObjectID(i));
         this.model().then((cables) => {
           cables.aggregate([
@@ -961,7 +961,6 @@ class Cable {
               },
             },
           ]).toArray(async (err, lines) => {
-            console.log(lines);
             if (err) return 'Error';
             // we'll going to create the master file for ixps
             // lines = await lines.reduce((total, value) => total.concat(value.geometry), []);
