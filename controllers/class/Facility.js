@@ -383,6 +383,34 @@ class Facility {
                   as: 'ixps',
                 },
               },
+              {
+                $lookup: {
+                  from: 'organizations',
+                  let: { f: '$owners' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $and: [
+                          {
+                            $expr: {
+                              $in: ['$_id', '$$f'],
+                            },
+                          },
+                          {
+                            deleted: false,
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      $project: {
+                        label: '$name',
+                      },
+                    },
+                  ],
+                  as: 'owners',
+                },
+              },
             ]).toArray((err, o) => {
               if (err) reject(err);
               resolve({ m: 'Loaded', r: o[0] });
