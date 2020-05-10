@@ -41,7 +41,7 @@ class IXP {
               else if (c > 0) reject({ m: 'We have another element with the same name' });
               ixps.insertOne(element, (err, f) => {
                 if (err) reject({ m: err + 0 });
-                resolve({ m: 'Facility created' });
+                resolve({ m: 'IXP created' });
               });
             });
           } else { reject({ m: 'Error' }); }
@@ -74,12 +74,38 @@ class IXP {
               status: false,
               deleted: false,
             };
-            ixps.updateOne({ _id: new ObjectID(data._id) }, { $set: element }, (err, f) => {
+            ixps.updateOne({ $and: [adms(user), { _id: new ObjectID(data._id) }] }, { $set: element }, (err, f) => {
               if (err) reject({ m: err + 0 });
-              resolve({ m: 'Facility created' });
+              resolve({ m: 'IXP created' });
             });
           } else { reject({ m: 'Error' }); }
         });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  delete(user, id) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (user !== undefined || user !== '') {
+          this.model().then(async (cls) => {
+            id = new ObjectID(id);
+            // we need to validate if  don't have another organization with the same name
+            cls.find({ _id: id }).count((err, c) => {
+              if (err) reject({ m: err });
+              else if (c === 0) reject({ m: 'We cannot delete your IXP' });
+              else {
+                cls.updateOne(
+                  { $and: [adms(user), { _id: id }] }, { $set: { deleted: true, uDate: luxon.DateTime.utc() } }, (err, u) => {
+                    if (err) reject(err);
+                    else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete your IXP' });
+                    else resolve({ m: 'Deleted' });
+                  },
+                );
+              }
+            });
+          }).catch((e) => reject({ m: e }));
+        } else { resolve('Not user found'); }
       } catch (e) { reject({ m: e }); }
     });
   }
