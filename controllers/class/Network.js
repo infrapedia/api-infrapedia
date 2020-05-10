@@ -64,7 +64,7 @@ class Network {
               tags: data.tags,
               uDate: luxon.DateTime.utc(),
             };
-            network.updateOne({ _id: id, uuid: String(user) }, { $set: data }, (err, u) => {
+            network.updateOne({ $and: [adms(user), { _id: id }] }, { $set: data }, (err, u) => {
               if (err) reject({ m: err });
               resolve({ m: 'Connetion updated', r: data });
             });
@@ -216,11 +216,10 @@ class Network {
               else if (c === 0) reject({ m: 'We cannot delete your connection' });
               else {
                 network.updateOne(
-                  { _id: id, uuid: String(user) }, { $set: { deleted: true } }, (err, u) => {
+                  { $and: [adms(user), { _id: id }] }, { $set: { deleted: true, uDate: luxon.DateTime.utc() } }, (err, u) => {
                     if (err) reject({ m: err });
                     else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete your connection' });
                     else resolve({ m: 'Deleted' });
-                  },
                 );
               }
             });
