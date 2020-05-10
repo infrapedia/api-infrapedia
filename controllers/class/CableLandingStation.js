@@ -227,7 +227,7 @@ class CLS {
                 $addFields: {
                   cables: {
                     $cond: {
-                      $if: { $eq: [{ $type: '$cables' }, 'array'] },
+                      if: { $eq: [{ $type: '$cables' }, 'array'] },
                       then: '$cables',
                       else: [],
                     },

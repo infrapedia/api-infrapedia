@@ -359,7 +359,7 @@ class Facility {
                 $addFields: {
                   owners: {
                     $cond: {
-                      $if: { $eq: [{ $type: '$owners' }, 'array'] },
+                      if: { $eq: [{ $type: '$owners' }, 'array'] },
                       then: '$owners',
                       else: [],
                     },
