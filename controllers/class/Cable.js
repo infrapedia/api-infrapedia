@@ -195,13 +195,13 @@ class Cable {
               };
               // we're going to search if the user is the own of the cable
               let listSegments = JSON.parse(geomData);
-              cables.find({ _id: id, uuid: String(user) }).count((err, c) => {
+              cables.find({ $and: [adms(user), { _id: id }] }).count((err, c) => {
                 if (err) reject({ m: err });
                 const segments = require('../../models/cable_segments.model');
                 segments().then(async (segments) => {
                   segments.remove({ cable_id: id }, (err, d) => {
                     if (err) reject({ m: err });
-                    cables.updateOne({ _id: id, uuid: String(user) }, { $set: data }, async (err, u) => {
+                    cables.updateOne({ $and: [adms(user), { _id: id }] }, { $set: data }, async (err, u) => {
                       if (err) reject({ m: err });
                       else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
                       else {
@@ -424,7 +424,7 @@ class Cable {
               else if (c === 0) reject({ m: 'We cannot delete your cable' });
               else {
                 cables.updateOne(
-                  { _id: id, uuid: String(user) }, { $set: { deleted: true } }, (err, u) => {
+                   { $and: [adms(user), { _id: id }] }, { $set: { deleted: true } }, (err, u) => {
                     if (err) reject(err);
                     else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete your cable' });
                     else resolve({ m: 'Deleted' });
