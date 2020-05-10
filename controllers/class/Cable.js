@@ -603,9 +603,10 @@ class Cable {
     return new Promise((resolve, reject) => {
       try {
         this.model().then((cable) => {
+          const uuid = (search.psz === '1') ? adms(user) : {};
           cable.aggregate([
             {
-              $match: { name: { $regex: search, $options: 'i' } },
+              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { deleted: false }] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {

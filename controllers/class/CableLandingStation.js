@@ -79,9 +79,7 @@ class CLS {
                 };
                 // we need search about the information
                 cls.insertOne(data, (err, i) => {
-                  console.log(err);
                   if (err) resolve({ m: err + 0 });
-                  console.log(i);
                   resolve();
                 });
               }
@@ -122,7 +120,7 @@ class CLS {
                 { $and: [adms(user), { _id: id }] }, { $set: data }, (err, u) => {
                   if (err) reject(err);
                   else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
-                  else resolve({ m: 'Loaded', r: data });
+                  else resolve({ m: 'CLS updated', r: data });
                 },
               );
             });
@@ -443,7 +441,7 @@ class CLS {
         this.model().then((cable) => {
           cable.aggregate([
             {
-              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }] },
+              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { deleted: false }] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {

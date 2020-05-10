@@ -399,7 +399,7 @@ class Facility {
           const uuid = (search.psz === '1') ? adms(user) : {};
           facility.aggregate([
             {
-              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }] },
+              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { deleted: false }] },
             },
             {
               $project: {
