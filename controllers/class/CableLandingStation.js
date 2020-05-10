@@ -224,6 +224,17 @@ class CLS {
           this.model().then((cls) => {
             cls.aggregate([
               {
+                $addFields: {
+                  cables: {
+                    $cond: {
+                      $if: { $eq: [{ $type: '$cables' }, 'array'] },
+                      then: '$cables',
+                      else: [],
+                    },
+                  },
+                },
+              },
+              {
                 $match: {
                   $expr: {
                     $in: [new ObjectID(idCable), '$cables'],

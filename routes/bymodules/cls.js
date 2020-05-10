@@ -66,13 +66,11 @@ module.exports = {
         .catch((e) => { response.err(res, e); });
     });
     router.get(`${process.env._ROUTE}/cls/list/cables/:id`, statics, (req, res) => {
-      console.log(req.params.id);
       controllers.cableLandingStations.listOfCables(req.headers.userid, req.params.id)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
     router.get(`${process.env._ROUTE}/cls/list/connected/:id`, statics, (req, res) => {
-      console.log(req.params.id);
       controllers.cableLandingStations.listOfCLSbyCable(req.headers.userid, req.params.id)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
