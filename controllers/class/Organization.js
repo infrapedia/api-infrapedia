@@ -157,7 +157,7 @@ class Organization {
           this.model().then((organization) => {
             organization.aggregate([
               {
-                $sort: { _id: 1 },
+                $sort: { name: 1 },
               }, {
                 $match: {
                   $and: [
@@ -212,7 +212,7 @@ class Organization {
                 organization.updateOne(
                   { $and: [adms(user), { _id: id }] }, { $set: { deleted: true } }, (err, u) => {
                     if (err) reject(err);
-                    else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete your organization' });
+                    else if (u.result.nModified !== 1) resolve({ m: 'We can\'t delete your organization' });
                     else resolve({ m: 'Deleted' });
                   },
                 );
