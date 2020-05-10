@@ -424,7 +424,7 @@ class Cable {
               else if (c === 0) reject({ m: 'We cannot delete your cable' });
               else {
                 cables.updateOne(
-                   { $and: [adms(user), { _id: id }] }, { $set: { deleted: true } }, (err, u) => {
+                   { $and: [adms(user), { _id: id }] }, { $set: { deleted: true, uDate: luxon.DateTime.utc() } }, (err, u) => {
                     if (err) reject(err);
                     else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete your cable' });
                     else resolve({ m: 'Deleted' });
