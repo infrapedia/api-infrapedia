@@ -42,6 +42,11 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+    router.get(`${process.env._ROUTE}/cables/box/edit/:id`, (req, res) => {
+      controllers.cables.bboxEdit(req.headers.userid, req.params.id)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
     router.get(`${process.env._ROUTE}/cables/view/:id`, statics, (req, res) => {
       controllers.cables.view(req.headers.userid, req.params.id)
         .then((r) => { response.success(res, r, false); })

@@ -17,6 +17,7 @@ module.exports = {
       resolve(JSON.parse(reply));
     });
   }),
+  bboxEdit: (user, id) => Cable.bbox(id),
   view: (usr, id) => Cable.view(usr, id),
   search: (usr, id) => Cable.search(usr, id),
   searchT: (usr, query) => Cable.searchT(usr, query),

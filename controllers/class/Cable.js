@@ -591,7 +591,7 @@ class Cable {
               $addFields: { coordinates: [{ $arrayElemAt: ['$coordinates', 0] }, { $arrayElemAt: ['$coordinates', -1] }] },
             },
           ]).toArray((err, c) => {
-            if (err) { console.log(id); reject(err); }
+            if (err) { reject(err); }
             resolve({ m: 'Loaded', r: c });
           });
         });
