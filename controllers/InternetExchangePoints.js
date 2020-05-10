@@ -18,4 +18,5 @@ module.exports = {
   add: (usr, data) => IXP.add(usr, data),
   edit: (usr, data) => IXP.edit(usr, data),
   list: (usr, page) => IXP.list(usr, page),
+  delete: (usr, id) => IXP.delete(usr, id),
 };
