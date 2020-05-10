@@ -72,7 +72,7 @@ class Cable {
                           ssafe += 1;
                           segmentsCounts += 1;
                           fs.unlink(`./temp/${nameFile}.json`, (err) => {
-                            resolve({ m: 'Cable created' });
+                            resolve({ m: 'Cable created', r: i.insertedId });
                           });
                         });
                       });

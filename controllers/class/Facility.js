@@ -270,26 +270,14 @@ class Facility {
                 {
                   $lookup: {
                     from: 'organizations',
-                    let: { networks: '$networks' },
+                    let: { f: '$owners' },
                     pipeline: [
-                      {
-                        $addFields: {
-                          idsorgs: { $map: { input: '$$networks.organizations', as: 'orgs', in: '$$orgs' } },
-                        },
-                      },
                       {
                         $match: {
                           $and: [
                             {
                               $expr: {
-                                $in: ['$_id', {
-                                  $cond: {
-                                    if: { $isArray: { $arrayElemAt: ['$idsorgs', 0] } },
-                                    then: { $arrayElemAt: ['$idsorgs', 0] },
-                                    else: [],
-                                  },
-                                },
-                                ],
+                                $in: ['$_id', '$$f'],
                               },
                             },
                             {
@@ -300,12 +288,11 @@ class Facility {
                       },
                       {
                         $project: {
-                          _id: 1,
-                          name: 1,
+                          label: '$name',
                         },
                       },
                     ],
-                    as: 'organizations',
+                    as: 'owners',
                   },
                 },
                 {
