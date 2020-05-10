@@ -119,7 +119,7 @@ class CLS {
                 uDate: luxon.DateTime.utc(),
               };
               cls.updateOne(
-                { _id: id, uuid: String(user) }, { $set: data }, (err, u) => {
+                { $and: [adms(user), { _id: id }] }, { $set: data }, (err, u) => {
                   if (err) reject(err);
                   else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
                   else resolve({ m: 'Loaded', r: data });
@@ -336,7 +336,7 @@ class CLS {
               else if (c === 0) reject({ m: 'We cannot delete your CLS' });
               else {
                 cls.updateOne(
-                  { _id: id, uuid: String(user) }, { $set: { deleted: true } }, (err, u) => {
+                  { $and: [adms(user), { _id: id }] }, { $set: { deleted: true, uDate: luxon.DateTime.utc() } }, (err, u) => {
                     if (err) reject(err);
                     else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete your cls' });
                     else resolve({ m: 'Deleted' });

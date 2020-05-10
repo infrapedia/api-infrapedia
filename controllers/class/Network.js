@@ -36,7 +36,7 @@ class Network {
               network.insertOne(data, (err, i) => {
                 // TODO: validation insert
                 if (err) reject({ m: err });
-                resolve({ m: 'Connection created' });
+                resolve({ m: 'Group created' });
               });
             });
           }).catch((e) => { console.log(e); reject({ m: e + 1 }); });
@@ -66,7 +66,7 @@ class Network {
             };
             network.updateOne({ $and: [adms(user), { _id: id }] }, { $set: data }, (err, u) => {
               if (err) reject({ m: err });
-              resolve({ m: 'Connetion updated', r: data });
+              resolve({ m: 'Group updated', r: data });
             });
           }).catch((e) => { reject({ m: e }); });
         } else { resolve('Not user found'); }
@@ -213,12 +213,12 @@ class Network {
             // we need to validate if  don't have another organization with the same name
             network.find({ _id: id }).count((err, c) => {
               if (err) reject({ m: err });
-              else if (c === 0) reject({ m: 'We cannot delete your connection' });
+              else if (c === 0) reject({ m: 'We cannot delete your group' });
               else {
                 network.updateOne(
                   { $and: [adms(user), { _id: id }] }, { $set: { deleted: true, uDate: luxon.DateTime.utc() } }, (err, u) => {
                     if (err) reject({ m: err });
-                    else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete your connection' });
+                    else if (u.result.nModified !== 1) resolve({ m: 'We can\'t delete your group' });
                     else resolve({ m: 'Deleted' });
                   },
                 );
