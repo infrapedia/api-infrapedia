@@ -626,7 +626,6 @@ class Cable {
     });
   }
 
-
   searchT(user, search) {
     return new Promise((resolve, reject) => {
       try {
@@ -936,14 +935,36 @@ class Cable {
               },
             },
             {
+              $lookup: {
+                from: 'cables_segments',
+                localField: '_id',
+                foreignField: 'cable_id',
+                as: 'geom',
+              },
+            },
+            {
+              $unwind:
+                {
+                  path: '$geom',
+                  preserveNullAndEmptyArrays: false,
+                },
+            },
+            {
               $project: {
-                geom: 1,
+                id: 1,
+                type: 'Feature',
+                properties: {
+                  _id: '$_id',
+                },
+                geometry: '$geom.geometry',
+
               },
             },
           ]).toArray(async (err, lines) => {
+            console.log(lines);
             if (err) return 'Error';
             // we'll going to create the master file for ixps
-            lines = await lines.reduce((total, value) => total.concat(value.geom.features), []);
+            // lines = await lines.reduce((total, value) => total.concat(value.geometry), []);
             lines = {
               type: 'FeatureCollection',
               features: lines,

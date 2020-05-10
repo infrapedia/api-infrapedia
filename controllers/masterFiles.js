@@ -77,7 +77,6 @@ module.exports = {
           let checkedFiles = 0;
           await ids.map((id) => {
             secuencial += 1;
-            console.log(secuencial);
             cable.aggregate([
               {
                 $match: {
