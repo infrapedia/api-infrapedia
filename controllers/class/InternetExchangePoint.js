@@ -88,14 +88,14 @@ class IXP {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
-          this.model().then(async (cls) => {
+          this.model().then(async (ixp) => {
             id = new ObjectID(id);
             // we need to validate if  don't have another organization with the same name
-            cls.find({ _id: id }).count((err, c) => {
+            ixp.find({ _id: id }).count((err, c) => {
               if (err) reject({ m: err });
               else if (c === 0) reject({ m: 'We cannot delete your IXP' });
               else {
-                cls.updateOne(
+                ixp.updateOne(
                   { $and: [adms(user), { _id: id }] }, { $set: { deleted: true, uDate: luxon.DateTime.utc() } }, (err, u) => {
                     if (err) reject(err);
                     else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete your IXP' });
