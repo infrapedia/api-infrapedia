@@ -52,7 +52,7 @@ module.exports = {
         .catch((e) => { response.err(res, e); });
     });
     router.delete(`${process.env._ROUTE}/auth/ixps/delete/:id`, (req, res) => {
-      controllers.cableLandingStations.delete(req.headers.userid, req.params.id)
+      controllers.InternetExchangePoints.delete(req.headers.userid, req.params.id)
         .then((r) => { response.success(res, r); })
         .catch((e) => { response.err(res, e); });
     });
