@@ -408,6 +408,7 @@ class Facility {
               },
             },
             { $sort: { name: 1 } },
+            { $limit: 20 },
           ]).toArray((err, r) => {
             resolve(r);
           });

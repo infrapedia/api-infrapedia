@@ -414,6 +414,7 @@ class IXP {
                 name: 1,
               },
             },
+            { $limit: 20 },
           ]).toArray((err, r) => {
             resolve(r);
           });

@@ -343,7 +343,7 @@ class Search {
           ixp.aggregate([
             {
               $project: {
-                _id: 1, name: 1, nameLong: 1
+                _id: 1, name: 1, nameLong: 1,
               },
             },
             {

@@ -280,6 +280,7 @@ class Organization {
               },
             },
             { $sort: { yours: -1 } },
+            { $limit: 20 },
           ]).toArray((err, r) => {
             resolve(r);
           });
