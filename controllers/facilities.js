@@ -40,5 +40,5 @@ FROM facility`;
   add: (usr, data) => Facility.add(usr, data),
   edit: (usr, data) => Facility.edit(usr, data),
   list: (usr, page) => Facility.list(usr, page),
-
+  delete: (usr, id) => Facility.delete(usr, id),
 };

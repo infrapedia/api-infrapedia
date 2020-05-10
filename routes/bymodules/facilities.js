@@ -51,5 +51,10 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+    router.delete(`${process.env._ROUTE}/auth/facilities/delete/:id`, (req, res) => {
+      controllers.facilities.delete(req.headers.userid, req.params.id)
+        .then((r) => { response.success(res, r); })
+        .catch((e) => { response.err(res, e); });
+    });
   },
 };
