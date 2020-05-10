@@ -424,7 +424,7 @@ class Facility {
               },
             ]).toArray((err, o) => {
               if (err) reject(err);
-              resolve({ m: 'Loaded', r: o[0] });
+              resolve({ m: 'Loaded', r: o });
             });
           });
         } else { resolve('Not user found'); }
