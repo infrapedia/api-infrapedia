@@ -424,16 +424,13 @@ class IXP {
   search(user, search) {
     return new Promise((resolve, reject) => {
       try {
-        this.model().then((facility) => {
+        this.model().then((ixp) => {
           const uuid = (search.psz === '1') ? adms(user) : {};
-          facility.aggregate([
+          ixp.aggregate([
             { $sort: { name: 1 } },
             {
               $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { nameLong: { $regex: search.s, $options: 'i' } }, { deleted: false }] },
             },
-            // {
-            //   $addFields: { name: { $concat: ['$name', ' (', { $arrayElemAt: ['$address.city', 0] }, ', ', { $arrayElemAt: ['$address.country', 0] }, ')'] } },
-            // },
             {
               $project: {
                 _id: 1,
