@@ -220,6 +220,7 @@ class Network {
                     if (err) reject({ m: err });
                     else if (u.result.nModified !== 1) resolve({ m: 'We cannot delete your connection' });
                     else resolve({ m: 'Deleted' });
+                  },
                 );
               }
             });
