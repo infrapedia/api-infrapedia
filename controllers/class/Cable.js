@@ -316,7 +316,7 @@ class Cable {
           this.model().then((cables) => {
             cables.aggregate([
               {
-                $sort: { _id: 1 },
+                $sort: { name: 1 },
               },
               {
                 $match: {
@@ -661,7 +661,7 @@ class Cable {
         this.model().then((cable) => {
           cable.aggregate([
             {
-              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { terrestrial: false }] },
+              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { terrestrial: false }, { deleted: false }] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {
