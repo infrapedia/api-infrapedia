@@ -5,7 +5,7 @@ let Facility = require('./class/Facility');
 
 Facility = new Facility();
 module.exports = {
-  search: (usr, query) => Facility.search(usr, query),
+  search: (usr, query) => Facility.search(usr, query.trim()),
   transferFacilities: () => new Promise((resolve, reject) => {
     const SQLQuery = `SELECT 
 fac_id, org_id, address1, address2, city, clli, country, created, latitude, longitude, name, net_count, notes, npanxx, rencode, state, status, updated, website, zipcode, org_name, osm_addr_city, osm_addr_country, osm_addr_housenumber, osm_addr_postcode, osm_addr_state, osm_addr_street, osm_building, osm_building_levels, osm_height, osm_id, osm_name, osm_operator, osm_source, osm_start_date, osm_telecom,premium, 

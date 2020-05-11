@@ -8,7 +8,7 @@ module.exports = {
   delete: (usr, id) => Organization.delete(usr, id),
   owner: (usr, id) => Organization.owner(usr, id),
   view: (usr, id) => Organization.view(usr, id),
-  search: (usr, query) => Organization.search(usr, query),
+  search: (usr, query) => Organization.search(usr, query.trim()),
   partners: () => Organization.partners(),
   istrusted: () => Organization.istrusted(),
 };

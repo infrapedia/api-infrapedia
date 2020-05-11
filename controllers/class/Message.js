@@ -394,7 +394,7 @@ class Message {
           page = (parseInt(page) < 1) ? 1 : parseInt(page);
           const limit = 50;
           issues.aggregate([
-            { $match: { $and: [adms(user), { t: '2' }] } },
+            { $match: { $and: [{ uuid: user }, { t: '2' }] } },
             { $sort: { uDate: -1 } },
             { $skip: Math.abs((limit * page) - limit) },
             { $limit: limit },
@@ -450,7 +450,7 @@ class Message {
           page = (parseInt(page) < 1) ? 1 : parseInt(page);
           const limit = 50;
           issues.aggregate([
-            { $match: { $and: [adms(user), { t: '1' }] } },
+            { $match: { $and: [{ uuid: user }, { t: '1' }] } },
             { $sort: { uDate: -1 } },
             { $skip: Math.abs((limit * page) - limit) },
             { $limit: limit },

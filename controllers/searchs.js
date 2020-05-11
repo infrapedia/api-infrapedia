@@ -2,11 +2,11 @@ let Search = require('./class/Search');
 
 Search = new Search();
 module.exports = {
-  byField: (usr, data) => Search.byField(usr, data),
-  byFieldCables: (usr, data) => Search.byFieldCables(usr, data),
-  byFieldCls: (usr, data) => Search.byFieldCls(usr, data),
-  byFieldNetworks: (usr, data) => Search.byFieldNetworks(usr, data),
-  byFieldOrgs: (usr, data) => Search.byFieldOrgs(usr, data),
-  byFieldFacility: (usr, data) => Search.byFieldFacility(usr, data),
-  byFieldIXP: (usr, data) => Search.byFieldIXP(usr, data),
+  byField: (usr, data) => Search.byField(usr, data.trim()),
+  byFieldCables: (usr, data) => Search.byFieldCables(usr, data.trim()),
+  byFieldCls: (usr, data) => Search.byFieldCls(usr, data.trim()),
+  byFieldNetworks: (usr, data) => Search.byFieldNetworks(usr, data.trim()),
+  byFieldOrgs: (usr, data) => Search.byFieldOrgs(usr, data.trim()),
+  byFieldFacility: (usr, data) => Search.byFieldFacility(usr, data.trim()),
+  byFieldIXP: (usr, data) => Search.byFieldIXP(usr, data.trim()),
 };
