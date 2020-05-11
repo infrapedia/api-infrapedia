@@ -187,7 +187,7 @@ class Issue {
                 viewed: 1,
                 idReport: 1,
                 deleted: 1,
-                t: 'cls',
+                t: 'facility',
               },
             },
             { $skip: Math.abs((limit * page) - limit) },
@@ -209,7 +209,7 @@ class Issue {
   myReportsCLS(user, page) {
     return new Promise((resolve, reject) => {
       try {
-        this.model = require('../../models/issues.model');
+        // this.model = require('../../models/issues.model');
         this.model().then((issues) => {
           page = (parseInt(page) < 1) ? 1 : parseInt(page);
           const limit = 50;
@@ -265,7 +265,7 @@ class Issue {
   myReportsFacilities(user, page) {
     return new Promise((resolve, reject) => {
       try {
-        this.model = require('../../models/facility.model');
+        // this.model = require('../../models/issues.model');
         this.model().then((issues) => {
           page = (parseInt(page) < 1) ? 1 : parseInt(page);
           const limit = 50;
@@ -276,7 +276,7 @@ class Issue {
             { $limit: limit },
             {
               $lookup: {
-                from: 'cls',
+                from: 'facilities',
                 localField: 'elemnt',
                 foreignField: '_id',
                 as: 'elemnt_id',
@@ -306,11 +306,10 @@ class Issue {
                 viewed: 1,
                 idReport: 1,
                 deleted: 1,
-                t: 'cls',
+                t: 'facility',
               },
             },
           ]).toArray((err, r) => {
-            console.log(err);
             resolve(r);
           });
         }).catch();
@@ -321,7 +320,7 @@ class Issue {
   myReportsCables(user, page) {
     return new Promise((resolve, reject) => {
       try {
-        this.model = require('../../models/issues.model');
+        // this.model = require('../../models/issues.model');
         this.model().then((issues) => {
           page = (parseInt(page) < 1) ? 1 : parseInt(page);
           const limit = 50;
@@ -389,7 +388,7 @@ class Issue {
   myReports(user, page) {
     return new Promise((resolve, reject) => {
       try {
-        Promise.all([this.myReportsCLS(user, page), this.myReportsCables(user, page)]).then(async (r) => {
+        Promise.all([this.myReportsCLS(user, page), this.myReportsCables(user, page), this.myReportsFacilities(user, page)]).then(async (r) => {
           r = await r.reduce((total, value) => total.concat(value), []);
           resolve({ m: 'loaded', r });
         }).catch((e) => { reject({ m: e }); });

@@ -329,28 +329,28 @@ class Cable {
               },
               { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit) > 0) ? (parseInt(limit) * parseInt(page)) - parseInt(limit) : 0 },
               { $limit: limit },
-              {
-                $lookup: {
-                  from: 'facilities',
-                  let: { f: '$facilities' },
-                  pipeline: [
-                    {
-                      $match: {
-                        $expr: {
-                          $in: ['$_id', '$$f'],
-                        },
-                      },
-                    },
-                    {
-                      $project: {
-                        _id: 1,
-                        name: 1,
-                      },
-                    },
-                  ],
-                  as: 'facilities',
-                },
-              },
+              // {
+              //   $lookup: {
+              //     from: 'facilities',
+              //     let: { f: '$facilities' },
+              //     pipeline: [
+              //       {
+              //         $match: {
+              //           $expr: {
+              //             $in: ['$_id', '$$f'],
+              //           },
+              //         },
+              //       },
+              //       {
+              //         $project: {
+              //           _id: 1,
+              //           name: 1,
+              //         },
+              //       },
+              //     ],
+              //     as: 'facilities',
+              //   },
+              // },
               {
                 $lookup: {
                   from: 'alerts',
@@ -608,6 +608,7 @@ class Cable {
                 name: 1,
                 terrestrial: 1,
                 yours: 1,
+                alerts: 1,
               },
             },
             { $sort: { yours: -1 } },
@@ -631,11 +632,28 @@ class Cable {
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {
+              $lookup: {
+                from: 'alerts',
+                let: { elemnt: { $toString: '$_id' } },
+                pipeline: [
+                  {
+                    $match: { $expr: { $and: [{ $eq: ['$elemnt', '$$elemnt'] }] } },
+                  },
+                  { $count: 'elmnt' },
+                ],
+                as: 'alerts',
+              },
+            },
+            {
+              $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
+            },
+            {
               $project: {
                 _id: 1,
                 name: 1,
                 terrestrial: 1,
                 yours: 1,
+                alerts: 1,
               },
             },
             { $sort: { yours: -1 } },
@@ -658,11 +676,28 @@ class Cable {
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {
+              $lookup: {
+                from: 'alerts',
+                let: { elemnt: { $toString: '$_id' } },
+                pipeline: [
+                  {
+                    $match: { $expr: { $and: [{ $eq: ['$elemnt', '$$elemnt'] }] } },
+                  },
+                  { $count: 'elmnt' },
+                ],
+                as: 'alerts',
+              },
+            },
+            {
+              $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
+            },
+            {
               $project: {
                 _id: 1,
                 name: 1,
                 terrestrial: 1,
                 yours: 1,
+                alerts: 1,
               },
             },
             { $sort: { yours: -1 } },

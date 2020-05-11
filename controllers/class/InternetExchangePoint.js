@@ -432,9 +432,26 @@ class IXP {
               $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { nameLong: { $regex: search.s, $options: 'i' } }, { deleted: false }] },
             },
             {
+              $lookup: {
+                from: 'alerts',
+                let: { elemnt: { $toString: '$_id' } },
+                pipeline: [
+                  {
+                    $match: { $expr: { $and: [{ $eq: ['$elemnt', '$$elemnt'] }] } },
+                  },
+                  { $count: 'elmnt' },
+                ],
+                as: 'alerts',
+              },
+            },
+            {
+              $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
+            },
+            {
               $project: {
                 _id: 1,
                 name: 1,
+                alerts: 1,
               },
             },
             { $limit: 20 },
