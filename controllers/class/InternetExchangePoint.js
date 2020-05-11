@@ -299,47 +299,47 @@ class IXP {
                     as: 'networks',
                   },
                 },
-                {
-                  $lookup: {
-                    from: 'organizations',
-                    let: { networks: '$networks' },
-                    pipeline: [
-                      {
-                        $addFields: {
-                          idsorgs: { $map: { input: '$$networks.organizations', as: 'orgs', in: '$$orgs' } },
-                        },
-                      },
-                      {
-                        $match: {
-                          $and: [
-                            {
-                              $expr: {
-                                $in: ['$_id', {
-                                  $cond: {
-                                    if: { $isArray: { $arrayElemAt: ['$idsorgs', 0] } },
-                                    then: { $arrayElemAt: ['$idsorgs', 0] },
-                                    else: [],
-                                  },
-                                },
-                                ],
-                              },
-                            },
-                            {
-                              deleted: false,
-                            },
-                          ],
-                        },
-                      },
-                      {
-                        $project: {
-                          _id: 1,
-                          name: 1,
-                        },
-                      },
-                    ],
-                    as: 'organizations',
-                  },
-                },
+                // {
+                //   $lookup: {
+                //     from: 'organizations',
+                //     let: { networks: '$networks' },
+                //     pipeline: [
+                //       {
+                //         $addFields: {
+                //           idsorgs: { $map: { input: '$$networks.organizations', as: 'orgs', in: '$$orgs' } },
+                //         },
+                //       },
+                //       {
+                //         $match: {
+                //           $and: [
+                //             {
+                //               $expr: {
+                //                 $in: ['$_id', {
+                //                   $cond: {
+                //                     if: { $isArray: { $arrayElemAt: ['$idsorgs', 0] } },
+                //                     then: { $arrayElemAt: ['$idsorgs', 0] },
+                //                     else: [],
+                //                   },
+                //                 },
+                //                 ],
+                //               },
+                //             },
+                //             {
+                //               deleted: false,
+                //             },
+                //           ],
+                //         },
+                //       },
+                //       {
+                //         $project: {
+                //           _id: 1,
+                //           name: 1,
+                //         },
+                //       },
+                //     ],
+                //     as: 'organizations',
+                //   },
+                // },
                 {
                   $lookup: {
                     from: 'alerts',
