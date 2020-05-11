@@ -13,6 +13,7 @@ class Issue {
   addReport(user, data) {
     return new Promise((resolve, reject) => {
       try {
+        this.model = require('../../models/issues.model');
         if (user !== undefined || user !== '') {
           this.model().then((issues) => {
             const issue = {
@@ -42,8 +43,8 @@ class Issue {
   Cables(user, page) {
     return new Promise((resolve, reject) => {
       try {
-        this.model = require('../../models/cable.model');
-        this.model().then((cable) => {
+        const v = require('../../models/cable.model');
+        v().then((cable) => {
           page = (parseInt(page) < 1) ? 1 : parseInt(page);
           const limit = 50;
           cable.aggregate([
@@ -96,8 +97,8 @@ class Issue {
   CableLandingStations(user, page) {
     return new Promise((resolve, reject) => {
       try {
-        this.model = require('../../models/cls.model');
-        this.model().then((cls) => {
+        const v = require('../../models/cls.model');
+        v().then((cls) => {
           page = (parseInt(page) < 1) ? 1 : parseInt(page);
           const limit = 50;
           cls.aggregate([
@@ -150,8 +151,8 @@ class Issue {
   Facilities(user, page) {
     return new Promise((resolve, reject) => {
       try {
-        this.model = require('../../models/facility.model');
-        this.model().then((facility) => {
+        const v = require('../../models/facility.model');
+        v().then((facility) => {
           page = (parseInt(page) < 1) ? 1 : parseInt(page);
           const limit = 50;
           facility.aggregate([
