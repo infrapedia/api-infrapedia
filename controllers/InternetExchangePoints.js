@@ -4,7 +4,7 @@ const redisClient = require('../config/redis');
 
 IXP = new IXP();
 module.exports = {
-  search: (usr, query) => IXP.search(usr, query.trim()),
+  search: (usr, query) => IXP.search(usr, query),
   owner: (usr, id) => IXP.owner(usr, id),
   view: (usr, id) => IXP.view(usr, id),
   bbox: (user, id) => new Promise((resolve, reject) => {

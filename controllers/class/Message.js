@@ -102,8 +102,8 @@ class Message {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
-          this.model().then((issues) => {
-            const issue = {
+          this.model().then((message) => {
+            const info = {
               uuid: String(user),
               t: data.t,
               elemnt: new ObjectID(data.elemnt),
@@ -116,7 +116,7 @@ class Message {
               viewed: false,
               deleted: false,
             };
-            issues.insertOne(issue, (err, I) => {
+            message.insertOne(info, (err, I) => {
               if (err) reject({ m: err });
               const ejs = require('ejs');
               // User receives message
