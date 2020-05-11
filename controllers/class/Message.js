@@ -525,9 +525,9 @@ class Message {
     return new Promise((resolve, reject) => {
       try {
         this.model = require('../../models/messages.model');
-        this.model().then((issues) => {
+        this.model().then((messages) => {
           // , { uuid: String(user) }
-          issues.aggregate([
+          messages.aggregate([
             { $match: { $and: [{ _id: new ObjectID(id) }, { t: '1' }] } },
             {
               $lookup: {
