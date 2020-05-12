@@ -631,26 +631,7 @@ class Map {
     return new Promise((resolve, reject) => {
       if (subdomain !== undefined) {
         this.model().then((orgData) => {
-          orgData.aggregate([
-            {
-              $match: {
-                subdomain,
-              },
-            },
-            // {
-            //   $project: {
-            //     uuid: 0,
-            //     facilities: 0,
-            //     ixps: 0,
-            //     cls: 0,
-            //     subsea: 0,
-            //     terrestrials: 0,
-            //     config: 0,
-            //     draw: 0,
-            //     rgDate: 0,
-            //   },
-            // },
-          ], (err, org) => {
+          orgData.findOne({ subdomain }, (err, org) => {
             console.log(err);
             if (err) { reject(err); }
             gcloud.uploadFilesCustomMap(org, 'info', subdomain).then((r) => { //map
