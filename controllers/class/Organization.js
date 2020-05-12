@@ -296,6 +296,7 @@ class Organization {
                 _id: 1,
                 name: 1,
                 yours: 1,
+                logo: 1,
               },
             },
             { $sort: { yours: -1 } },
