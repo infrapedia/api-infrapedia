@@ -17,6 +17,7 @@ function uploadFileLogo(path, user, allowedExtensions) {
     if (allowedExtensions.exec(path)) {
       const ufile = `logo-${uuidv4()}${allowedExtensionsImg.exec(path)[1]}`;
       const bucketFile = bucket.file(`${process.env._GG_CLOUD_BUCKET_FOLDER_LOGOS}/${user}/${ufile}`);
+      console.log(ufile, bucketFile);
       fs.createReadStream(path)
         .pipe(bucketFile.createWriteStream({
           metadata: {

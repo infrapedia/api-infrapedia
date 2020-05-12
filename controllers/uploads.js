@@ -6,6 +6,7 @@ module.exports = {
       logoUploadFiles(idata.file, user).then((lks) => {
         resolve({ m: 'loaded', r: lks });
       }).catch((e) => {
+        console.log(e);
         reject({ m: e });
       });
     } catch (e) { reject({ m: e }); }
