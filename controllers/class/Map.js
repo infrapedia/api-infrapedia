@@ -374,7 +374,12 @@ class Map {
             },
           ], { allowDiskUse: true }).toArray(async (err, multipoints) => {
             if (err) reject({ m: err });
-            multipoints = await multipoints[0].ixps.reduce((total, value) => total.concat(value.feature), []);
+            let id = 0;
+            multipoints = await multipoints[0].ixps.reduce((total, value) => {
+              id++;
+              value.feature.id = id;
+              return total.concat(value.feature);
+            }, []);
             multipoints = {
               type: 'FeatureCollection',
               features: multipoints,
@@ -439,7 +444,12 @@ class Map {
             },
           ], { allowDiskUse: true }).toArray(async (err, multipolygon) => {
             if (err) reject({ m: err });
-            multipolygon = await multipolygon[0].facilities.reduce((total, value) => total.concat(value.feature), []);
+            let id = 0;
+            multipolygon = await multipolygon[0].facilities.reduce((total, value) => {
+              id++;
+              value.feature.id = id;
+              return total.concat(value.feature);
+            }, []);
             multipolygon = {
               type: 'FeatureCollection',
               features: multipolygon,
@@ -503,7 +513,12 @@ class Map {
             },
           ], { allowDiskUse: true }).toArray(async (err, multipoints) => {
             if (err) reject({ m: err });
-            multipoints = await multipoints[0].cls.reduce((total, value) => total.concat(value.feature), []);
+            let id = 0;
+            multipoints = await multipoints[0].cls.reduce((total, value) => {
+              id++;
+              value.feature.id = id;
+              return total.concat(value.feature);
+            }, []);
             multipoints = {
               type: 'FeatureCollection',
               features: multipoints,
@@ -513,6 +528,40 @@ class Map {
             }).catch((e) => reject(e));
           });
         }).catch((e) => reject({ m: e }));
+      } else { reject({ m: 'subdomain undefined' }); }
+    });
+  }
+
+  organization(subdomain) {
+    return new Promise((resolve, reject) => {
+      if (subdomain !== undefined) {
+        this.model().then((organization) => {
+          organization.aggregate([
+            {
+              $match: {
+                subdomain,
+              },
+            },
+            {
+              $project: {
+                uuid: 0,
+                facilities: 0,
+                ixps: 0,
+                cls: 0,
+                subsea: 0,
+                terrestrial: 0,
+                config: 0,
+                draw: 0,
+                rgDate: 0,
+              },
+            },
+          ], (err, data) => {
+            if (err) { reject(err); }
+            gcloud.uploadFilesCustomMap(data, 'data', subdomain).then((r) => {
+              resolve(data);
+            }).catch((e) => reject(e));
+          });
+        }).catch((e) => reject(e));
       } else { reject({ m: 'subdomain undefined' }); }
     });
   }
