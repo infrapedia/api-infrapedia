@@ -631,13 +631,24 @@ class Map {
     return new Promise((resolve, reject) => {
       if (subdomain !== undefined) {
         this.model().then((orgData) => {
-          orgData.findOne({ subdomain }, (err, org) => {
-            console.log(err);
-            if (err) { reject(err); }
-            gcloud.uploadFilesCustomMap(org, 'info', subdomain).then((r) => { //map
-              resolve(org);
-            }).catch((e) => reject(e));
-          });
+          orgData.findOne({ subdomain },
+            {
+              uuid: 0,
+              facilities: 0,
+              ixps: 0,
+              cls: 0,
+              subsea: 0,
+              terrestrials: 0,
+              config: 0,
+              draw: 0,
+              rgDate: 0,
+            }, (err, org) => {
+              console.log(err);
+              if (err) { reject(err); }
+              gcloud.uploadFilesCustomMap(org, 'info', subdomain).then((r) => { // map
+                resolve(org);
+              }).catch((e) => reject(e));
+            });
         }).catch((e) => reject(e));
       } else { reject({ m: 'subdomain undefined' }); }
     });
