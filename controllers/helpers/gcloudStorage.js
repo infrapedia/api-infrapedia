@@ -25,6 +25,7 @@ function uploadFileLogo(path, user, allowedExtensions) {
             'Cache-Control': 'public, max-age=3600',
           },
         })).on('error', (err) => { reject(err); }).on('finish', () => {
+          console.log('finish');
           bucketFile.makePublic().then(() => {
             // resolve(`https://clients.agrimanager.app/${process.env._GG_CLOUD_BUCKET_FOLDER_LOGOS}/${ufile}`);
             resolve(`${process.env._CDN_ROUTE_FILES}/${process.env._GG_CLOUD_BUCKET_FOLDER_LOGOS}/${user}/${ufile}`);
