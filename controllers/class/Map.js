@@ -651,7 +651,7 @@ class Map {
             //   },
             // },
           ], (err, org) => {
-            console.log(org);
+            console.log(err);
             if (err) { reject(err); }
             gcloud.uploadFilesCustomMap(org, 'info', subdomain).then((r) => { //map
               resolve(org);
