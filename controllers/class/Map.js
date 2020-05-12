@@ -231,7 +231,6 @@ class Map {
   segments(id, name, terrestrial, cable, config) {
     return new Promise((resolve, reject) => {
       try {
-        console.log(id, name);
         const mSegments = require('../../models/cable_segments.model');
         mSegments().then((segments) => {
           segments.aggregate([
@@ -361,12 +360,36 @@ class Map {
               },
             },
             {
+              $addFields: {
+                config: '$config.ixps',
+              },
+            },
+            {
               $lookup: {
                 from: 'ixps',
-                let: { ixps: '$ixps' },
+                let: { ixps: '$ixps', config: '$config' },
                 pipeline: [
                   {
+                    $addFields: { config: '$$config' },
+                  },
+                  {
                     $match: { $expr: { $in: ['$_id', '$$ixps'] } },
+                  },
+                  {
+                    $unwind: '$config',
+                  },
+                  {
+                    $addFields: {
+                      equal: { $cond: [{ $eq: ['$config._id', { $toString: '$_id' }] }, true, false] },
+                    },
+                  },
+                  {
+                    $match: { equal: true },
+                  },
+                  {
+                    $addFields: {
+                      'feature.properties': '$config',
+                    },
                   },
                   {
                     $addFields: {
@@ -428,15 +451,39 @@ class Map {
               },
             },
             {
+              $addFields: {
+                config: '$config.facilities',
+              },
+            },
+            {
               $lookup: {
                 from: 'facilities',
-                let: { facilities: '$facilities' },
+                let: { facilities: '$facilities', config: '$config' },
                 pipeline: [
+                  {
+                    $addFields: { config: '$$config' },
+                  },
                   {
                     $match: { $expr: { $in: ['$_id', '$$facilities'] } },
                   },
                   {
                     $unwind: '$geom.features',
+                  },
+                  {
+                    $unwind: '$config',
+                  },
+                  {
+                    $addFields: {
+                      equal: { $cond: [{ $eq: ['$config._id', { $toString: '$_id' }] }, true, false] },
+                    },
+                  },
+                  {
+                    $match: { equal: true },
+                  },
+                  {
+                    $addFields: {
+                      'feature.properties': '$config',
+                    },
                   },
                   {
                     $addFields: {
@@ -497,15 +544,40 @@ class Map {
               },
             },
             {
+              $addFields: {
+                config: '$config.cls',
+              },
+            },
+            {
               $lookup: {
                 from: 'cls',
-                let: { cls: '$cls' },
+                let: { cls: '$cls', config: '$config' },
                 pipeline: [
+
+                  {
+                    $addFields: { config: '$$config' },
+                  },
                   {
                     $match: { $expr: { $in: ['$_id', '$$cls'] } },
                   },
                   {
                     $unwind: '$geom.features',
+                  },
+                  {
+                    $unwind: '$config',
+                  },
+                  {
+                    $addFields: {
+                      equal: { $cond: [{ $eq: ['$config._id', { $toString: '$_id' }] }, true, false] },
+                    },
+                  },
+                  {
+                    $match: { equal: true },
+                  },
+                  {
+                    $addFields: {
+                      'feature.properties': '$config',
+                    },
                   },
                   {
                     $addFields: {
@@ -579,8 +651,9 @@ class Map {
               },
             },
           ], (err, data) => {
+            console.log(data);
             if (err) { reject(err); }
-            gcloud.uploadFilesCustomMap(data, 'data', subdomain).then((r) => {
+            gcloud.uploadFilesCustomMap(data, 'info', subdomain).then((r) => { //map
               resolve(data);
             }).catch((e) => reject(e));
           });
