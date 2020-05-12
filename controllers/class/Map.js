@@ -44,13 +44,22 @@ class Map {
             {
               $lookup: {
                 from: 'cables',
-                let: { f: '$cables' },
+                let: { fs: '$subsea', ft: '$terrestrial' },
                 pipeline: [
                   {
                     $match: {
-                      $expr: {
-                        $in: ['$_id', '$$f'],
-                      },
+                      $or: [
+                        {
+                          $expr: {
+                            $in: ['$_id', '$$ft'],
+                          },
+                        },
+                        {
+                          $expr: {
+                            $in: ['$_id', '$$fs'],
+                          },
+                        },
+                      ],
                     },
                   },
                   {
@@ -241,10 +250,11 @@ class Map {
             {
               $lookup: {
                 from: 'cables',
-                let: { cables: '$cables' },
+                let: { subsea: '$subsea', terrestrials: '$terrestrial' },
                 pipeline: [
                   {
-                    $match: { $expr: { $in: ['$_id', '$$cables'] } },
+                    $match:
+                      { $or: [{ $expr: { $in: ['$_id', '$$subsea'] } }, { $expr: { $in: ['$_id', '$$terrestrials'] } }] },
                   },
                   {
                     $project: {
