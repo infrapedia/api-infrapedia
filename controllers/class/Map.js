@@ -41,43 +41,43 @@ class Map {
                 as: 'facilities',
               },
             },
-            {
-              $lookup: {
-                from: 'cables',
-                let: { fs: '$subsea', ft: '$terrestrial' },
-                pipeline: [
-                  {
-                    $match: {
-                      $or: [
-                        {
-                          $expr: {
-                            $in: ['$_id', '$$ft'],
-                          },
-                        },
-                        {
-                          $expr: {
-                            $in: ['$_id', '$$fs'],
-                          },
-                        },
-                      ],
-                    },
-                  },
-                  {
-                    $addFields: {
-                      label: '$name',
-                      value: '$_id',
-                    },
-                  },
-                  {
-                    $project: {
-                      label: 1,
-                      value: 1,
-                    },
-                  },
-                ],
-                as: 'cables',
-              },
-            },
+            // {
+            //   $lookup: {
+            //     from: 'cables',
+            //     let: { fs: '$subsea', ft: '$terrestrial' },
+            //     pipeline: [
+            //       {
+            //         $match: {
+            //           $or: [
+            //             {
+            //               $expr: {
+            //                 $in: ['$_id', '$$ft'],
+            //               },
+            //             },
+            //             {
+            //               $expr: {
+            //                 $in: ['$_id', '$$fs'],
+            //               },
+            //             },
+            //           ],
+            //         },
+            //       },
+            //       {
+            //         $addFields: {
+            //           label: '$name',
+            //           value: '$_id',
+            //         },
+            //       },
+            //       {
+            //         $project: {
+            //           label: 1,
+            //           value: 1,
+            //         },
+            //       },
+            //     ],
+            //     as: 'cables',
+            //   },
+            // },
             {
               $lookup: {
                 from: 'cls',
