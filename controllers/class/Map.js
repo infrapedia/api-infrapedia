@@ -650,11 +650,11 @@ class Map {
                 rgDate: 0,
               },
             },
-          ], (err, data) => {
-            console.log(data);
+          ], (err, org) => {
+            console.log(org);
             if (err) { reject(err); }
-            gcloud.uploadFilesCustomMap(data, 'info', subdomain).then((r) => { //map
-              resolve(data);
+            gcloud.uploadFilesCustomMap(org, 'info', subdomain).then((r) => { //map
+              resolve(org);
             }).catch((e) => reject(e));
           });
         }).catch((e) => reject(e));
