@@ -14,7 +14,6 @@ module.exports = {
         if (err) {
           reject('Unable to scan directory: ');
         }
-        console.log('Directory scanned')
         fs.createWriteStream(path.join(__dirname, `../temp/${layer}.json`)).end();
         fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), '{\n'
           + '                              "type": "FeatureCollection",\n'
@@ -28,16 +27,12 @@ module.exports = {
           stream.on('data', (chunk) => data += chunk);
           stream.on('end', () => {
             filesReaded += 1;
-            console.log(filesReaded);
             data = JSON.parse(data);
             if (data.features[0] !== undefined) {
               // masterFile.write = JSON.stringify(data.features[0]);
               fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), (filesReaded < files.length) ? `\n${data.features.map((f) => `${JSON.stringify(f)}`)},` : `\n${data.features.map((f) => `${JSON.stringify(f)}`)}`, 'utf8');
               if (filesReaded === files.length) {
-                console.log('Finished', filesReaded);
                 fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), ']}', 'utf8');
-                // masterFile.write = ']}';
-                // masterFile.end();
                 resolve();
               }
               // fs.unlink(path.join(__dirname, `../temp/${layer}/${file}`), () => {
@@ -255,7 +250,6 @@ module.exports = {
           },
         ]).toArray(async (err, ids) => {
           let checkedFiles = 0;
-          console.log(ids);
           await ids.map((id) => {
             cable.aggregate([
               {
@@ -415,7 +409,12 @@ module.exports = {
         ], { allowDiskUse: false }).toArray(async (err, multipoints) => {
           if (err) return 'Error';
           // we'll going to create the master file for ixps
-          multipoints = await multipoints.reduce((total, value) => total.concat(value.feature), []);
+          let id = 0;
+          multipoints = await multipoints.reduce((total, value) => {
+            id++;
+            value.feature.id = id;
+            return total.concat(value.feature);
+          }, []);
           multipoints = `{
                               "type": "FeatureCollection",
                               "features": ${JSON.stringify(multipoints)}

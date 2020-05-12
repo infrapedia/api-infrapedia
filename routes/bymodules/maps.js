@@ -56,5 +56,9 @@ module.exports = {
         })
         .catch((e) => { response.err(res, e); });
     });
+
+    router.get(`${process.env._ROUTE}/map/v/:subdomain`, (req, res) => {
+
+    });
   },
 };

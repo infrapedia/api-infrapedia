@@ -101,6 +101,7 @@ class Message {
   add(user, data, token) {
     return new Promise((resolve, reject) => {
       try {
+        this.model = require('../../models/messages.model');
         if (user !== undefined || user !== '') {
           this.model().then((message) => {
             const info = {

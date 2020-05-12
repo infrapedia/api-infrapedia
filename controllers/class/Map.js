@@ -495,5 +495,20 @@ class Map {
       } catch (e) { reject({ m: e }); }
     });
   }
+
+  view(subdomain) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((map) => {
+          map.aggregate([
+            { $match: { subdomain } },
+            { $project: { } },
+          ], { allowDiskUse: true }, (err, r) => {
+            if (err) reject({ m: err });
+          });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
 }
 module.exports = Map;

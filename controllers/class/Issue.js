@@ -13,7 +13,7 @@ class Issue {
   addReport(user, data) {
     return new Promise((resolve, reject) => {
       try {
-        this.model = require('../../models/issues.model');
+        this.model = require('../../models/issues.model');dej
         if (user !== undefined || user !== '') {
           this.model().then((issues) => {
             const issue = {
