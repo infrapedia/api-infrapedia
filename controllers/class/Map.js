@@ -41,43 +41,62 @@ class Map {
                 as: 'facilities',
               },
             },
-            // {
-            //   $lookup: {
-            //     from: 'cables',
-            //     let: { fs: '$subsea', ft: '$terrestrial' },
-            //     pipeline: [
-            //       {
-            //         $match: {
-            //           $or: [
-            //             {
-            //               $expr: {
-            //                 $in: ['$_id', '$$ft'],
-            //               },
-            //             },
-            //             {
-            //               $expr: {
-            //                 $in: ['$_id', '$$fs'],
-            //               },
-            //             },
-            //           ],
-            //         },
-            //       },
-            //       {
-            //         $addFields: {
-            //           label: '$name',
-            //           value: '$_id',
-            //         },
-            //       },
-            //       {
-            //         $project: {
-            //           label: 1,
-            //           value: 1,
-            //         },
-            //       },
-            //     ],
-            //     as: 'cables',
-            //   },
-            // },
+            {
+              $lookup: {
+                from: 'cables',
+                let: { fs: '$subsea' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$_id', '$$fs'],
+                      },
+                    },
+                  },
+                  {
+                    $addFields: {
+                      label: '$name',
+                      value: '$_id',
+                    },
+                  },
+                  {
+                    $project: {
+                      label: 1,
+                      value: 1,
+                    },
+                  },
+                ],
+                as: 'subsea',
+              },
+            },
+            {
+              $lookup: {
+                from: 'cables',
+                let: { ft: '$terrestrials' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$_id', '$$ft'],
+                      },
+                    },
+                  },
+                  {
+                    $addFields: {
+                      label: '$name',
+                      value: '$_id',
+                    },
+                  },
+                  {
+                    $project: {
+                      label: 1,
+                      value: 1,
+                    },
+                  },
+                ],
+                as: 'terrestrials',
+              },
+            },
             {
               $lookup: {
                 from: 'cls',
@@ -136,7 +155,7 @@ class Map {
             },
           ]).toArray((err, r) => {
             if (err) reject({ m: err });
-            resolve({ m: 'Loaded', r: r });
+            resolve({ m: 'Loaded', r });
           });
         }).catch((e) => {});
       } catch (e) {
