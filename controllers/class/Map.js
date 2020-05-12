@@ -228,7 +228,7 @@ class Map {
     });
   }
 
-  segments(id, name) {
+  segments(id, name, terrestrial, cable) {
     return new Promise((resolve, reject) => {
       try {
         console.log(id, name);
@@ -242,7 +242,10 @@ class Map {
             },
             {
               $addFields: {
+                id: cable,
+                'properties.id': cable,
                 'properties.nameCable': name,
+                'properties.terrestrial': terrestrial,
               },
             },
           ], {
@@ -269,7 +272,7 @@ class Map {
             {
               $lookup: {
                 from: 'cables',
-                let: { subsea: '$subsea', terrestrials: '$terrestrial' },
+                let: { subsea: '$subsea', terrestrials: '$terrestrials' },
                 pipeline: [
                   {
                     $match:
@@ -279,6 +282,7 @@ class Map {
                     $project: {
                       _id: 1,
                       name: 1,
+                      terrestrial: 1,
                     },
                   },
                 ],
@@ -292,7 +296,8 @@ class Map {
             },
           ], { allowDiskUse: true }).toArray(async (err, cables) => {
             if (err) reject({ m: err });
-            Promise.all(cables[0].cables.map((c) => this.segments(c._id, c.name))).then(async (multiLines) => {
+            let cable = 0;
+            Promise.all(cables[0].cables.map((c) => { cable++; return this.segments(c._id, c.name, c.terrestrial, cable); })).then(async (multiLines) => {
               multiLines = {
                 type: 'FeatureCollection',
                 features: await multiLines.reduce((total, value) => total.concat(value), []),

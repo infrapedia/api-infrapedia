@@ -6,6 +6,7 @@ module.exports = {
         .then((r) => { response.success(res, r); })
         .catch((e) => { response.err(res, e); });
     });
+    //https://www.infrapedia.com/api/auth/organization/edit
     router.put(`${process.env._ROUTE}/auth/organization/edit`, (req, res) => {
       controllers.organizations.edit(req.headers.userid, req.body)
         .then((r) => { response.success(res, r); })
