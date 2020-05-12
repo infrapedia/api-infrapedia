@@ -637,19 +637,19 @@ class Map {
                 subdomain,
               },
             },
-            {
-              $project: {
-                uuid: 0,
-                facilities: 0,
-                ixps: 0,
-                cls: 0,
-                subsea: 0,
-                terrestrials: 0,
-                config: 0,
-                draw: 0,
-                rgDate: 0,
-              },
-            },
+            // {
+            //   $project: {
+            //     uuid: 0,
+            //     facilities: 0,
+            //     ixps: 0,
+            //     cls: 0,
+            //     subsea: 0,
+            //     terrestrials: 0,
+            //     config: 0,
+            //     draw: 0,
+            //     rgDate: 0,
+            //   },
+            // },
           ], (err, org) => {
             console.log(org);
             if (err) { reject(err); }
