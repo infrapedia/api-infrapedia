@@ -636,24 +636,23 @@ class Map {
               { $match: { subdomain } },
               {
                 $project: {
-                  "uuid" : 0,
-                  "facilities" : 0,
-                  "ixps" : 0,
-                  "cls" : 0,
-                  "subsea" : 0,
-                  "terrestrials" : 0,
-                  "config" : 0,
-                  "draw" : 0,
-                  "rgDate" : 0
-                }
-              }
-            , (err, org) => {
-              console.log(err);
-              if (err) { reject(err); }
-              gcloud.uploadFilesCustomMap(org, 'info', subdomain).then((r) => { // map
-                resolve(org);
-              }).catch((e) => reject(e));
-            });
+                  uuid: 0,
+                  facilities: 0,
+                  ixps: 0,
+                  cls: 0,
+                  subsea: 0,
+                  terrestrials: 0,
+                  config: 0,
+                  draw: 0,
+                  rgDate: 0,
+                },
+              },
+            ],
+          ).toArray((err, d) => {
+            gcloud.uploadFilesCustomMap(d, 'info', subdomain).then((r) => {
+              resolve(d);
+            }).catch((e) => reject(e));
+          });
         }).catch((e) => reject(e));
       } else { reject({ m: 'subdomain undefined' }); }
     });
