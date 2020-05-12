@@ -432,6 +432,9 @@ class IXP {
           ixp.aggregate([
             { $sort: { name: 1 } },
             {
+              $addFields: { name: { $toLower: '$name' } },
+            },
+            {
               $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { nameLong: { $regex: search.s, $options: 'i' } }, { deleted: false }] },
             },
             {

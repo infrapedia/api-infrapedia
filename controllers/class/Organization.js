@@ -272,6 +272,9 @@ class Organization {
               $sort: { name: 1 },
             },
             {
+              $addFields: { name: { $toLower: '$name' } },
+            },
+            {
               $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { deleted: false }] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },

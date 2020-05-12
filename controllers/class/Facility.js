@@ -450,6 +450,10 @@ class Facility {
         this.model().then((facility) => {
           const uuid = (search.psz === '1') ? adms(user) : {};
           facility.aggregate([
+            { $sort: { name: 1 } },
+            {
+              $addFields: { name: { $toLower: '$name' } },
+            },
             {
               $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { deleted: false }] },
             },
