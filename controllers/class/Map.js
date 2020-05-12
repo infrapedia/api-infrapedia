@@ -644,7 +644,7 @@ class Map {
                 ixps: 0,
                 cls: 0,
                 subsea: 0,
-                terrestrial: 0,
+                terrestrials: 0,
                 config: 0,
                 draw: 0,
                 rgDate: 0,
