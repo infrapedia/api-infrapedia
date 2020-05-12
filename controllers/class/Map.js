@@ -628,11 +628,10 @@ class Map {
   }
 
   setInfo(subdomain) {
-    console.log(subdomain);
     return new Promise((resolve, reject) => {
       if (subdomain !== undefined) {
-        this.model().then((organization) => {
-          organization.aggregate([
+        this.model().then((orgData) => {
+          orgData.aggregate([
             {
               $match: {
                 subdomain,
