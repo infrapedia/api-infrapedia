@@ -532,7 +532,7 @@ class Map {
     });
   }
 
-  organization(subdomain) {
+  setInfo(subdomain) {
     return new Promise((resolve, reject) => {
       if (subdomain !== undefined) {
         this.model().then((organization) => {

@@ -10,4 +10,5 @@ module.exports = {
   draw: (subdomain) => Map.draw(subdomain),
   cables: (subdomain) => Map.cables(subdomain),
   getInfo: (subdomain) => Map.getinfo(subdomain),
+  setInfo: (subdomain) => Map.setInfo(subdomain),
 }
