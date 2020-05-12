@@ -260,7 +260,6 @@ class CLS {
   }
 
   list(user, page) {
-    console.log(page);
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
@@ -268,7 +267,7 @@ class CLS {
           this.model().then((cls) => {
             cls.aggregate([
               {
-                $sort: { _id: 1 },
+                $sort: { name: 1 },
               }, {
                 $match: {
                   $and: [
@@ -451,6 +450,9 @@ class CLS {
         const uuid = (search.psz === '1') ? adms(user) : {};
         this.model().then((cable) => {
           cable.aggregate([
+            {
+              $sort: { name: 1 },
+            },
             {
               $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { deleted: false }] },
             },

@@ -242,7 +242,7 @@ class Cable {
           this.model().then((cables) => {
             cables.aggregate([
               {
-                $sort: { _id: 1 },
+                $sort: { name: 1 },
               },
               {
                 $match: {
@@ -387,22 +387,26 @@ class Cable {
       try {
         if (user !== undefined || user !== '') {
           this.model().then((cables) => {
-            cables.aggregate([{
-              $match: {
-                $and: [
-                  adms(user),
-                  { deleted: false },
-                ],
+            cables.aggregate([
+              {
+                $sort: { name: 1 },
               },
-            }, {
-              $project: {
-                _id: 1,
-                name: 1,
-                terrestrial: 1,
-                category: 1,
-                status: 1,
-              },
-            }]).toArray((err, rCables) => {
+              {
+                $match: {
+                  $and: [
+                    adms(user),
+                    { deleted: false },
+                  ],
+                },
+              }, {
+                $project: {
+                  _id: 1,
+                  name: 1,
+                  terrestrial: 1,
+                  category: 1,
+                  status: 1,
+                },
+              }]).toArray((err, rCables) => {
               if (err) reject(err);
               resolve({ m: 'Loaded', r: rCables });
             });
@@ -582,8 +586,8 @@ class Cable {
             if (err) { reject(err); }
             const coordinates = [c[0].geometry.coordinates, c[(c.length - 1)].geometry.coordinates];
             this.getBoundsCoords([].concat(...coordinates)).then((r) => {
-              console.log('--- BBOX created ---', id)
-              console.log([r[0], r[r.length - 1]])
+              console.log('--- BBOX created ---', id);
+              console.log([r[0], r[r.length - 1]]);
               resolve({ m: 'Loaded', r: [r[0], r[r.length - 1]] });
             }).catch((e) => { reject({ m: e }); });
           });
@@ -628,6 +632,9 @@ class Cable {
         this.model().then((cable) => {
           cable.aggregate([
             {
+              $sort: { name: 1 },
+            },
+            {
               $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { terrestrial: true }, { deleted: false }] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
@@ -671,6 +678,9 @@ class Cable {
         const uuid = (search.psz === '1') ? adms(user) : {};
         this.model().then((cable) => {
           cable.aggregate([
+            {
+              $sort: { name: 1 },
+            },
             {
               $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { terrestrial: false }, { deleted: false }] },
             },

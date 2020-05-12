@@ -82,7 +82,7 @@ class Network {
           this.model().then((network) => {
             network.aggregate([
               {
-                $sort: { _id: 1 },
+                $sort: { name: 1 },
               }, {
                 $match: {
                   $and: [
@@ -371,6 +371,9 @@ class Network {
         this.model().then((cable) => {
           const uuid = (search.psz === '1') ? adms(user) : {};
           cable.aggregate([
+            {
+              $sort: { name: 1 },
+            },
             {
               $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { deleted: false }] },
             },

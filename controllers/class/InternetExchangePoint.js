@@ -118,6 +118,9 @@ class IXP {
           this.model().then((ixps) => {
             ixps.aggregate([
               {
+                $sort: { name: 1 },
+              },
+              {
                 $project: {
                   name: 1,
                   nameLong: 1,
