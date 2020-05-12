@@ -228,7 +228,7 @@ class Map {
     });
   }
 
-  segments(id, name, terrestrial, cable) {
+  segments(id, name, terrestrial, cable, config) {
     return new Promise((resolve, reject) => {
       try {
         console.log(id, name);
@@ -243,6 +243,7 @@ class Map {
             {
               $addFields: {
                 id: cable,
+                properties: config,
                 'properties.id': cable,
                 'properties.nameCable': name,
                 'properties.terrestrial': terrestrial,
@@ -270,17 +271,39 @@ class Map {
               },
             },
             {
+              $addFields: {
+                config: { $concatArrays: ['$config.subsea', '$config.terrestrials'] },
+              },
+            },
+            {
               $lookup: {
                 from: 'cables',
-                let: { subsea: '$subsea', terrestrials: '$terrestrials' },
+                let: { subsea: '$subsea', terrestrials: '$terrestrials', config: '$config' },
                 pipeline: [
+                  {
+                    $addFields: { config: '$$config' },
+                  },
                   {
                     $match:
                       { $or: [{ $expr: { $in: ['$_id', '$$subsea'] } }, { $expr: { $in: ['$_id', '$$terrestrials'] } }] },
                   },
                   {
+                    $unwind: '$config',
+                  },
+                  {
+                    $addFields: {
+                      //   'config._id': { $toObjectId: '$config._id' },
+                      equal: { $cond: [{ $eq: ['$config._id', { $toString: '$_id' }] }, true, false] },
+                    },
+                  },
+                  {
+                    $match: { equal: true },
+                  },
+                  {
                     $project: {
                       _id: 1,
+                      equal: 1,
+                      config: 1,
                       name: 1,
                       terrestrial: 1,
                     },
@@ -297,7 +320,7 @@ class Map {
           ], { allowDiskUse: true }).toArray(async (err, cables) => {
             if (err) reject({ m: err });
             let cable = 0;
-            Promise.all(cables[0].cables.map((c) => { cable++; return this.segments(c._id, c.name, c.terrestrial, cable); })).then(async (multiLines) => {
+            Promise.all(cables[0].cables.map((c) => { cable++; return this.segments(c._id, c.name, c.terrestrial, cable, c.config); })).then(async (multiLines) => {
               multiLines = {
                 type: 'FeatureCollection',
                 features: await multiLines.reduce((total, value) => total.concat(value), []),
