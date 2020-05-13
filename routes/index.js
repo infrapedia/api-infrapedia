@@ -88,9 +88,13 @@ const routes = function (router, controllers) {
   router.get(`${process.env._ROUTE}/createbbox`, (req, res) => {
     //controllers.BBOXS.cls(), controllers.BBOXS.ixps()
     Promise.all([controllers.BBOXS.facilities(), controllers.BBOXS.cls(), controllers.BBOXS.ixps()]).then(() => {
-      controllers.BBOXS.cables().then(() => {
-        res.sendStatus(200);
-      }).catch(() => res.sendStatus(500));
+      res.sendStatus(200);
+    }).catch(() => res.sendStatus(500));
+  });
+  router.get(`${process.env._ROUTE}/createbboxcables`, (req, res) => {
+    //controllers.BBOXS.cls(), controllers.BBOXS.ixps()
+    controllers.BBOXS.cables().then(() => {
+      res.sendStatus(200);
     }).catch(() => res.sendStatus(500));
   });
   router.get(`${process.env._ROUTE}/createdata`, (req, res) => {

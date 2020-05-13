@@ -92,7 +92,7 @@ class Search {
             {
               $lookup: {
                 from: 'organizations',
-                let: { orgs: '$organizations' },
+                let: { orgs: { $cond: [{ $eq: [{ $type: '$organizations' }, 'array'] }, '$organizations', []] } },
                 pipeline: [
                   {
                     $project: {
@@ -190,7 +190,7 @@ class Search {
                   {
                     $match: {
                       $expr: {
-                        $in: ['$$cable', '$cables'],
+                        $in: ['$$cable', { $cond: [{ $eq: [{ $type: '$cables' }, 'array'] }, '$cables', []] }],
                       },
                     },
                   },
@@ -252,7 +252,7 @@ class Search {
                   {
                     $match: {
                       $expr: {
-                        $in: ['$$cls', '$cls'],
+                        $in: ['$$cls', { $cond: [{ $eq: [{ $type: '$cls' }, 'array'] }, '$cls', []] }],
                       },
                     },
                   },
@@ -282,7 +282,6 @@ class Search {
       try {
         this.model = require('../../models/facility.model');
         this.model().then((facility) => {
-          console.log(search);
           facility.aggregate([
             {
               $project: {
@@ -368,7 +367,7 @@ class Search {
                     $match: {
                       $and: [{
                         $expr: {
-                          $in: ['$$ixps', '$ixps'],
+                          $in: ['$$ixps', { $cond: [{ $eq: [{ $type: '$ixps' }, 'array'] }, '$ixps', []] }],
                         },
                       }, { deleted: false }],
                     },
