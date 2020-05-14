@@ -1034,20 +1034,20 @@ class Cable {
           const pool = require('../../config/pgSQL.js');
           ids.map((id) => {
             const SQLQuery = `SELECT id, cable_id, point_id FROM public.cable_points WHERE cable_id = ${id.cableid}`;
-            pool.query(SQLQuery, async (error, results) => {
-              if (results !== undefined) {
-                cls().then((cls) => {
-                  results.rows.map((points) => {
-                    // checkIds.push({ _id: ObjectId("5e79b3899db3570f49c267cc") }points.point_id);
-                    // search the cls
-                    console.log('CLS', points.point_id);
-                    cls.updateOne({ cid: points.point_id }, { $push: { cables: new ObjectID(id._id) } }, (err, u) => { // new ObjectID(id.cableid) { $push: { cables: new ObjectID(id._id) } }
-                      console.log(u);
-                    });
-                  });
-                });
-              }
-            });
+            // pool.query(SQLQuery, async (error, results) => {
+            //   if (results !== undefined) {
+            //     cls().then((cls) => {
+            //       results.rows.map((points) => {
+            //         // checkIds.push({ _id: ObjectId("5e79b3899db3570f49c267cc") }points.point_id);
+            //         // search the cls
+            //         console.log('CLS', points.point_id);
+            //         cls.updateOne({ cid: points.point_id }, { $push: { cables: new ObjectID(id._id) } }, (err, u) => { // new ObjectID(id.cableid) { $push: { cables: new ObjectID(id._id) } }
+            //           console.log(u);
+            //         });
+            //       });
+            //     });
+            //   }
+            // });
             // ORGS
             const SQLQueryOrg = `SELECT cable_id, org_id FROM cable_org WHERE cable_id = ${id.cableid}`;
             pool.query(SQLQueryOrg, async (error, results) => {
@@ -1060,7 +1060,7 @@ class Cable {
                         console.log(idorg);
                         if (idorg !== null && ObjectID.isValid(idorg._id)) {
                           cables.updateOne({ _id: new ObjectID(id._id) }, { $push: { owners: new ObjectID(idorg._id) } }, (err, u) => { // new ObjectID(idorg._id)
-                            console.log(u);
+                            console.log(id._id);
                           });
                         } else { console.log('Not defined'); }
                       });

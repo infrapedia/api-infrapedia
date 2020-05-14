@@ -10,6 +10,7 @@ module.exports = {
       const directoryPath = path.join(__dirname, `../temp/${layer}/`);
       // passsing directoryPath and callback function
       fs.readdir(directoryPath, (err, files) => {
+        console.log(files);
         // handling error
         if (err) {
           reject('Unable to scan directory: ');
@@ -21,6 +22,7 @@ module.exports = {
         // listing all files using forEach
         let filesReaded = 0;
         files.forEach((file) => {
+          console.log(file);
           // Do whatever you want to do with the file
           let data = '';
           const stream = fs.createReadStream(path.join(__dirname, `../temp/${layer}/${file}`));
@@ -492,62 +494,62 @@ module.exports = {
       const facility = require('../models/facility.model');
       facility().then((facility) => {
         facility.aggregate([
-          {
-            $lookup: {
-              from: 'networks',
-              let: { facility: '$_id' },
-              pipeline: [
-                {
-                  $match: {
-                    $expr: {
-                      $in: ['$$facility', '$facilities'],
-                    },
-                  },
-                },
-                {
-                  $project: {
-                    _id: 1,
-                    name: 1,
-                    organizations: 1,
-                  },
-                },
-              ],
-              as: 'networks',
-            },
-          },
-          {
-            $lookup: {
-              from: 'organizations',
-              let: { orgs: '$networks.organizations' },
-              pipeline: [
-                {
-                  $addFields: {
-                    idsorgs: { $cond: { if: { $gte: [{ $size: '$$orgs' }, 1] }, then: '$$orgs', else: [] } },
-                  },
-                },
-                {
-                  $addFields: {
-                    idsorgs: { $cond: { if: { $gt: [{ $size: '$idsorgs' }, 0] }, then: { $arrayElemAt: ['$idsorgs', 0] }, else: [] } },
-                  },
-                },
-                {
-                  $match: {
-                    $expr: {
-                      $in: ['$_id', '$idsorgs'],
-                    },
-                  },
-                },
-                {
-                  $project: {
-                    _id: 1,
-                    name: 1,
-                    premium: 1,
-                  },
-                },
-              ],
-              as: 'organizations',
-            },
-          },
+          // {
+          //   $lookup: {
+          //     from: 'networks',
+          //     let: { facility: '$_id' },
+          //     pipeline: [
+          //       {
+          //         $match: {
+          //           $expr: {
+          //             $in: ['$$facility', '$facilities'],
+          //           },
+          //         },
+          //       },
+          //       {
+          //         $project: {
+          //           _id: 1,
+          //           name: 1,
+          //           organizations: 1,
+          //         },
+          //       },
+          //     ],
+          //     as: 'networks',
+          //   },
+          // },
+          // {
+          //   $lookup: {
+          //     from: 'organizations',
+          //     let: { orgs: '$networks.organizations' },
+          //     pipeline: [
+          //       {
+          //         $addFields: {
+          //           idsorgs: { $cond: { if: { $gte: [{ $size: '$$orgs' }, 1] }, then: '$$orgs', else: [] } },
+          //         },
+          //       },
+          //       {
+          //         $addFields: {
+          //           idsorgs: { $cond: { if: { $gt: [{ $size: '$idsorgs' }, 0] }, then: { $arrayElemAt: ['$idsorgs', 0] }, else: [] } },
+          //         },
+          //       },
+          //       {
+          //         $match: {
+          //           $expr: {
+          //             $in: ['$_id', '$idsorgs'],
+          //           },
+          //         },
+          //       },
+          //       {
+          //         $project: {
+          //           _id: 1,
+          //           name: 1,
+          //           premium: 1,
+          //         },
+          //       },
+          //     ],
+          //     as: 'organizations',
+          //   },
+          // },
           {
             $addFields: {
               feature: {
@@ -570,7 +572,7 @@ module.exports = {
                 address: { $arrayElemAt: ['$address.street', 0] },
                 type: 'facility',
                 height: '$height',
-                premium: '$premium',
+                premium: '',
               },
 
             },
@@ -586,6 +588,7 @@ module.exports = {
             },
           },
         ], { allowDiskUse: false }).toArray(async (err, polygon) => {
+          console.log(polygon);
           if (err) return 'Error';
           // we'll going to create the master file for ixps
           polygon = await polygon.reduce((total, value) => total.concat(value.feature), []);
