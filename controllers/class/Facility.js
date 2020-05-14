@@ -419,6 +419,18 @@ class Facility {
     });
   }
 
+  getBoundsCoords(coords) {
+    return new Promise((resolve, reject) => {
+      try {
+        const reduceCoords = [];
+        for (let i = 0; i < coords.length; ++i) {
+          for (let j = 0; j < coords[i].length; ++j) { reduceCoords.push(coords[i][j]); }
+        }
+        resolve(reduceCoords);
+      } catch (e) { reject(e); }
+    });
+  }
+
   bbox(id) {
     return new Promise((resolve, reject) => {
       try {
@@ -430,14 +442,29 @@ class Facility {
               },
             },
             {
+              $addFields: {
+                coordinates: { $map: { input: '$geom.features.geometry.coordinates', as: 'feature', in: '$$feature' } },
+              },
+            },
+            {
+              $addFields: {
+                v: { $arrayElemAt: ['$geom.features.geometry.coordinates', 0] },
+                b: { $arrayElemAt: ['$geom.features.geometry.coordinates', -1] },
+              },
+            },
+            {
               $project: {
                 _id: 1,
-                coordinates: '$geom.features.geometry.coordinates',
+                coordinates: [{ $arrayElemAt: ['$v', 0] }, { $arrayElemAt: ['$b', -1] }],
               },
             },
           ]).toArray((err, c) => {
             if (err) reject(err);
-            resolve({ m: 'Loaded', r: c.coordinates });
+            if (err) { reject(err); } else if (c[0] !== undefined) {
+              if (c[0].coordinates !== undefined) {
+                resolve({ m: 'Loaded', r: c[0].coordinates });
+              }
+            }
           });
         });
       } catch (e) { reject({ m: e }); }

@@ -436,8 +436,11 @@ class CLS {
               },
             },
           ]).toArray((err, c) => {
-            if (err) reject(err);
-            resolve({ m: 'Loaded', r: c });
+            if (err) { reject(err); } else if (c[0] !== undefined) {
+              if (c[0].coordinates !== undefined) {
+                resolve({ m: 'Loaded', r: c[0].coordinates });
+              }
+            }
           });
         });
       } catch (e) { reject({ m: e }); }

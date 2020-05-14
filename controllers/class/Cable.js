@@ -583,13 +583,14 @@ class Cable {
               },
             },
           ]).toArray((err, c) => {
-            if (err) { reject(err); }
-            const coordinates = [c[0].geometry.coordinates, c[(c.length - 1)].geometry.coordinates];
-            this.getBoundsCoords([].concat(...coordinates)).then((r) => {
-              console.log('--- BBOX created ---', id);
-              console.log([r[0], r[r.length - 1]]);
-              resolve({ m: 'Loaded', r: [r[0], r[r.length - 1]] });
-            }).catch((e) => { reject({ m: e }); });
+            if (err) { reject(err); } else if (c[0] !== undefined) {
+              if (c[0].geometry !== undefined) {
+                const coordinates = [c[0].geometry.coordinates, c[(c.length - 1)].geometry.coordinates];
+                this.getBoundsCoords([].concat(...coordinates)).then((r) => {
+                  resolve({ m: 'Loaded', r: [r[0], r[r.length - 1]] });
+                }).catch((e) => { reject({ m: e }); });
+              }
+            }
           });
         });
       } catch (e) { reject({ m: e }); }
