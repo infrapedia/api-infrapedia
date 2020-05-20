@@ -68,6 +68,8 @@ const routes = function (router, controllers) {
   require('./bymodules/cluster').callEndPoints(router, controllers, response);
   // Transfer File --->
   require('./bymodules/transfer').callEndPoints(router, controllers, response);
+  // Contact --->
+  require('./bymodules/contact').callEndPoints(router, controllers, response);
 
   // WMS ---> SERVICE
   // const params = { mbtiles: ['./temp/terrestrial.mbtiles', './temp/subsea.mbtiles', './temp/cls.mbtiles', './temp/ixps.mbtiles', './temp/facilities.mbtiles'], quiet: false };
@@ -87,7 +89,7 @@ const routes = function (router, controllers) {
   });
   router.get(`${process.env._ROUTE}/createbbox`, (req, res) => {
     //controllers.BBOXS.cls(), controllers.BBOXS.ixps()
-    Promise.all([controllers.BBOXS.facilities(), controllers.BBOXS.cls(), controllers.BBOXS.ixps()]).then(() => {
+    Promise.all([controllers.BBOXS.cls(), controllers.BBOXS.ixps()]).then(() => {
       res.sendStatus(200);
     }).catch(() => res.sendStatus(500));
   });
@@ -97,8 +99,20 @@ const routes = function (router, controllers) {
       res.sendStatus(200);
     }).catch(() => res.sendStatus(500));
   });
+  router.get(`${process.env._ROUTE}/createbboxfacilities`, (req, res) => {
+    //controllers.BBOXS.cls(), controllers.BBOXS.ixps()
+    controllers.BBOXS.facilities().then(() => {
+      res.sendStatus(200);
+    }).catch(() => res.sendStatus(500));
+  });
   router.get(`${process.env._ROUTE}/createdata`, (req, res) => {
-    Promise.all([controllers.BBOXS.dataCLS(), controllers.BBOXS.dataIXPS(), controllers.BBOXS.dataFacilities()])
+    Promise.all([controllers.BBOXS.dataCLS(), controllers.BBOXS.dataIXPS()])
+      .then(() => {
+        res.sendStatus(200);
+      }).catch(() => res.sendStatus(500));
+  });
+  router.get(`${process.env._ROUTE}/createdatafacilities`, (req, res) => {
+    Promise.all([controllers.BBOXS.dataFacilities()])
       .then(() => {
         res.sendStatus(200);
       }).catch(() => res.sendStatus(500));

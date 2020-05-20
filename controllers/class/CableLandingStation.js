@@ -649,6 +649,30 @@ class CLS {
   getElementGeom(id) {
     return new Promise((resolve, reject) => {
       try {
+        this.model().then((cables) => {
+          cables.aggregate([
+            {
+              $match: {
+                _id: new ObjectID(id),
+              },
+            },
+            {
+              $project: {
+                geom: 1,
+              },
+            },
+          ]).toArray((err, r) => {
+            if (err) reject(err);
+            resolve({ m: 'Loaded', r: r[0].geom });
+          });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  getElementGeom(id) {
+    return new Promise((resolve, reject) => {
+      try {
         this.model().then((cls) => {
           cls.aggregate([
             {

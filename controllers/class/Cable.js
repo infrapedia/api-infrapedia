@@ -939,6 +939,33 @@ class Cable {
     });
   }
 
+
+  getNameElemnt(id) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((cables) => {
+          cables.aggregate([
+            {
+              $project: {
+                _id: 1,
+                uuid: 1,
+                name: 1,
+              },
+            },
+            {
+              $match: {
+                _id: new ObjectID(id),
+              },
+            },
+          ]).toArray((err, c) => {
+            if (err) reject(err);
+            resolve(c);
+          });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
   getElementGeom(id) {
     return new Promise((resolve, reject) => {
       try {

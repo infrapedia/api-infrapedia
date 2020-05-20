@@ -221,6 +221,17 @@ class Facility {
                     let: { facilities: '$_id' },
                     pipeline: [
                       {
+                        $addFields: {
+                          facilities: {
+                            $cond: {
+                              if: { $eq: [{ $type: '$facilities' }, 'array'] },
+                              then: '$facilities',
+                              else: [],
+                            },
+                          },
+                        },
+                      },
+                      {
                         $match: {
                           $and: [
                             {
@@ -250,6 +261,17 @@ class Facility {
                     let: { ixps: '$_id' },
                     pipeline: [
                       {
+                        $addFields: {
+                          ixps: {
+                            $cond: {
+                              if: { $eq: [{ $type: '$ixps' }, 'array'] },
+                              then: '$ixps',
+                              else: [],
+                            },
+                          },
+                        },
+                      },
+                      {
                         $match: {
                           $expr: {
                             $in: ['$$ixps', '$ixps'],
@@ -273,11 +295,22 @@ class Facility {
                     let: { f: '$owners' },
                     pipeline: [
                       {
+                        $addFields: {
+                          f: {
+                            $cond: {
+                              if: { $eq: [{ $type: '$owners' }, 'array'] },
+                              then: '$owners',
+                              else: [],
+                            },
+                          },
+                        },
+                      },
+                      {
                         $match: {
                           $and: [
                             {
                               $expr: {
-                                $in: ['$_id', '$$f'],
+                                $in: ['$_id', '$f'],
                               },
                             },
                             {
@@ -324,6 +357,30 @@ class Facility {
               });
             });
           }
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  getElementGeom(id) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((cables) => {
+          cables.aggregate([
+            {
+              $match: {
+                _id: new ObjectID(id),
+              },
+            },
+            {
+              $project: {
+                geom: 1,
+              },
+            },
+          ]).toArray((err, r) => {
+            if (err) reject(err);
+            resolve({ m: 'Loaded', r: r[0].geom });
+          });
         });
       } catch (e) { reject({ m: e }); }
     });
