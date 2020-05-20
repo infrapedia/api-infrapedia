@@ -23,6 +23,7 @@ class CLS {
               slug: data.slug,
               geom: (data.geom !== '') ? JSON.parse(data.geom) : {},
               cables: await (Array.isArray(data.cables)) ? data.cables.map((item) => new ObjectID(item)) : [],
+              owners: await (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : [],
               tags: data.tags,
               rgDate: luxon.DateTime.utc(),
               uDate: luxon.DateTime.utc(),
@@ -71,6 +72,7 @@ class CLS {
                     ],
                   },
                   cables: [],
+                  owners: [],
                   tags: [],
                   rgDate: luxon.DateTime.utc(),
                   uDate: luxon.DateTime.utc(),
@@ -113,6 +115,7 @@ class CLS {
                 slug: data.slug,
                 geom: (data.geom !== '') ? JSON.parse(data.geom) : {},
                 cables: await (Array.isArray(data.cables)) ? data.cables.map((item) => new ObjectID(item)) : [],
+                owners: await (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : [],
                 tags: data.tags,
                 uDate: luxon.DateTime.utc(),
               };

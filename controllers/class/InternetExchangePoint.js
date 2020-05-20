@@ -21,6 +21,8 @@ class IXP {
               uuid: user,
               name: String(data.name),
               nameLong: String(data.nameLong),
+              owners: await (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : [],
+              notes: '', // String(data.notes)
               geom: geom.features[0].geometry,
               media: String(data.media),
               policyEmail: String(data.policyEmail),
@@ -59,6 +61,8 @@ class IXP {
             const element = {
               name: String(data.name),
               nameLong: String(data.nameLong),
+              owners: await (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : [],
+              notes: '', // String(data.notes)
               geom: geom.features[0].geometry,
               media: String(data.media),
               policyEmail: String(data.policyEmail),
@@ -170,8 +174,9 @@ class IXP {
                   uuid: '',
                   ix_id: String(data.ix_id),
                   name: String(data.name),
-                  notes: '', // String(data.notes)
                   nameLong: String(data.name_long),
+                  owners: [],
+                  notes: '', // String(data.notes)
                   geom: JSON.parse(data.point),
                   address: [
                     {

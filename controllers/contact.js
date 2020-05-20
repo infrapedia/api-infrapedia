@@ -7,7 +7,7 @@ module.exports = function contact(email, data) {
           name: `${data.first_name} ${data.last_name}`,
           email: data.email,
           subject: 'A new contact message',
-          description: `From: ${data.name} ${data.lastName} <br /><hr/> ${data.message} <br /><br /> <strong>${data.company}</strong>`,
+          description: `From: ${data.first_name} ${data.last_name} <br /><hr/> ${data.message} <br /><br /> <strong>${data.company}</strong>`,
           status: 2,
           priority: 2,
         },
