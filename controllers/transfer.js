@@ -1,10 +1,10 @@
+const { ObjectID } = require('mongodb');
 const pool = require('../config/pgSQL.js');
 let Facility = require('./class/Facility');
 let Organization = require('./class/Organization');
 let IXP = require('./class/InternetExchangePoint');
 let CLS = require('./class/CableLandingStation');
 let CABLES = require('./class/Cable');
-const { ObjectID } = require('mongodb');
 
 module.exports = {
   organizations: () => new Promise((resolve, reject) => {
@@ -95,7 +95,7 @@ FROM facility`;
         if (error) {
           throw error;
         }
-        let segmentID = 0;
+        const segmentID = 0;
         // console.log(f.cable_id);
         // console.log(results.rows)
         const cable = {
@@ -206,4 +206,116 @@ FROM facility`;
       console.log(results);
     });
   }),
+  networks: () => new Promise((resolve, reject) => {
+
+  }),
+  orgIxps: () => new Promise((resolve, reject) => {
+    const SQLquery = 'SELECT org_id, ix_id FROM public.org_ix';
+    pool.query(SQLquery, (error, results) => {
+      const IXP = require('../models/ixp.model');
+      IXP().then(async (IXP) => {
+        const check = results.length;
+        let validation = 0;
+        const relation = await results.rows.map(async (i) => {
+          // first: we need the  id of org and the id of ixp
+          await IXP.aggregate([{
+            $project: {
+              ix_id: 1,
+            },
+          },
+          {
+            $match: {
+              ix_id: String(i.ix_id),
+            },
+          },
+          {
+            $lookup: {
+              from: 'organizations',
+              let: { id: String(i.org_id) },
+              pipeline: [
+                {
+                  $project: {
+                    ooid: 1,
+                  },
+                },
+                {
+                  $match: { $expr: { $eq: ['$ooid', '$$id'] } },
+                },
+              ],
+              as: 'org',
+            },
+          }]).toArray((err, rr) => {
+            console.log(JSON.stringify(rr));
+            if (rr[0] !== undefined) {
+              console.log('to update');
+              IXP.updateOne({ _id: rr[0]._id }, { $addToSet: { owners: rr[0].org[0]._id } }, (err, u) => {
+                validation += 1;
+                console.log(validation, u.nModified);
+                if (validation === check) {
+                  resolve({ m: 'Transfer completed' });
+                }
+              });
+            } else {
+              validation += 1;
+            }
+          });
+        });
+      }).catch((e) => reject({ m: `Error: ${e}` }));
+    });
+  }),
+  orgFacilities: () => new Promise((resolve, reject) => {
+    const SQLquery = 'SELECT org_id, fac_id FROM public.org_fac';
+    pool.query(SQLquery, (error, results) => {
+      const IXP = require('../models/facility.model');
+      Facility().then(async (Facility) => {
+        const check = results.length;
+        let validation = 0;
+        const relation = await results.rows.map(async (i) => {
+          // first: we need the  id of org and the id of ixp
+          await Facility.aggregate([{
+            $project: {
+              fac_id: 1,
+            },
+          },
+          {
+            $match: {
+              fac_id: String(i.fac_id),
+            },
+          },
+          {
+            $lookup: {
+              from: 'organizations',
+              let: { id: String(i.org_id) },
+              pipeline: [
+                {
+                  $project: {
+                    ooid: 1,
+                  },
+                },
+                {
+                  $match: { $expr: { $eq: ['$ooid', '$$id'] } },
+                },
+              ],
+              as: 'org',
+            },
+          }]).toArray((err, rr) => {
+            console.log(JSON.stringify(rr));
+            if (rr[0] !== undefined) {
+              console.log('to update');
+              Facility.updateOne({ _id: rr[0]._id }, { $addToSet: { owners: rr[0].org[0]._id } }, (err, u) => {
+                validation += 1;
+                console.log(validation, u.nModified);
+                if (validation === check) {
+                  resolve({ m: 'Transfer completed' });
+                }
+              });
+            } else {
+              validation += 1;
+            }
+          });
+        });
+      }).catch((e) => reject({ m: `Error: ${e}` }));
+    });
+  }),
+
 };

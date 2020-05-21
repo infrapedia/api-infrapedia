@@ -25,5 +25,15 @@ module.exports = {
         .then((r) => { response.success(res, r); })
         .catch((e) => { response.err(res, e); });
     });
+    router.get(`${process.env._ROUTE}/transfer/orgixps`, (req, res) => {
+      controllers.transfer.orgIxps()
+        .then((r) => { response.success(res, r); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.get(`${process.env._ROUTE}/transfer/orgfacilities`, (req, res) => {
+      controllers.transfer.orgFacilities()
+        .then((r) => { response.success(res, r); })
+        .catch((e) => { response.err(res, e); });
+    });
   },
 };
