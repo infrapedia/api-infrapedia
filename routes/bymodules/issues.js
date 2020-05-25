@@ -2,7 +2,7 @@ module.exports = {
   callEndPoints: (router, controllers, response) => {
     const statics = require('../../lib/middleware/statics');
     router.post(`${process.env._ROUTE}/auth/issues/report`, (req, res) => {
-      // console.log(req.body)
+      console.log(req.body)
       controllers.issues.addReport(req.headers.userid, req.body)
         .then((r) => { response.success(res, r); })
         .catch((e) => { response.err(res, e); });
