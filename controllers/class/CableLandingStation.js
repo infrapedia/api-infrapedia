@@ -18,6 +18,7 @@ class CLS {
             data = {
               uuid: String(user),
               name: data.name,
+              country: (data.country) ? data.country : '',
               notes: '', // String(data.notes)
               state: data.state,
               slug: data.slug,
@@ -111,6 +112,7 @@ class CLS {
               // TODO: validate the numbers of cls with the same name
               data = {
                 name: data.name,
+                country: (data.country) ? data.country : '',
                 state: data.state,
                 slug: data.slug,
                 geom: (data.geom !== '') ? JSON.parse(data.geom) : {},

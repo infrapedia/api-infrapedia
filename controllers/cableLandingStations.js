@@ -15,7 +15,7 @@ module.exports = {
     });
   }),
   view: (usr, id) => CLS.view(usr, id),
-  search: (usr, query) => CLS.search(usr, query), //
+  search: (usr, query) => CLS.search(usr, query),
   getElementGeom: (usr, id) => CLS.getElementGeom(id),
   getMultiElementsGeom: (usr, ids) => CLS.getMultiElementsGeom(ids),
   updateCable: (usr, ids) => CLS.updateCable(usr, ids.cls, ids.cable),
