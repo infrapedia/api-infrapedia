@@ -13,7 +13,7 @@ class Issue {
   addReport(user, data) {
     return new Promise((resolve, reject) => {
       try {
-        this.model = require('../../models/issues.model');dej
+        this.model = require('../../models/issues.model');
         if (user !== undefined || user !== '') {
           this.model().then((issues) => {
             const issue = {
@@ -29,7 +29,6 @@ class Issue {
               viewed: false,
               deleted: false,
             };
-
             issues.insertOne(issue, (err, I) => {
               if (err) reject({ m: err });
               resolve({ m: 'Thank you, your issue was registered in our system' });
