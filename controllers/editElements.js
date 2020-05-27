@@ -28,7 +28,7 @@ module.exports = {
           Elemnt = require('./class/Cable');
           Elemnt = new Elemnt();
           Elemnt.getNameElemnt(id).then((r) => {
-            resolve([r.r[0].name, 'Cable']);
+            resolve([r[0].name, 'Cable']);
           }).catch((e) => {
             reject(e);
           });
@@ -37,7 +37,7 @@ module.exports = {
           Elemnt = require('./class/CableLandingStation');
           Elemnt = new Elemnt();
           Elemnt.getNameElemnt(id).then((r) => {
-            resolve([r.r[0].name, 'Cable Landing Station']);
+            resolve([r[0].name, 'Cable Landing Station']);
           }).catch((e) => {
             reject(e);
           });
@@ -46,7 +46,7 @@ module.exports = {
           Elemnt = require('./class/Facility');
           Elemnt = new Elemnt();
           Elemnt.getNameElemnt(id).then((r) => {
-            resolve([r.r[0].name, 'Facility']);
+            resolve([r[0].name, 'Facility']);
           }).catch((e) => {
             reject(e);
           });
@@ -55,7 +55,7 @@ module.exports = {
           Elemnt = require('./class/InternetExchangePoint');
           Elemnt = new Elemnt();
           Elemnt.getNameElemnt(id).then((r) => {
-            resolve([r.r[0].name, 'Internet Exchange Point']);
+            resolve([r[0].name, 'Internet Exchange Point']);
           }).catch((e) => {
             reject(e);
           });
@@ -64,7 +64,7 @@ module.exports = {
           Elemnt = require('./class/Network');
           Elemnt = new Elemnt();
           Elemnt.getNameElemnt(id).then((r) => {
-            resolve([r.r[0].name, 'Group']);
+            resolve([r[0].name, 'Group']);
           }).catch((e) => {
             reject(e);
           });
@@ -73,7 +73,7 @@ module.exports = {
           Elemnt = require('./class/Organization');
           Elemnt = new Elemnt();
           Elemnt.getNameElemnt(id).then((r) => {
-            resolve([r.r[0].name, 'Organization']);
+            resolve([r[0].name, 'Organization']);
           }).catch((e) => {
             reject(e);
           });
