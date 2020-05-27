@@ -118,16 +118,16 @@ module.exports = {
               ).then(() => {
                 resolve({ m: 'Thank you for helping us build a better service for you.' });
               }).catch((e) => {
-                console.log(e);
+                console.log(e, 1);
                 reject({ m: e });
               });
             }).catch((e) => {
-              console.log(e);
+              console.log(e, 2);
               reject({ m: e });
             });
           });
-        }).catch((e) => { console.log(e); reject({ m: e }); });
-      }).catch((e) => reject({ m: e }));
-    } catch (e) { console.log(e); reject({ m: e }); }
+        }).catch((e) => { console.log(e, 3); reject({ m: e }); });
+      }).catch((e) => { console.log(e, 4); reject({ m: e }); });
+    } catch (e) { console.log(e, 5); reject({ m: e }); }
   }),
 };
