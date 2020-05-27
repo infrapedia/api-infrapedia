@@ -127,7 +127,7 @@ module.exports = {
             });
           });
         }).catch((e) => { console.log(e); reject({ m: e }); });
-      });
+      }).catch((e) => reject({ m: e }));
     } catch (e) { console.log(e); reject({ m: e }); }
   }),
 };
