@@ -28,9 +28,8 @@ module.exports = {
           Elemnt = require('./class/Cable');
           Elemnt = new Elemnt();
           Elemnt.getNameElemnt(id).then((r) => {
-            resolve([r[0].name, 'Cable']);
+            resolve([r.r[0].name, 'Cable']);
           }).catch((e) => {
-            console.log(e);
             reject(e);
           });
           break;
