@@ -20,7 +20,7 @@ module.exports = {
       });
     } catch (e) { console.log(e); reject(e); }
   }),
-  getElementOwner: (user, id, type) => new Promise((resolve, reject) => {
+  getElementName: (user, id, type) => new Promise((resolve, reject) => {
     try {
       let Elemnt;
       switch (String(type)) {
@@ -28,7 +28,7 @@ module.exports = {
           Elemnt = require('./class/Cable');
           Elemnt = new Elemnt();
           Elemnt.getNameElemnt(id).then((r) => {
-            resolve([r[0].name, 'Cable']);
+            resolve([(r !== []) ? r[0].name : '', 'Cable']);
           }).catch((e) => {
             reject(e);
           });
@@ -37,7 +37,7 @@ module.exports = {
           Elemnt = require('./class/CableLandingStation');
           Elemnt = new Elemnt();
           Elemnt.getNameElemnt(id).then((r) => {
-            resolve([r[0].name, 'Cable Landing Station']);
+            resolve([(r !== []) ? r[0].name : '', 'Cable Landing Station']);
           }).catch((e) => {
             reject(e);
           });
@@ -46,7 +46,7 @@ module.exports = {
           Elemnt = require('./class/Facility');
           Elemnt = new Elemnt();
           Elemnt.getNameElemnt(id).then((r) => {
-            resolve([r[0].name, 'Facility']);
+            resolve([(r !== []) ? r[0].name : '', 'Facility']);
           }).catch((e) => {
             reject(e);
           });
@@ -55,7 +55,7 @@ module.exports = {
           Elemnt = require('./class/InternetExchangePoint');
           Elemnt = new Elemnt();
           Elemnt.getNameElemnt(id).then((r) => {
-            resolve([r[0].name, 'Internet Exchange Point']);
+            resolve([(r !== []) ? r[0].name : '', 'Internet Exchange Point']);
           }).catch((e) => {
             reject(e);
           });
@@ -64,7 +64,7 @@ module.exports = {
           Elemnt = require('./class/Network');
           Elemnt = new Elemnt();
           Elemnt.getNameElemnt(id).then((r) => {
-            resolve([r[0].name, 'Group']);
+            resolve([(r !== []) ? r[0].name : '', 'Group']);
           }).catch((e) => {
             reject(e);
           });
@@ -73,7 +73,7 @@ module.exports = {
           Elemnt = require('./class/Organization');
           Elemnt = new Elemnt();
           Elemnt.getNameElemnt(id).then((r) => {
-            resolve([r[0].name, 'Organization']);
+            resolve([(r !== []) ? r[0].name : '', 'Organization']);
           }).catch((e) => {
             reject(e);
           });
@@ -103,7 +103,7 @@ module.exports = {
             const sendTicket = require('./helpers/freshdesk');
             // we need to validate the data of cable
 
-            Promise.all([module.exports.getElementOwner(user, idata.element, idata.t), module.exports.getEmail(user, token)]).then((r) => {
+            Promise.all([module.exports.getElementName(user, idata.element, idata.t), module.exports.getEmail(user, token)]).then((r) => {
               let email = JSON.parse(r[1]);
               sendTicket(
                 {
@@ -117,16 +117,14 @@ module.exports = {
               ).then(() => {
                 resolve({ m: 'Thank you for helping us build a better service for you.' });
               }).catch((e) => {
-                console.log(e, 1);
                 reject({ m: e });
               });
             }).catch((e) => {
-              console.log(e, 2);
               reject({ m: e });
             });
           });
-        }).catch((e) => { console.log(e, 3); reject({ m: e }); });
-      }).catch((e) => { console.log(e, 4); reject({ m: e }); });
-    } catch (e) { console.log(e, 5); reject({ m: e }); }
+        }).catch((e) => { reject({ m: e }); });
+      }).catch((e) => { reject({ m: e }); });
+    } catch (e) { reject({ m: e }); }
   }),
 };

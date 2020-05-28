@@ -42,6 +42,7 @@ class Cable {
                   category: String(data.category),
                   facilities: await (Array.isArray(data.facilities)) ? data.facilities.map((item) => new ObjectID(item)) : [],
                   owners: await (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : [],
+                  cls: await (Array.isArray(data.cls)) ? data.cls.map((item) => new ObjectID(item)) : [],
                   geom: {}, // (geomData !== '') ? JSON.parse(geomData) : {}
                   tags: data.tags,
                   rgDate: luxon.DateTime.utc(),
@@ -53,9 +54,17 @@ class Cable {
                 cables.find({ name: data.name }).count((err, c) => {
                   if (err) reject({ m: err + 0 });
                   else if (c > 0) reject({ m: 'We have another element with the same name' });
-                  cables.insertOne(data, (err, i) => {
+                  cables.insertOne(data, async (err, i) => {
                     // TODO: validation insert
                     if (err) reject({ m: err + 0 });
+                    //
+                    if (Array.isArray(data.cls)) {
+                      let cableLandingStation = require('./CableLandingStation');
+                      cableLandingStation = new cableLandingStation();
+                      await data.cls.map((i) => {
+                        cableLandingStation.updateCable(user, i, i.insertedId).then((r) => '').catch((e) => '');
+                      });
+                    }
                     // we going to update the segments
                     // insert the segments
                     const segments = require('../../models/cable_segments.model');
@@ -189,13 +198,14 @@ class Cable {
                 category: String(data.category),
                 facilities: await (Array.isArray(data.facilities)) ? data.facilities.map((item) => new ObjectID(item)) : [],
                 owners: await (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : [],
+                cls: await (Array.isArray(data.cls)) ? data.cls.map((item) => new ObjectID(item)) : [],
                 geom: {}, // (geomData !== '') ? JSON.parse(geomData) : {},
                 tags: data.tags,
                 uDate: luxon.DateTime.utc(),
               };
               // we're going to search if the user is the own of the cable
               let listSegments = JSON.parse(geomData);
-              cables.find({ $and: [adms(user), { _id: id }] }).count((err, c) => {
+              cables.find({ $and: [adms(user), { _id: id }] }, (err, c) => {
                 if (err) reject({ m: err });
                 const segments = require('../../models/cable_segments.model');
                 segments().then(async (segments) => {
@@ -205,6 +215,18 @@ class Cable {
                       if (err) reject({ m: err });
                       else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
                       else {
+                        // update the CLS connection
+                        if (Array.isArray(data.cls)) {
+                          await c.cls.map((i) => {
+                            let cableLandingStation = require('./CableLandingStation');
+                            cableLandingStation = new cableLandingStation();
+                            if (data.cls.includes(i)) {
+                              cableLandingStation.updateCable(user, i, data._id).then(() => '').catch(() => '');
+                            } else {
+                              cableLandingStation.removeCable(user, i, data._id).then(() => '').catch(() => '');
+                            }
+                          });
+                        }
                         // update the segments
                         let ssafe = 0;
                         listSegments = listSegments.features;
