@@ -102,7 +102,6 @@ module.exports = {
             // Add to freshdhesk
             const sendTicket = require('./helpers/freshdesk');
             // we need to validate the data of cable
-
             Promise.all([module.exports.getElementName(user, idata.element, idata.t), module.exports.getEmail(user, token)]).then((r) => {
               let email = JSON.parse(r[1]);
               sendTicket(

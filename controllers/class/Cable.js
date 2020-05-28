@@ -51,9 +51,9 @@ class Cable {
                   deleted: false,
                 };
                 let listSegments = JSON.parse(geomData);
-                cables.find({ name: data.name }).count((err, c) => {
+                cables.find({ name: data.name }, (err, c) => {
                   if (err) reject({ m: err + 0 });
-                  else if (c > 0) reject({ m: 'We have another element with the same name' });
+                  else if (c.length > 0 && c._id !== data._id) reject({ m: 'We have another element with the same name' });
                   cables.insertOne(data, async (err, i) => {
                     // TODO: validation insert
                     if (err) reject({ m: err + 0 });
@@ -206,6 +206,7 @@ class Cable {
               // we're going to search if the user is the own of the cable
               let listSegments = JSON.parse(geomData);
               cables.find({ $and: [adms(user), { _id: id }] }, (err, c) => {
+                console.log(c);
                 if (err) reject({ m: err });
                 const segments = require('../../models/cable_segments.model');
                 segments().then(async (segments) => {
