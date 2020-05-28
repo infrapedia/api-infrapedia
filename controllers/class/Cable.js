@@ -205,7 +205,7 @@ class Cable {
               };
               // we're going to search if the user is the own of the cable
               let listSegments = JSON.parse(geomData);
-              cables.find({ $and: [adms(user), { _id: id }] }, (err, c) => {
+              cables.findOne({ $and: [adms(user), { _id: id }] }, (err, c) => {
                 console.log(c);
                 if (err) reject({ m: err });
                 const segments = require('../../models/cable_segments.model');
