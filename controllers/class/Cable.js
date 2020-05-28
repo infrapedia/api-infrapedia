@@ -524,6 +524,34 @@ class Cable {
                 as: 'owners',
               },
             },
+            {
+              $lookup: {
+                from: 'cls',
+                let: { f: '$cls' },
+                pipeline: [
+                  {
+                    $match: {
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$_id', '$$f'],
+                          },
+                        },
+                        {
+                          deleted: false,
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    $project: {
+                      label: '$name',
+                    },
+                  },
+                ],
+                as: 'cls',
+              },
+            },
           ], {
             allowDiskUse: true,
           }).toArray((err, o) => {
