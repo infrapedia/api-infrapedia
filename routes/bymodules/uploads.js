@@ -16,5 +16,25 @@ module.exports = {
         .then((r) => { response.success(res, r); })
         .catch((e) => { response.err(res, e); });
     });
+    router.post(`${process.env._ROUTE}/auth/upload/kml`, (req, res) => {
+      controllers.uploads.kml(req.headers.userid, req.body)
+        .then((r) => { response.success(res, r); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.post(`${process.env._ROUTE}/auth/upload/file`, (req, res) => {
+      const allowedExtensionsKmz = /(\.kmz|\.KMZ)$/i;
+      const allowedExtensionsKml = /(\.kml|\.KML)$/i;
+      if (allowedExtensionsKmz.exec(req.body.file.path)) {
+        controllers.uploads.kmz(req.headers.userid, req.body)
+          .then((r) => { response.success(res, r); })
+          .catch((e) => { response.err(res, e); });
+      } else if (allowedExtensionsKml.exec(req.body.file.path)) {
+        controllers.uploads.kml(req.headers.userid, req.body)
+          .then((r) => { response.success(res, r); })
+          .catch((e) => { response.err(res, e); });
+      } else {
+        response.err(res, { m: 'error', r: [] });
+      }
+    });
   },
 };

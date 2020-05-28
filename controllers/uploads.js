@@ -1,3 +1,4 @@
+const fs = require('fs');
 const { logoUploadFiles, kmzUploadFiles } = require('./helpers/gcloudStorage');
 
 module.exports = {
@@ -11,10 +12,33 @@ module.exports = {
       });
     } catch (e) { reject({ m: e }); }
   }),
+  // kmz: (user, idata) => new Promise((resolve, reject) => {
+  //   try {
+  //     kmzUploadFiles(idata.file, user).then((lks) => {
+  //       resolve({ m: 'loaded', r: lks });
+  //     }).catch((e) => {
+  //       reject({ m: e });
+  //     });
+  //   } catch (e) { reject({ m: e }); }
+  // }),
+  kml: (user, idata) => new Promise((resolve, reject) => {
+    try {
+      const tj = require('@tmcw/togeojson');
+      const fs = require('fs');
+      const { DOMParser } = require('xmldom');
+      const kml = new DOMParser().parseFromString(fs.readFileSync(idata.file.path, 'utf8'));
+      const convertedWithStyles = tj.kml(kml, { styles: true });
+      resolve({ m: 'Loaded', r: convertedWithStyles });
+    } catch (e) { reject({ m: e }); }
+  }),
   kmz: (user, idata) => new Promise((resolve, reject) => {
     try {
       kmzUploadFiles(idata.file, user).then((lks) => {
-        resolve({ m: 'loaded', r: lks });
+        // resolve({ m: 'loaded', r: lks });
+        const KMZGeoJSON = require('kmz-geojson');
+        KMZGeoJSON.toGeoJSON(lks[0], (err, geojson) => {
+          resolve({ m: 'Loaded', r: geojson });
+        });
       }).catch((e) => {
         reject({ m: e });
       });

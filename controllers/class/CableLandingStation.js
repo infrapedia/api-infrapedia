@@ -136,6 +136,7 @@ class CLS {
   }
 
   updateCable(user, idcls, idcable) {
+    console.log(user, idcls, idcable);
     return new Promise((resolve, reject) => {
       try {
         if (ObjectID.isValid(idcls) && ObjectID.isValid(idcable)) {
@@ -154,6 +155,7 @@ class CLS {
   }
 
   removeCable(user, idcls, idcable) {
+    console.log(user, idcls, idcable);
     return new Promise((resolve, reject) => {
       try {
         if (ObjectID.isValid(idcls) && ObjectID.isValid(idcable)) {

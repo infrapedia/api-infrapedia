@@ -61,8 +61,8 @@ class Cable {
                     if (Array.isArray(data.cls)) {
                       let cableLandingStation = require('./CableLandingStation');
                       cableLandingStation = new cableLandingStation();
-                      await data.cls.map((i) => {
-                        cableLandingStation.updateCable(user, i, i.insertedId).then((r) => '').catch((e) => '');
+                      await data.cls.map((c) => {
+                        cableLandingStation.updateCable(user, c, i.insertedId).then((r) => '').catch((e) => '');
                       });
                     }
                     // we going to update the segments
@@ -182,14 +182,16 @@ class Cable {
             stream.end(async () => {
               const geomData = await fs.readFileSync(`./temp/${nameFile}.json`, 'utf8');
               const id = new ObjectID(data._id);
+              const idUpdate = data._id;
               const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
+              const cls = (Array.isArray(data.cls)) ? data.cls : [];
               data = {
                 uuid: String(user),
                 name: String(data.name),
                 // cc: String(data.cc),
                 systemLength: String(data.systemLength),
                 activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
-                urls: (data.urls === '') ? data.urls : [],
+                urls: (data.urls !== '') ? data.urls : [],
                 terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
                 capacityTBPS: String(data.capacityTBPS),
                 litCapacity: await (Array.isArray(data.litCapacity)) ? data.litCapacity.map((item) => JSON.parse(item)) : [],
@@ -217,15 +219,36 @@ class Cable {
                       else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
                       else {
                         // update the CLS connection
-                        if (Array.isArray(data.cls)) {
-                          await c.cls.map((i) => {
-                            let cableLandingStation = require('./CableLandingStation');
-                            cableLandingStation = new cableLandingStation();
-                            if (data.cls.includes(i)) {
-                              cableLandingStation.updateCable(user, i, data._id).then(() => '').catch(() => '');
-                            } else {
-                              cableLandingStation.removeCable(user, i, data._id).then(() => '').catch(() => '');
-                            }
+                        if (Array.isArray(cls)) {
+                          let cableLandingStation = require('./CableLandingStation');
+                          cableLandingStation = new cableLandingStation();
+                          (function () {
+                            return new Promise((resolve) => {
+                              let zero = 1;
+                              c.cls.map((i) => {
+                                console.log(c.cls.length, zero);
+                                if (c.cls.length === zero) {
+                                  if (!data.cls.includes(String(i))) {
+                                    cableLandingStation.removeCable(user, i, idUpdate).then(() => {
+                                      console.log('update 1');
+                                    }).catch(() => console.log('not update'));
+                                  }
+                                } else {
+                                  if (!data.cls.includes(String(i))) {
+                                    cableLandingStation.removeCable(user, i, idUpdate).then(() => {
+                                      console.log('update 1');
+                                    }).catch(() => console.log('not update'));
+                                  }
+                                  console.log('resolved');
+                                  resolve();
+                                }
+                                zero += 1;
+                              });
+                            });
+                          }(c)).then(async () => {
+                            await cls.map((i) => {
+                              cableLandingStation.updateCable(user, i, idUpdate).then(() => console.log('update 2')).catch(() => console.log('not update'));
+                            });
                           });
                         }
                         // update the segments
@@ -483,7 +506,13 @@ class Cable {
                   {
                     $match: {
                       $expr: {
-                        $in: ['$_id', '$$f'],
+                        $in: ['$_id', {
+                          $cond: {
+                            if: { $isArray: '$$f' },
+                            then: '$$f',
+                            else: [],
+                          },
+                        }],
                       },
                     },
                   },
@@ -506,7 +535,13 @@ class Cable {
                       $and: [
                         {
                           $expr: {
-                            $in: ['$_id', '$$f'],
+                            $in: ['$_id', {
+                              $cond: {
+                                if: { $isArray: '$$f' },
+                                then: '$$f',
+                                else: [],
+                              },
+                            }],
                           },
                         },
                         {
@@ -534,7 +569,13 @@ class Cable {
                       $and: [
                         {
                           $expr: {
-                            $in: ['$_id', '$$f'],
+                            $in: ['$_id', {
+                              $cond: {
+                                if: { $isArray: '$$f' },
+                                then: '$$f',
+                                else: [],
+                              },
+                            }],
                           },
                         },
                         {
@@ -803,7 +844,7 @@ class Cable {
                               $expr: {
                                 $in: ['$_id', {
                                   $cond: {
-                                    if: { $isArray: { $arrayElemAt: ['$$f', 0] } },
+                                    if: { $isArray: '$$f' },
                                     then: '$$f',
                                     else: [],
                                   },
@@ -830,14 +871,20 @@ class Cable {
                 {
                   $lookup: {
                     from: 'cls',
-                    let: { cables: '$_id' },
+                    let: { f: '$_id' },
                     pipeline: [
                       {
                         $match: {
                           $and: [
                             {
                               $expr: {
-                                $in: ['$$cables', '$cables'],
+                                $in: ['$cables', {
+                                  $cond: {
+                                    if: { $isArray: '$$f' },
+                                    then: '$$f',
+                                    else: [],
+                                  },
+                                }],
                               },
                             },
                             {
@@ -859,14 +906,20 @@ class Cable {
                 {
                   $lookup: {
                     from: 'networks',
-                    let: { cable: '$_id' },
+                    let: { f: '$_id' },
                     pipeline: [
                       {
                         $match: {
                           $and: [
                             {
                               $expr: {
-                                $in: ['$$cable', '$cables'],
+                                $in: ['$cables', {
+                                  $cond: {
+                                    if: { $isArray: '$$f' },
+                                    then: '$$f',
+                                    else: [],
+                                  },
+                                }],
                               },
                             },
                             {
@@ -937,7 +990,13 @@ class Cable {
                           $and: [
                             {
                               $expr: {
-                                $in: ['$_id', '$$f'],
+                                $in: ['$_id', {
+                                  $cond: {
+                                    if: { $isArray: '$$f' },
+                                    then: '$$f',
+                                    else: [],
+                                  },
+                                }],
                               },
                             },
                             {
@@ -970,6 +1029,39 @@ class Cable {
                 },
                 {
                   $addFields: { alert: { $size: '$alert' } },
+                },
+                {
+                  $addFields: {
+                    RFS: {
+                      $cond: [
+                        { $ne: ['', '$activationDateTime'] },
+                        {
+                          $concat: [
+                            {
+                              $cond: [
+                                { $lte: [{ $month: { $toDate: '$activationDateTime' } }, 3] },
+                                'Q1',
+                                {
+                                  $cond: [{ lte: [{ $month: { $toDate: '$activationDateTime' } }, 6] },
+                                    'Q2',
+                                    {
+                                      $cond: [{ $lte: [{ $month: { $toDate: '$activationDateTime' } }, 9] },
+                                        'Q3',
+                                        'Q4',
+                                      ],
+                                    },
+                                  ],
+                                },
+                              ],
+                            },
+                            '-',
+                            { $toString: { $sum: [{ $year: { $toDate: '$activationDateTime' } }, 0] } },
+                          ],
+                        },
+                        '',
+                      ],
+                    },
+                  },
                 },
                 {
                   $project: {
