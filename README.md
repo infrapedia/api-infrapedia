@@ -1,6 +1,6 @@
 # Api-Infrapedia
 
-## 🚩v.1.5.0.20202805
+## 🚩v.1.5.7.20200529
 
 - Connection to the database 
 - Connection to Redis Sessions
