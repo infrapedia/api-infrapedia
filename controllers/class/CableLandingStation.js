@@ -519,6 +519,11 @@ class CLS {
                   },
                 },
                 {
+                  $addFields: {
+                    name: { $concat: ['$name', ' ', { $ifNull: ['$country', ''] }] },
+                  },
+                },
+                {
                   $project: { geom: 0 },
                 },
                 {

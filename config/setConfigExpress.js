@@ -10,6 +10,9 @@ const cookieParser = require('cookie-parser');
 const methodOverride = require('method-override');
 const compression = require('compression');
 const path = require('path');
+const Sentry = require('@sentry/node');
+
+Sentry.init({ dsn: `https://${process.env.SENTRY}.ingest.sentry.io/5257355` });
 // bugsnag
 // const bugsnag = require('@bugsnag/js');
 // const bugsnagExpress = require('@bugsnag/plugin-express');
@@ -75,6 +78,8 @@ const expressConfig = function (app) {
   // This handles any errors that Express catches
   // app.use(middleware.errorHandler);
   // config
+  app.use(Sentry.Handlers.requestHandler());
+  app.use(Sentry.Handlers.errorHandler());
   app.set('settings', _settings);
   app.use(methodOverride('X-HTTP-Method-Override'));
   app.use((req, res, next) => {
@@ -138,6 +143,12 @@ const expressConfig = function (app) {
   app.use(formData.union());
   app.use('/auth', (err, req, res, next) => {
     next();
+  });
+  app.use((err, req, res, next) => {
+    // The error id is attached to `res.sentry` to be returned
+    // and optionally displayed to the user for support.
+    res.statusCode = 500;
+    res.end(`${res.sentry}\n`);
   });
 };
 module.exports = expressConfig;

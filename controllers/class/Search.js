@@ -224,7 +224,12 @@ class Search {
           cls.aggregate([
             {
               $project: {
-                _id: 1, name: 1, deleted: 1,
+                _id: 1, name: 1, country: 1, deleted: 1,
+              },
+            },
+            {
+              $addFields: {
+                name: { $concat: ['$name', ',', { $ifnull: ['$country', ''] }] },
               },
             },
             {

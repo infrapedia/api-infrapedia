@@ -871,26 +871,32 @@ class Cable {
                 {
                   $lookup: {
                     from: 'cls',
-                    let: { f: '$_id' },
+                    let: { f: '$cls' },
                     pipeline: [
                       {
                         $match: {
                           $and: [
                             {
                               $expr: {
-                                $in: ['$cables', {
+                                $in: ['$_id', {
                                   $cond: {
                                     if: { $isArray: '$$f' },
                                     then: '$$f',
                                     else: [],
                                   },
-                                }],
+                                },
+                                ],
                               },
                             },
                             {
                               deleted: false,
                             },
                           ],
+                        },
+                      },
+                      {
+                        $addFields: {
+                          name: { $concat: ['$name', ' ', { $ifNull: ['$country', ''] }] },
                         },
                       },
                       {
@@ -903,6 +909,41 @@ class Cable {
                     as: 'cls',
                   },
                 },
+                // {
+                //   $lookup: {
+                //     from: 'cls',
+                //     let: { f: '$_id' },
+                //     pipeline: [
+                //       {
+                //         $match: {
+                //           $and: [
+                //             {
+                //               $expr: {
+                //                 $in: ['$cables', {
+                //                   $cond: {
+                //                     if: { $isArray: '$$f' },
+                //                     then: '$$f',
+                //                     else: [],
+                //                   },
+                //                 }],
+                //               },
+                //             },
+                //             {
+                //               deleted: false,
+                //             },
+                //           ],
+                //         },
+                //       },
+                //       {
+                //         $project: {
+                //           _id: 1,
+                //           name: 1,
+                //         },
+                //       },
+                //     ],
+                //     as: 'cls',
+                //   },
+                // },
                 {
                   $lookup: {
                     from: 'networks',

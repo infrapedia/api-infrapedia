@@ -51,7 +51,7 @@ module.exports = {
             reject(e);
           });
           break;
-        case '5':
+        case '4':
           Elemnt = require('./class/InternetExchangePoint');
           Elemnt = new Elemnt();
           Elemnt.getNameElemnt(id).then((r) => {
@@ -88,11 +88,12 @@ module.exports = {
       u.uploadElementsFile(idata.file, user).then((lks) => {
         editElements().then(async (editE) => {
           // let information = '<ul>';
+          // eslint-disable-next-line max-len
           // information += await Object.keys(idata.information).map((key) => `<li>${key}: ${idata.information[key]}</li>`);
           // information += '</ul>';
           editE.insertOne({
             uuid: String(user),
-            elemnt: new ObjectID(idata.element),
+            elemnt: (idata.element !== undefined && idata.element !== '' && idata.element !== 'undefined') ? new ObjectID(idata.element) : '',
             t: String(idata.t),
             information: String(idata.information),
             lks,
@@ -102,25 +103,56 @@ module.exports = {
             // Add to freshdhesk
             const sendTicket = require('./helpers/freshdesk');
             // we need to validate the data of cable
-            Promise.all([module.exports.getElementName(user, idata.element, idata.t), module.exports.getEmail(user, token)]).then((r) => {
-              let email = JSON.parse(r[1]);
-              sendTicket(
-                {
-                  name: email.name,
-                  email: email.email,
-                  subject: 'A user wants to edit or add a new element',
-                  description: `${idata.information} \n ${lks}`,
-                  status: 2,
-                  priority: 3,
-                },
-              ).then(() => {
-                resolve({ m: 'Thank you for helping us build a better service for you.' });
+
+            if (idata.element !== undefined && idata.element !== '' && idata.element !== 'undefined') {
+              Promise.all([module.exports.getElementName(user, idata.element, idata.t), module.exports.getEmail(user, token)]).then((r) => {
+                const email = JSON.parse(r[1]);
+                sendTicket(
+                  {
+                    name: email.name,
+                    email: email.email,
+                    subject: `A user wants to edit ${r[0][0]}-${r[0][1]} `,
+                    description: `${idata.information} \n ${lks}`,
+                    status: 2,
+                    priority: 3,
+                  },
+                ).then(() => {
+                  resolve({ m: 'Thank you for helping us build a better service for you.' });
+                }).catch((e) => {
+                  reject({ m: e });
+                });
               }).catch((e) => {
                 reject({ m: e });
               });
-            }).catch((e) => {
-              reject({ m: e });
-            });
+            } else {
+              module.exports.getEmail(user, token).then((r) => {
+                const email = JSON.parse(r);
+                let type = '';
+                switch (String(idata.t)) {
+                  case '1': type = 'cable'; break;
+                  case '2': type = 'Cable Landing Station'; break;
+                  case '3': type = 'facility'; break;
+                  case '4': type = 'Internet Exchange Point'; break;
+                  case '6': type = 'Group'; break;
+                  case '7': type = 'Organization'; break;
+                  default: type = 'element';
+                }
+                sendTicket(
+                  {
+                    name: email.name,
+                    email: email.email,
+                    subject: `A user wants to add a new ${type}`,
+                    description: `${idata.information} \n ${lks}`,
+                    status: 2,
+                    priority: 3,
+                  },
+                ).then(() => {
+                  resolve({ m: 'Thank you for helping us build a better service for you.' });
+                }).catch((e) => {
+                  reject({ m: e });
+                });
+              });
+            }
           });
         }).catch((e) => { reject({ m: e }); });
       }).catch((e) => { reject({ m: e }); });

@@ -1,4 +1,4 @@
-// eslint-disable-next-line import/no-unresolved
+const { redisClient } = require('../config/redis');
 
 const routes = function (router, controllers) {
   const response = {
@@ -93,34 +93,101 @@ const routes = function (router, controllers) {
       res.sendStatus(200);
     }).catch(() => res.sendStatus(500));
   });
-  router.get(`${process.env._ROUTE}/createbboxcables`, (req, res) => {
+  router.get(`${process.env._ROUTE}/createbboxcls`, (req, res) => {
     //controllers.BBOXS.cls(), controllers.BBOXS.ixps()
-    controllers.BBOXS.cables().then(() => {
-      res.sendStatus(200);
-    }).catch(() => res.sendStatus(500));
+    redisClient.keys('cls_*', async (err, keys) => {
+      if (Array.isArray(keys)) {
+        await keys.map((key) => redisClient.del('cls_*', key));
+      }
+      controllers.BBOXS.cls().then(() => {
+        res.sendStatus(200);
+      }).catch(() => res.sendStatus(500));
+    });
+  });
+  router.get(`${process.env._ROUTE}/createbboxixp`, (req, res) => {
+    //controllers.BBOXS.cls(), controllers.BBOXS.ixps()
+    redisClient.keys('ixp_*', async (err, keys) => {
+      if (Array.isArray(keys)) {
+        await keys.map((key) => redisClient.del('ixp_*', key));
+      }
+      controllers.BBOXS.ixps().then(() => {
+        res.sendStatus(200);
+      }).catch(() => res.sendStatus(500));
+    });
+  });
+  router.get(`${process.env._ROUTE}/createbboxcables`, (req, res) => {
+    // //controllers.BBOXS.cls(), controllers.BBOXS.ixps()
+    // controllers.BBOXS.cables().then(() => {
+    //   res.sendStatus(200);
+    // }).catch(() => res.sendStatus(500));
+    redisClient.keys('cable_*', async (err, keys) => {
+      if (Array.isArray(keys)) {
+        await keys.map((key) => redisClient.del('cable_*', key));
+      }
+      controllers.BBOXS.cables().then(() => {
+        res.sendStatus(200);
+      }).catch(() => res.sendStatus(500));
+    });
   });
   router.get(`${process.env._ROUTE}/createbboxfacilities`, (req, res) => {
-    //controllers.BBOXS.cls(), controllers.BBOXS.ixps()
-    controllers.BBOXS.facilities().then(() => {
-      res.sendStatus(200);
-    }).catch(() => res.sendStatus(500));
-  });
-  router.get(`${process.env._ROUTE}/createdata`, (req, res) => {
-    Promise.all([controllers.BBOXS.dataCLS(), controllers.BBOXS.dataIXPS()])
-      .then(() => {
+    redisClient.keys('facility_*', async (err, keys) => {
+      if (Array.isArray(keys)) {
+        await keys.map((key) => redisClient.del('facility_*', key));
+      }
+      controllers.BBOXS.facilities().then(() => {
         res.sendStatus(200);
       }).catch(() => res.sendStatus(500));
+    });
+  });
+  // router.get(`${process.env._ROUTE}/createdata`, (req, res) => {
+  //   Promise.all([controllers.BBOXS.dataCLS(), controllers.BBOXS.dataIXPS()])
+  //     .then(() => {
+  //       res.sendStatus(200);
+  //     }).catch(() => res.sendStatus(500));
+  // });
+  router.get(`${process.env._ROUTE}/createdataixps`, (req, res) => {
+    redisClient.keys('v_ixp_*', async (err, keys) => {
+      if (Array.isArray(keys)) {
+        await keys.map((key) => redisClient.del('v_ixp_*', key));
+      }
+      controllers.BBOXS.dataIXPS().then(() => {
+        res.sendStatus(200);
+      }).catch(() => res.sendStatus(500));
+    });
+  });
+  router.get(`${process.env._ROUTE}/createdatacls`, (req, res) => {
+    redisClient.keys('v_cls_*', async (err, keys) => {
+      if (Array.isArray(keys)) {
+        await keys.map((key) => redisClient.del('v_cls_*', key));
+      }
+      controllers.BBOXS.dataCLS().then(() => {
+        res.sendStatus(200);
+      }).catch(() => res.sendStatus(500));
+    });
   });
   router.get(`${process.env._ROUTE}/createdatafacilities`, (req, res) => {
-    Promise.all([controllers.BBOXS.dataFacilities()])
-      .then(() => {
+    redisClient.keys('v_facility_*', async (err, keys) => {
+      if (Array.isArray(keys)) {
+        await keys.map((key) => redisClient.del('v_facility_*', key));
+      }
+      controllers.BBOXS.dataFacilities().then(() => {
         res.sendStatus(200);
       }).catch(() => res.sendStatus(500));
+    });
   });
   router.get(`${process.env._ROUTE}/createdatacables`, (req, res) => {
-    controllers.BBOXS.dataCables().then(() => {
-      res.sendStatus(200);
-    }).catch(() => res.sendStatus(500));
+    redisClient.keys('v_cable_*', async(err, keys) => {
+      if (Array.isArray(keys)) {
+        await keys.map((key) => redisClient.del('v_cable_*', key));
+      }
+      controllers.BBOXS.dataCables().then(() => {
+        res.sendStatus(200);
+      }).catch(() => res.sendStatus(500));
+    });
+  });
+
+  router.get('/debug-sentry', (req, res) => {
+    throw new Error('My first Sentry error!');
   });
 };
 module.exports = routes;

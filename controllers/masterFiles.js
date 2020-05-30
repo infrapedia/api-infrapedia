@@ -140,7 +140,6 @@ module.exports = {
                 });
                 stream.end(async () => {
                   checkedFiles += 1;
-                  console.log(checkedFiles);
                   if (checkedFiles === ids.length) {
                     // module.exports.buildMasterFile('cables').then((mf) => {
                     //   console.log('Finish');
@@ -383,6 +382,7 @@ module.exports = {
   // // },
   cls: () => {
     try {
+      console.log('Creating CLS');
       const cls = require('../models/cls.model');
       cls().then((cls) => {
         cls.aggregate([
@@ -392,6 +392,11 @@ module.exports = {
                  path: '$geom.features',
                  preserveNullAndEmptyArrays: false,
                },
+          },
+          {
+            $addFields: {
+              name: { $concat: ['$name', ' ', { $ifNull: ['$country', ''] }] },
+            },
           },
           {
             $addFields: {
@@ -412,9 +417,10 @@ module.exports = {
               feature: 1,
             },
           },
-        ], { allowDiskUse: false }).toArray(async (err, multipoints) => {
+        ], { allowDiskUse: true }).toArray(async (err, multipoints) => {
           if (err) return 'Error';
           // we'll going to create the master file for ixps
+          console.log(multipoints);
           let id = 0;
           multipoints = await multipoints.reduce((total, value) => {
             id++;
@@ -467,7 +473,7 @@ module.exports = {
               feature: 1,
             },
           },
-        ], { allowDiskUse: false }).toArray(async (err, multipoints) => {
+        ], { allowDiskUse: true }).toArray(async (err, multipoints) => {
           if (err) return 'Error';
 
           console.log(multipoints);
@@ -598,7 +604,7 @@ module.exports = {
               feature: 1,
             },
           },
-        ], { allowDiskUse: false }).toArray(async (err, polygon) => {
+        ], { allowDiskUse: true }).toArray(async (err, polygon) => {
           console.log(err, polygon);
           if (err) return 'Error';
           // we'll going to create the master file for ixps
@@ -723,7 +729,7 @@ module.exports = {
               feature: 1,
             },
           },
-        ], { allowDiskUse: false }).toArray(async (err, polygon) => {
+        ], { allowDiskUse: true }).toArray(async (err, polygon) => {
           if (err) return 'Error';
           // we'll going to create the master file for ixps
           const turf = require('@turf/turf');
