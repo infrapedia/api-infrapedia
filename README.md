@@ -1,7 +1,10 @@
-# Api-Infrapedia
+# Api Infrapedia.com
 
-## 🚩v.1.5.7.20200529
+## Versions
 
+#### 🚩v.1.5.8.20200602
+- Fixed the problem with the cls finder
+#### 🚩v.1.5.7.20200529
 - Connection to the database 
 - Connection to Redis Sessions
 - eslintRules
@@ -112,10 +115,6 @@ _GG_CLOUD_BUCKET_FOLDER_KMZ=
 ## Databases
 - Redis: 
 - MongoDB: 
-
-
-chmod u+r+x cablesT_migrateToCdn.sh 
-
 
 ## License
 
