@@ -36,6 +36,7 @@ module.exports = {
               fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), (filesReaded < files.length)
                 ? `\n${data.features.map((f) => `${JSON.stringify(f)}`)},` : `\n${data.features.map((f) => `${JSON.stringify(f)}`)}`, 'utf8');
               if (filesReaded === files.length) {
+                console.log('Finished');
                 fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), ']}', 'utf8');
                 resolve();
               }
