@@ -141,6 +141,7 @@ module.exports = {
                 });
                 stream.end(async () => {
                   checkedFiles += 1;
+                  console.log(checkedFiles);
                   if (checkedFiles === ids.length) {
                     // module.exports.buildMasterFile('cables').then((mf) => {
                     //   console.log('Finish');
