@@ -29,6 +29,7 @@ module.exports = {
           stream.on('data', (chunk) => data += chunk);
           stream.on('end', () => {
             filesReaded += 1;
+            console.log(filesReaded);
             data = JSON.parse(data);
             if (data.features[0] !== undefined) {
               // masterFile.write = JSON.stringify(data.features[0]);
