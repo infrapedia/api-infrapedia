@@ -3,7 +3,7 @@
 ## Versions
 
 ### 🏁1.5
-| Version  | Second Header |
+| Version  | Changes |
 | ------------- | ------------- |
 |1.5.9.20200609|Functionality for infrapedia awards voting  |
 |1.5.8.20200602|Fixed the problem with the cls finder  |
