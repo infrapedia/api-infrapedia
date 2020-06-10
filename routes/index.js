@@ -10,7 +10,7 @@ const routes = function (router, controllers) {
       );
       res.status(200).json({ t: 'success', data: answ, n });
     },
-    err: (res, answ) => {
+    err: (res, answ, n) => {
       // let msgError = answ.msg.split('|');
       // answ.msg = msgError[0];
       // bugsnagClient.user = {
@@ -23,7 +23,7 @@ const routes = function (router, controllers) {
       // bugsnagClient.notify(new Error( msgError[ 1 ] ) );
       // REPORT CLIENT
       res.set({ 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Max-Age': 600, 'X-Powered-By': 'Infrapedia.com' });
-      res.status(409).json({ t: 'error', data: answ });
+      res.status(409).json({ t: 'error', data: answ, n });
     },
   };
   //
@@ -70,6 +70,8 @@ const routes = function (router, controllers) {
   require('./bymodules/transfer').callEndPoints(router, controllers, response);
   // Contact --->
   require('./bymodules/contact').callEndPoints(router, controllers, response);
+  // Voting --->
+  require('./bymodules/voting').callEndPoints(router, controllers, response);
 
   // WMS ---> SERVICE
   // const params = { mbtiles: ['./temp/terrestrial.mbtiles', './temp/subsea.mbtiles', './temp/cls.mbtiles', './temp/ixps.mbtiles', './temp/facilities.mbtiles'], quiet: false };

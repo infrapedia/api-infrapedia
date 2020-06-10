@@ -2,12 +2,13 @@
 
 ## Versions
 
-#### 🚩v.1.5.8.20200602
-- Fixed the problem with the cls finder
-#### 🚩v.1.5.7.20200529
-- Connection to the database 
-- Connection to Redis Sessions
-- eslintRules
+### 🏁1.5
+| Version  | Second Header |
+| ------------- | ------------- |
+|1.5.9.20200609|Functionality for infrapedia awards voting  |
+|1.5.8.20200602|Fixed the problem with the cls finder  |
+|1.5.7.20200529|Connection to the database, Connection to Redis Sessions, eslintRules  |
+
 
 App network: 
 
@@ -67,6 +68,8 @@ App network:
         - By Field (Name or ID)
     -Shortner
        - URL
+    - Voting
+        - Users can vote   
 
 ## Documentation
 
@@ -77,44 +80,65 @@ App network:
 ## Environment Variables
 
 ```
-_PROJ_NAME = 
-_ENV = dev
-_PORT_DEV = 
-_PORT_PROD = 
+_ROUTE=
+_PROJ_NAME=
+_ENV=
+_PORT_DEV=
+_PORT_PROD=
 _CORSURL=
 _BASEURL=
-
 #AUTH0
 AUTH0_CLIENT_ID=
 AUTH0_DOMAIN=
 AUTH0_CLIENT_SECRET=
 AUTH0_CALLBACK_URL=
-
 #
-_JWT_SECRET = 
-
-#RDS
-_RDS_DOMAIN = 127.0.0.1
-_RDS_PORT = 6379
-_RDS_PASSW = ''
-
-#Mongo Db
-_DB_DOMAIN= 
-_DB_PORT = 
-_DB_NAME = 
-
+_JWT_SECRET= 
+##RDS
+_RDS_DOMAIN=
+_RDS_PORT=
+_RDS_PASSW=
+#POSGRESQL
+_PGSQL_user = 
+_PGSQL_host = 
+_PGSQL_database = 
+_PGSQL_password = 
+_PGSQL_port = 
+#MongoDb
+_DB_DOMAIN=
+_DB_PORT= 
+_DB_NAME= 
 #GCLOUD
 _CDN_ROUTE_FILES=
 _GG_PROJECT_ID=
-_GG_CLOUD_BUCKET=
-_GG_CLOUD_BUCKET_FOLDER_LOGOS=
-_GG_CLOUD_BUCKET_FOLDER_KMZ=
+_GG_CLOUD_BUCKET = 
+_GG_CLOUD_BUCKET_FOLDER_LOGOS = 
+_GG_CLOUD_BUCKET_FOLDER_KMZ = 
+_GG_CLOUD_BUCKET_FOLDER_EEDITED = 
+#NEWRELIC
+_NR_LICENSE_KEY =
+_NR_APP_NAME = 
+#ADMS
+ADMS =
+EMAILNOTIFICATIONS=
+MANDRILLAPIKEY=
+MANDRILL_EMAIL=
+#SENDGRID
+CCEMAIL=
+EMAILSENDER=
+APIKEYSENDGRID=
+newsletterList=
+#FRESHDESK
+FD_APIKEY=
+FD_ENDPOINT=
+#Sentry
+SENTRY=
 
 ```
 
 ## Databases
 - Redis: 
-- MongoDB: 
+- MongoDB: We use Mongo Atlas
 
 ## License
 
