@@ -10,5 +10,10 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e, false); });
     });
+    router.get(`${process.env._ROUTE}/votes`, (req, res) => {
+      controllers.voting.results()
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e, false); });
+    });
   },
 };

@@ -22,4 +22,5 @@ module.exports = {
   removeCable: (usr, ids) => CLS.removeCable(usr, ids.cls, ids.cable),
   listOfCables: (usr, ids) => CLS.listOfCables(usr, ids),
   listOfCLSbyCable: (usr, ids) => CLS.listOfCLSbyCable(usr, ids),
+  checkName: (name) => CLS.checkName(name),
 };

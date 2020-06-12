@@ -9,4 +9,5 @@ module.exports = {
   owner: (usr, id) => Network.owner(usr, id),
   view: (usr, id) => Network.view(usr, id),
   search: (usr, query) => Network.search(usr, query),
+  checkName: (name) => Network.checkName(name),
 };

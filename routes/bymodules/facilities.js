@@ -56,5 +56,10 @@ module.exports = {
         .then((r) => { response.success(res, r); })
         .catch((e) => { response.err(res, e); });
     });
+    router.get(`${process.env._ROUTE}/facilities/checkname`, statics, (req, res) => {
+      controllers.facilities.checkName(req.query.n)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
   },
 };

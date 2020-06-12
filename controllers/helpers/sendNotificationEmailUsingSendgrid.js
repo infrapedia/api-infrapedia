@@ -8,6 +8,8 @@ function sendNotificationEmailUsingMandrill(emailReceive, subject, html, replyTo
       const msg = {
         to: email,
         cc: process.env.CCEMAIL,
+        bcc: process.env.BCC,
+        reply_to: replyToEmail,
         from: process.env.EMAILSENDER,
         subject,
         html,

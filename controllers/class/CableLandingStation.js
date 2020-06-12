@@ -787,5 +787,21 @@ class CLS {
       }
     });
   }
+
+  checkName(name) {
+    return new Promise((resolve, reject) => {
+      try {
+        console.log(name);
+        this.model().then((search) => {
+          search.find({ name }).count((err, c) => {
+            if (err) reject({ m: err });
+            resolve({ m: 'Loaded', r: c });
+          });
+        });
+      } catch (e) {
+        reject({m: e });
+      }
+    });
+  }
 }
 module.exports = CLS;

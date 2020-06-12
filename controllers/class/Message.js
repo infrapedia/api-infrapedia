@@ -148,7 +148,7 @@ class Message {
                       type: elemntType,
                       url: process.env._BASEURL,
                     }, (err, html) => {
-                      sendEmail(r.email, 'Someone has sent you a message on Infrapedia', html, issue.email);
+                      sendEmail(r.email, 'Someone has sent you a message on Infrapedia', html, data.email);
                     });
                   }).catch(() => {
                     ejs.renderFile('templates/email/email_notification.ejs', {

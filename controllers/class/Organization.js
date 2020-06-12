@@ -438,6 +438,32 @@ class Organization {
     });
   }
 
+  getNameElemnt(id) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((organization) => {
+          organization.aggregate([
+            {
+              $project: {
+                _id: 1,
+                uuid: 1,
+                name: 1,
+              },
+            },
+            {
+              $match: {
+                _id: new ObjectID(id),
+              },
+            },
+          ]).toArray((err, c) => {
+            if (err) reject(err);
+            resolve(c);
+          });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
   getElementGeom(id) {
     return new Promise((resolve, reject) => {
       try {
@@ -489,6 +515,22 @@ class Organization {
           });
         }).catch((e) => reject({ m: e }));
       } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  checkName(name) {
+    return new Promise((resolve, reject) => {
+      try {
+        console.log(name);
+        this.model().then((search) => {
+          search.find({ name }).count((err, c) => {
+            if (err) reject({ m: err });
+            resolve({ m: 'Loaded', r: c });
+          });
+        });
+      } catch (e) {
+        reject({m: e });
+      }
     });
   }
 }

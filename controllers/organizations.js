@@ -11,4 +11,5 @@ module.exports = {
   search: (usr, query) => Organization.search(usr, query),
   partners: () => Organization.partners(),
   istrusted: () => Organization.istrusted(),
+  checkName: (name) => Organization.checkName(name),
 };
