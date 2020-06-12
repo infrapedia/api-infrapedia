@@ -1,7 +1,10 @@
 # Api Infrapedia.com
 
 ## Versions
-
+### 🏁1.6
+| Version  | Changes |
+| ------------- | ------------- |
+|1.6.0.20200612|-Infrapedia awards functionality: vote, consult, see results. -Name duplicate validation: IXP, Cable, CLS, Facility, Networks, Organization. -Messages: Validate functionality to send message for Facilities, IXPS, Organizations, Networks. -sendNotificationEmailUsingSendgrid.js: Added BBC field and reply to.|
 ### 🏁1.5
 | Version  | Changes |
 | ------------- | ------------- |
