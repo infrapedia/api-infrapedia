@@ -42,7 +42,7 @@ class Message {
             Elemnt = require('./Cable');
             Elemnt = new Elemnt();
             Elemnt.getNameElemnt(id).then((r) => {
-              resolve([(r[0].uuid !== undefined) ? r[0].uuid : '', r[0].name, 'Cable']);
+              resolve([(r !== undefined) ? r[0].uuid : '', r[0].name, 'Cable']);
             }).catch((e) => {
               console.log(e);
               reject(e);
@@ -52,7 +52,7 @@ class Message {
             Elemnt = require('./CableLandingStation');
             Elemnt = new Elemnt();
             Elemnt.getNameElemnt(id).then((r) => {
-              resolve([(r[0].uuid !== undefined) ? r[0].uuid : '', r.r[0].name, 'Cable Landing Station']);
+              resolve([(r !== undefined) ? r[0].uuid : '', r[0].name, 'Cable Landing Station']);
             }).catch((e) => {
               reject(e);
             });
@@ -61,7 +61,7 @@ class Message {
             Elemnt = require('./Facility');
             Elemnt = new Elemnt();
             Elemnt.getNameElemnt(id).then((r) => {
-              resolve([(r[0].uuid !== undefined) ? r[0].uuid : '', r.r[0].name, 'Facility']);
+              resolve([(r !== undefined) ? r[0].uuid : '', r[0].name, 'Facility']);
             }).catch((e) => {
               reject(e);
             });
@@ -70,7 +70,7 @@ class Message {
             Elemnt = require('./InternetExchangePoint');
             Elemnt = new Elemnt();
             Elemnt.getNameElemnt(id).then((r) => {
-              resolve([(r[0].uuid !== undefined) ? r[0].uuid : '', r.r[0].name, 'Internet Exchange Point']);
+              resolve([(r !== undefined) ? r[0].uuid : '', r[0].name, 'Internet Exchange Point']);
             }).catch((e) => {
               reject(e);
             });
@@ -79,7 +79,7 @@ class Message {
             Elemnt = require('./Network');
             Elemnt = new Elemnt();
             Elemnt.getNameElemnt(id).then((r) => {
-              resolve([(r[0].uuid !== undefined) ? r[0].uuid : '', r.r[0].name, 'Group']);
+              resolve([(r !== undefined) ? r[0].uuid : '', r[0].name, 'Group']);
             }).catch((e) => {
               reject(e);
             });
@@ -88,7 +88,7 @@ class Message {
             Elemnt = require('./Organization');
             Elemnt = new Elemnt();
             Elemnt.getNameElemnt(id).then((r) => {
-              resolve([(r[0].uuid !== undefined) ? r[0].uuid : '', r.r[0].name, 'Organization']);
+              resolve([(r !== undefined) ? r[0].uuid : '', r[0].name, 'Organization']);
             }).catch((e) => {
               reject(e);
             });
@@ -165,10 +165,12 @@ class Message {
                   });
                   resolve({ m: 'Message sent successfully' });
                 }).catch((err) => {
+                  console.log(err);
                   reject({ m: `The message could not be created: ${err}` });
                 });
                 //
               }).catch((err) => {
+                console.log(err);
                 reject({ m: `The message could not be created: ${err}` });
               });
             });
