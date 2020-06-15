@@ -4,6 +4,7 @@
 ### 🏁1.6
 | Version  | Changes |
 | ------------- | ------------- |
+|1.6.2.20200614|-Added the element and date information to the subject mail validating that every message be received like a unique message|
 |1.6.1.20200614|-Validate the category|
 |1.6.0.20200612|-Infrapedia awards functionality: vote, consult, see results. -Name duplicate validation: IXP, Cable, CLS, Facility, Networks, Organization. -Messages: Validate functionality to send message for Facilities, IXPS, Organizations, Networks. -sendNotificationEmailUsingSendgrid.js: Added BBC field and reply to.|
 ### 🏁1.5

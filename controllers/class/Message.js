@@ -148,7 +148,8 @@ class Message {
                       type: elemntType,
                       url: process.env._BASEURL,
                     }, (err, html) => {
-                      sendEmail(r.email, 'Someone has sent you a message on Infrapedia', html, data.email);
+                      // When we want to include the email of user we can use r.email
+                      sendEmail('', `${elemntName} - ${elemntType} - Someone has sent you a message on Infrapedia - ${new Date().getDate()}/${new Date().getMonth() + 1}`, html, data.email);
                     });
                   }).catch(() => {
                     ejs.renderFile('templates/email/email_notification.ejs', {
@@ -160,23 +161,21 @@ class Message {
                       type: data.t,
                       url: process.env._BASEURL,
                     }, (err, html) => {
-                      sendEmail('', 'A user wrote a message on the app', html, data.email);
+                      sendEmail('', `A user wrote a message on the app - ${new Date().getDate()}/${new Date().getMonth() + 1}`, html, data.email);
                     });
                   });
                   resolve({ m: 'Message sent successfully' });
                 }).catch((err) => {
-                  console.log(err);
                   reject({ m: `The message could not be created: ${err}` });
                 });
                 //
               }).catch((err) => {
-                console.log(err);
                 reject({ m: `The message could not be created: ${err}` });
               });
             });
           }).catch((e) => { reject({ m: e }); });
         } else { resolve('Not user found'); }
-      } catch (e) { console.log(e); reject({ m: e }); }
+      } catch (e) { reject({ m: e }); }
     });
   }
 
