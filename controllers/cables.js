@@ -26,4 +26,5 @@ module.exports = {
   getMultiElementsGeom: (usr, ids) => Cable.getMultiElementsGeom(ids),
   relationsTransfer: () => Cable.relationsTransfer(),
   checkName: (name) => Cable.checkName(name),
+  subSealistByName: (req, res) => Cable.subSealistByName(req, res),
 };

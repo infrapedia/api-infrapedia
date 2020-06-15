@@ -1,6 +1,6 @@
 {
   "name": "api-infrapedia",
-  "version": "1.0.0",
+  "version": "1.6.1.20200614",
   "description": "Api for infrapedia",
   "main": "app.js",
   "scripts": {

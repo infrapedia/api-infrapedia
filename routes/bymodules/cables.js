@@ -87,5 +87,8 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+    router.get(`${process.env._ROUTE}/cables/subseacables`, (req, res) => {
+      controllers.cables.subSealistByName(res, req);
+    });
   },
 };

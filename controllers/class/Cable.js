@@ -1355,7 +1355,6 @@ class Cable {
   checkName(name) {
     return new Promise((resolve, reject) => {
       try {
-        console.log(name);
         this.model().then((search) => {
           search.find({ name }).count((err, c) => {
             if (err) reject({ m: err });
@@ -1363,8 +1362,21 @@ class Cable {
           });
         });
       } catch (e) {
-        reject({m: e });
+        reject({ m: e });
       }
+    });
+  }
+
+  subSealistByName(res, req) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((cables) => {
+          cables.aggregate([{ $project: { name: 1, terrestrial: 1 } }, { $match: { terrestrial: false } }]).toArray(async (err, r) => {
+            if (err) res.sendStatus(500);
+            res.json(await r.map((x) => x.name ));
+          });
+        }).catch((e) => reject({ m: e }));
+      } catch (e) { reject({ m: e }); }
     });
   }
 
