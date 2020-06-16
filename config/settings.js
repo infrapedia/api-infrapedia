@@ -12,6 +12,6 @@ const information = {
     port: process.env._DB_PORT,
     name: process.env._DB_NAME,
   },
-}
+};
 
 module.exports = information;

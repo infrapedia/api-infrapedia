@@ -37,7 +37,7 @@ module.exports = {
     const { format } = config.tiles._info;
     router.get(`${process.env._ROUTE}/:source/:z/:x/:y.${format}`, (req, res) => {
       const p = req.params;
-      p.source += '.mbtiles'
+      p.source += '.mbtiles';
       const { tiles } = config.sources[p.source];
       tiles.getTile(p.z, p.x, p.y, (err, tile, headers) => {
         if (err) {
