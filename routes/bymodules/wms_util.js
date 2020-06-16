@@ -17,7 +17,7 @@ module.exports.mergeConfigurations = function (config, tilesets) {
     return objectAssign({}, prev, c);
   }, {});
   const smart = objectAssign({}, config, tilesets[0]);
-  const centerZoom = smart.center.pop();
+  const centerZoom = smart.center;//pop()
   smart.zoom = smart.zoom || centerZoom;
   smart.center.push(smart.zoom);
   return objectAssign({}, smart, {
