@@ -266,7 +266,7 @@ FROM facility`;
   orgFacilities: () => new Promise((resolve, reject) => {
     const SQLquery = 'SELECT org_id, fac_id FROM public.org_fac';
     pool.query(SQLquery, (error, results) => {
-      const IXP = require('../models/facility.model');
+      const Facility = require('../models/facility.model');
       Facility().then(async (Facility) => {
         const check = results.length;
         let validation = 0;
