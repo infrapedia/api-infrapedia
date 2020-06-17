@@ -1275,28 +1275,29 @@ class Cable {
                   });
               }
             });
+
+            // ORGS
+            const SQLQueryOrg = `SELECT cable_id, org_id FROM cable_org WHERE cable_id = ${id.cableid}`;
+            pool.query(SQLQueryOrg, async (error, results) => {
+              if (results !== undefined) {
+                const orgmodel = require('../../models/organization.model');
+                orgmodel().then((org) => {
+                  results.rows.map((orgid) => {
+                    if (orgid !== null) {
+                      org.findOne({ ooid: String(orgid.org_id) }, (err, idorg) => {
+                        console.log(idorg);
+                        if (idorg !== null && ObjectID.isValid(idorg._id)) {
+                          cables.updateOne({ _id: new ObjectID(id._id) }, { $push: { owners: new ObjectID(idorg._id) } }, (err, u) => { // new ObjectID(idorg._id)
+                            console.log(id._id);
+                          });
+                        } else { console.log('Not defined'); }
+                      });
+                    }
+                  });
+                });
+              }
+            });
           });
-          // ORGS
-          // const SQLQueryOrg = `SELECT cable_id, org_id FROM cable_org WHERE cable_id = ${id.cableid}`;
-          // pool.query(SQLQueryOrg, async (error, results) => {
-          //   if (results !== undefined) {
-          //     const orgmodel = require('../../models/organization.model');
-          //     orgmodel().then((org) => {
-          //       results.rows.map((orgid) => {
-          //         if (orgid !== null) {
-          //           org.findOne({ ooid: String(orgid.org_id) }, (err, idorg) => {
-          //             console.log(idorg);
-          //             if (idorg !== null && ObjectID.isValid(idorg._id)) {
-          //               cables.updateOne({ _id: new ObjectID(id._id) }, { $push: { owners: new ObjectID(idorg._id) } }, (err, u) => { // new ObjectID(idorg._id)
-          //                 console.log(id._id);
-          //               });
-          //             } else { console.log('Not defined'); }
-          //           });
-          //         }
-          //       });
-          //     });
-          //   }
-          // });
         });
       }).catch((e) => { reject(e); });
     });
