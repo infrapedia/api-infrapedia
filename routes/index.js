@@ -74,7 +74,7 @@ const routes = function (router, controllers) {
   require('./bymodules/voting').callEndPoints(router, controllers, response);
 
   // WMS ---> SERVICE
-  const params = { mbtiles: ['./temp/cables.mbtiles'], quiet: false };
+  const params = { mbtiles: ['./temp/cables.mbtiles'], quiet: false, do: process.env.wms };
   require('./bymodules/wms').serve(router, response, params);
   // router.get(`${process.env._ROUTE}/wms/ixps`, (req, res) => { res.sendFile('./temp/ixps.json'); });
   // router.get(`${process.env._ROUTE}/wms/cls`, (req, res) => { res.sendFile('./temp/cls.json'); });
