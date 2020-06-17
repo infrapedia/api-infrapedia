@@ -133,6 +133,7 @@ const expressConfig = function (app) {
   app.use(passport.session());
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(null, options));
   app.use('/assets/css/', express.static(`${process.cwd()}/public/css`));
+  app.use('/map/', express.static(`${process.cwd()}/public/map`));
 
   // data parser
   app.use(bodyParser.json({ limit: '50mb', extended: true }));
