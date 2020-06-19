@@ -90,12 +90,12 @@ const routes = function (router, controllers) {
         });
     });
   });
-  router.get(`${process.env._ROUTE}/createbbox`, (req, res) => {
-    //controllers.BBOXS.cls(), controllers.BBOXS.ixps()
-    Promise.all([controllers.BBOXS.cls(), controllers.BBOXS.ixps()]).then(() => {
-      res.sendStatus(200);
-    }).catch(() => res.sendStatus(500));
-  });
+  // router.get(`${process.env._ROUTE}/createbbox`, (req, res) => {
+  //   //controllers.BBOXS.cls(), controllers.BBOXS.ixps()
+  //   Promise.all([controllers.BBOXS.cls(), controllers.BBOXS.ixps()]).then(() => {
+  //     res.sendStatus(200);
+  //   }).catch(() => res.sendStatus(500));
+  // });
   router.get(`${process.env._ROUTE}/createbboxcls`, (req, res) => {
     //controllers.BBOXS.cls(), controllers.BBOXS.ixps()
     redisClient.keys('cls_*', async (err, keys) => {

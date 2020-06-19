@@ -55,10 +55,12 @@ class CLS {
               if (err) resolve({ m: err });
               else if (c > 0) resolve({ m: 'We have registered in our system more than one organization with the same name' });
               else {
+                const name = data.name.split(',');
                 data = {
                   uuid: '',
                   cid: String(data.cid),
-                  name: String(data.name),
+                  name: (Array.isArray(name)) ? name[0] : '',
+                  country: (Array.isArray(name) && name[1] !== undefined) ? name[1] : '',
                   notes: '', // String(data.notes)
                   state: `${String(data.state)}`,
                   slug: `${String(data.slug)}`,
