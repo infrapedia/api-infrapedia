@@ -399,7 +399,7 @@ module.exports = {
           },
           {
             $addFields: {
-              name: { $concat: ['$name', ' ', { $ifNull: ['$country', ''] }] },
+              name: { $concat: ['$name', ', ', { $ifNull: ['$country', ''] }] },
             },
           },
           {

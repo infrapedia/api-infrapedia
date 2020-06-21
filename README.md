@@ -4,6 +4,7 @@
 ### 🏁1.6
 | Version  | Changes |
 | ------------- | ------------- |
+|1.6.9.20200621|- Changed the name style of CLS  |
 |1.6.8.20200621|-Changed the style of RFS and it was fixed the problem with the search in subSea cable function  |
 |1.6.8.20200621|-Changed the style of RFS |
 |1.6.7.20200621|-Fixed the problem with the RFS date of cable |
