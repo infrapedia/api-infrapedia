@@ -1091,7 +1091,7 @@ class Cable {
                                   ],
                                 },
                               ],
-                            }, ')',
+                            }, ') ',
                             { $toString: { $month: { $toDate: '$activationDateTime' } } },
                             '-',
                             { $toString: { $sum: [{ $year: { $toDate: '$activationDateTime' } }, 0] } },
