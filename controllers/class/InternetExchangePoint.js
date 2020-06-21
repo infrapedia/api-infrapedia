@@ -459,15 +459,21 @@ class IXP {
   search(user, search) {
     return new Promise((resolve, reject) => {
       try {
+        console.log(search.s);
         this.model().then((ixp) => {
           const uuid = (search.psz === '1') ? adms(user) : {};
           ixp.aggregate([
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                nameLong: 1,
+                alerts: 1,
+              },
+            },
             { $sort: { name: 1 } },
             {
-              $addFields: { name: { $toLower: '$name' } },
-            },
-            {
-              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { nameLong: { $regex: search.s, $options: 'i' } }, { deleted: false }] },
+              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { nameLong: { $regex: search.s, $options: 'i' } }, { deleted: { $ne: true } }] },
             },
             {
               $lookup: {
@@ -484,13 +490,6 @@ class IXP {
             },
             {
               $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
-            },
-            {
-              $project: {
-                _id: 1,
-                name: 1,
-                alerts: 1,
-              },
             },
             { $limit: 20 },
           ]).toArray((err, r) => {
@@ -660,15 +659,30 @@ class IXP {
   checkName(name) {
     return new Promise((resolve, reject) => {
       try {
-        console.log(name);
         this.model().then((search) => {
-          search.find({ name }).count((err, c) => {
+          search.aggregate([
+            {
+              $project: {
+                name: 1,
+              },
+            },
+            {
+              $addFields: {
+                name: { $toLower: '$name' },
+              },
+            },
+            {
+              $match: {
+                name: name.toLowerCase(),
+              },
+            },
+          ]).toArray((err, c) => {
             if (err) reject({ m: err });
-            resolve({ m: 'Loaded', r: c });
+            resolve({ m: 'Loaded', r: c.length });
           });
         });
       } catch (e) {
-        reject({m: e });
+        reject({ m: e });
       }
     });
   }

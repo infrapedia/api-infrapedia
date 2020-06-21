@@ -188,7 +188,6 @@ const routes = function (router, controllers) {
       }).catch(() => res.sendStatus(500));
     });
   });
-
   router.get('/debug-sentry', (req, res) => {
     throw new Error('My first Sentry error!');
   });

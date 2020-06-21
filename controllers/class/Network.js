@@ -410,15 +410,23 @@ class Network {
           const uuid = (search.psz === '1') ? adms(user) : {};
           cable.aggregate([
             {
+              $project: {
+                _id: 1,
+                name: 1,
+                yours: 1,
+                alerts: 1,
+              },
+            },
+            {
               $sort: { name: 1 },
             },
             {
-              $addFields: { name: { $toLower: '$name' } },
-            },
-            {
-              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { deleted: false }] },
+              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { deleted: { $ne: true } }] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
+            {
+              $sort: { name: 1, yours: -1 },
+            },
             {
               $lookup: {
                 from: 'alerts',
@@ -435,15 +443,6 @@ class Network {
             {
               $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
             },
-            {
-              $project: {
-                _id: 1,
-                name: 1,
-                yours: 1,
-                alerts: 1,
-              },
-            },
-            { $sort: { yours: -1 } },
             { $limit: 20 },
           ]).toArray((err, r) => {
             resolve(r);
@@ -679,15 +678,30 @@ class Network {
   checkName(name) {
     return new Promise((resolve, reject) => {
       try {
-        console.log(name);
         this.model().then((search) => {
-          search.find({ name }).count((err, c) => {
+          search.aggregate([
+            {
+              $project: {
+                name: 1,
+              },
+            },
+            {
+              $addFields: {
+                name: { $toLower: '$name' },
+              },
+            },
+            {
+              $match: {
+                name: name.toLowerCase(),
+              },
+            },
+          ]).toArray((err, c) => {
             if (err) reject({ m: err });
-            resolve({ m: 'Loaded', r: c });
+            resolve({ m: 'Loaded', r: c.length });
           });
         });
       } catch (e) {
-        reject({m: e });
+        reject({ m: e });
       }
     });
   }
