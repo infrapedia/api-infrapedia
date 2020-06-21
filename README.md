@@ -4,6 +4,7 @@
 ### 🏁1.6
 | Version  | Changes |
 | ------------- | ------------- |
+|1.6.6.20200620|-Fixed the problem with the redCable when the category is unknown |
 |1.6.5.20200620|-Update the search function to optimize the result, removed some console.log, It has updated the cls name in the transfer information |
 |1.6.2.20200614|-Added the element and date information to the subject mail validating that every message be received like a unique message|
 |1.6.1.20200614|-Validate the category|
