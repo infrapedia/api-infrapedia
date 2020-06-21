@@ -4,6 +4,7 @@
 ### 🏁1.6
 | Version  | Changes |
 | ------------- | ------------- |
+|1.6.8.20200621|-Changed the style of RFS |
 |1.6.7.20200621|-Fixed the problem with the RFS date of cable |
 |1.6.6.20200620|-Fixed the problem with the redCable when the category is unknown |
 |1.6.5.20200620|-Update the search function to optimize the result, removed some console.log, It has updated the cls name in the transfer information |
