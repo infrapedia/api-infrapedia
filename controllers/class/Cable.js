@@ -781,7 +781,7 @@ class Cable {
               },
             },
             {
-              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { terrestrial: true }, { deleted: { $ne: true } }] },
+              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { terrestrial: false }, { deleted: { $ne: true } }] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {
@@ -1070,35 +1070,53 @@ class Cable {
                 {
                   $addFields: {
                     RFS: {
-                      $cond: [
-                        { $ne: ['', '$activationDateTime'] },
-                        {
-                          $concat: [
-                            ' (',
-                            {
-                              $cond: [
-                                { $lte: [{ $month: { $toDate: '$activationDateTime' } }, 3] },
-                                'Q1',
-                                {
-                                  $cond: [{ lte: [{ $month: { $toDate: '$activationDateTime' } }, 6] },
-                                    'Q2',
-                                    {
-                                      $cond: [{ $lte: [{ $month: { $toDate: '$activationDateTime' } }, 9] },
-                                        'Q3',
-                                        'Q4',
-                                      ],
-                                    },
-                                  ],
-                                },
-                              ],
-                            }, ') ',
-                            { $toString: { $month: { $toDate: '$activationDateTime' } } },
-                            '-',
-                            { $toString: { $sum: [{ $year: { $toDate: '$activationDateTime' } }, 0] } },
-                          ],
+                      $let: {
+                        vars: {
+                          monthsInString: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
                         },
-                        '',
-                      ],
+                        in: {
+                          $arrayElemAt: ['$$monthsInString', { $month: { $toDate: '$activationDateTime' } }],
+                        },
+                      },
+                    },
+                  },
+                },
+                {
+                  $addFields: {
+                    // RFS: {
+                    //   $cond: [
+                    //     { $ne: ['', '$activationDateTime'] },
+                    //     {
+                    //       $concat: [
+                    //         ' (',
+                    //         {
+                    //           $cond: [
+                    //             { $lte: [{ $month: { $toDate: '$activationDateTime' } }, 3] },
+                    //             'Q1',
+                    //             {
+                    // eslint-disable-next-line max-len
+                    //               $cond: [{ lte: [{ $month: { $toDate: '$activationDateTime' } }, 6] },
+                    //                 'Q2',
+                    //                 {
+                    //                   $cond: [{ $lte: [{ $month: { $toDate: '$activationDateTime' } }, 9] },
+                    //                     'Q3',
+                    //                     'Q4',
+                    //                   ],
+                    //                 },
+                    //               ],
+                    //             },
+                    //           ],
+                    //         }, ') ',
+                    //         { $toString: { $month: { $toDate: '$activationDateTime' } } },
+                    //         '-',
+                    //         { $toString: { $sum: [{ $year: { $toDate: '$activationDateTime' } }, 0] } },
+                    //       ],
+                    //     },
+                    //     '',
+                    //   ],
+                    // },
+                    RFS: {
+                      $concat: ['$RFS', ' ', { $toString: { $sum: [{ $year: { $toDate: '$activationDateTime' } }, 0] } }],
                     },
                   },
                 },
