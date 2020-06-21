@@ -1074,7 +1074,7 @@ class Cable {
                         { $ne: ['', '$activationDateTime'] },
                         {
                           $concat: [
-                            '$month', '(',
+                            { $toString: { $month: { $toDate: '$activationDateTime' } } }, ' (',
                             {
                               $cond: [
                                 { $lte: [{ $month: { $toDate: '$activationDateTime' } }, 3] },
