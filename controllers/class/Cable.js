@@ -508,15 +508,23 @@ class Cable {
                   },
                   {
                     $match: {
-                      $expr: {
-                        $in: ['$_id', {
-                          $cond: {
-                            if: { $isArray: '$$f' },
-                            then: '$$f',
-                            else: [],
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$_id', {
+                              $cond: {
+                                if: { $isArray: '$$f' },
+                                then: '$$f',
+                                else: [],
+                              },
+                            },
+                            ],
                           },
-                        }],
-                      },
+                        },
+                        {
+                          deleted: { $ne: true },
+                        },
+                      ],
                     },
                   },
                   {
@@ -534,7 +542,7 @@ class Cable {
                 let: { f: '$owners' },
                 pipeline: [
                   {
-                    $project: { _id: 1, name: 1 }
+                    $project: { _id: 1, name: 1 },
                   },
                   {
                     $match: {
@@ -551,13 +559,14 @@ class Cable {
                           },
                         },
                         {
-                          deleted: false,
+                          deleted: { $ne: true },
                         },
                       ],
                     },
                   },
                   {
                     $project: {
+                      _id: 1,
                       label: '$name',
                     },
                   },
@@ -588,7 +597,7 @@ class Cable {
                           },
                         },
                         {
-                          deleted: false,
+                          deleted: { $ne: true },
                         },
                       ],
                     },
@@ -599,8 +608,13 @@ class Cable {
                     },
                   },
                   {
+                    $addFields: {
+                      name: { $concat: ['$name', { $ifNull: ['$country', ''] }] },
+                    },
+                  },
+                  {
                     $project: {
-                      label: { $concat: ['$name', ', ', '$country'] },
+                      label: '$name',
                     },
                   },
                 ],
@@ -828,341 +842,343 @@ class Cable {
   view(user, id) {
     return new Promise((resolve, reject) => {
       try {
-        redisClient.redisClient.get(`v_cable_${id}`, (err, reply) => {
-          if (err) reject({ m: err });
-          else if (reply) resolve(((JSON.parse(reply))));
-          else {
-            this.model().then((cables) => {
-              cables.aggregate([
-                {
-                  $match: {
-                    _id: new ObjectID(id),
+        // redisClient.redisClient.get(`v_cable_${id}`, (err, reply) => {
+        //   if (err) reject({ m: err });
+        //   else if (reply) resolve(((JSON.parse(reply))));
+        //   else {
+        //
+        //   }
+        // });
+
+        this.model().then((cables) => {
+          cables.aggregate([
+            {
+              $match: {
+                _id: new ObjectID(id),
+              },
+            },
+            {
+              $project: { geom: 0 },
+            },
+            {
+              $lookup: {
+                from: 'facilities',
+                let: { f: '$facilities' },
+                pipeline: [
+                  {
+                    $project: { _id: 1, name: 1 },
                   },
-                },
-                {
-                  $project: { geom: 0 },
-                },
-                {
-                  $lookup: {
-                    from: 'facilities',
-                    let: { f: '$facilities' },
-                    pipeline: [
-                      {
-                        $project: { _id: 1, name: 1 }
-                      },
-                      {
-                        $match: {
-                          $and: [
-                            {
-                              $expr: {
-                                $in: ['$_id', {
-                                  $cond: {
-                                    if: { $isArray: '$$f' },
-                                    then: '$$f',
-                                    else: [],
-                                  },
-                                },
-                                ],
+                  {
+                    $match: {
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$_id', {
+                              $cond: {
+                                if: { $isArray: '$$f' },
+                                then: '$$f',
+                                else: [],
                               },
                             },
-                            {
-                              deleted: false,
-                            },
-                          ],
+                            ],
+                          },
                         },
-                      },
-                      {
-                        $project: {
-                          _id: 1,
-                          name: 1,
+                        {
+                          deleted: { $ne: true },
                         },
-                      },
-                    ],
-                    as: 'facilities',
+                      ],
+                    },
                   },
-                },
-                {
-                  $lookup: {
-                    from: 'cls',
-                    let: { f: '$cls' },
-                    pipeline: [
-                      {
-                        $project: { _id: 1, name: 1, country: 1 },
-                      },
-                      {
-                        $match: {
-                          $and: [
-                            {
-                              $expr: {
-                                $in: ['$_id', {
-                                  $cond: {
-                                    if: { $isArray: '$$f' },
-                                    then: '$$f',
-                                    else: [],
-                                  },
-                                },
-                                ],
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'facilities',
+              },
+            },
+            {
+              $lookup: {
+                from: 'cls',
+                let: { f: '$cls' },
+                pipeline: [
+                  {
+                    $project: { _id: 1, name: 1, country: 1 },
+                  },
+                  {
+                    $match: {
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$_id', {
+                              $cond: {
+                                if: { $isArray: '$$f' },
+                                then: '$$f',
+                                else: [],
                               },
                             },
-                            {
-                              deleted: false,
+                            ],
+                          },
+                        },
+                        {
+                          deleted: { $ne: true },
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    $addFields: {
+                      name: { $concat: ['$name', ', ', { $ifNull: ['$country', ''] }] },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'cls',
+              },
+            },
+            // {
+            //   $lookup: {
+            //     from: 'cls',
+            //     let: { f: '$_id' },
+            //     pipeline: [
+            //       {
+            //         $match: {
+            //           $and: [
+            //             {
+            //               $expr: {
+            //                 $in: ['$cables', {
+            //                   $cond: {
+            //                     if: { $isArray: '$$f' },
+            //                     then: '$$f',
+            //                     else: [],
+            //                   },
+            //                 }],
+            //               },
+            //             },
+            //             {
+            //               deleted: false,
+            //             },
+            //           ],
+            //         },
+            //       },
+            //       {
+            //         $project: {
+            //           _id: 1,
+            //           name: 1,
+            //         },
+            //       },
+            //     ],
+            //     as: 'cls',
+            //   },
+            // },
+            {
+              $lookup: {
+                from: 'networks',
+                let: { f: '$_id' },
+                pipeline: [
+                  {
+                    $project: { _id: 1, name: 1 },
+                  },
+                  {
+                    $match: {
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$cables', {
+                              $cond: {
+                                if: { $isArray: '$$f' },
+                                then: '$$f',
+                                else: [],
+                              },
+                            }],
+                          },
+                        },
+                        {
+                          deleted: { $ne: true },
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                      organizations: 1,
+                    },
+                  },
+                ],
+                as: 'networks',
+              },
+            },
+            {
+              $lookup: {
+                from: 'organizations',
+                let: { networks: '$networks' },
+                pipeline: [
+                  {
+                    $project: { _id: 1, name: 1 },
+                  },
+                  {
+                    $addFields: {
+                      idsorgs: { $map: { input: '$$networks.organizations', as: 'orgs', in: '$$orgs' } },
+                    },
+                  },
+                  {
+                    $match: {
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$_id', {
+                              $cond: {
+                                if: { $isArray: { $arrayElemAt: ['$idsorgs', 0] } },
+                                then: { $arrayElemAt: ['$idsorgs', 0] },
+                                else: [],
+                              },
                             },
-                          ],
+                            ],
+                          },
                         },
-                      },
-                      {
-                        $addFields: {
-                          name: { $concat: ['$name', ', ', { $ifNull: ['$country', ''] }] },
+                        {
+                          deleted: { $ne: true },
                         },
-                      },
-                      {
-                        $project: {
-                          _id: 1,
-                          name: 1,
+                      ],
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'organizations',
+              },
+            },
+            {
+              $lookup: {
+                from: 'organizations',
+                let: { f: '$owners' },
+                pipeline: [
+                  {
+                    $project: { _id: 1, name: 1 },
+                  },
+                  {
+                    $match: {
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$_id', {
+                              $cond: {
+                                if: { $isArray: '$$f' },
+                                then: '$$f',
+                                else: [],
+                              },
+                            }],
+                          },
                         },
-                      },
-                    ],
-                    as: 'cls',
+                        {
+                          deleted: { $ne: true },
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'owners',
+              },
+            },
+            {
+              $lookup: {
+                from: 'alerts',
+                let: { elemnt: { $toString: '$_id' } },
+                pipeline: [
+                  {
+                    $match: { $and: [{ $expr: { elemnt: '$$elemnt' } }, { t: '1' }, { uuid: user }, { disabled: false }] },
+                  },
+                ],
+                as: 'alert',
+              },
+            },
+            {
+              $addFields: { alert: { $size: '$alert' } },
+            },
+            {
+              $addFields: {
+                RFS: {
+                  $let: {
+                    vars: {
+                      monthsInString: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                    },
+                    in: {
+                      $arrayElemAt: ['$$monthsInString', { $month: { $toDate: '$activationDateTime' } }],
+                    },
                   },
                 },
-                // {
-                //   $lookup: {
-                //     from: 'cls',
-                //     let: { f: '$_id' },
-                //     pipeline: [
-                //       {
-                //         $match: {
-                //           $and: [
+              },
+            },
+            {
+              $addFields: {
+                // RFS: {
+                //   $cond: [
+                //     { $ne: ['', '$activationDateTime'] },
+                //     {
+                //       $concat: [
+                //         ' (',
+                //         {
+                //           $cond: [
+                //             { $lte: [{ $month: { $toDate: '$activationDateTime' } }, 3] },
+                //             'Q1',
                 //             {
-                //               $expr: {
-                //                 $in: ['$cables', {
-                //                   $cond: {
-                //                     if: { $isArray: '$$f' },
-                //                     then: '$$f',
-                //                     else: [],
-                //                   },
-                //                 }],
-                //               },
-                //             },
-                //             {
-                //               deleted: false,
+                // eslint-disable-next-line max-len
+                //               $cond: [{ lte: [{ $month: { $toDate: '$activationDateTime' } }, 6] },
+                //                 'Q2',
+                //                 {
+                //                   $cond: [{ $lte: [{ $month: { $toDate: '$activationDateTime' } }, 9] },
+                //                     'Q3',
+                //                     'Q4',
+                //                   ],
+                //                 },
+                //               ],
                 //             },
                 //           ],
-                //         },
-                //       },
-                //       {
-                //         $project: {
-                //           _id: 1,
-                //           name: 1,
-                //         },
-                //       },
-                //     ],
-                //     as: 'cls',
-                //   },
+                //         }, ') ',
+                //         { $toString: { $month: { $toDate: '$activationDateTime' } } },
+                //         '-',
+                //         { $toString: { $sum: [{ $year: { $toDate: '$activationDateTime' } }, 0] } },
+                //       ],
+                //     },
+                //     '',
+                //   ],
                 // },
-                {
-                  $lookup: {
-                    from: 'networks',
-                    let: { f: '$_id' },
-                    pipeline: [
-                      {
-                        $project: { _id: 1, name: 1 }
-                      },
-                      {
-                        $match: {
-                          $and: [
-                            {
-                              $expr: {
-                                $in: ['$cables', {
-                                  $cond: {
-                                    if: { $isArray: '$$f' },
-                                    then: '$$f',
-                                    else: [],
-                                  },
-                                }],
-                              },
-                            },
-                            {
-                              deleted: false,
-                            },
-                          ],
-                        },
-                      },
-                      {
-                        $project: {
-                          _id: 1,
-                          name: 1,
-                          organizations: 1,
-                        },
-                      },
-                    ],
-                    as: 'networks',
-                  },
+                RFS: {
+                  $concat: ['$RFS', ' ', { $toString: { $sum: [{ $year: { $toDate: '$activationDateTime' } }, 0] } }],
                 },
-                {
-                  $lookup: {
-                    from: 'organizations',
-                    let: { networks: '$networks' },
-                    pipeline: [
-                      {
-                        $project: { _id: 1, name: 1 },
-                      },
-                      {
-                        $addFields: {
-                          idsorgs: { $map: { input: '$$networks.organizations', as: 'orgs', in: '$$orgs' } },
-                        },
-                      },
-                      {
-                        $match: {
-                          $and: [
-                            {
-                              $expr: {
-                                $in: ['$_id', {
-                                  $cond: {
-                                    if: { $isArray: { $arrayElemAt: ['$idsorgs', 0] } },
-                                    then: { $arrayElemAt: ['$idsorgs', 0] },
-                                    else: [],
-                                  },
-                                },
-                                ],
-                              },
-                            },
-                            {
-                              deleted: false,
-                            },
-                          ],
-                        },
-                      },
-                      {
-                        $project: {
-                          _id: 1,
-                          name: 1,
-                        },
-                      },
-                    ],
-                    as: 'organizations',
-                  },
-                },
-                {
-                  $lookup: {
-                    from: 'organizations',
-                    let: { f: '$owners' },
-                    pipeline: [
-                      {
-                        $project: { _id: 1, name: 1 },
-                      },
-                      {
-                        $match: {
-                          $and: [
-                            {
-                              $expr: {
-                                $in: ['$_id', {
-                                  $cond: {
-                                    if: { $isArray: '$$f' },
-                                    then: '$$f',
-                                    else: [],
-                                  },
-                                }],
-                              },
-                            },
-                            {
-                              deleted: false,
-                            },
-                          ],
-                        },
-                      },
-                      {
-                        $project: {
-                          _id: 1,
-                          name: 1,
-                        },
-                      },
-                    ],
-                    as: 'owners',
-                  },
-                },
-                {
-                  $lookup: {
-                    from: 'alerts',
-                    let: { elemnt: { $toString: '$_id' } },
-                    pipeline: [
-                      {
-                        $match: { $and: [{ $expr: { elemnt: '$$elemnt' } }, { t: '1' }, { uuid: user }, { disabled: false }] },
-                      },
-                    ],
-                    as: 'alert',
-                  },
-                },
-                {
-                  $addFields: { alert: { $size: '$alert' } },
-                },
-                {
-                  $addFields: {
-                    RFS: {
-                      $let: {
-                        vars: {
-                          monthsInString: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-                        },
-                        in: {
-                          $arrayElemAt: ['$$monthsInString', { $month: { $toDate: '$activationDateTime' } }],
-                        },
-                      },
-                    },
-                  },
-                },
-                {
-                  $addFields: {
-                    // RFS: {
-                    //   $cond: [
-                    //     { $ne: ['', '$activationDateTime'] },
-                    //     {
-                    //       $concat: [
-                    //         ' (',
-                    //         {
-                    //           $cond: [
-                    //             { $lte: [{ $month: { $toDate: '$activationDateTime' } }, 3] },
-                    //             'Q1',
-                    //             {
-                    // eslint-disable-next-line max-len
-                    //               $cond: [{ lte: [{ $month: { $toDate: '$activationDateTime' } }, 6] },
-                    //                 'Q2',
-                    //                 {
-                    //                   $cond: [{ $lte: [{ $month: { $toDate: '$activationDateTime' } }, 9] },
-                    //                     'Q3',
-                    //                     'Q4',
-                    //                   ],
-                    //                 },
-                    //               ],
-                    //             },
-                    //           ],
-                    //         }, ') ',
-                    //         { $toString: { $month: { $toDate: '$activationDateTime' } } },
-                    //         '-',
-                    //         { $toString: { $sum: [{ $year: { $toDate: '$activationDateTime' } }, 0] } },
-                    //       ],
-                    //     },
-                    //     '',
-                    //   ],
-                    // },
-                    RFS: {
-                      $concat: ['$RFS', ' ', { $toString: { $sum: [{ $year: { $toDate: '$activationDateTime' } }, 0] } }],
-                    },
-                  },
-                },
-                {
-                  $project: {
-                    geom: 0,
-                    status: 0,
-                    deleted: 0,
-                  },
-                },
-              ]).toArray((err, c) => {
-                if (err) reject(err);
-                redisClient.set(`v_cable_${id}`, JSON.stringify({ m: 'Loaded', r: c }), 'EX', 172800);
-                resolve({ m: 'Loaded', r: c });
-              });
-            });
-          }
+              },
+            },
+            {
+              $project: {
+                geom: 0,
+                status: 0,
+                deleted: 0,
+              },
+            },
+          ]).toArray((err, c) => {
+            if (err) reject(err);
+            redisClient.set(`v_cable_${id}`, JSON.stringify({ m: 'Loaded', r: c }), 'EX', 172800);
+            resolve({ m: 'Loaded', r: c });
+          });
         });
       } catch (e) { reject({ m: e }); }
     });

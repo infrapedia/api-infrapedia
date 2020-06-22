@@ -383,29 +383,68 @@ class CLS {
               {
                 $lookup: {
                   from: 'cables',
-                  let: { f: '$cables' },
+                  let: { cables: '$cables' },
                   pipeline: [
                     {
                       $match: {
-                        $expr: {
-                          $in: ['$_id', '$$f'],
-                        },
-                      },
-                    },
-                    {
-                      $addFields: {
-                        label: '$name',
-                        value: '$_id',
+                        $and: [
+                          {
+                            $expr: {
+                              $in: ['$_id', '$$cables'],
+                            },
+                          },
+                          {
+                            deleted: { $ne: true },
+                          },
+                        ],
                       },
                     },
                     {
                       $project: {
-                        label: 1,
-                        value: 1,
+                        _id: 1,
+                        label: '$name',
                       },
                     },
                   ],
                   as: 'cables',
+                },
+              },
+              {
+                $lookup: {
+                  from: 'organizations',
+                  let: { f: '$owners' },
+                  pipeline: [
+                    {
+                      $project: { _id: 1, name: 1 },
+                    },
+                    {
+                      $match: {
+                        $and: [
+                          {
+                            $expr: {
+                              $in: ['$_id', {
+                                $cond: {
+                                  if: { $isArray: '$$f' },
+                                  then: '$$f',
+                                  else: [],
+                                },
+                              }],
+                            },
+                          },
+                          {
+                            deleted: { $ne: true },
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      $project: {
+                        _id: 1,
+                        label: '$name',
+                      },
+                    },
+                  ],
+                  as: 'owners',
                 },
               },
             ]).toArray((err, o) => {
@@ -550,7 +589,7 @@ class CLS {
                               },
                             },
                             {
-                              deleted: false,
+                              deleted: { $ne: true },
                             },
                           ],
                         },
@@ -579,7 +618,7 @@ class CLS {
                               },
                             },
                             {
-                              deleted: false,
+                              deleted: { $ne: true },
                             },
                           ],
                         },
@@ -619,7 +658,7 @@ class CLS {
                               },
                             },
                             {
-                              deleted: false,
+                              deleted: { $ne: true },
                             },
                           ],
                         },
