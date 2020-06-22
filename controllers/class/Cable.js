@@ -696,13 +696,6 @@ class Cable {
           const uuid = (search.psz === '1') ? adms(user) : {};
           cable.aggregate([
             {
-              $addFields: { name: { $toLower: '$name' } },
-            },
-            {
-              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { deleted: false }] },
-            },
-            { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
-            {
               $project: {
                 _id: 1,
                 name: 1,
@@ -711,9 +704,14 @@ class Cable {
                 alerts: 1,
               },
             },
-            { $sort: { yours: -1 } },
+            {
+              $match: { $and: [{ name: { $regex: search.s, $options: 'i' } }, uuid, { deleted: { $ne: true } }] }, // , uuid, { deleted: { $ne: true } } { $and: [uuid, , { deleted: false }] },
+            },
+            { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
+            { $sort: { name: 1, ours: -1 } },
             { $limit: 20 },
           ]).toArray((err, r) => {
+            console.log(err);
             resolve(r);
           });
         }).catch((e) => { reject({ m: e }); });
@@ -728,12 +726,21 @@ class Cable {
         this.model().then((cable) => {
           cable.aggregate([
             {
-              $sort: { name: 1 },
+              $project: {
+                _id: 1,
+                name: 1,
+                terrestrial: 1,
+                yours: 1,
+                alerts: 1,
+              },
             },
             {
-              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { terrestrial: true }, { deleted: false }] },
+              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { terrestrial: true }, { deleted: { $ne: true } }] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
+            {
+              $sort: { name: 1, yours: -1 },
+            },
             {
               $lookup: {
                 from: 'alerts',
@@ -750,16 +757,6 @@ class Cable {
             {
               $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
             },
-            {
-              $project: {
-                _id: 1,
-                name: 1,
-                terrestrial: 1,
-                yours: 1,
-                alerts: 1,
-              },
-            },
-            { $sort: { yours: -1 } },
           ]).toArray((err, r) => {
             resolve(r);
           });
@@ -775,12 +772,21 @@ class Cable {
         this.model().then((cable) => {
           cable.aggregate([
             {
-              $sort: { name: 1 },
+              $project: {
+                _id: 1,
+                name: 1,
+                terrestrial: 1,
+                yours: 1,
+                alerts: 1,
+              },
             },
             {
-              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { terrestrial: false }, { deleted: false }] },
+              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { terrestrial: false }, { deleted: { $ne: true } }] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
+            {
+              $sort: { name: 1, yours: -1 },
+            },
             {
               $lookup: {
                 from: 'alerts',
@@ -797,16 +803,6 @@ class Cable {
             {
               $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
             },
-            {
-              $project: {
-                _id: 1,
-                name: 1,
-                terrestrial: 1,
-                yours: 1,
-                alerts: 1,
-              },
-            },
-            { $sort: { yours: -1 } },
           ]).toArray((err, r) => {
             resolve(r);
           });
@@ -1074,33 +1070,53 @@ class Cable {
                 {
                   $addFields: {
                     RFS: {
-                      $cond: [
-                        { $ne: ['', '$activationDateTime'] },
-                        {
-                          $concat: [
-                            {
-                              $cond: [
-                                { $lte: [{ $month: { $toDate: '$activationDateTime' } }, 3] },
-                                'Q1',
-                                {
-                                  $cond: [{ lte: [{ $month: { $toDate: '$activationDateTime' } }, 6] },
-                                    'Q2',
-                                    {
-                                      $cond: [{ $lte: [{ $month: { $toDate: '$activationDateTime' } }, 9] },
-                                        'Q3',
-                                        'Q4',
-                                      ],
-                                    },
-                                  ],
-                                },
-                              ],
-                            },
-                            '-',
-                            { $toString: { $sum: [{ $year: { $toDate: '$activationDateTime' } }, 0] } },
-                          ],
+                      $let: {
+                        vars: {
+                          monthsInString: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
                         },
-                        '',
-                      ],
+                        in: {
+                          $arrayElemAt: ['$$monthsInString', { $month: { $toDate: '$activationDateTime' } }],
+                        },
+                      },
+                    },
+                  },
+                },
+                {
+                  $addFields: {
+                    // RFS: {
+                    //   $cond: [
+                    //     { $ne: ['', '$activationDateTime'] },
+                    //     {
+                    //       $concat: [
+                    //         ' (',
+                    //         {
+                    //           $cond: [
+                    //             { $lte: [{ $month: { $toDate: '$activationDateTime' } }, 3] },
+                    //             'Q1',
+                    //             {
+                    // eslint-disable-next-line max-len
+                    //               $cond: [{ lte: [{ $month: { $toDate: '$activationDateTime' } }, 6] },
+                    //                 'Q2',
+                    //                 {
+                    //                   $cond: [{ $lte: [{ $month: { $toDate: '$activationDateTime' } }, 9] },
+                    //                     'Q3',
+                    //                     'Q4',
+                    //                   ],
+                    //                 },
+                    //               ],
+                    //             },
+                    //           ],
+                    //         }, ') ',
+                    //         { $toString: { $month: { $toDate: '$activationDateTime' } } },
+                    //         '-',
+                    //         { $toString: { $sum: [{ $year: { $toDate: '$activationDateTime' } }, 0] } },
+                    //       ],
+                    //     },
+                    //     '',
+                    //   ],
+                    // },
+                    RFS: {
+                      $concat: ['$RFS', ' ', { $toString: { $sum: [{ $year: { $toDate: '$activationDateTime' } }, 0] } }],
                     },
                   },
                 },
@@ -1357,9 +1373,25 @@ class Cable {
     return new Promise((resolve, reject) => {
       try {
         this.model().then((search) => {
-          search.find({ name }).count((err, c) => {
+          search.aggregate([
+            {
+              $project: {
+                name: 1,
+              },
+            },
+            {
+              $addFields: {
+                name: { $toLower: '$name' },
+              },
+            },
+            {
+              $match: {
+                name: name.toLowerCase(),
+              },
+            },
+          ]).toArray((err, c) => {
             if (err) reject({ m: err });
-            resolve({ m: 'Loaded', r: c });
+            resolve({ m: 'Loaded', r: c.length });
           });
         });
       } catch (e) {
@@ -1374,7 +1406,7 @@ class Cable {
         this.model().then((cables) => {
           cables.aggregate([{ $project: { name: 1, terrestrial: 1 } }, { $match: { terrestrial: false } }]).toArray(async (err, r) => {
             if (err) res.sendStatus(500);
-            res.json(await r.map((x) => x.name ));
+            res.json(await r.map((x) => x.name));
           });
         }).catch((e) => reject({ m: e }));
       } catch (e) { reject({ m: e }); }

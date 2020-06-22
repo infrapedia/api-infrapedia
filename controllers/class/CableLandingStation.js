@@ -55,10 +55,12 @@ class CLS {
               if (err) resolve({ m: err });
               else if (c > 0) resolve({ m: 'We have registered in our system more than one organization with the same name' });
               else {
+                const name = data.name.split(',');
                 data = {
                   uuid: '',
                   cid: String(data.cid),
-                  name: String(data.name),
+                  name: (Array.isArray(name)) ? name[0] : '',
+                  country: (Array.isArray(name) && name[1] !== undefined) ? name[1] : '',
                   notes: '', // String(data.notes)
                   state: `${String(data.state)}`,
                   slug: `${String(data.slug)}`,
@@ -136,7 +138,6 @@ class CLS {
   }
 
   updateCable(user, idcls, idcable) {
-    console.log(user, idcls, idcable);
     return new Promise((resolve, reject) => {
       try {
         if (ObjectID.isValid(idcls) && ObjectID.isValid(idcable)) {
@@ -155,7 +156,6 @@ class CLS {
   }
 
   removeCable(user, idcls, idcable) {
-    console.log(user, idcls, idcable);
     return new Promise((resolve, reject) => {
       try {
         if (ObjectID.isValid(idcls) && ObjectID.isValid(idcable)) {
@@ -321,7 +321,10 @@ class CLS {
                 },
               },
               {
-                $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
+                $addFields: {
+                  alerts: { $arrayElemAt: ['$alerts.elmnt', 0] },
+                  name: { $concat: ['$name', ', ', '$country'] },
+                },
               },
               {
                 $project: {
@@ -458,23 +461,38 @@ class CLS {
     return new Promise((resolve, reject) => {
       try {
         const uuid = (search.psz === '1') ? adms(user) : {};
-        this.model().then((cable) => {
-          cable.aggregate([
+        this.model().then((get) => {
+          get.aggregate([
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                country: { $ifNull: ['$country', '']},
+                yours: 1,
+                alerts: 1,
+              },
+            },
             {
               $sort: { name: 1 },
             },
             {
-              $addFields: { name: { $toLower: '$name' } },
+              $addFields: {
+                // name: { $toLower: '$name' },
+                country: { $cond: [{ $ne: ['$country', ''] }, { $concat: [',', '$country'] }, ''] },
+              },
             },
             {
-              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { deleted: false }] },
+              $match: { $and: [{ name: { $regex: search.s, $options: 'i' } }, uuid, { deleted: { $ne: true } }] }, // { $and: [uuid, , { deleted: false }] },
             },
-            { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
+            { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } }, name: { $concat: ['$name', '$country'] } } },
             {
               $lookup: {
                 from: 'alerts',
                 let: { elemnt: { $toString: '$_id' } },
                 pipeline: [
+                  {
+                    $project: { elemnt: 1 },
+                  },
                   {
                     $match: { $expr: { $and: [{ $eq: ['$elemnt', '$$elemnt'] }] } },
                   },
@@ -485,14 +503,6 @@ class CLS {
             },
             {
               $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
-            },
-            {
-              $project: {
-                _id: 1,
-                name: 1,
-                yours: 1,
-                alerts: 1
-              },
             },
             { $sort: { yours: -1 } },
             { $limit: 20 },
@@ -520,7 +530,7 @@ class CLS {
                 },
                 {
                   $addFields: {
-                    name: { $concat: ['$name', ' ', { $ifNull: ['$country', ''] }] },
+                    name: { $concat: ['$name', ', ', { $ifNull: ['$country', ''] }] },
                   },
                 },
                 {
@@ -791,15 +801,30 @@ class CLS {
   checkName(name) {
     return new Promise((resolve, reject) => {
       try {
-        console.log(name);
         this.model().then((search) => {
-          search.find({ name }).count((err, c) => {
+          search.aggregate([
+            {
+              $project: {
+                name: 1,
+              },
+            },
+            {
+              $addFields: {
+                name: { $toLower: '$name' },
+              },
+            },
+            {
+              $match: {
+                name: name.toLowerCase(),
+              },
+            },
+          ]).toArray((err, c) => {
             if (err) reject({ m: err });
-            resolve({ m: 'Loaded', r: c });
+            resolve({ m: 'Loaded', r: c.length });
           });
         });
       } catch (e) {
-        reject({m: e });
+        reject({ m: e });
       }
     });
   }

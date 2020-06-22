@@ -9,7 +9,6 @@ module.exports = {
       if (err) throw err;
       tiles.getInfo((err, info) => {
         if (err) throw err;
-
         const tileset = objectAssign({}, info, {
           tiles,
         });
@@ -19,25 +18,25 @@ module.exports = {
     }));
   },
   serve(router, response, config, callback) {
-    const { loadTiles } = this;
-    const { listen } = this;
-
-    config.mbtiles.forEach((file) => {
-      q.defer(loadTiles, file);
-    });
-
-    q.awaitAll((error, tilesets) => {
-      if (error) throw error;
-      const finalConfig = utils.mergeConfigurations(config, tilesets);
-      listen(router, response, finalConfig, callback);
-    });
+    if (config.do === 'true') {
+      const { loadTiles } = this;
+      const { listen } = this;
+      config.mbtiles.forEach((file) => {
+        q.defer(loadTiles, file);
+      });
+      q.awaitAll((error, tilesets) => {
+        if (error) throw error;
+        const finalConfig = utils.mergeConfigurations(config, tilesets);
+        listen(router, response, finalConfig, callback);
+      });
+    }
   },
   listen(router, response, config) {
     // eslint-disable-next-line no-underscore-dangle
     const { format } = config.tiles._info;
     router.get(`${process.env._ROUTE}/:source/:z/:x/:y.${format}`, (req, res) => {
       const p = req.params;
-      p.source += '.mbtiles'
+      p.source += '.mbtiles';
       const { tiles } = config.sources[p.source];
       tiles.getTile(p.z, p.x, p.y, (err, tile, headers) => {
         if (err) {

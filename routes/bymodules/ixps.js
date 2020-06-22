@@ -6,7 +6,7 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.get(`${process.env._ROUTE}/auth/ixps/search`, statics, (req, res) => {
+    router.get(`${process.env._ROUTE}/ixps/search`, statics, (req, res) => {
       controllers.InternetExchangePoints.search(req.headers.userid, req.query)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });

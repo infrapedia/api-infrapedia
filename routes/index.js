@@ -74,11 +74,12 @@ const routes = function (router, controllers) {
   require('./bymodules/voting').callEndPoints(router, controllers, response);
 
   // WMS ---> SERVICE
-  // const params = { mbtiles: ['./temp/terrestrial.mbtiles', './temp/subsea.mbtiles', './temp/cls.mbtiles', './temp/ixps.mbtiles', './temp/facilities.mbtiles'], quiet: false };
-  // require('./bymodules/wms').serve(router, response, params);
+  const params = { mbtiles: ['./temp/cables.mbtiles'], quiet: false, do: process.env.wms };
+  require('./bymodules/wms').serve(router, response, params);
   // router.get(`${process.env._ROUTE}/wms/ixps`, (req, res) => { res.sendFile('./temp/ixps.json'); });
   // router.get(`${process.env._ROUTE}/wms/cls`, (req, res) => { res.sendFile('./temp/cls.json'); });
   // router.get(`${process.env._ROUTE}/wms/facilities`, (req, res) => { res.sendFile('./temp/facilities.json'); });
+
   router.get(`${process.env._ROUTE}/s/:route`, (req, res) => {
     const shortener = require('../models/shorts.model');
     shortener().then((s) => {
@@ -89,12 +90,12 @@ const routes = function (router, controllers) {
         });
     });
   });
-  router.get(`${process.env._ROUTE}/createbbox`, (req, res) => {
-    //controllers.BBOXS.cls(), controllers.BBOXS.ixps()
-    Promise.all([controllers.BBOXS.cls(), controllers.BBOXS.ixps()]).then(() => {
-      res.sendStatus(200);
-    }).catch(() => res.sendStatus(500));
-  });
+  // router.get(`${process.env._ROUTE}/createbbox`, (req, res) => {
+  //   //controllers.BBOXS.cls(), controllers.BBOXS.ixps()
+  //   Promise.all([controllers.BBOXS.cls(), controllers.BBOXS.ixps()]).then(() => {
+  //     res.sendStatus(200);
+  //   }).catch(() => res.sendStatus(500));
+  // });
   router.get(`${process.env._ROUTE}/createbboxcls`, (req, res) => {
     //controllers.BBOXS.cls(), controllers.BBOXS.ixps()
     redisClient.keys('cls_*', async (err, keys) => {
@@ -187,7 +188,6 @@ const routes = function (router, controllers) {
       }).catch(() => res.sendStatus(500));
     });
   });
-
   router.get('/debug-sentry', (req, res) => {
     throw new Error('My first Sentry error!');
   });

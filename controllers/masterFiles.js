@@ -112,7 +112,7 @@ module.exports = {
                   'properties.id': 1,
                   'properties.length': '$systemLength',
                   'properties.name': '$name',
-                  'properties.status': { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }] }, then: 1, else: 0 } },
+                  'properties.status': { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }, { $eq: ['$category', 'unknown'] }] }, then: 1, else: 0 } },
                   'properties.category': '$category', // { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }] }, then: 'active', else: '$category' } },
                   'properties.activationDateTime': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
                   'properties.hasoutage': { $cond: { if: { $eq: ['$category', 'fault'] }, then: 'true', else: 'false' } },
@@ -399,7 +399,7 @@ module.exports = {
           },
           {
             $addFields: {
-              name: { $concat: ['$name', ' ', { $ifNull: ['$country', ''] }] },
+              name: { $concat: ['$name', ', ', { $ifNull: ['$country', ''] }] },
             },
           },
           {

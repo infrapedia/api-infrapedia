@@ -4,6 +4,12 @@
 ### 🏁1.6
 | Version  | Changes |
 | ------------- | ------------- |
+|1.6.9.20200621|- Changed the name style of CLS  |
+|1.6.8.20200621|-Changed the style of RFS and it was fixed the problem with the search in subSea cable function  |
+|1.6.8.20200621|-Changed the style of RFS |
+|1.6.7.20200621|-Fixed the problem with the RFS date of cable |
+|1.6.6.20200620|-Fixed the problem with the redCable when the category is unknown |
+|1.6.5.20200620|-Update the search function to optimize the result, removed some console.log, It has updated the cls name in the transfer information |
 |1.6.2.20200614|-Added the element and date information to the subject mail validating that every message be received like a unique message|
 |1.6.1.20200614|-Validate the category|
 |1.6.0.20200612|-Infrapedia awards functionality: vote, consult, see results. -Name duplicate validation: IXP, Cable, CLS, Facility, Networks, Organization. -Messages: Validate functionality to send message for Facilities, IXPS, Organizations, Networks. -sendNotificationEmailUsingSendgrid.js: Added BBC field and reply to.|
