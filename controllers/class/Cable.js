@@ -504,6 +504,9 @@ class Cable {
                 let: { f: '$facilities' },
                 pipeline: [
                   {
+                    $project: { _id: 1, name: 1 },
+                  },
+                  {
                     $match: {
                       $expr: {
                         $in: ['$_id', {
@@ -530,6 +533,9 @@ class Cable {
                 from: 'organizations',
                 let: { f: '$owners' },
                 pipeline: [
+                  {
+                    $project: { _id: 1, name: 1 }
+                  },
                   {
                     $match: {
                       $and: [
@@ -565,6 +571,9 @@ class Cable {
                 let: { f: '$cls' },
                 pipeline: [
                   {
+                    $project: { _id: 1, name: 1, country: 1 },
+                  },
+                  {
                     $match: {
                       $and: [
                         {
@@ -585,8 +594,13 @@ class Cable {
                     },
                   },
                   {
+                    $addFields: {
+                      country: { $cond: [{ $ne: ['$country', ''] }, { $concat: [',', '$country'] }, ''] },
+                    },
+                  },
+                  {
                     $project: {
-                      label: '$name',
+                      label: { $concat: ['$name', ', ', '$country'] },
                     },
                   },
                 ],
@@ -834,6 +848,9 @@ class Cable {
                     let: { f: '$facilities' },
                     pipeline: [
                       {
+                        $project: { _id: 1, name: 1 }
+                      },
+                      {
                         $match: {
                           $and: [
                             {
@@ -870,6 +887,9 @@ class Cable {
                     let: { f: '$cls' },
                     pipeline: [
                       {
+                        $project: { _id: 1, name: 1, country: 1 },
+                      },
+                      {
                         $match: {
                           $and: [
                             {
@@ -892,7 +912,7 @@ class Cable {
                       },
                       {
                         $addFields: {
-                          name: { $concat: ['$name', ' ', { $ifNull: ['$country', ''] }] },
+                          name: { $concat: ['$name', ', ', { $ifNull: ['$country', ''] }] },
                         },
                       },
                       {
@@ -946,6 +966,9 @@ class Cable {
                     let: { f: '$_id' },
                     pipeline: [
                       {
+                        $project: { _id: 1, name: 1 }
+                      },
+                      {
                         $match: {
                           $and: [
                             {
@@ -981,6 +1004,9 @@ class Cable {
                     from: 'organizations',
                     let: { networks: '$networks' },
                     pipeline: [
+                      {
+                        $project: { _id: 1, name: 1 },
+                      },
                       {
                         $addFields: {
                           idsorgs: { $map: { input: '$$networks.organizations', as: 'orgs', in: '$$orgs' } },
@@ -1022,6 +1048,9 @@ class Cable {
                     from: 'organizations',
                     let: { f: '$owners' },
                     pipeline: [
+                      {
+                        $project: { _id: 1, name: 1 },
+                      },
                       {
                         $match: {
                           $and: [

@@ -484,7 +484,7 @@ class CLS {
             {
               $match: { $and: [{ name: { $regex: search.s, $options: 'i' } }, uuid, { deleted: { $ne: true } }] }, // { $and: [uuid, , { deleted: false }] },
             },
-            { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } }, name: { $concat: ['$name', '$country'] } } },
+            { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } }, name: { $concat: ['$name', ', ', '$country'] } } },
             {
               $lookup: {
                 from: 'alerts',

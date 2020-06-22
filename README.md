@@ -1,9 +1,12 @@
 # Api Infrapedia.com
+#Information
+If we have a problem installing the SQLite we can use sudo npm install --unsafe-perm=true --allow-root
 
 ## Versions
 ### 🏁1.6
 | Version  | Changes |
 | ------------- | ------------- |
+|1.6.9.1.20200622|- Changed the name style of CLS in the cables views, and the cls views  |
 |1.6.9.20200621|- Changed the name style of CLS  |
 |1.6.8.20200621|-Changed the style of RFS and it was fixed the problem with the search in subSea cable function  |
 |1.6.8.20200621|-Changed the style of RFS |
