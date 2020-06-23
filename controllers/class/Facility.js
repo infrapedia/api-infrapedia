@@ -360,6 +360,167 @@ class Facility {
         });
       } catch (e) { reject({ m: e }); }
     });
+    // return new Promise((resolve, reject) => {
+    //   try {
+    //     redisClient.redisClient.get(`v_facility_${id}`, (err, reply) => {
+    //       if (err) reject({ m: err });
+    //       else if (reply) resolve(((JSON.parse(reply))));
+    //       else {
+    //         this.model().then((facility) => {
+    //           facility.aggregate([
+    //             {
+    //               $match: {
+    //                 _id: new ObjectID(id),
+    //               },
+    //             },
+    //             {
+    //               $project: { geom: 0 },
+    //             },
+    //             {
+    //               $lookup: {
+    //                 from: 'cables',
+    //                 let: { facilities: '$_id' },
+    //                 pipeline: [
+    //                   {
+    //                     $addFields: {
+    //                       facilities: {
+    //                         $cond: {
+    //                           if: { $eq: [{ $type: '$facilities' }, 'array'] },
+    //                           then: '$facilities',
+    //                           else: [],
+    //                         },
+    //                       },
+    //                     },
+    //                   },
+    //                   {
+    //                     $match: {
+    //                       $and: [
+    //                         {
+    //                           $expr: {
+    //                             $in: ['$$facilities', '$facilities'],
+    //                           },
+    //                         },
+    //                         {
+    //                           deleted: false,
+    //                         },
+    //                       ],
+    //                     },
+    //                   },
+    //                   {
+    //                     $project: {
+    //                       _id: 1,
+    //                       name: 1,
+    //                     },
+    //                   },
+    //                 ],
+    //                 as: 'cables',
+    //               },
+    //             },
+    //             {
+    //               $lookup: {
+    //                 from: 'networks',
+    //                 let: { ixps: '$_id' },
+    //                 pipeline: [
+    //                   {
+    //                     $addFields: {
+    //                       ixps: {
+    //                         $cond: {
+    //                           if: { $eq: [{ $type: '$ixps' }, 'array'] },
+    //                           then: '$ixps',
+    //                           else: [],
+    //                         },
+    //                       },
+    //                     },
+    //                   },
+    //                   {
+    //                     $match: {
+    //                       $expr: {
+    //                         $in: ['$$ixps', '$ixps'],
+    //                       },
+    //                     },
+    //                   },
+    //                   {
+    //                     $project: {
+    //                       _id: 1,
+    //                       name: 1,
+    //                       organizations: 1,
+    //                     },
+    //                   },
+    //                 ],
+    //                 as: 'networks',
+    //               },
+    //             },
+    //             {
+    //               $lookup: {
+    //                 from: 'organizations',
+    //                 let: { f: '$owners' },
+    //                 pipeline: [
+    //                   {
+    //                     $addFields: {
+    //                       f: {
+    //                         $cond: {
+    //                           if: { $eq: [{ $type: '$owners' }, 'array'] },
+    //                           then: '$owners',
+    //                           else: [],
+    //                         },
+    //                       },
+    //                     },
+    //                   },
+    //                   {
+    //                     $match: {
+    //                       $and: [
+    //                         {
+    //                           $expr: {
+    //                             $in: ['$_id', '$f'],
+    //                           },
+    //                         },
+    //                         {
+    //                           deleted: false,
+    //                         },
+    //                       ],
+    //                     },
+    //                   },
+    //                   {
+    //                     $project: {
+    //                       label: '$name',
+    //                     },
+    //                   },
+    //                 ],
+    //                 as: 'owners',
+    //               },
+    //             },
+    //             {
+    //               $lookup: {
+    //                 from: 'alerts',
+    //                 let: { elemnt: { $toString: '$_id' } },
+    //                 pipeline: [
+    //                   {
+    //                     $match: { $and: [{ $expr: { elemnt: '$$elemnt' } }, { t: '4' }, { uuid: user }, { disabled: false }] },
+    //                   },
+    //                 ],
+    //                 as: 'alert',
+    //               },
+    //             },
+    //             {
+    //               $addFields: { alert: { $size: '$alert' } },
+    //             },
+    //             {
+    //               $project: {
+    //                 point: 0,
+    //                 status: 0,
+    //                 deleted: 0,
+    //               },
+    //             },
+    //           ]).toArray((err, c) => {
+    //             if (err) reject(err);
+    //             redisClient.set(`v_facility_${id}`, JSON.stringify({ m: 'Loaded', r: c }), 'EX', 172800);
+    //             resolve({ m: 'Loaded', r: c });
+    //           });
+    //         });
+    //       }
+    //     });
+    //   } catch (e) { reject({ m: e }); }
+    // });
   }
 
   getElementGeom(id) {
