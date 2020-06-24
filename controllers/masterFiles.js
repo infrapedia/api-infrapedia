@@ -79,11 +79,6 @@ module.exports = {
         ]).toArray(async (err, ids) => {
           let checkedFiles = 0;
           console.log(`=================${ids.length}=================`);
-          const stream = fs.createWriteStream('./temp/check.txt');
-          stream.write(`${ids.length}`);
-          stream.on('err', () => { console.log('Error to create the file'); });
-          stream.end(async () => {});
-
           await ids.map((id) => {
             secuencial += 1;
             cable.aggregate([
@@ -156,6 +151,10 @@ module.exports = {
                     // module.exports.buildMasterFile('cables').then((mf) => {
                     //   console.log('Finish');
                     // }).catch((e) => console.log(e));
+                    const stream = fs.createWriteStream('./temp/check.txt');
+                    stream.write(`${ids.length}`);
+                    stream.on('err', () => { console.log('Error to create the file'); });
+                    stream.end(async () => {});
                   }
                 });
               } catch (err) { return err; }
