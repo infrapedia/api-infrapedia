@@ -36,8 +36,11 @@ module.exports = {
               fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), (filesReaded < files.length)
                 ? `\n${data.features.map((f) => `${JSON.stringify(f)}`)},` : `\n${data.features.map((f) => `${JSON.stringify(f)}`)}`, 'utf8');
               if (filesReaded === files.length) {
-                console.log('Finished');
                 fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), ']}', 'utf8');
+                const stream = fs.createWriteStream('./temp/cables.txt');
+                stream.write('');
+                stream.on('err', () => notifications('Master file of cables wasn\'t created', new Date()));
+                stream.end(() => notifications('Master file of cables cables was created', new Date()));
                 resolve();
               }
               // fs.unlink(path.join(__dirname, `../temp/${layer}/${file}`), () => {
@@ -75,9 +78,14 @@ module.exports = {
           },
         ]).toArray(async (err, ids) => {
           let checkedFiles = 0;
+          console.log(`=================${ids.length}=================`);
+          const stream = fs.createWriteStream('./temp/check.txt');
+          stream.write(`${ids.length}`);
+          stream.on('err', () => { console.log('Error to create the file'); });
+          stream.end(async () => {});
+
           await ids.map((id) => {
             secuencial += 1;
-            console.log(`=================${ids.length}=================`);
             cable.aggregate([
               {
                 $match: {

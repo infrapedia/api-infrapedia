@@ -1,5 +1,5 @@
 # Api Infrapedia.com
-#Information
+# Information
 If we have a problem installing the SQLite we can use sudo npm install --unsafe-perm=true --allow-root
 
 ## Versions
