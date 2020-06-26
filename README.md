@@ -3,6 +3,10 @@
 If we have a problem installing the SQLite we can use sudo npm install --unsafe-perm=true --allow-root
 
 ## Versions
+### 🏁1.7
+| Version  | Changes |
+| ------------- | ------------- |
+|1.7.0.20200626|- Improvements in creating cables layer  |
 ### 🏁1.6
 | Version  | Changes |
 | ------------- | ------------- |
