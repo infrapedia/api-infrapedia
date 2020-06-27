@@ -36,8 +36,11 @@ module.exports = {
               fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), (filesReaded < files.length)
                 ? `\n${data.features.map((f) => `${JSON.stringify(f)}`)},` : `\n${data.features.map((f) => `${JSON.stringify(f)}`)}`, 'utf8');
               if (filesReaded === files.length) {
-                console.log('Finished');
                 fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), ']}', 'utf8');
+                const stream = fs.createWriteStream('./temp/cables.txt');
+                stream.write('');
+                stream.on('err', () => notifications('Master file of cables wasn\'t created', new Date()));
+                stream.end(() => notifications('Master file of cables cables was created', new Date()));
                 resolve();
               }
               // fs.unlink(path.join(__dirname, `../temp/${layer}/${file}`), () => {
@@ -75,9 +78,9 @@ module.exports = {
           },
         ]).toArray(async (err, ids) => {
           let checkedFiles = 0;
+          console.log(`=================${ids.length}=================`);
           await ids.map((id) => {
             secuencial += 1;
-            console.log(`=================${ids.length}=================`);
             cable.aggregate([
               {
                 $match: {
@@ -103,7 +106,13 @@ module.exports = {
                 $addFields: {
                   id: { $toInt: secuencial },
                   'properties.id': { $toInt: secuencial },
+                  day: { $dayOfMonth: '$activationDateTime' },
+                  month: { $month: '$activationDateTime' },
+                  year: { $year: '$activationDateTime' },
                 },
+              },
+              {
+                $addFields: { activationDateTimeRFS: { $dateFromString: { dateString: { $concat: [{ $toString: '$day' }, '-', { $toString: '$month' }, '-', { $toString: { $add: ['$year', 25] } }] } } } },
               },
               {
                 $project: {
@@ -112,16 +121,30 @@ module.exports = {
                   'properties.id': 1,
                   'properties.length': '$systemLength',
                   'properties.name': '$name',
-                  'properties.status': { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }, { $eq: ['$category', 'unknown'] }] }, then: 1, else: 0 } },
+                  'properties.status': {
+                    $switch: {
+                      branches: [
+                        // { case: { $gt: [{ $divide: [{ $toLong: '$activationDateTime' }, 1000] }, Math.floor(new Date().getTime() / 1000.0)] }, then: 0 },
+                        { case: { $eq: ['$category', 'project'] }, then: 0 },
+                        { case: { $eq: ['$category', 'active'] }, then: 1 },
+                        { case: { $eq: ['$category', 'decommissioned'] }, then: 0 },
+                        { case: { $eq: ['$category', 'unknown'] }, then: 1 },
+                        { case: { $eq: ['$category', 'fault'] }, then: 0 },
+                      ],
+                      default: 1,
+                    },
+                  }, // { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }, { $eq: ['$category', 'unknown'] }] }, then: 1, else: 0 } }
                   'properties.category': '$category', // { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }] }, then: 'active', else: '$category' } },
-                  'properties.activationDateTime': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
+                  // 'properties.activationDateTime': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
+                  'properties.active': { $cond: [{ $and: [{ $lt: [{ $divide: [{ $toLong: '$activationDateTime' }, 1000] }, Math.floor(new Date().getTime() / 1000.0)] }, { $ne: ['$category', 'fault'] }, { $ne: ['$category', 'project'] }, { $ne: ['$category', 'decommissioned'] }] }, 1, 0] },
+                  'properties.activationDateTime': { $divide: [{ $toLong: '$activationDateTime' }, 1000] },
+                  'properties.eol': { $divide: [{ $toLong: '$activationDateTimeRFS' }, 1000] },
                   'properties.hasoutage': { $cond: { if: { $eq: ['$category', 'fault'] }, then: 'true', else: 'false' } },
                   'properties.haspartial': { $cond: { if: { $eq: ['$geom.properties.status', 'Inactive'] }, then: 'true', else: 'false' } },
                   'properties.terrestrial': { $toString: '$terrestrial' },
                   'properties.segment': '$geom.properties._id',
                   'properties._id': '$_id',
                   geometry: '$geom.geometry',
-
                 },
               },
             ], { allowDiskUse: true }).toArray(async (err, lines) => {
@@ -148,6 +171,10 @@ module.exports = {
                     // module.exports.buildMasterFile('cables').then((mf) => {
                     //   console.log('Finish');
                     // }).catch((e) => console.log(e));
+                    const stream = fs.createWriteStream('./temp/check.txt');
+                    stream.write(`${ids.length}`);
+                    stream.on('err', () => { console.log('Error to create the file'); });
+                    stream.end(async () => {});
                   }
                 });
               } catch (err) { return err; }
