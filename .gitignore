@@ -274,7 +274,7 @@ keys/GCkey.json
 app.yml
 temp/terrestrial.mbtiles
 temp/ixps.mbtiles
-temp/ixps.json
+public/map/ixps.json
 temp/facilities.mbtiles
 public/map/facilities.json
 temp/cls.json
