@@ -42,6 +42,7 @@ class Cable {
                   category: String(data.category),
                   facilities: await (Array.isArray(data.facilities)) ? data.facilities.map((item) => new ObjectID(item)) : [],
                   owners: await (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : [],
+                  knownUsers: await (Array.isArray(data.knownUsers)) ? data.knownUsers.map((item) => new ObjectID(item)) : [],
                   cls: await (Array.isArray(data.cls)) ? data.cls.map((item) => new ObjectID(item)) : [],
                   geom: {}, // (geomData !== '') ? JSON.parse(geomData) : {}
                   tags: data.tags,
@@ -175,6 +176,7 @@ class Cable {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
+          console.log('CONECTION', data);
           this.model().then(async (cables) => {
             const nameFile = Math.floor(Date.now() / 1000);
             const stream = await fs.createWriteStream(`./temp/${nameFile}.json`);
@@ -200,6 +202,7 @@ class Cable {
                 category: String(data.category),
                 facilities: await (Array.isArray(data.facilities)) ? data.facilities.map((item) => new ObjectID(item)) : [],
                 owners: await (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : [],
+                knownUsers: await (Array.isArray(data.knownUsers)) ? data.knownUsers.map((item) => new ObjectID(item)) : [],
                 cls: await (Array.isArray(data.cls)) ? data.cls.map((item) => new ObjectID(item)) : [],
                 geom: {}, // (geomData !== '') ? JSON.parse(geomData) : {},
                 tags: data.tags,
@@ -212,7 +215,7 @@ class Cable {
                 if (err) reject({ m: err });
                 const segments = require('../../models/cable_segments.model');
                 segments().then(async (segments) => {
-                  segments.remove({ cable_id: id }, (err, d) => {
+                  segments.deleteMany({ cable_id: id }, (err, d) => {
                     if (err) reject({ m: err });
                     cables.updateOne({ $and: [adms(user), { _id: id }] }, { $set: data }, async (err, u) => {
                       if (err) reject({ m: err });
@@ -295,7 +298,7 @@ class Cable {
                   $and: [
                     adms(user),
                     { terrestrial: true },
-                    { deleted: false },
+                    // { deleted: false },
                   ],
                 },
               },
@@ -369,7 +372,7 @@ class Cable {
                   $and: [
                     adms(user),
                     { terrestrial: false },
-                    { deleted: false },
+                    // { deleted: false },
                   ],
                 },
               },
@@ -532,6 +535,7 @@ class Cable {
                       label: '$name',
                     },
                   },
+                  { $sort: { name: 1 } },
                 ],
                 as: 'facilities',
               },
@@ -570,8 +574,48 @@ class Cable {
                       label: '$name',
                     },
                   },
+                  { $sort: { label: 1 } },
                 ],
                 as: 'owners',
+              },
+            },
+            {
+              $lookup: {
+                from: 'organizations',
+                let: { f: '$knownUsers' },
+                pipeline: [
+                  {
+                    $project: { _id: 1, name: 1 },
+                  },
+                  {
+                    $match: {
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$_id', {
+                              $cond: {
+                                if: { $isArray: '$$f' },
+                                then: '$$f',
+                                else: [],
+                              },
+                            }],
+                          },
+                        },
+                        {
+                          deleted: { $ne: true },
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      label: '$name',
+                    },
+                  },
+                  { $sort: { label: 1 } },
+                ],
+                as: 'knownUsers',
               },
             },
             {
@@ -617,6 +661,7 @@ class Cable {
                       label: '$name',
                     },
                   },
+                  { $sort: { label: 1 } },
                 ],
                 as: 'cls',
               },
@@ -895,6 +940,7 @@ class Cable {
                       name: 1,
                     },
                   },
+                  { $sort: { name: 1 } },
                 ],
                 as: 'facilities',
               },
@@ -939,6 +985,7 @@ class Cable {
                       name: 1,
                     },
                   },
+                  { $sort: { name: 1 } },
                 ],
                 as: 'cls',
               },
@@ -1013,6 +1060,7 @@ class Cable {
                       organizations: 1,
                     },
                   },
+                  { $sort: { name: 1 } },
                 ],
                 as: 'networks',
               },
@@ -1057,8 +1105,48 @@ class Cable {
                       name: 1,
                     },
                   },
+                  { $sort: { name: 1 } },
                 ],
                 as: 'organizations',
+              },
+            },
+            {
+              $lookup: {
+                from: 'organizations',
+                let: { f: '$knownUsers' },
+                pipeline: [
+                  {
+                    $project: { _id: 1, name: 1 },
+                  },
+                  {
+                    $match: {
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$_id', {
+                              $cond: {
+                                if: { $isArray: '$$f' },
+                                then: '$$f',
+                                else: [],
+                              },
+                            }],
+                          },
+                        },
+                        {
+                          deleted: { $ne: true },
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      label: '$name',
+                    },
+                  },
+                  { $sort: { label: 1 } },
+                ],
+                as: 'knownUsers',
               },
             },
             {
@@ -1095,6 +1183,7 @@ class Cable {
                       name: 1,
                     },
                   },
+                  { $sort: { name: 1 } },
                 ],
                 as: 'owners',
               },

@@ -36,7 +36,16 @@ module.exports = {
       kmzUploadFiles(idata.file, user).then((lks) => {
         // resolve({ m: 'loaded', r: lks });
         const KMZGeoJSON = require('kmz-geojson');
-        KMZGeoJSON.toGeoJSON(lks[0], (err, geojson) => {
+        KMZGeoJSON.toGeoJSON(lks[0], async (err, geojson) => {
+          geojson.features = await geojson.features.map((feature) => {
+            if (typeof feature === 'object') {
+              if (feature.geometry.coordinates !== undefined) {
+                feature.geometry.coordinates = feature.geometry.coordinates.filter(Boolean);
+                return feature;
+              }
+            }
+          });
+          geojson.features = geojson.features.filter(Boolean);
           resolve({ m: 'Loaded', r: geojson });
         });
       }).catch((e) => {

@@ -666,6 +666,9 @@ module.exports = {
       const facility = require('../models/facility.model');
       facility().then((facility) => {
         facility.aggregate([
+          {
+            $match: { $and: [{ 'point.coordinates': { $ne: [0, 0] } }, { 'point.coordinates': { $ne: [] } }] },
+          },
           // {
           //   $lookup: {
           //     from: 'networks',
