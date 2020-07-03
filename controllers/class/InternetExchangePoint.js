@@ -145,7 +145,7 @@ class IXP {
                 $match: {
                   $and: [
                     adms(user),
-                    { deleted: false },
+                    // { deleted: false },
                   ],
                 },
               },

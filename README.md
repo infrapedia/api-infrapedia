@@ -6,8 +6,11 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 ### 🏁1.7
 | Version  | Changes |
 | ------------- | ------------- |
-|1.7.1.20200701|- remove the possibility of voting  |
+|1.7.6.20200703|- Improved function to detect administrators, Added users who use the cable service, List of deleted items added to the service for adms, upload service improved for kmz |
+|1.7.2.20200702|- Market place service  |
+|1.7.1.20200701|- Remove the possibility of voting  |
 |1.7.0.20200626|- Improvements in creating cables layer  |
+
 ### 🏁1.6
 | Version  | Changes |
 | ------------- | ------------- |

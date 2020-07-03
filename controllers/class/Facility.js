@@ -182,7 +182,7 @@ class Facility {
                 $match: {
                   $and: [
                     adms(user),
-                    { deleted: false },
+                    // { deleted: false },
                   ],
                 },
               },

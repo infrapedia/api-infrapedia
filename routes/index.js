@@ -72,6 +72,8 @@ const routes = function (router, controllers) {
   require('./bymodules/contact').callEndPoints(router, controllers, response);
   // Voting --->
   require('./bymodules/voting').callEndPoints(router, controllers, response);
+  //MarketPlace
+  require('./bymodules/marketplace').callEndPoints(router, controllers, response);
 
   // WMS ---> SERVICE
   const params = { mbtiles: ['./temp/cables.mbtiles'], quiet: false, do: process.env.wms };

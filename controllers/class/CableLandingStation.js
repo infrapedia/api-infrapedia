@@ -279,7 +279,7 @@ class CLS {
                 $match: {
                   $and: [
                     adms(user),
-                    { deleted: false },
+                    // { deleted: false },
                   ],
                 },
               },
