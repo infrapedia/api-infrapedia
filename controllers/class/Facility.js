@@ -179,12 +179,7 @@ class Facility {
                 $sort: { name: 1 },
               },
               {
-                $match: {
-                  $and: [
-                    adms(user),
-                    // { deleted: false },
-                  ],
-                },
+                $match: adms(user),
               },
               { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit) > 0) ? (parseInt(limit) * parseInt(page)) - parseInt(limit) : 0 },
               { $limit: limit },
