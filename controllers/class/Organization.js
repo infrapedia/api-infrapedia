@@ -492,7 +492,12 @@ class Organization {
       try {
         this.model().then((organizations) => {
           organizations.aggregate([
-            { $project: { _id: 1, name: 1, logo: 1 } },
+            {
+              $project:
+                {
+                  _id: 1, name: 1, logo: 1, premium: 1,
+                },
+            },
             { $match: { premium: true } },
             { $sort: { name: 1 } },
           ]).toArray((err, r) => {
