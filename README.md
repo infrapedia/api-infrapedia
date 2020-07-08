@@ -6,6 +6,7 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 ### 🏁1.7
 | Version  | Changes |
 | ------------- | ------------- |
+|1.7.8.20200708|- Order partners by name |
 |1.7.7.20200708|- Resolved problem with the adms verification for IXPS and Facilities |
 |1.7.6.1.20200705|- Resolved problem with the adms verification |
 |1.7.6.20200703|- Improved function to detect administrators, Added users who use the cable service, List of deleted items added to the service for adms, upload service improved for kmz |
