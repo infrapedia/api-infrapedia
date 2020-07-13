@@ -28,5 +28,11 @@ module.exports = {
         .then((r) => { response.success(res, r); })
         .catch((e) => { response.err(res, e); });
     });
+    router.post(`${process.env._ROUTE}/auth/message/makeanoffer`, (req, res) => {
+      const token = req.headers.authorization;
+      controllers.messages.makeAnOffer(req.headers.userid, token, req.body)
+        .then((r) => { response.success(res, r); })
+        .catch((e) => { response.err(res, e); });
+    });
   },
 };

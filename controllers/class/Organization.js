@@ -515,7 +515,8 @@ class Organization {
         this.model().then((organizations) => {
           organizations.aggregate([
             { $match: { istrusted: true } },
-            { $project: { _id: 1, name: 1, logo: 1 } }]).toArray((err, r) => {
+            { $project: { _id: 1, name: 1, logo: 1 } },
+            { $sort: { name: 1 } }]).toArray((err, r) => {
             if (err) reject(err);
             resolve({ m: 'Loaded', r });
           });

@@ -1,8 +1,15 @@
 # Api Infrapedia.com
+
+We're using NodeJS version v10.19.0 
+
 # Information
 If we have a problem installing the SQLite we can use sudo npm install --unsafe-perm=true --allow-root
 
 ## Versions
+### 🏁1.8
+| Version  | Changes |
+| ------------- | ------------- |
+|1.8.3.20200712|- Clean the app.js file, Change the label by name, we're using that in the sidebar, Organization "Trusted by" using order name, added the market place endpoint |
 ### 🏁1.7
 | Version  | Changes |
 | ------------- | ------------- |

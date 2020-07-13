@@ -1141,7 +1141,7 @@ class Cable {
                   {
                     $project: {
                       _id: 1,
-                      label: '$name',
+                      name: '$name',
                     },
                   },
                   { $sort: { label: 1 } },

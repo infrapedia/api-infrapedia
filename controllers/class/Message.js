@@ -19,7 +19,7 @@ class Message {
         const request = require('request');
         const options = {
           method: 'GET',
-          url: `https://infrapedia.auth0.com/api/v2/users/${user}?fields=email,email_verified`,
+          url: `https://infrapedia.auth0.com/api/v2/users/${user}?fields=email,email_verified,name`,
           headers: {
             'content-type': 'application/json',
             Authorization: token,
@@ -646,6 +646,30 @@ class Message {
           }).catch((e) => reject({ m: e }));
         } else { resolve({ m: 'Not user found' }); }
       } catch (e) { reject({ m: 'error2' }); }
+    });
+  }
+
+  makeAnOffer(user, token, data) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.getEmail(user, token).then((userData) => {
+          if (data.email !== undefined && data.name !== undefined && data.subject !== undefined) {
+            userData = JSON.parse(userData);
+            const sendTicket = require('../helpers/freshdesk');
+            sendTicket(
+              {
+                email: data.email,
+                subject: `${data.name} did an offer | ${data.subject}`,
+                description: `${data.message} <br /><br /><strong>${userData.email} - ${userData.name}</strong>`,
+                status: 2,
+                priority: 1,
+              },
+            ).then(() => {
+              resolve({m: 'Your offer was sent'});
+            }).catch((e) => { cosnole.log(e); reject({m: e})});
+          } else { console.log('Hi'); }
+        }).catch((e) => { console.log(e); });
+      } catch (e) { reject({}); }
     });
   }
 }

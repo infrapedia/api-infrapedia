@@ -7,4 +7,5 @@ module.exports = {
   myMessages: (usr, data) => Message.myMessages(usr, data),
   viewMessage: (usr, id, elemnt) => Message.viewMessage(usr, id, elemnt),
   deleteMyMessage: (usr, id) => Message.deleteMyMessage(usr, id),
-}
+  makeAnOffer: (usr, token, data) => Message.makeAnOffer(usr, token, data),
+};
