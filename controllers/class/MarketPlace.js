@@ -15,6 +15,11 @@ class MarketPlace {
               },
             },
             {
+              $addFields: {
+                status: { $cond: [{ $eq: ['$status', false] }, { $cond: [{ $eq: ['$market', 'closed'] }, 'Closed', 'Assigned'] }, 'Open'] },
+              },
+            },
+            {
               $sort: { _id: -1 },
             },
           ], { allowDiskUse: true }).toArray(async (err, r) => {
@@ -22,7 +27,7 @@ class MarketPlace {
             const data = (Array.isArray(r)) ? await r.map((elemnt) => {
               elemnt.message = elemnt.message.replace(elemnt.email, ' ------- ');
               elemnt.message = elemnt.message.replace(elemnt.uuid, ' ------- ');
-              return { message: elemnt.message, rgDate: elemnt.rgDate, status: (!elemnt.status) };
+              return { message: elemnt.message, rgDate: elemnt.rgDate, status: elemnt.status };
             }) : [];
             // console.log(data);
             resolve({ m: '', r: data });

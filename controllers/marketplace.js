@@ -1,4 +1,4 @@
-let MarketPlace = require('./class/marketplace');
+let MarketPlace = require('./class/MarketPlace');
 
 MarketPlace = new MarketPlace();
 module.exports = {

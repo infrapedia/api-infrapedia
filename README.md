@@ -6,13 +6,13 @@ We're using NodeJS version v10.19.0
 If we have a problem installing the SQLite we can use sudo npm install --unsafe-perm=true --allow-root
 
 ## Versions
-### 🏁1.8
+## V.1
+
+#### 🏁1.8
 | Version  | Changes |
 | ------------- | ------------- |
+|1.8.4.20200713|- Market place status update and rename the file of MarketPlace  |
 |1.8.3.20200712|- Clean the app.js file, Change the label by name, we're using that in the sidebar, Organization "Trusted by" using order name, added the market place endpoint |
-### 🏁1.7
-| Version  | Changes |
-| ------------- | ------------- |
 |1.7.8.20200708|- Order partners by name |
 |1.7.7.20200708|- Resolved problem with the adms verification for IXPS and Facilities |
 |1.7.6.1.20200705|- Resolved problem with the adms verification |
@@ -20,10 +20,6 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 |1.7.2.20200702|- Market place service  |
 |1.7.1.20200701|- Remove the possibility of voting  |
 |1.7.0.20200626|- Improvements in creating cables layer  |
-
-### 🏁1.6
-| Version  | Changes |
-| ------------- | ------------- |
 |1.6.9.1.20200622|- Changed the name style of CLS in the cables views, and the cls views  |
 |1.6.9.20200621|- Changed the name style of CLS  |
 |1.6.8.20200621|-Changed the style of RFS and it was fixed the problem with the search in subSea cable function  |
@@ -34,9 +30,6 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 |1.6.2.20200614|-Added the element and date information to the subject mail validating that every message be received like a unique message|
 |1.6.1.20200614|-Validate the category|
 |1.6.0.20200612|-Infrapedia awards functionality: vote, consult, see results. -Name duplicate validation: IXP, Cable, CLS, Facility, Networks, Organization. -Messages: Validate functionality to send message for Facilities, IXPS, Organizations, Networks. -sendNotificationEmailUsingSendgrid.js: Added BBC field and reply to.|
-### 🏁1.5
-| Version  | Changes |
-| ------------- | ------------- |
 |1.5.9.20200609|Functionality for infrapedia awards voting  |
 |1.5.8.20200602|Fixed the problem with the cls finder  |
 |1.5.7.20200529|Connection to the database, Connection to Redis Sessions, eslintRules  |
