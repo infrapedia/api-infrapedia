@@ -389,7 +389,24 @@ class IXP {
             },
             {
               $project: {
+                name: 1,
                 geom: 1,
+              },
+            },
+            {
+              $unwind: '$geom.features',
+            },
+            {
+              $addFields: {
+                'geom.features.properties.name': '$name',
+              },
+            },
+            {
+              $group: {
+                _id: '$_id',
+                geom: {
+                  $push: '$geom',
+                },
               },
             },
           ]).toArray((err, r) => {
