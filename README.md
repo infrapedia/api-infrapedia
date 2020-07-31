@@ -11,6 +11,7 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 #### 🏁1.8
 | Version  | Changes |
 | ------------- | ------------- |
+|1.8.9.20200731|- Adding new functionalities for organizations (Associations to anothers elements), geoms validation with name in properties |
 |1.8.5.20200723|- Adding name to the geom properties functions  |
 |1.8.4.20200713|- Market place status update and rename the file of MarketPlace  |
 |1.8.3.20200712|- Clean the app.js file, Change the label by name, we're using that in the sidebar, Organization "Trusted by" using order name, added the market place endpoint |

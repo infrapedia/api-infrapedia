@@ -732,6 +732,7 @@ class CLS {
   // }
 
   getElementGeom(id) {
+    console.log(id);
     return new Promise((resolve, reject) => {
       try {
         this.model().then((cls) => {
@@ -743,6 +744,7 @@ class CLS {
             },
             {
               $project: {
+                _id: 1,
                 name: 1,
                 geom: 1,
               },
@@ -791,13 +793,37 @@ class CLS {
             },
             {
               $project: {
+                _id: 1,
+                name: 1,
                 geom: 1,
               },
             },
+            {
+              $unwind: '$geom.features',
+            },
+            {
+              $addFields: {
+                'geom.features.properties.name': '$name',
+              },
+            },
+            {
+              $group: {
+                _id: '$_id',
+                geom: {
+                  $push: '$geom.features',
+                },
+              },
+            },
+            // {
+            //   $project: {
+            //     type: 'FeatureCollection',
+            //     features: '$geom.features',
+            //   },
+            // },
           ]).toArray(async (err, points) => {
             if (err) return 'Error';
-            // we'll going to create the master file for ixps
-            points = await points.reduce((total, value) => total.concat(value.geom.features), []);
+            // // we'll going to create the master file for ixps
+            points = await points.reduce((total, value) => total.concat(value.geom), []);
             points = {
               type: 'FeatureCollection',
               features: points,

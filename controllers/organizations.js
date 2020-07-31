@@ -1,6 +1,6 @@
-let Organization = require('./class/Organization')
+let Organization = require('./class/Organization');
 
-Organization = new Organization()
+Organization = new Organization();
 module.exports = {
   add: (usr, data) => Organization.add(usr, data),
   edit: (usr, data) => Organization.edit(usr, data),
@@ -12,4 +12,11 @@ module.exports = {
   partners: () => Organization.partners(),
   istrusted: () => Organization.istrusted(),
   checkName: (name) => Organization.checkName(name),
+  associationsGroups: (id) => Organization.associationsGroups(id),
+  associationsCLS: (id) => Organization.associationsCLS(id),
+  associationsSubseas: (id) => Organization.associationsSubseas(id),
+  associationsSubseasKU: (id) => Organization.associationsSubseasKU(id),
+  associationsTerrestrials: (id) => Organization.associationsTerrestrials(id),
+  associationsIXPS: (id) => Organization.associationsIXPS(id),
+  associationsFacilities: (id) => Organization.associationsFacilities(id),
 };
