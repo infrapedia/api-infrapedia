@@ -2,7 +2,7 @@ const db = require('../config/connection');
 
 module.exports = function () {
   return new Promise((resolve, reject) => {
-    db.get().createCollection('cables',
+    db.get().createCollection('cables'
       // {
       //   validator: {
       //     $jsonSchema: {
