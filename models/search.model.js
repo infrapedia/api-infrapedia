@@ -18,7 +18,7 @@ module.exports = function () {
         validationLevel: 'off',
         validationAction: 'warn',
       }).then((organization) => { resolve(organization); }).catch((err) => {
-      reject(err);
+      resolve(db.get().collection('search'));
     });
   });
 };

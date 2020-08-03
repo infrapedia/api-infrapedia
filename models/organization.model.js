@@ -2,7 +2,7 @@ const db = require('../config/connection.js');
 
 module.exports = function () {
   return new Promise((resolve, reject) => {
-    db.get().createCollection('organizations'
+    db.get().collection('organizations',
       //  ,
       // {
       //   validator: {
@@ -40,8 +40,8 @@ module.exports = function () {
       //     validationAction: 'warn',
       //   },
       //}
-      ).then((organization) => { resolve(organization); }).catch((err) => {
-      reject(err);
+    ).then((organization) => { organization.insertOne({ one: 1 }); resolve(organization); }).catch((err) => {
+      resolve(db.get().collection('organizations'));
     });
   });
 };

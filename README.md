@@ -7,6 +7,10 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 
 ## Versions
 ## V.1
+#### 🏁1.9
+| Version  | Changes |
+| ------------- | ------------- |
+|1.9.0.20200802|- Problems resolved with MongoDb connection |
 
 #### 🏁1.8
 | Version  | Changes |

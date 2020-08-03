@@ -42,7 +42,7 @@ module.exports = function () {
       //   },
       // }
     ).then((maps) => { resolve(maps); }).catch((err) => {
-      reject(err);
+      resolve(db.get().collection('maps'));
     });
   });
 };
