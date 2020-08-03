@@ -2,7 +2,7 @@ const db = require('../config/connection.js');
 
 module.exports = function () {
   return new Promise((resolve, reject) => {
-    db.get().collection('organizations',
+    db.get().createCollection('organizations',
       //  ,
       // {
       //   validator: {
