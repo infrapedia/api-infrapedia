@@ -21,7 +21,7 @@ module.exports = function () {
           validationAction: 'warn',
         },
       }).then((network) => { resolve(network); }).catch((err) => {
-      reject(err);
+      resolve(db.get().collection('alertsProviders'));
     });
   });
 };

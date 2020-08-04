@@ -2,7 +2,7 @@ const db = require('../config/connection');
 
 module.exports = function () {
   return new Promise((resolve, reject) => {
-    db.get().createCollection('maps',
+    db.get().createCollection('maps'
       // {
       //   validator: {
       //     $jsonSchema: {
@@ -42,7 +42,7 @@ module.exports = function () {
       //   },
       // }
     ).then((maps) => { resolve(maps); }).catch((err) => {
-      reject(err);
+      resolve(db.get().collection('maps'));
     });
   });
 };

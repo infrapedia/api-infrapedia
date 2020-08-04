@@ -2,7 +2,7 @@ const db = require('../config/connection');
 
 module.exports = function () {
   return new Promise((resolve, reject) => {
-    db.get().createCollection('cls',
+    db.get().createCollection('cls'
       // {
       //   validator: {
       //     $jsonSchema: {
@@ -26,7 +26,7 @@ module.exports = function () {
       //   },
       // }
       ).then((network) => { resolve(network); }).catch((err) => {
-      reject(err);
+      resolve(db.get().collection('cls'));
     });
   });
 };

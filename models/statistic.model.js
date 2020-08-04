@@ -2,7 +2,7 @@ const db = require('../config/connection');
 
 module.exports = function () {
   return new Promise((resolve, reject) => {
-    db.get().createCollection('statistics',
+    db.get().createCollection('statistics'
       //  ,
       // {
       //   validator: {
@@ -21,7 +21,7 @@ module.exports = function () {
       //   },
       // }
     ).then((network) => { resolve(network); }).catch((err) => {
-      reject(err);
+      resolve(db.get().collection('statistics'));
     });
   });
 };

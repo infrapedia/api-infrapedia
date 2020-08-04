@@ -555,5 +555,247 @@ class Organization {
       }
     });
   }
+
+  associationsGroups(id) {
+    return new Promise((resolve, reject) => {
+      try {
+        const network = require('../../models/network.model');
+        network().then((associations) => {
+          associations.aggregate([
+            {
+              $project: {
+                name: 1,
+                organizations: 1,
+              },
+            },
+            {
+              $match: {
+                owners: { $in: [new ObjectID(id), '$organizations'] },
+              },
+            },
+            {
+              $project: {
+                _id: '$_id',
+                label: '$name',
+              },
+            },
+          ], { allowDiskUse: true }).toArray((err, c) => {
+            if (err) reject({ m: err });
+            resolve({ m: 'Loaded', r: c });
+          });
+        }).catch((e) => { reject({ m: e })});
+      } catch (e) {
+        reject({ m: e });
+      }
+    });
+  }
+
+  associationsCLS(id) {
+    return new Promise((resolve, reject) => {
+      try {
+        const cls = require('../../models/cls.model');
+        cls().then((associations) => {
+          associations.aggregate([
+            {
+              $project: {
+                name: 1,
+                owners: 1,
+              },
+            },
+            {
+              $match: {
+                owners: { $in: [new ObjectID(id), '$owners'] },
+              },
+            },
+            {
+              $project: {
+                _id: '$_id',
+                label: '$name',
+              },
+            },
+          ], { allowDiskUse: true }).toArray((err, c) => {
+            if (err) reject({ m: err });
+            resolve({ m: 'Loaded', r: c });
+          });
+        }).catch((e) => { reject({ m: e })});
+      } catch (e) {
+        reject({ m: e });
+      }
+    });
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  associationsSubseas(id) {
+    return new Promise((resolve, reject) => {
+      try {
+        const cable = require('../../models/cable.model');
+        cable().then((associations) => {
+          associations.aggregate([
+            {
+              $project: {
+                name: 1,
+                owners: 1,
+              },
+            },
+            {
+              $match: {
+                owners: { $in: [new ObjectID(id), '$owners'] },
+              },
+            },
+            {
+              $project: {
+                _id: '$_id',
+                label: '$name',
+              },
+            },
+          ], { allowDiskUse: true }).toArray((err, c) => {
+            if (err) reject({ m: err });
+            resolve({ m: 'Loaded', r: c });
+          });
+        }).catch((e) => { reject({ m: e })});
+      } catch (e) {
+        reject({ m: e });
+      }
+    });
+  }
+
+  associationsSubseasKU(id) {
+    return new Promise((resolve, reject) => {
+      try {
+        const cable = require('../../models/cable.model');
+        cable().then((associations) => {
+          associations.aggregate([
+            {
+              $project: {
+                name: 1,
+                knownUsers: 1,
+              },
+            },
+            {
+              $addFields: { knownUsers: { $ifNull: ['$knownUsers', []] } },
+            },
+            {
+              $match: {
+                owners: { $in: [new ObjectID(id), '$knownUsers'] },
+              },
+            },
+            {
+              $project: {
+                _id: '$_id',
+                label: '$name',
+              },
+            },
+          ], { allowDiskUse: true }).toArray((err, c) => {
+            if (err) reject({ m: err });
+            resolve({ m: 'Loaded', r: c });
+          });
+        }).catch((e) => { reject({ m: e })});
+      } catch (e) {
+        reject({ m: e });
+      }
+    });
+  }
+
+  associationsTerrestrials(id) {
+    return new Promise((resolve, reject) => {
+      try {
+        const cable = require('../../models/cable.model');
+        cable().then((associations) => {
+          associations.aggregate([
+            {
+              $project: {
+                name: 1,
+                owners: 1,
+              },
+            },
+            {
+              $match: {
+                owners: { $in: [new ObjectID(id), '$owners'] },
+              },
+            },
+            {
+              $project: {
+                _id: '$_id',
+                label: '$name',
+              },
+            },
+          ], { allowDiskUse: true }).toArray((err, c) => {
+            if (err) reject({ m: err });
+            resolve({ m: 'Loaded', r: c });
+          });
+        }).catch((e) => { reject({ m: e })});
+      } catch (e) {
+        reject({ m: e });
+      }
+    });
+  }
+
+  associationsIXPS(id) {
+    return new Promise((resolve, reject) => {
+      try {
+        const ixps = require('../../models/ixp.model');
+        ixps().then((associations) => {
+          associations.aggregate([
+            {
+              $project: {
+                name: 1,
+                owners: 1,
+              },
+            },
+            {
+              $match: {
+                owners: { $in: [new ObjectID(id), '$owners'] },
+              },
+            },
+            {
+              $project: {
+                _id: '$_id',
+                label: '$name',
+              },
+            },
+          ], { allowDiskUse: true }).toArray((err, c) => {
+            if (err) reject({ m: err });
+            resolve({ m: 'Loaded', r: c });
+          });
+        }).catch((e) => { reject({ m: e })});
+      } catch (e) {
+        reject({ m: e });
+      }
+    });
+  }
+
+  associationsFacilities(id) {
+    return new Promise((resolve, reject) => {
+      try {
+        const facility = require('../../models/facility.model');
+        facility().then((associations) => {
+          associations.aggregate([
+            {
+              $project: {
+                name: 1,
+                owners: 1,
+              },
+            },
+            {
+              $match: {
+                owners: { $in: [new ObjectID(id), '$owners'] },
+              },
+            },
+            {
+              $project: {
+                _id: '$_id',
+                label: '$name',
+              },
+            },
+          ], { allowDiskUse: true }).toArray((err, c) => {
+            if (err) reject({ m: err });
+            resolve({ m: 'Loaded', r: c });
+          });
+        }).catch((e) => { reject({ m: e })});
+      } catch (e) {
+        reject({ m: e });
+      }
+    });
+  }
 }
 module.exports = Organization;

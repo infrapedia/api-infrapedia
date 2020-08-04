@@ -506,7 +506,7 @@ class CLS {
               $project: {
                 _id: 1,
                 name: 1,
-                country: { $ifNull: ['$country', '']},
+                country: { $ifNull: ['$country', ''] },
                 yours: 1,
                 alerts: 1,
               },
@@ -707,31 +707,32 @@ class CLS {
     });
   }
 
-  getElementGeom(id) {
-    return new Promise((resolve, reject) => {
-      try {
-        this.model().then((cables) => {
-          cables.aggregate([
-            {
-              $match: {
-                _id: new ObjectID(id),
-              },
-            },
-            {
-              $project: {
-                geom: 1,
-              },
-            },
-          ]).toArray((err, r) => {
-            if (err) reject(err);
-            resolve({ m: 'Loaded', r: r[0].geom });
-          });
-        });
-      } catch (e) { reject({ m: e }); }
-    });
-  }
+  // getElementGeom(id) {
+  //   return new Promise((resolve, reject) => {
+  //     try {
+  //       this.model().then((cables) => {
+  //         cables.aggregate([
+  //           {
+  //             $match: {
+  //               _id: new ObjectID(id),
+  //             },
+  //           },
+  //           {
+  //             $project: {
+  //               geom: 1,
+  //             },
+  //           },
+  //         ]).toArray((err, r) => {
+  //           if (err) reject(err);
+  //           resolve({ m: 'Loaded', r: r[0].geom });
+  //         });
+  //       });
+  //     } catch (e) { reject({ m: e }); }
+  //   });
+  // }
 
   getElementGeom(id) {
+    console.log(id);
     return new Promise((resolve, reject) => {
       try {
         this.model().then((cls) => {
@@ -743,12 +744,33 @@ class CLS {
             },
             {
               $project: {
+                _id: 1,
+                name: 1,
                 geom: 1,
+              },
+            },
+            {
+              $unwind: '$geom.features',
+            },
+            {
+              $addFields: {
+                'geom.features.properties.name': '$name',
+              },
+            },
+            {
+              $group: {
+                _id: '$_id',
+                geom: {
+                  $push: '$geom',
+                },
               },
             },
           ]).toArray((err, r) => {
             if (err) reject(err);
-            resolve({ m: 'Loaded', r: r[0].geom });
+            else if (r.length > 0) {
+              resolve({ m: 'Loaded', r: r[0].geom });
+            }
+            reject({ m: 'err', r: [] });
           });
         });
       } catch (e) { reject({ m: e }); }
@@ -771,13 +793,37 @@ class CLS {
             },
             {
               $project: {
+                _id: 1,
+                name: 1,
                 geom: 1,
               },
             },
+            {
+              $unwind: '$geom.features',
+            },
+            {
+              $addFields: {
+                'geom.features.properties.name': '$name',
+              },
+            },
+            {
+              $group: {
+                _id: '$_id',
+                geom: {
+                  $push: '$geom.features',
+                },
+              },
+            },
+            // {
+            //   $project: {
+            //     type: 'FeatureCollection',
+            //     features: '$geom.features',
+            //   },
+            // },
           ]).toArray(async (err, points) => {
             if (err) return 'Error';
-            // we'll going to create the master file for ixps
-            points = await points.reduce((total, value) => total.concat(value.geom.features), []);
+            // // we'll going to create the master file for ixps
+            points = await points.reduce((total, value) => total.concat(value.geom), []);
             points = {
               type: 'FeatureCollection',
               features: points,

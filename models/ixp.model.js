@@ -2,7 +2,7 @@ const db = require('../config/connection');
 
 module.exports = function () {
   return new Promise((resolve, reject) => {
-    db.get().createCollection('ixps',
+    db.get().createCollection('ixps'
       // {
       //   validator: {
       //     $jsonSchema: {
@@ -42,7 +42,7 @@ module.exports = function () {
       //   },
       // }
     ).then((network) => { resolve(network); }).catch((err) => {
-      reject(err);
+      resolve(db.get().collection('ixps'));
     });
   });
 };

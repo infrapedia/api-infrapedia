@@ -52,5 +52,39 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+    router.get(`${process.env._ROUTE}/organization/groups/:id`, (req, res) => {
+      controllers.organizations.associationsGroups(req.params.id)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.get(`${process.env._ROUTE}/organization/cls/:id`, (req, res) => {
+      controllers.organizations.associationsCLS(req.params.id)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.get(`${process.env._ROUTE}/organization/subseas/:id`, (req, res) => {
+      controllers.organizations.associationsSubseas(req.params.id)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.get(`${process.env._ROUTE}/organization/subseas/ku/:id`, (req, res) => {
+      controllers.organizations.associationsSubseasKU(req.params.id)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.get(`${process.env._ROUTE}/organization/terrestrials/:id`, (req, res) => {
+      controllers.organizations.associationsTerrestrials(req.params.id)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.get(`${process.env._ROUTE}/organization/ixps/:id`, (req, res) => {
+      controllers.organizations.associationsIXPS(req.params.id)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.get(`${process.env._ROUTE}/organization/facilities/:id`, (req, res) => {
+      controllers.organizations.associationsFacilities(req.params.id)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });    });
   },
 };

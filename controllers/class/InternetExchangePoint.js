@@ -389,7 +389,24 @@ class IXP {
             },
             {
               $project: {
+                name: 1,
                 geom: 1,
+              },
+            },
+            {
+              $unwind: '$geom.features',
+            },
+            {
+              $addFields: {
+                'geom.features.properties.name': '$name',
+              },
+            },
+            {
+              $group: {
+                _id: '$_id',
+                geom: {
+                  $push: '$geom',
+                },
               },
             },
           ]).toArray((err, r) => {
@@ -519,33 +536,34 @@ class IXP {
     });
   }
 
-  getElementGeom(id) {
-    return new Promise((resolve, reject) => {
-      try {
-        this.model().then((ixp) => {
-          ixp.aggregate([
-            {
-              $match: {
-                _id: new ObjectID(id),
-              },
-            },
-            {
-              $project: {
-                geom: 1,
-              },
-            },
-          ]).toArray((err, r) => {
-            if (err) reject(err);
-            resolve({ m: 'Loaded', r: r[0].geom });
-          });
-        });
-      } catch (e) { reject({ m: e }); }
-    });
-  }
+  // getElementGeom(id) {
+  //   return new Promise((resolve, reject) => {
+  //     try {
+  //       this.model().then((ixp) => {
+  //         ixp.aggregate([
+  //           {
+  //             $match: {
+  //               _id: new ObjectID(id),
+  //             },
+  //           },
+  //           {
+  //             $project: {
+  //               geom: 1,
+  //             },
+  //           },
+  //         ]).toArray((err, r) => {
+  //           if (err) reject(err);
+  //           resolve({ m: 'Loaded', r: r[0].geom });
+  //         });
+  //       });
+  //     } catch (e) { reject({ m: e }); }
+  //   });
+  // }
 
   getMultiElementsGeom(ids) {
     return new Promise((resolve, reject) => {
       try {
+        console.log(ids);
         if (!Array.isArray(ids) || ids.length === 0) resolve({ m: 'Loaded', r: false });
         ids = ids.map((i) => new ObjectID(i));
         this.model().then((ixp) => {
@@ -559,9 +577,33 @@ class IXP {
             },
             {
               $project: {
+                _id: 1,
+                name: 1,
                 geom: 1,
               },
             },
+            {
+              $project: {
+                _id: 1,
+                'geom.type': 'Feature',
+                'geom.geometry': '$geom',
+                'geom.properties.name': '$name',
+              },
+            },
+            {
+              $group: {
+                _id: '$_id',
+                geom: {
+                  $push: '$geom',
+                },
+              },
+            },
+            // {
+            //   $project: {
+            //     type: 'FeatureCollection',
+            //     features: '$geom',
+            //   },
+            // },
           ]).toArray(async (err, points) => {
             if (err) return 'Error';
             // we'll going to create the master file for ixps
