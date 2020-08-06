@@ -1,6 +1,7 @@
 const luxon = require('luxon');
 const { ObjectID } = require('mongodb');
 const gcloud = require('../helpers/gcloudStorage');
+const redisClient = require('../../config/redis');
 
 class Map {
   constructor() {
@@ -228,7 +229,7 @@ class Map {
     });
   }
 
-  segments(id, name, terrestrial, cable, config) {
+  segments(id, name, terrestrial, cable) {
     return new Promise((resolve, reject) => {
       try {
         const mSegments = require('../../models/cable_segments.model');
@@ -242,7 +243,7 @@ class Map {
             {
               $addFields: {
                 id: cable,
-                properties: config,
+                // properties: config,
                 'properties.id': cable,
                 'properties.nameCable': name,
                 'properties.terrestrial': terrestrial,
@@ -269,35 +270,39 @@ class Map {
                 subdomain,
               },
             },
-            {
-              $addFields: {
-                config: { $concatArrays: ['$config.subsea', '$config.terrestrials'] },
-              },
-            },
+            // {
+            //   $addFields: {
+            //     config: { $concatArrays: ['$subsea', '$terrestrials'] },
+            //   },
+            // },
             {
               $lookup: {
                 from: 'cables',
-                let: { subsea: '$subsea', terrestrials: '$terrestrials', config: '$config' },
+                let: { subsea: '$subsea', terrestrials: '$terrestrials' }, // config: '$config'
                 pipeline: [
                   {
-                    $addFields: { config: '$$config' },
+                    $project: {
+                      _id: 1,
+                      terrestrial: 1,
+                      name: 1,
+                    },
                   },
                   {
                     $match:
                       { $or: [{ $expr: { $in: ['$_id', '$$subsea'] } }, { $expr: { $in: ['$_id', '$$terrestrials'] } }] },
                   },
-                  {
-                    $unwind: '$config',
-                  },
-                  {
-                    $addFields: {
-                      //   'config._id': { $toObjectId: '$config._id' },
-                      equal: { $cond: [{ $eq: ['$config._id', { $toString: '$_id' }] }, true, false] },
-                    },
-                  },
-                  {
-                    $match: { equal: true },
-                  },
+                  // {
+                  //   $unwind: '$config',
+                  // },
+                  // {
+                  //   $addFields: {
+                  //     //   'config._id': { $toObjectId: '$config._id' },
+                  //     equal: { $cond: [{ $eq: ['$config._id', { $toString: '$_id' }] }, true, false] },
+                  //   },
+                  // },
+                  // {
+                  //   $match: { equal: true },
+                  // },
                   {
                     $project: {
                       _id: 1,
@@ -319,11 +324,12 @@ class Map {
           ], { allowDiskUse: true }).toArray(async (err, cables) => {
             if (err) reject({ m: err });
             let cable = 0;
-            Promise.all(cables[0].cables.map((c) => { cable++; return this.segments(c._id, c.name, c.terrestrial, cable, c.config); })).then(async (multiLines) => {
+            Promise.all(cables[0].cables.map((c) => { cable++; return this.segments(c._id, c.name, c.terrestrial, cable); })).then(async (multiLines) => {
               multiLines = {
                 type: 'FeatureCollection',
                 features: await multiLines.reduce((total, value) => total.concat(value), []),
               };
+              redisClient.set(`${subdomain}_cables`, JSON.stringify(multiLines), 'EX', 2147483647);
               gcloud.uploadFilesCustomMap(multiLines, 'cables', subdomain).then((r) => {
                 resolve(multiLines);
               }).catch((e) => reject(e));
@@ -340,6 +346,7 @@ class Map {
         this.model().then((draw) => {
           draw.findOne({ subdomain }, (err, d) => {
             if (err) reject({ m: err });
+            redisClient.set(`${subdomain}_draw`, JSON.stringify(d.draw), 'EX', 2147483647);
             gcloud.uploadFilesCustomMap(d.draw, 'draw', subdomain).then((r) => {
               resolve(d.draw);
             }).catch((e) => { reject(e); });
@@ -359,38 +366,38 @@ class Map {
                 subdomain,
               },
             },
-            {
-              $addFields: {
-                config: '$config.ixps',
-              },
-            },
+            // {
+            //   $addFields: {
+            //     config: '$ixps',
+            //   },
+            // },
             {
               $lookup: {
                 from: 'ixps',
-                let: { ixps: '$ixps', config: '$config' },
+                let: { ixps: '$ixps' },
                 pipeline: [
-                  {
-                    $addFields: { config: '$$config' },
-                  },
+                  // {
+                  //   $addFields: { config: '$$config' },
+                  // },
                   {
                     $match: { $expr: { $in: ['$_id', '$$ixps'] } },
                   },
-                  {
-                    $unwind: '$config',
-                  },
-                  {
-                    $addFields: {
-                      equal: { $cond: [{ $eq: ['$config._id', { $toString: '$_id' }] }, true, false] },
-                    },
-                  },
-                  {
-                    $match: { equal: true },
-                  },
-                  {
-                    $addFields: {
-                      'feature.properties': '$config',
-                    },
-                  },
+                  // {
+                  //   $unwind: '$config',
+                  // },
+                  // {
+                  //   $addFields: {
+                  //     equal: { $cond: [{ $eq: ['$config._id', { $toString: '$_id' }] }, true, false] },
+                  //   },
+                  // },
+                  // {
+                  //   $match: { equal: true },
+                  // },
+                  // {
+                  //   $addFields: {
+                  //     'feature.properties': '$config',
+                  //   },
+                  // },
                   {
                     $addFields: {
                       feature: {
@@ -418,10 +425,10 @@ class Map {
                 ixps: 1,
               },
             },
-          ], { allowDiskUse: true }).toArray(async (err, multipoints) => {
+          ], { allowDiskUse: true }).toArray(async (err, multipointsIxps) => {
             if (err) reject({ m: err });
             let id = 0;
-            multipoints = await multipoints[0].ixps.reduce((total, value) => {
+            let multipoints = await multipointsIxps[0].ixps.reduce((total, value) => {
               id++;
               value.feature.id = id;
               return total.concat(value.feature);
@@ -430,6 +437,7 @@ class Map {
               type: 'FeatureCollection',
               features: multipoints,
             };
+            redisClient.set(`${subdomain}_ixps`, JSON.stringify(multipoints), 'EX', 2147483647);
             gcloud.uploadFilesCustomMap(multipoints, 'ixps', subdomain).then((r) => {
               resolve(multipoints);
             }).catch((e) => reject(e));
@@ -450,41 +458,41 @@ class Map {
                 subdomain,
               },
             },
-            {
-              $addFields: {
-                config: '$config.facilities',
-              },
-            },
+            // {
+            //   $addFields: {
+            //     config: '$facilities',
+            //   },
+            // },
             {
               $lookup: {
                 from: 'facilities',
-                let: { facilities: '$facilities', config: '$config' },
+                let: { facilities: '$facilities' }, //, config: '$config'
                 pipeline: [
-                  {
-                    $addFields: { config: '$$config' },
-                  },
+                  // {
+                  //   $addFields: { config: '$$config' },
+                  // },
                   {
                     $match: { $expr: { $in: ['$_id', '$$facilities'] } },
                   },
                   {
                     $unwind: '$geom.features',
                   },
-                  {
-                    $unwind: '$config',
-                  },
-                  {
-                    $addFields: {
-                      equal: { $cond: [{ $eq: ['$config._id', { $toString: '$_id' }] }, true, false] },
-                    },
-                  },
-                  {
-                    $match: { equal: true },
-                  },
-                  {
-                    $addFields: {
-                      'feature.properties': '$config',
-                    },
-                  },
+                  // {
+                  //   $unwind: '$config',
+                  // },
+                  // {
+                  //   $addFields: {
+                  //     equal: { $cond: [{ $eq: ['$config._id', { $toString: '$_id' }] }, true, false] },
+                  //   },
+                  // },
+                  // {
+                  //   $match: { equal: true },
+                  // },
+                  // {
+                  //   $addFields: {
+                  //     'feature.properties': '$config',
+                  //   },
+                  // },
                   {
                     $addFields: {
                       feature: {
@@ -524,6 +532,7 @@ class Map {
               type: 'FeatureCollection',
               features: multipolygon,
             };
+            redisClient.set(`${subdomain}_facilities`, JSON.stringify(multipolygon), 'EX', 2147483647);
             gcloud.uploadFilesCustomMap(multipolygon, 'facilities', subdomain).then((r) => {
               resolve(multipolygon);
             }).catch((e) => reject(e));
@@ -543,42 +552,42 @@ class Map {
                 subdomain,
               },
             },
-            {
-              $addFields: {
-                config: '$config.cls',
-              },
-            },
+            // {
+            //   $addFields: {
+            //     config: '$config.cls',
+            //   },
+            // },
             {
               $lookup: {
                 from: 'cls',
-                let: { cls: '$cls', config: '$config' },
+                let: { cls: '$cls' },
                 pipeline: [
-
-                  {
-                    $addFields: { config: '$$config' },
-                  },
+                  //
+                  // {
+                  //   $addFields: { config: '$$config' },
+                  // },
                   {
                     $match: { $expr: { $in: ['$_id', '$$cls'] } },
                   },
                   {
                     $unwind: '$geom.features',
                   },
-                  {
-                    $unwind: '$config',
-                  },
-                  {
-                    $addFields: {
-                      equal: { $cond: [{ $eq: ['$config._id', { $toString: '$_id' }] }, true, false] },
-                    },
-                  },
-                  {
-                    $match: { equal: true },
-                  },
-                  {
-                    $addFields: {
-                      'feature.properties': '$config',
-                    },
-                  },
+                  // {
+                  //   $unwind: '$config',
+                  // },
+                  // {
+                  //   $addFields: {
+                  //     equal: { $cond: [{ $eq: ['$config._id', { $toString: '$_id' }] }, true, false] },
+                  //   },
+                  // },
+                  // {
+                  //   $match: { equal: true },
+                  // },
+                  // {
+                  //   $addFields: {
+                  //     'feature.properties': '$config',
+                  //   },
+                  // },
                   {
                     $addFields: {
                       feature: {
@@ -618,6 +627,7 @@ class Map {
               type: 'FeatureCollection',
               features: multipoints,
             };
+            redisClient.set(`${subdomain}_cls`, JSON.stringify(multipoints), 'EX', 2147483647);
             gcloud.uploadFilesCustomMap(multipoints, 'cls', subdomain).then((r) => {
               resolve(multipoints);
             }).catch((e) => reject(e));
@@ -649,6 +659,7 @@ class Map {
               },
             ],
           ).toArray((err, d) => {
+            redisClient.set(`${subdomain}_info`, JSON.stringify(d), 'EX', 2147483647);
             gcloud.uploadFilesCustomMap(d, 'info', subdomain).then((r) => {
               resolve(d);
             }).catch((e) => reject(e));

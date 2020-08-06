@@ -64,8 +64,48 @@ module.exports = {
         .catch((e) => { response.err(res, e); });
     });
 
-    router.get(`${process.env._ROUTE}/map/v/:subdomain`, (req, res) => {
-
+    // get data for map
+    router.get(`${process.env._ROUTE}/map/get/cables/:subdomain`, (req, res) => {
+      controllers.maps.getCables(req.params.subdomain)
+        .then((r) => {
+          res.json(r);
+        })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.get(`${process.env._ROUTE}/map/get/cls/:subdomain`, (req, res) => {
+      controllers.maps.getCls(req.params.subdomain)
+        .then((r) => {
+          res.json(r);
+        })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.get(`${process.env._ROUTE}/map/get/ixps/:subdomain`, (req, res) => {
+      controllers.maps.getIxps(req.params.subdomain)
+        .then((r) => {
+          res.json(r);
+        })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.get(`${process.env._ROUTE}/map/get/facilities/:subdomain`, (req, res) => {
+      controllers.maps.getFacilities(req.params.subdomain)
+        .then((r) => {
+          res.json(r);
+        })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.get(`${process.env._ROUTE}/map/get/draw/:subdomain`, (req, res) => {
+      controllers.maps.getDraw(req.params.subdomain)
+        .then((r) => {
+          res.json(r);
+        })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.get(`${process.env._ROUTE}/map/get/info/:subdomain`, (req, res) => {
+      controllers.maps.getDataInfo(req.params.subdomain)
+        .then((r) => {
+          res.json(r);
+        })
+        .catch((e) => { response.err(res, e); });
     });
   },
 };

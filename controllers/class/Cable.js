@@ -762,9 +762,10 @@ class Cable {
     });
   }
 
-  search(user, search) {
+  search(user, search){
     return new Promise((resolve, reject) => {
       try {
+        this.model = require('../../models/cable.model');
         this.model().then((cable) => {
           const uuid = (search.psz === '1') ? adms(user) : {};
           cable.aggregate([
@@ -775,16 +776,16 @@ class Cable {
                 terrestrial: 1,
                 yours: 1,
                 alerts: 1,
+                deleted: 1,
               },
             },
             {
               $match: { $and: [{ name: { $regex: search.s, $options: 'i' } }, uuid, { deleted: { $ne: true } }] }, // , uuid, { deleted: { $ne: true } } { $and: [uuid, , { deleted: false }] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
-            { $sort: { name: 1, ours: -1 } },
+            { $sort: { name: 1, yours: -1 } },
             { $limit: 20 },
           ]).toArray((err, r) => {
-            console.log(err);
             resolve(r);
           });
         }).catch((e) => { reject({ m: e }); });
