@@ -762,7 +762,7 @@ class Cable {
     });
   }
 
-  search(user, search){
+  search(user, search) {
     return new Promise((resolve, reject) => {
       try {
         this.model = require('../../models/cable.model');
@@ -1544,6 +1544,27 @@ class Cable {
             res.json(await r.map((x) => x.name));
           });
         }).catch((e) => reject({ m: e }));
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  permanentDelete(usr, id, code) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (adms(usr) !== {}) {
+          if (code === process.env.securityCode) {
+            this.model().then((element) => {
+              element.deleteOne({ _id: new ObjectID(id), deleted: true }, (err, result) => {
+                if (err) reject({ m: err });
+                resolve({ m: 'Element deleted' });
+              });
+            });
+          } else {
+            reject({ m: 'Permissions denied' });
+          }
+        } else {
+          reject({ m: 'Permissions denied' });
+        }
       } catch (e) { reject({ m: e }); }
     });
   }

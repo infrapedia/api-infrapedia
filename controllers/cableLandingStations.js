@@ -23,4 +23,5 @@ module.exports = {
   listOfCables: (usr, ids) => CLS.listOfCables(usr, ids),
   listOfCLSbyCable: (usr, ids) => CLS.listOfCLSbyCable(usr, ids),
   checkName: (name) => CLS.checkName(name),
+  permanentDelete: (usr, id, code) => CLS.permanentDelete(usr, id, code),
 };

@@ -10,7 +10,8 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 #### 🏁1.9
 | Version  | Changes |
 | ------------- | ------------- |
-|1.9.4.20200806|- Send an email when the user makes an offer |
+|1.9.5.20200810|- Permanent delete for elements |
+|1.9.4.20200810|- Send an email when the user makes an offer |
 |1.9.3.20200806|- Resolved issue with the search of cables, create endpoints for get data by API for maps, resolved the data of maps using REDIS |
 |1.9.0.20200802|- Problems resolved with MongoDb connection |
 

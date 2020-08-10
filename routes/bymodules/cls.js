@@ -80,5 +80,10 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+    router.delete(`${process.env._ROUTE}/auth/cls/permanentdelete/:id`, (req, res) => {
+      controllers.cableLandingStations.permanentDelete(req.headers.userid, req.params.id, req.body.code)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
   },
 };

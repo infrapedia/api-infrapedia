@@ -27,4 +27,5 @@ module.exports = {
   relationsTransfer: () => Cable.relationsTransfer(),
   checkName: (name) => Cable.checkName(name),
   subSealistByName: (req, res) => Cable.subSealistByName(req, res),
+  permanentDelete: (usr, id, code) => Cable.permanentDelete(usr, id, code),
 };
