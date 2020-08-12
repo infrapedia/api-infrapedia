@@ -49,4 +49,5 @@ module.exports = {
       resolve(JSON.parse(reply));
     });
   }),
+  getDataConfig: (subdomain) => Map.getConfig(subdomain),
 };

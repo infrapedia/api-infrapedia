@@ -189,7 +189,7 @@ class Map {
                 salePhone: data.salePhone,
                 config: JSON.parse(data.config),
                 logos: data.logos,
-                draw: data.draw,
+                draw: JSON.parse(data.draw),
                 rgDate: luxon.DateTime.utc(),
               }, (err, r) => {
                 if (err) reject({ m: err });
@@ -226,6 +226,18 @@ class Map {
           });
         }).catch((e) => {});
       } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  getConfig(subdomain) {
+    return new Promise((resolve, reject) => {
+      this.model().then((map) => {
+        map.aggregate([{ $match: { subdomain } }, { $project: { config: 1 } }])
+          .toArray((err, r) => {
+            if (err) reject(err);
+            resolve(r);
+          });
+      });
     });
   }
 
@@ -466,7 +478,7 @@ class Map {
             {
               $lookup: {
                 from: 'facilities',
-                let: { facilities: '$facilities' }, //, config: '$config'
+                let: { facilities: '$facilities' }, // , config: '$config'
                 pipeline: [
                   // {
                   //   $addFields: { config: '$$config' },

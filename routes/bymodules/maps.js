@@ -107,5 +107,12 @@ module.exports = {
         })
         .catch((e) => { response.err(res, e); });
     });
+    router.get(`${process.env._ROUTE}/map/get/config/:subdomain`, (req, res) => {
+      controllers.maps.getDataConfig(req.params.subdomain)
+        .then((r) => {
+          res.json(r);
+        })
+        .catch((e) => { response.err(res, e); });
+    });
   },
 };
