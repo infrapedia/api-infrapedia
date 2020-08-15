@@ -447,9 +447,54 @@ class CLS {
                   as: 'owners',
                 },
               },
+              {
+                $unwind: '$geom.features',
+              },
+              {
+                $addFields: {
+                  'geom.features.properties._id': '$_id',
+                },
+              },
+              {
+                $group: {
+                  _id: '$_id',
+                  uuid: { $first: '$uuid' },
+                  country: { $first: '$country' },
+                  notes: { $first: '$notes' },
+                  state: { $first: '$state' },
+                  slug: { $first: '$slug' },
+                  tags: { $first: '$tags' },
+                  rgDate: { $first: '$rgDate' },
+                  uDate: { $first: '$uDate' },
+                  status: { $first: '$status' },
+                  deleted: { $first: '$deleted' },
+                  owners: { $first: '$owners' },
+                  cables: { $first: '$cables' },
+                  features: {
+                    $push: '$geom.features',
+                  },
+                },
+              },
+              {
+                $addFields: {
+                  geom: {
+                    type: 'FeatureCollection',
+                    features: '$features',
+                  },
+                },
+              },
+              {
+                $project: {
+                  features: 0,
+                },
+              },
             ]).toArray((err, o) => {
               if (err) reject(err);
-              resolve({ m: 'Loaded', r: o[0] });
+              if (o !== undefined) {
+                resolve({ m: 'Loaded', r: o[0] });
+              } else {
+                reject({ m: 'Not found' });
+              }
             });
           });
         } else { resolve('Not user found'); }
@@ -521,7 +566,7 @@ class CLS {
               },
             },
             {
-              $match: { $and: [{ name: { $regex: search.s, $options: 'i' } }, uuid, { deleted: { $ne: true } }] }, // { $and: [uuid, , { deleted: false }] },
+              $match: { $and: [{ $or: [{ name: { $regex: search.s, $options: 'i' } }, { country: { $regex: search.s, $options: 'i' } }] }, uuid, { deleted: { $ne: true } }] }, // { $and: [uuid, , { deleted: false }] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } }, name: { $concat: ['$name', ', ', '$country'] } } },
             {
@@ -934,6 +979,5 @@ class CLS {
       } catch (e) { reject({ m: e }); }
     });
   }
-
 }
 module.exports = CLS;

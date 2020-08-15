@@ -688,6 +688,11 @@ class Cable {
                 cable_id: new ObjectID(id),
               },
             },
+            {
+              $addFields: {
+                'properties._id': '$_id',
+              },
+            },
           ], {
             allowDiskUse: true,
           }).toArray((err, s) => {
@@ -704,14 +709,19 @@ class Cable {
       try {
         if (user !== undefined || user !== '') {
           Promise.all([this.cableInformation(id), this.segments(id)]).then((r) => {
-            r[0][0].geom = {
-              type: 'FeatureCollection',
-              features: r[1],
-            };
-            resolve({
-              m: 'Loaded',
-              r: r[0][0],
-            });
+            if (r[0][0] !== undefined){
+              r[0][0].geom = {
+                type: 'FeatureCollection',
+                features: r[1],
+              };
+              resolve({
+                m: 'Loaded',
+                r: r[0][0],
+              });
+            } else {
+              reject({ m: 'Not found' });
+            }
+
           }).catch((e) => { console.log(e); reject({ m: e }); });
         } else { resolve('Not user found'); }
       } catch (e) { reject({ m: e }); }
@@ -1481,7 +1491,6 @@ class Cable {
   createDATA() {
     return new Promise((resolve, reject) => {
       try {
-        console.log('Create data cable');
         this.model().then((bboxQuery) => {
           bboxQuery.aggregate([{
             $project: {
@@ -1491,7 +1500,6 @@ class Cable {
             if (err) reject(err);
             else if (results.length !== []) {
               await results.map((element) => {
-                console.log(element._id);
                 this.view('', element._id);
               });
             }
