@@ -709,7 +709,7 @@ class Cable {
       try {
         if (user !== undefined || user !== '') {
           Promise.all([this.cableInformation(id), this.segments(id)]).then((r) => {
-            if (r[0][0] !== undefined){
+            if (r[0][0] !== undefined) {
               r[0][0].geom = {
                 type: 'FeatureCollection',
                 features: r[1],
@@ -721,7 +721,6 @@ class Cable {
             } else {
               reject({ m: 'Not found' });
             }
-
           }).catch((e) => { console.log(e); reject({ m: e }); });
         } else { resolve('Not user found'); }
       } catch (e) { reject({ m: e }); }
@@ -807,6 +806,25 @@ class Cable {
     return new Promise((resolve, reject) => {
       try {
         const uuid = (search.psz === '1') ? adms(user) : {};
+        let sortBy = {};
+        if (search.sortBy !== undefined || search.sortBy !== '') {
+          // eslint-disable-next-line no-unused-vars
+          switch (search.sortBy) {
+            case 'name':
+              sortBy = { name: 1, yours: -1 };
+              break;
+            case 'creatAt':
+              sortBy = { rgDate: 1, yours: -1 };
+              break;
+            case 'updateAt':
+              sortBy = { uDate: 1, yours: -1 };
+              break;
+            default:
+              sortBy = { name: 1, yours: -1 };
+              break;
+          }
+        } else { sortBy = { name: 1, yours: -1 }; }
+
         this.model().then((cable) => {
           cable.aggregate([
             {
@@ -823,7 +841,7 @@ class Cable {
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {
-              $sort: { name: 1, yours: -1 },
+              $sort: sortBy,
             },
             {
               $lookup: {
@@ -853,6 +871,24 @@ class Cable {
     return new Promise((resolve, reject) => {
       try {
         const uuid = (search.psz === '1') ? adms(user) : {};
+        let sortBy = {};
+        if (search.sortBy !== undefined || search.sortBy !== '') {
+          // eslint-disable-next-line no-unused-vars
+          switch (search.sortBy) {
+            case 'name':
+              sortBy = { name: 1, yours: -1 };
+              break;
+            case 'creatAt':
+              sortBy = { rgDate: 1, yours: -1 };
+              break;
+            case 'updateAt':
+              sortBy = { uDate: 1, yours: -1 };
+              break;
+            default:
+              sortBy = { name: 1, yours: -1 };
+              break;
+          }
+        } else { sortBy = { name: 1, yours: -1 }; }
         this.model().then((cable) => {
           cable.aggregate([
             {
@@ -869,7 +905,7 @@ class Cable {
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {
-              $sort: { name: 1, yours: -1 },
+              $sort: sortBy,
             },
             {
               $lookup: {

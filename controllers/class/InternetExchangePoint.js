@@ -489,9 +489,26 @@ class IXP {
   search(user, search) {
     return new Promise((resolve, reject) => {
       try {
-        console.log(search.s);
         this.model().then((ixp) => {
           const uuid = (search.psz === '1') ? adms(user) : {};
+          let sortBy = {};
+          if (search.sortBy !== undefined || search.sortBy !== '') {
+            // eslint-disable-next-line no-unused-vars
+            switch (search.sortBy) {
+              case 'name':
+                sortBy = { name: 1 };
+                break;
+              case 'creatAt':
+                sortBy = { rgDate: 1 };
+                break;
+              case 'updateAt':
+                sortBy = { uDate: 1 };
+                break;
+              default:
+                sortBy = { name: 1 };
+                break;
+            }
+          } else { sortBy = { name: 1 }; }
           ixp.aggregate([
             {
               $project: {
@@ -499,11 +516,14 @@ class IXP {
                 name: 1,
                 nameLong: 1,
                 alerts: 1,
+                deleted: 1,
               },
             },
-            { $sort: { name: 1 } },
             {
               $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { nameLong: { $regex: search.s, $options: 'i' } }, { deleted: { $ne: true } }] },
+            },
+            {
+              $sort: sortBy,
             },
             {
               $lookup: {

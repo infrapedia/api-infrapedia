@@ -408,6 +408,24 @@ class Network {
       try {
         this.model().then((cable) => {
           const uuid = (search.psz === '1') ? adms(user) : {};
+          let sortBy = {};
+          if (search.sortBy !== undefined || search.sortBy !== '') {
+            // eslint-disable-next-line no-unused-vars
+            switch (search.sortBy) {
+              case 'name':
+                sortBy = { name: 1, yours: -1 };
+                break;
+              case 'creatAt':
+                sortBy = { rgDate: 1, yours: -1 };
+                break;
+              case 'updateAt':
+                sortBy = { uDate: 1, yours: -1 };
+                break;
+              default:
+                sortBy = { name: 1, yours: -1 };
+                break;
+            }
+          } else { sortBy = { name: 1, yours: -1 }; }
           cable.aggregate([
             {
               $project: {
@@ -415,17 +433,15 @@ class Network {
                 name: 1,
                 yours: 1,
                 alerts: 1,
+                deleted: 1,
               },
-            },
-            {
-              $sort: { name: 1 },
             },
             {
               $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { deleted: { $ne: true } }] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {
-              $sort: { name: 1, yours: -1 },
+              $sort: sortBy,
             },
             {
               $lookup: {

@@ -775,10 +775,32 @@ class Facility {
       try {
         this.model().then((facility) => {
           const uuid = (search.psz === '1') ? adms(user) : {};
+          let sortBy = {};
+          if (search.sortBy !== undefined || search.sortBy !== '') {
+            // eslint-disable-next-line no-unused-vars
+            switch (search.sortBy) {
+              case 'name':
+                sortBy = { name: 1 };
+                break;
+              case 'creatAt':
+                sortBy = { rgDate: 1 };
+                break;
+              case 'updateAt':
+                sortBy = { uDate: 1 };
+                break;
+              default:
+                sortBy = { name: 1 };
+                break;
+            }
+          } else { sortBy = { name: 1 }; }
           facility.aggregate([
-            { $sort: { name: 1 } },
             {
-              $addFields: { name: { $toLower: '$name' } },
+              $project: {
+                _id: 1,
+                name: 1,
+                alerts: 1,
+                deleted: 1,
+              },
             },
             {
               $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { deleted: false }] },
@@ -800,13 +822,8 @@ class Facility {
               $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
             },
             {
-              $project: {
-                _id: 1,
-                name: 1,
-                alerts: 1,
-              },
+              $sort: sortBy,
             },
-            { $sort: { name: 1 } },
             { $limit: 20 },
           ]).toArray((err, r) => {
             resolve(r);
