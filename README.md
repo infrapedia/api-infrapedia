@@ -10,6 +10,7 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 #### 🏁1.9
 | Version  | Changes |
 | ------------- | ------------- |
+|1.9.8.1.20200816|- Owners: adding name information in features (CLS, Facilities) |
 |1.9.8.20200816|- Owners: adding _id information in features (IXPS, Facilities) |
 |1.9.7.20200812|- Owners: adding _id information in features (SubSea Cables, Networks Terrestrial, CLS) |
 |1.9.6.20200812|- Get information of config (Custom Map) |

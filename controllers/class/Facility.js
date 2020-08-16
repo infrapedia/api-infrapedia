@@ -669,6 +669,7 @@ class Facility {
               },
               {
                 $addFields: {
+                  'geom.features.properties.name': '$name',
                   'geom.features.properties._id': '$_id',
                 },
               },

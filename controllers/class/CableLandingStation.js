@@ -452,6 +452,7 @@ class CLS {
               },
               {
                 $addFields: {
+                  'geom.features.properties.name': '$name',
                   'geom.features.properties._id': '$_id',
                 },
               },
@@ -459,6 +460,7 @@ class CLS {
                 $group: {
                   _id: '$_id',
                   uuid: { $first: '$uuid' },
+                  name: { $first: '$name' },
                   country: { $first: '$country' },
                   notes: { $first: '$notes' },
                   state: { $first: '$state' },
