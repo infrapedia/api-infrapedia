@@ -664,7 +664,50 @@ class Facility {
                   as: 'owners',
                 },
               },
+              {
+                $unwind: '$geom.features',
+              },
+              {
+                $addFields: {
+                  'geom.features.properties._id': '$_id',
+                },
+              },
+              {
+                $group: {
+                  _id: '$_id',
+                  name: { $first: '$name' },
+                  notes: { $first: '$notes' },
+                  point: { $first: '$point' },
+                  address: { $first: '$address' },
+                  website: { $first: '$website' },
+                  ixps: { $first: '$ixps' },
+                  tags: { $first: '$tags' },
+                  t: { $first: '$t' },
+                  startDate: { $first: '$startDate' },
+                  building: { $first: '$building' },
+                  rgDate: { $first: '$rgDate' },
+                  uDate: { $first: '$uDate' },
+                  status: { $first: '$status' },
+                  deleted: { $first: '$deleted' },
+                  owners: { $first: '$owners' },
+                  features: { $push: '$geom.features' },
+                },
+              },
+              {
+                $addFields: {
+                  geom: {
+                    type: 'FeatureCollection',
+                    features: '$features',
+                  },
+                },
+              },
+              {
+                $project: {
+                  features: 0,
+                },
+              },
             ]).toArray((err, o) => {
+              console.log(err);
               if (err) reject(err);
               resolve({ m: 'Loaded', r: o[0] });
             });

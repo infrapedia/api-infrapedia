@@ -1,7 +1,7 @@
 const luxon = require('luxon');
 const GJV = require('geojson-validation');
-const redisClient = require('../../config/redis');
 const { ObjectID } = require('mongodb');
+const redisClient = require('../../config/redis');
 const countries = require('../helpers/isoCountries');
 
 const { adms } = require('../helpers/adms');
@@ -367,7 +367,7 @@ class IXP {
                 },
               ]).toArray((err, c) => {
                 if (err) reject(err);
-                redisClient.set(`v_ixp_${id}`, JSON.stringify({ m: 'Loaded', r: c }), 'EX', 172800)
+                redisClient.set(`v_ixp_${id}`, JSON.stringify({ m: 'Loaded', r: c }), 'EX', 172800);
                 resolve({ m: 'Loaded', r: c });
               });
             });
@@ -424,10 +424,28 @@ class IXP {
         if (user !== undefined || user !== '') {
           this.model().then((ixp) => {
             id = new ObjectID(id);
+            console.log(id);
             ixp.aggregate([
               {
                 $match: {
                   _id: id,
+                },
+              },
+              {
+                $addFields: {
+                  geom: {
+                    type: 'Feature',
+                    properties: {
+                      name: '$name',
+                      _id: '$_id',
+                    },
+                    geometry: '$geom',
+                  },
+                },
+              },
+              {
+                $project: {
+                  'geom.coordinates': 0,
                 },
               },
             ]).toArray((err, o) => {
