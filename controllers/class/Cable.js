@@ -786,6 +786,8 @@ class Cable {
                 yours: 1,
                 alerts: 1,
                 deleted: 1,
+                rgDate: 1,
+                uDate: 1,
               },
             },
             {
@@ -898,6 +900,8 @@ class Cable {
                 terrestrial: 1,
                 yours: 1,
                 alerts: 1,
+                rgDate: 1,
+                uDate: 1,
               },
             },
             {

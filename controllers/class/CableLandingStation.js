@@ -575,6 +575,8 @@ class CLS {
                 yours: 1,
                 alerts: 1,
                 deleted: 1,
+                rgDate: 1,
+                uDate: 1,
               },
             },
             {

@@ -173,6 +173,8 @@ class Facility {
                   website: 1,
                   uuid: 1,
                   deleted: 1,
+                  rgDate: 1,
+                  uDate: 1,
                 },
               },
               {
@@ -800,6 +802,8 @@ class Facility {
                 name: 1,
                 alerts: 1,
                 deleted: 1,
+                rgDate: 1,
+                uDate: 1,
               },
             },
             {

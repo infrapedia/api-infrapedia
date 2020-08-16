@@ -136,6 +136,8 @@ class IXP {
                   techPhone: 1,
                   uuid: 1,
                   deleted: 1,
+                  rgDate: 1,
+                  uDate: 1,
                 },
               },
               {

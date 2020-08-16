@@ -293,6 +293,8 @@ class Organization {
                 yours: 1,
                 logo: 1,
                 deleted: 1,
+                rgDate: 1,
+                uDate: 1,
               },
             },
             {
