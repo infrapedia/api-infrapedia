@@ -10,6 +10,7 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 #### 🏁1.9
 | Version  | Changes |
 | ------------- | ------------- |
+|1.9.9.1.20200816|- Problem with the endpoints for permanent delete |
 |1.9.9.20200816|- Sorting data on search results and property deleted on the list table |
 |1.9.8.1.20200816|- Owners: adding name information in features (CLS, Facilities) |
 |1.9.8.20200816|- Owners: adding _id information in features (IXPS, Facilities) |
