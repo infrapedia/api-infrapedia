@@ -1,7 +1,7 @@
 const luxon = require('luxon');
 const GJV = require('geojson-validation');
-const redisClient = require('../../config/redis');
 const { ObjectID } = require('mongodb');
+const redisClient = require('../../config/redis');
 const countries = require('../helpers/isoCountries');
 
 const { adms } = require('../helpers/adms');
@@ -136,6 +136,8 @@ class IXP {
                   techPhone: 1,
                   uuid: 1,
                   deleted: 1,
+                  rgDate: 1,
+                  uDate: 1,
                 },
               },
               {
@@ -367,7 +369,7 @@ class IXP {
                 },
               ]).toArray((err, c) => {
                 if (err) reject(err);
-                redisClient.set(`v_ixp_${id}`, JSON.stringify({ m: 'Loaded', r: c }), 'EX', 172800)
+                redisClient.set(`v_ixp_${id}`, JSON.stringify({ m: 'Loaded', r: c }), 'EX', 172800);
                 resolve({ m: 'Loaded', r: c });
               });
             });
@@ -424,10 +426,28 @@ class IXP {
         if (user !== undefined || user !== '') {
           this.model().then((ixp) => {
             id = new ObjectID(id);
+            console.log(id);
             ixp.aggregate([
               {
                 $match: {
                   _id: id,
+                },
+              },
+              {
+                $addFields: {
+                  geom: {
+                    type: 'Feature',
+                    properties: {
+                      name: '$name',
+                      _id: '$_id',
+                    },
+                    geometry: '$geom',
+                  },
+                },
+              },
+              {
+                $project: {
+                  'geom.coordinates': 0,
                 },
               },
             ]).toArray((err, o) => {
@@ -471,9 +491,26 @@ class IXP {
   search(user, search) {
     return new Promise((resolve, reject) => {
       try {
-        console.log(search.s);
         this.model().then((ixp) => {
           const uuid = (search.psz === '1') ? adms(user) : {};
+          let sortBy = {};
+          if (search.sortBy !== undefined || search.sortBy !== '') {
+            // eslint-disable-next-line no-unused-vars
+            switch (search.sortBy) {
+              case 'name':
+                sortBy = { name: 1 };
+                break;
+              case 'creatAt':
+                sortBy = { rgDate: 1 };
+                break;
+              case 'updateAt':
+                sortBy = { uDate: 1 };
+                break;
+              default:
+                sortBy = { name: 1 };
+                break;
+            }
+          } else { sortBy = { name: 1 }; }
           ixp.aggregate([
             {
               $project: {
@@ -481,11 +518,14 @@ class IXP {
                 name: 1,
                 nameLong: 1,
                 alerts: 1,
+                deleted: 1,
               },
             },
-            { $sort: { name: 1 } },
             {
               $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { nameLong: { $regex: search.s, $options: 'i' } }, { deleted: { $ne: true } }] },
+            },
+            {
+              $sort: sortBy,
             },
             {
               $lookup: {
@@ -721,6 +761,27 @@ class IXP {
       } catch (e) {
         reject({ m: e });
       }
+    });
+  }
+
+  permanentDelete(usr, id, code) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (adms(usr) !== {}) {
+          if (code === process.env.securityCode) {
+            this.model().then((element) => {
+              element.deleteOne({ _id: new ObjectID(id), deleted: true }, (err, result) => {
+                if (err) reject({ m: err });
+                resolve({ m: 'Element deleted' });
+              });
+            });
+          } else {
+            reject({ m: 'Permissions denied' });
+          }
+        } else {
+          reject({ m: 'Permissions denied' });
+        }
+      } catch (e) { reject({ m: e }); }
     });
   }
 }

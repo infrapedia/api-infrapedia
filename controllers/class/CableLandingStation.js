@@ -447,9 +447,56 @@ class CLS {
                   as: 'owners',
                 },
               },
+              {
+                $unwind: '$geom.features',
+              },
+              {
+                $addFields: {
+                  'geom.features.properties.name': '$name',
+                  'geom.features.properties._id': '$_id',
+                },
+              },
+              {
+                $group: {
+                  _id: '$_id',
+                  uuid: { $first: '$uuid' },
+                  name: { $first: '$name' },
+                  country: { $first: '$country' },
+                  notes: { $first: '$notes' },
+                  state: { $first: '$state' },
+                  slug: { $first: '$slug' },
+                  tags: { $first: '$tags' },
+                  rgDate: { $first: '$rgDate' },
+                  uDate: { $first: '$uDate' },
+                  status: { $first: '$status' },
+                  deleted: { $first: '$deleted' },
+                  owners: { $first: '$owners' },
+                  cables: { $first: '$cables' },
+                  features: {
+                    $push: '$geom.features',
+                  },
+                },
+              },
+              {
+                $addFields: {
+                  geom: {
+                    type: 'FeatureCollection',
+                    features: '$features',
+                  },
+                },
+              },
+              {
+                $project: {
+                  features: 0,
+                },
+              },
             ]).toArray((err, o) => {
               if (err) reject(err);
-              resolve({ m: 'Loaded', r: o[0] });
+              if (o !== undefined) {
+                resolve({ m: 'Loaded', r: o[0] });
+              } else {
+                reject({ m: 'Not found' });
+              }
             });
           });
         } else { resolve('Not user found'); }
@@ -500,6 +547,24 @@ class CLS {
     return new Promise((resolve, reject) => {
       try {
         const uuid = (search.psz === '1') ? adms(user) : {};
+        let sortBy = {};
+        if (search.sortBy !== undefined || search.sortBy !== '') {
+          // eslint-disable-next-line no-unused-vars
+          switch (search.sortBy) {
+            case 'name':
+              sortBy = { name: 1, yours: -1 };
+              break;
+            case 'creatAt':
+              sortBy = { rgDate: 1, yours: -1 };
+              break;
+            case 'updateAt':
+              sortBy = { uDate: 1, yours: -1 };
+              break;
+            default:
+              sortBy = { name: 1, yours: -1 };
+              break;
+          }
+        } else { sortBy = { name: 1, yours: -1 }; }
         this.model().then((get) => {
           get.aggregate([
             {
@@ -509,10 +574,13 @@ class CLS {
                 country: { $ifNull: ['$country', ''] },
                 yours: 1,
                 alerts: 1,
+                deleted: 1,
+                rgDate: 1,
+                uDate: 1,
               },
             },
             {
-              $sort: { name: 1 },
+              $sort: sortBy,
             },
             {
               $addFields: {
@@ -521,7 +589,7 @@ class CLS {
               },
             },
             {
-              $match: { $and: [{ name: { $regex: search.s, $options: 'i' } }, uuid, { deleted: { $ne: true } }] }, // { $and: [uuid, , { deleted: false }] },
+              $match: { $and: [{ $or: [{ name: { $regex: search.s, $options: 'i' } }, { country: { $regex: search.s, $options: 'i' } }] }, uuid, { deleted: { $ne: true } }] }, // { $and: [uuid, , { deleted: false }] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } }, name: { $concat: ['$name', ', ', '$country'] } } },
             {
@@ -780,8 +848,11 @@ class CLS {
   getMultiElementsGeom(ids) {
     return new Promise((resolve, reject) => {
       try {
-        if (!Array.isArray(ids) || ids.length === 0) resolve({ m: 'Loaded', r: false });
-        ids = ids.map((i) => new ObjectID(i));
+        console.log(typeof ids);
+        if (!Array.isArray(ids) && typeof ids !== 'object') resolve({ m: 'Loaded', r: false });
+        ids = (Array.isArray(ids))
+          ? ids.map((i) => new ObjectID(i))
+          : Object.keys(ids).map((key) => new ObjectID(ids[key]));
         this.model().then((cls) => {
           cls.aggregate([
             {
@@ -911,6 +982,27 @@ class CLS {
       } catch (e) {
         reject({ m: e });
       }
+    });
+  }
+
+  permanentDelete(usr, id, code) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (adms(usr) !== {}) {
+          if (code === process.env.securityCode) {
+            this.model().then((element) => {
+              element.deleteOne({ _id: new ObjectID(id), deleted: true }, (err, result) => {
+                if (err) reject({ m: err });
+                resolve({ m: 'Element deleted' });
+              });
+            });
+          } else {
+            reject({ m: 'Permissions denied' });
+          }
+        } else {
+          reject({ m: 'Permissions denied' });
+        }
+      } catch (e) { reject({ m: e }); }
     });
   }
 }

@@ -85,6 +85,12 @@ module.exports = {
     router.get(`${process.env._ROUTE}/organization/facilities/:id`, (req, res) => {
       controllers.organizations.associationsFacilities(req.params.id)
         .then((r) => { response.success(res, r, false); })
-        .catch((e) => { response.err(res, e); });    });
+        .catch((e) => { response.err(res, e); }); });
+
+    router.delete(`${process.env._ROUTE}/auth/organization/permanentdelete/:id`, (req, res) => {
+      controllers.organizations.permanentDelete(req.headers.userid, req.params.id, req.body.code)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
   },
 };

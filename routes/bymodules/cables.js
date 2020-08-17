@@ -90,5 +90,10 @@ module.exports = {
     router.get(`${process.env._ROUTE}/cables/subseacables`, (req, res) => {
       controllers.cables.subSealistByName(res, req);
     });
+    router.delete(`${process.env._ROUTE}/auth/cables/permanentdelete/:id`, (req, res) => {
+      controllers.cables.permanentDelete(req.headers.userid, req.params.id, req.body.code)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
   },
 };

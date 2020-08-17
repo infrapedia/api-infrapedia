@@ -20,4 +20,5 @@ module.exports = {
   list: (usr, page) => IXP.list(usr, page),
   delete: (usr, id) => IXP.delete(usr, id),
   checkName: (name) => IXP.checkName(name),
+  permanentDelete: (usr, id, code) => IXP.permanentDelete(usr, id, code),
 };

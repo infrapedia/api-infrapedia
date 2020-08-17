@@ -6,10 +6,26 @@ We're using NodeJS version v10.19.0
 If we have a problem installing the SQLite we can use sudo npm install --unsafe-perm=true --allow-root
 
 ## Versions
+## V.2
+#### 🏁2.0
+| Version  | Changes |
+| ------------- | ------------- |
+|2.0.20200817|- Fixed problem with cables with multiples CLS |
+
 ## V.1
 #### 🏁1.9
 | Version  | Changes |
 | ------------- | ------------- |
+|1.9.9.2.20200816|- Add RgDate and Udate to the search service response |
+|1.9.9.1.20200816|- Problem with the endpoints for permanent delete |
+|1.9.9.20200816|- Sorting data on search results and property deleted on the list table |
+|1.9.8.1.20200816|- Owners: adding name information in features (CLS, Facilities) |
+|1.9.8.20200816|- Owners: adding _id information in features (IXPS, Facilities) |
+|1.9.7.20200812|- Owners: adding _id information in features (SubSea Cables, Networks Terrestrial, CLS) |
+|1.9.6.20200812|- Get information of config (Custom Map) |
+|1.9.5.20200810|- Permanent delete for elements |
+|1.9.4.20200810|- Send an email when the user makes an offer |
+|1.9.3.20200806|- Resolved issue with the search of cables, create endpoints for get data by API for maps, resolved the data of maps using REDIS |
 |1.9.0.20200802|- Problems resolved with MongoDb connection |
 
 #### 🏁1.8

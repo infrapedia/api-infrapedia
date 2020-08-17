@@ -10,4 +10,5 @@ module.exports = {
   view: (usr, id) => Network.view(usr, id),
   search: (usr, query) => Network.search(usr, query),
   checkName: (name) => Network.checkName(name),
+  permanentDelete: (usr, id, code) => Network.permanentDelete(usr, id, code),
 };

@@ -173,6 +173,8 @@ class Facility {
                   website: 1,
                   uuid: 1,
                   deleted: 1,
+                  rgDate: 1,
+                  uDate: 1,
                 },
               },
               {
@@ -664,7 +666,51 @@ class Facility {
                   as: 'owners',
                 },
               },
+              {
+                $unwind: '$geom.features',
+              },
+              {
+                $addFields: {
+                  'geom.features.properties.name': '$name',
+                  'geom.features.properties._id': '$_id',
+                },
+              },
+              {
+                $group: {
+                  _id: '$_id',
+                  name: { $first: '$name' },
+                  notes: { $first: '$notes' },
+                  point: { $first: '$point' },
+                  address: { $first: '$address' },
+                  website: { $first: '$website' },
+                  ixps: { $first: '$ixps' },
+                  tags: { $first: '$tags' },
+                  t: { $first: '$t' },
+                  startDate: { $first: '$startDate' },
+                  building: { $first: '$building' },
+                  rgDate: { $first: '$rgDate' },
+                  uDate: { $first: '$uDate' },
+                  status: { $first: '$status' },
+                  deleted: { $first: '$deleted' },
+                  owners: { $first: '$owners' },
+                  features: { $push: '$geom.features' },
+                },
+              },
+              {
+                $addFields: {
+                  geom: {
+                    type: 'FeatureCollection',
+                    features: '$features',
+                  },
+                },
+              },
+              {
+                $project: {
+                  features: 0,
+                },
+              },
             ]).toArray((err, o) => {
+              console.log(err);
               if (err) reject(err);
               resolve({ m: 'Loaded', r: o[0] });
             });
@@ -731,10 +777,34 @@ class Facility {
       try {
         this.model().then((facility) => {
           const uuid = (search.psz === '1') ? adms(user) : {};
+          let sortBy = {};
+          if (search.sortBy !== undefined || search.sortBy !== '') {
+            // eslint-disable-next-line no-unused-vars
+            switch (search.sortBy) {
+              case 'name':
+                sortBy = { name: 1 };
+                break;
+              case 'creatAt':
+                sortBy = { rgDate: 1 };
+                break;
+              case 'updateAt':
+                sortBy = { uDate: 1 };
+                break;
+              default:
+                sortBy = { name: 1 };
+                break;
+            }
+          } else { sortBy = { name: 1 }; }
           facility.aggregate([
-            { $sort: { name: 1 } },
             {
-              $addFields: { name: { $toLower: '$name' } },
+              $project: {
+                _id: 1,
+                name: 1,
+                alerts: 1,
+                deleted: 1,
+                rgDate: 1,
+                uDate: 1,
+              },
             },
             {
               $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { deleted: false }] },
@@ -756,13 +826,8 @@ class Facility {
               $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
             },
             {
-              $project: {
-                _id: 1,
-                name: 1,
-                alerts: 1,
-              },
+              $sort: sortBy,
             },
-            { $sort: { name: 1 } },
             { $limit: 20 },
           ]).toArray((err, r) => {
             resolve(r);
@@ -915,6 +980,27 @@ class Facility {
       } catch (e) {
         reject({m: e });
       }
+    });
+  }
+
+  permanentDelete(usr, id, code) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (adms(usr) !== {}) {
+          if (code === process.env.securityCode) {
+            this.model().then((element) => {
+              element.deleteOne({ _id: new ObjectID(id), deleted: true }, (err, result) => {
+                if (err) reject({ m: err });
+                resolve({ m: 'Element deleted' });
+              });
+            });
+          } else {
+            reject({ m: 'Permissions denied' });
+          }
+        } else {
+          reject({ m: 'Permissions denied' });
+        }
+      } catch (e) { reject({ m: e }); }
     });
   }
 }

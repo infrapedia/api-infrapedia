@@ -665,8 +665,9 @@ class Message {
                 priority: 1,
               },
             ).then(() => {
-              resolve({m: 'Your offer was sent'});
-            }).catch((e) => { cosnole.log(e); reject({m: e})});
+              sendEmail('', `${data.name} did an offer | ${data.subject} - ${new Date().getDate()}/${new Date().getMonth() + 1}`, `${data.message} <br /><br /><strong>${data.email} - ${data.name}</strong>`, data.email);
+              resolve({ m: 'Your offer was sent' });
+            }).catch((e) => { reject({ m: e }); });
           } else { console.log('Hi'); }
         }).catch((e) => { console.log(e); });
       } catch (e) { reject({}); }

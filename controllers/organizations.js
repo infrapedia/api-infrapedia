@@ -19,4 +19,5 @@ module.exports = {
   associationsTerrestrials: (id) => Organization.associationsTerrestrials(id),
   associationsIXPS: (id) => Organization.associationsIXPS(id),
   associationsFacilities: (id) => Organization.associationsFacilities(id),
+  permanentDelete: (usr, id, code) => Organization.permanentDelete(usr, id, code),
 };

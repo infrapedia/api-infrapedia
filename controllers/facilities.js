@@ -42,4 +42,5 @@ FROM facility`;
   list: (usr, page) => Facility.list(usr, page),
   delete: (usr, id) => Facility.delete(usr, id),
   checkName: (name) => Facility.checkName(name),
+  permanentDelete: (usr, id, code) => Facility.permanentDelete(usr, id, code),
 };

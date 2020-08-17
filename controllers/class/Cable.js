@@ -688,6 +688,11 @@ class Cable {
                 cable_id: new ObjectID(id),
               },
             },
+            {
+              $addFields: {
+                'properties._id': '$_id',
+              },
+            },
           ], {
             allowDiskUse: true,
           }).toArray((err, s) => {
@@ -704,14 +709,18 @@ class Cable {
       try {
         if (user !== undefined || user !== '') {
           Promise.all([this.cableInformation(id), this.segments(id)]).then((r) => {
-            r[0][0].geom = {
-              type: 'FeatureCollection',
-              features: r[1],
-            };
-            resolve({
-              m: 'Loaded',
-              r: r[0][0],
-            });
+            if (r[0][0] !== undefined) {
+              r[0][0].geom = {
+                type: 'FeatureCollection',
+                features: r[1],
+              };
+              resolve({
+                m: 'Loaded',
+                r: r[0][0],
+              });
+            } else {
+              reject({ m: 'Not found' });
+            }
           }).catch((e) => { console.log(e); reject({ m: e }); });
         } else { resolve('Not user found'); }
       } catch (e) { reject({ m: e }); }
@@ -765,6 +774,7 @@ class Cable {
   search(user, search) {
     return new Promise((resolve, reject) => {
       try {
+        this.model = require('../../models/cable.model');
         this.model().then((cable) => {
           const uuid = (search.psz === '1') ? adms(user) : {};
           cable.aggregate([
@@ -775,16 +785,18 @@ class Cable {
                 terrestrial: 1,
                 yours: 1,
                 alerts: 1,
+                deleted: 1,
+                rgDate: 1,
+                uDate: 1,
               },
             },
             {
               $match: { $and: [{ name: { $regex: search.s, $options: 'i' } }, uuid, { deleted: { $ne: true } }] }, // , uuid, { deleted: { $ne: true } } { $and: [uuid, , { deleted: false }] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
-            { $sort: { name: 1, ours: -1 } },
+            { $sort: { name: 1, yours: -1 } },
             { $limit: 20 },
           ]).toArray((err, r) => {
-            console.log(err);
             resolve(r);
           });
         }).catch((e) => { reject({ m: e }); });
@@ -796,6 +808,25 @@ class Cable {
     return new Promise((resolve, reject) => {
       try {
         const uuid = (search.psz === '1') ? adms(user) : {};
+        let sortBy = {};
+        if (search.sortBy !== undefined || search.sortBy !== '') {
+          // eslint-disable-next-line no-unused-vars
+          switch (search.sortBy) {
+            case 'name':
+              sortBy = { name: 1, yours: -1 };
+              break;
+            case 'creatAt':
+              sortBy = { rgDate: 1, yours: -1 };
+              break;
+            case 'updateAt':
+              sortBy = { uDate: 1, yours: -1 };
+              break;
+            default:
+              sortBy = { name: 1, yours: -1 };
+              break;
+          }
+        } else { sortBy = { name: 1, yours: -1 }; }
+
         this.model().then((cable) => {
           cable.aggregate([
             {
@@ -812,7 +843,7 @@ class Cable {
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {
-              $sort: { name: 1, yours: -1 },
+              $sort: sortBy,
             },
             {
               $lookup: {
@@ -842,6 +873,24 @@ class Cable {
     return new Promise((resolve, reject) => {
       try {
         const uuid = (search.psz === '1') ? adms(user) : {};
+        let sortBy = {};
+        if (search.sortBy !== undefined || search.sortBy !== '') {
+          // eslint-disable-next-line no-unused-vars
+          switch (search.sortBy) {
+            case 'name':
+              sortBy = { name: 1, yours: -1 };
+              break;
+            case 'creatAt':
+              sortBy = { rgDate: 1, yours: -1 };
+              break;
+            case 'updateAt':
+              sortBy = { uDate: 1, yours: -1 };
+              break;
+            default:
+              sortBy = { name: 1, yours: -1 };
+              break;
+          }
+        } else { sortBy = { name: 1, yours: -1 }; }
         this.model().then((cable) => {
           cable.aggregate([
             {
@@ -851,6 +900,8 @@ class Cable {
                 terrestrial: 1,
                 yours: 1,
                 alerts: 1,
+                rgDate: 1,
+                uDate: 1,
               },
             },
             {
@@ -858,7 +909,7 @@ class Cable {
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {
-              $sort: { name: 1, yours: -1 },
+              $sort: sortBy,
             },
             {
               $lookup: {
@@ -1480,7 +1531,6 @@ class Cable {
   createDATA() {
     return new Promise((resolve, reject) => {
       try {
-        console.log('Create data cable');
         this.model().then((bboxQuery) => {
           bboxQuery.aggregate([{
             $project: {
@@ -1490,7 +1540,6 @@ class Cable {
             if (err) reject(err);
             else if (results.length !== []) {
               await results.map((element) => {
-                console.log(element._id);
                 this.view('', element._id);
               });
             }
@@ -1543,6 +1592,27 @@ class Cable {
             res.json(await r.map((x) => x.name));
           });
         }).catch((e) => reject({ m: e }));
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  permanentDelete(usr, id, code) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (adms(usr) !== {}) {
+          if (code === process.env.securityCode) {
+            this.model().then((element) => {
+              element.deleteOne({ _id: new ObjectID(id), deleted: true }, (err, result) => {
+                if (err) reject({ m: err });
+                resolve({ m: 'Element deleted' });
+              });
+            });
+          } else {
+            reject({ m: 'Permissions denied' });
+          }
+        } else {
+          reject({ m: 'Permissions denied' });
+        }
       } catch (e) { reject({ m: e }); }
     });
   }
