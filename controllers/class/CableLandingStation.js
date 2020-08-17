@@ -848,8 +848,11 @@ class CLS {
   getMultiElementsGeom(ids) {
     return new Promise((resolve, reject) => {
       try {
-        if (!Array.isArray(ids) || ids.length === 0) resolve({ m: 'Loaded', r: false });
-        ids = ids.map((i) => new ObjectID(i));
+        console.log(typeof ids);
+        if (!Array.isArray(ids) && typeof ids !== 'object') resolve({ m: 'Loaded', r: false });
+        ids = (Array.isArray(ids))
+          ? ids.map((i) => new ObjectID(i))
+          : Object.keys(ids).map((key) => new ObjectID(ids[key]));
         this.model().then((cls) => {
           cls.aggregate([
             {

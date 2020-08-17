@@ -1,6 +1,6 @@
 {
   "name": "api-infrapedia",
-  "version": "1.9.9",
+  "version": "2.0",
   "description": "Api for infrapedia",
   "main": "app.js",
   "scripts": {
@@ -78,6 +78,7 @@
     "redis": "^2.8.0",
     "request": "^2.88.2",
     "saslprep": "^1.0.3",
+    "supercluster": "^7.1.0",
     "swagger-jsdoc": "^3.4.0",
     "swagger-ui-express": "^4.1.2",
     "togeojson": "^0.16.0",

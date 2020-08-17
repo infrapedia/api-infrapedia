@@ -6,6 +6,12 @@ We're using NodeJS version v10.19.0
 If we have a problem installing the SQLite we can use sudo npm install --unsafe-perm=true --allow-root
 
 ## Versions
+## V.2
+#### 🏁2.0
+| Version  | Changes |
+| ------------- | ------------- |
+|2.0.20200817|- Fixed problem with cables with multiples CLS |
+
 ## V.1
 #### 🏁1.9
 | Version  | Changes |
