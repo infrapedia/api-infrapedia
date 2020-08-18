@@ -781,14 +781,23 @@ class Facility {
           if (search.sortBy !== undefined || search.sortBy !== '') {
             // eslint-disable-next-line no-unused-vars
             switch (search.sortBy) {
-              case 'name':
+              case 'nameAsc':
                 sortBy = { name: 1 };
                 break;
-              case 'creatAt':
+              case 'nameDesc':
+                sortBy = { name: -1 };
+                break;
+              case 'creatAtAsc':
                 sortBy = { rgDate: 1 };
                 break;
-              case 'updateAt':
+              case 'creatAtDesc':
+                sortBy = { rgDate: -1 };
+                break;
+              case 'updateAtAsc':
                 sortBy = { uDate: 1 };
+                break;
+              case 'updateAtDesc':
+                sortBy = { uDate: -1 };
                 break;
               default:
                 sortBy = { name: 1 };
@@ -986,7 +995,7 @@ class Facility {
   permanentDelete(usr, id, code) {
     return new Promise((resolve, reject) => {
       try {
-        if (adms(usr) !== {}) {
+        if (adms(usr) === {}) {
           if (code === process.env.securityCode) {
             this.model().then((element) => {
               element.deleteOne({ _id: new ObjectID(id), deleted: true }, (err, result) => {
@@ -1001,6 +1010,12 @@ class Facility {
           reject({ m: 'Permissions denied' });
         }
       } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  clustering(){
+    return new Promise((resolve, reject) => {
+
     });
   }
 }

@@ -271,14 +271,23 @@ class Organization {
           if (search.sortBy !== undefined || search.sortBy !== '') {
             // eslint-disable-next-line no-unused-vars
             switch (search.sortBy) {
-              case 'name':
+              case 'nameAsc':
                 sortBy = { name: 1, yours: -1 };
                 break;
-              case 'creatAt':
+              case 'nameDesc':
+                sortBy = { name: -1, yours: -1 };
+                break;
+              case 'creatAtAsc':
                 sortBy = { rgDate: 1, yours: -1 };
                 break;
-              case 'updateAt':
+              case 'creatAtDesc':
+                sortBy = { rgDate: -1, yours: -1 };
+                break;
+              case 'updateAtAsc':
                 sortBy = { uDate: 1, yours: -1 };
+                break;
+              case 'updateAtDesc':
+                sortBy = { uDate: -1, yours: -1 };
                 break;
               default:
                 sortBy = { name: 1, yours: -1 };
@@ -604,7 +613,7 @@ class Organization {
             if (err) reject({ m: err });
             resolve({ m: 'Loaded', r: c });
           });
-        }).catch((e) => { reject({ m: e })});
+        }).catch((e) => { reject({ m: e }); });
       } catch (e) {
         reject({ m: e });
       }
@@ -638,7 +647,7 @@ class Organization {
             if (err) reject({ m: err });
             resolve({ m: 'Loaded', r: c });
           });
-        }).catch((e) => { reject({ m: e })});
+        }).catch((e) => { reject({ m: e }); });
       } catch (e) {
         reject({ m: e });
       }
@@ -673,7 +682,7 @@ class Organization {
             if (err) reject({ m: err });
             resolve({ m: 'Loaded', r: c });
           });
-        }).catch((e) => { reject({ m: e })});
+        }).catch((e) => { reject({ m: e }); });
       } catch (e) {
         reject({ m: e });
       }
@@ -710,7 +719,7 @@ class Organization {
             if (err) reject({ m: err });
             resolve({ m: 'Loaded', r: c });
           });
-        }).catch((e) => { reject({ m: e })});
+        }).catch((e) => { reject({ m: e }); });
       } catch (e) {
         reject({ m: e });
       }
@@ -744,7 +753,7 @@ class Organization {
             if (err) reject({ m: err });
             resolve({ m: 'Loaded', r: c });
           });
-        }).catch((e) => { reject({ m: e })});
+        }).catch((e) => { reject({ m: e }); });
       } catch (e) {
         reject({ m: e });
       }
@@ -778,7 +787,7 @@ class Organization {
             if (err) reject({ m: err });
             resolve({ m: 'Loaded', r: c });
           });
-        }).catch((e) => { reject({ m: e })});
+        }).catch((e) => { reject({ m: e }); });
       } catch (e) {
         reject({ m: e });
       }
@@ -812,7 +821,7 @@ class Organization {
             if (err) reject({ m: err });
             resolve({ m: 'Loaded', r: c });
           });
-        }).catch((e) => { reject({ m: e })});
+        }).catch((e) => { reject({ m: e }); });
       } catch (e) {
         reject({ m: e });
       }
@@ -822,7 +831,7 @@ class Organization {
   permanentDelete(usr, id, code) {
     return new Promise((resolve, reject) => {
       try {
-        if (adms(usr) !== {}) {
+        if (adms(usr) === {}) {
           if (code === process.env.securityCode) {
             this.model().then((element) => {
               element.deleteOne({ _id: new ObjectID(id), deleted: true }, (err, result) => {
@@ -837,6 +846,63 @@ class Organization {
           reject({ m: 'Permissions denied' });
         }
       } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  updateOrganizationCable(usr, idOrganization, idCable, operation) {
+    return new Promise((resolve, reject) => {
+      try {
+        const cable = require('../../models/cable.model');
+        cable().then((cable) => {
+          if (operation === 'delete') {
+            cable.updaeOne({ $and: [{ _id: new ObjectID(idCable) }, adms(usr)] }, { $pull: { owners: [new ObjectID(idOrganization)] } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'Organization removed' });
+            });
+          } else if (operation === 'add') {
+            cable.updaeOne({ $and: [{ _id: new ObjectID(idCable) }, adms(usr)] }, { $push: { owners: [new ObjectID(idOrganization)] } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'Organization removed' });
+            });
+          } else {
+            resolve({ m: 'Resolved' });
+          }
+        }).catch((e) => { reject({ m: e }); });
+      } catch (e) {
+        reject({ m: e });
+      }
+    });
+  }
+
+  updateOrganizationIXP(usr, idOrganization, idIXP, operation) {
+    return new Promise((resolve, reject) => {
+      const ixps = require('../../models/ixp.model');
+      ixps().then((ixps) => {
+        if (operation === 'delete') {
+
+        } else if (operation === 'add') {
+
+        } else {
+          resolve({ m: 'Resolved' });
+        }
+      }).catch((e) => { reject({ m: e }); });
+    });
+  }
+
+  updateOrganizationFacilitu(usr, idOrganization, idFacility, operation) {
+    return new Promise((resolve, reject) => {
+      const facility = require('../../models/facility.model');
+      facility().then((facility) => {
+        if (operation === 'delete') {
+
+        } else if (operation === 'add') {
+
+        } else {
+          resolve({ m: 'Resolved' });
+        }
+      }).catch((e) => { reject({ m: e }); });
     });
   }
 }

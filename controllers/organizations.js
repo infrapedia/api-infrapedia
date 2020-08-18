@@ -20,4 +20,5 @@ module.exports = {
   associationsIXPS: (id) => Organization.associationsIXPS(id),
   associationsFacilities: (id) => Organization.associationsFacilities(id),
   permanentDelete: (usr, id, code) => Organization.permanentDelete(usr, id, code),
+  updateOrganizationCable: (usr, idOrganization, idCable, operation) => Organization.updateOrganizationCable(usr, idOrganization, idCable, operation),
 };

@@ -43,4 +43,5 @@ FROM facility`;
   delete: (usr, id) => Facility.delete(usr, id),
   checkName: (name) => Facility.checkName(name),
   permanentDelete: (usr, id, code) => Facility.permanentDelete(usr, id, code),
+  clustering: () => Facility.clustering(),
 };

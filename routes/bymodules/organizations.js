@@ -92,5 +92,17 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+
+    //UPDATE ELEMENTS
+    router.delete(`${process.env._ROUTE}/auth/updateOrganizationCable`, (req, res) => {
+      controllers.organizations.updateOrganizationCable(req.headers.userid, req.body.idorg, req.body.idcable, 'delete')
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.post(`${process.env._ROUTE}/auth/updateOrganizationCable`, (req, res) => {
+      controllers.organizations.updateOrganizationCable(req.headers.userid, req.body.idorg, req.body.idcable, 'add')
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
   },
 };
