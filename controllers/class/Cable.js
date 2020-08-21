@@ -905,7 +905,7 @@ class Cable {
               sortBy = { uDate: -1, yours: -1 };
               break;
             case 'rfsAsc':
-              sortBy = { activationDateTime: -1, yours: -1 };
+              sortBy = { activationDateTime: 1, yours: -1 };
               break;
             case 'rfsDesc':
               sortBy = { activationDateTime: -1, yours: -1 };
@@ -922,6 +922,7 @@ class Cable {
                 _id: 1,
                 name: 1,
                 terrestrial: 1,
+                activationDateTime: 1,
                 yours: 1,
                 alerts: 1,
                 rgDate: 1,

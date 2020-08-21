@@ -10,6 +10,7 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 #### 🏁2.0
 | Version  | Changes |
 | ------------- | ------------- |
+|2.0.8.20200817|- Sort resolved in cables, get geom facilities by points, update organization information  |
 |2.0.5.20200817|- Permanent delete fixed for administrators, ASC and DESC sort for search information, sorting by RFS for subseaCables and organization add or remove connections  |
 |2.0.20200817|- Fixed problem with cables with multiples CLS |
 

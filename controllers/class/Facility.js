@@ -928,6 +928,76 @@ class Facility {
     });
   }
 
+  getMultiElementsGeomPoints(ids) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (!Array.isArray(ids) || ids.length === 0) resolve({ m: 'Loaded', r: false });
+        ids = ids.map((i) => new ObjectID(i));
+        this.model().then((facility) => {
+          facility.aggregate([
+            {
+              $match: {
+                $expr: {
+                  $in: ['$_id', ids],
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                geom: {
+                  type: 'FeatureCollection',
+                  features: [
+                    {
+                      type: 'Feature',
+                      geometry: '$point',
+                      properties: {
+                        _id: '$_id',
+                        name: '$name',
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+            // {
+            //   $unwind: '$geom.features',
+            // },
+            // {
+            //   $addFields: {
+            //     'geom.features.properties.name': '$name',
+            //   },
+            // },
+            // {
+            //   $group: {
+            //     _id: '$_id',
+            //     features: {
+            //       $push: '$geom.features',
+            //     },
+            //   },
+            // },
+            // {
+            //   $project: {
+            //     type: 'FeatureCollection',
+            //     features: '$geom.features',
+            //   },
+            // },
+          ]).toArray(async (err, polygon) => {
+            if (err) return 'Error';
+            // // we'll going to create the master file for ixps
+            polygon = await polygon.reduce((total, value) => total.concat(value.geom), []);
+            polygon = {
+              type: 'FeatureCollection',
+              features: polygon,
+            };
+            resolve({ m: 'Loaded', r: polygon });
+          });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
   createBBOXs() {
     return new Promise((resolve, reject) => {
       try {

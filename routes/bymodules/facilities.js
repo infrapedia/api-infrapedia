@@ -36,6 +36,11 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+    router.post(`${process.env._ROUTE}/facilities/geomspoints`, statics, (req, res) => {
+      controllers.facilities.getMultiElementsGeomPoints(req.headers.userid, req.body.ids)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
     router.post(`${process.env._ROUTE}/auth/facilities/add`, statics, (req, res) => {
       controllers.facilities.add(req.headers.userid, req.body)
         .then((r) => { response.success(res, r); })

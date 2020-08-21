@@ -849,28 +849,84 @@ class Organization {
     });
   }
 
+  updateKnownUserCable(usr, idOrganization, idCable, operation) {
+    return new Promise((resolve, reject) => {
+      try {
+        const cable = require('../../models/cable.model');
+        cable().then((cable) => {
+          if (operation === 'delete') {
+            cable.updateOne({ $and: [{ _id: new ObjectID(idCable) }, adms(usr)] }, { $pull: { knownUsers: new ObjectID(idOrganization) } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.result.nModified !== 1) reject({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'Subsea cable removed' });
+            });
+          } else if (operation === 'add') {
+            cable.updateOne({ $and: [{ _id: new ObjectID(idCable) }, adms(usr)] }, { $push: { knownUsers: new ObjectID(idOrganization) } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.result.nModified !== 1) reject({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'Subsea cable added' });
+            });
+          } else {
+            resolve({ m: 'Resolved' });
+          }
+        }).catch((e) => { console.log(e); reject({ m: e }); });
+      } catch (e) {
+        reject({ m: e });
+      }
+    });
+  }
+
   updateOrganizationCable(usr, idOrganization, idCable, operation) {
     return new Promise((resolve, reject) => {
       try {
         const cable = require('../../models/cable.model');
         cable().then((cable) => {
           if (operation === 'delete') {
-            cable.updaeOne({ $and: [{ _id: new ObjectID(idCable) }, adms(usr)] }, { $pull: { owners: [new ObjectID(idOrganization)] } }, (err, u) => {
+            cable.updateOne({ $and: [{ _id: new ObjectID(idCable) }, adms(usr)] }, { $pull: { owners: new ObjectID(idOrganization) } }, (err, u) => {
               if (err) reject(err);
-              else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
-              else resolve({ m: 'Loaded', r: 'Organization removed' });
+              else if (u.result.nModified !== 1) reject({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'Subsea cable or Terrestrial network removed' });
             });
           } else if (operation === 'add') {
-            cable.updaeOne({ $and: [{ _id: new ObjectID(idCable) }, adms(usr)] }, { $push: { owners: [new ObjectID(idOrganization)] } }, (err, u) => {
+            cable.updateOne({ $and: [{ _id: new ObjectID(idCable) }, adms(usr)] }, { $push: { owners: new ObjectID(idOrganization) } }, (err, u) => {
               if (err) reject(err);
-              else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
-              else resolve({ m: 'Loaded', r: 'Organization removed' });
+              else if (u.result.nModified !== 1) reject({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'Subsea cable or Terrestrial network added' });
             });
           } else {
             resolve({ m: 'Resolved' });
           }
-        }).catch((e) => { reject({ m: e }); });
+        }).catch((e) => { console.log(e); reject({ m: e }); });
       } catch (e) {
+        console.log(e);
+        reject({ m: e });
+      }
+    });
+  }
+
+  updateOrganizationCLS(usr, idOrganization, idCls, operation) {
+    return new Promise((resolve, reject) => {
+      try {
+        const cls = require('../../models/cls.model');
+        cls().then((cls) => {
+          if (operation === 'delete') {
+            cls.updateOne({ $and: [{ _id: new ObjectID(idCls) }, adms(usr)] }, { $pull: { owners: new ObjectID(idOrganization) } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.result.nModified !== 1) reject({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'CLS removed' });
+            });
+          } else if (operation === 'add') {
+            cls.updateOne({ $and: [{ _id: new ObjectID(idCls) }, adms(usr)] }, { $push: { owners: new ObjectID(idOrganization) } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.result.nModified !== 1) reject({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'CLS added' });
+            });
+          } else {
+            resolve({ m: 'Resolved' });
+          }
+        }).catch((e) => { console.log(e); reject({ m: e }); });
+      } catch (e) {
+        console.log(e);
         reject({ m: e });
       }
     });
@@ -878,31 +934,56 @@ class Organization {
 
   updateOrganizationIXP(usr, idOrganization, idIXP, operation) {
     return new Promise((resolve, reject) => {
-      const ixps = require('../../models/ixp.model');
-      ixps().then((ixps) => {
-        if (operation === 'delete') {
-
-        } else if (operation === 'add') {
-
-        } else {
-          resolve({ m: 'Resolved' });
-        }
-      }).catch((e) => { reject({ m: e }); });
+      try {
+        const ixp = require('../../models/ixp.model');
+        ixp().then((ixp) => {
+          if (operation === 'delete') {
+            ixp.updateOne({ $and: [{ _id: new ObjectID(idIXP) }, adms(usr)] }, { $pull: { owners: new ObjectID(idOrganization) } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.result.nModified !== 1) reject({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'IXP removed' });
+            });
+          } else if (operation === 'add') {
+            ixp.updateOne({ $and: [{ _id: new ObjectID(idIXP) }, adms(usr)] }, { $push: { owners: new ObjectID(idOrganization) } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.result.nModified !== 1) reject({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'IXP added' });
+            });
+          } else {
+            resolve({ m: 'Resolved' });
+          }
+        }).catch((e) => { console.log(e); reject({ m: e }); });
+      } catch (e) {
+        console.log(e);
+        reject({ m: e });
+      }
     });
   }
 
-  updateOrganizationFacilitu(usr, idOrganization, idFacility, operation) {
+  updateOrganizationFacility(usr, idOrganization, idFacility, operation) {
     return new Promise((resolve, reject) => {
-      const facility = require('../../models/facility.model');
-      facility().then((facility) => {
-        if (operation === 'delete') {
-
-        } else if (operation === 'add') {
-
-        } else {
-          resolve({ m: 'Resolved' });
-        }
-      }).catch((e) => { reject({ m: e }); });
+      try {
+        const facility = require('../../models/facility.model');
+        facility().then((facility) => {
+          if (operation === 'delete') {
+            facility.updateOne({ $and: [{ _id: new ObjectID(idFacility) }, adms(usr)] }, { $pull: { owners: new ObjectID(idOrganization) } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.result.nModified !== 1) reject({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'Facility removed' });
+            });
+          } else if (operation === 'add') {
+            facility.updateOne({ $and: [{ _id: new ObjectID(idFacility) }, adms(usr)] }, { $push: { owners: new ObjectID(idOrganization) } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.result.nModified !== 1) reject({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'Facility added' });
+            });
+          } else {
+            resolve({ m: 'Resolved' });
+          }
+        }).catch((e) => { console.log(e); reject({ m: e }); });
+      } catch (e) {console.log(e);
+        reject({ m: e });
+      }
     });
   }
 }
