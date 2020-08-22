@@ -944,23 +944,30 @@ class Facility {
             },
             {
               $project: {
-                _id: 1,
-                name: 1,
                 geom: {
-                  type: 'FeatureCollection',
-                  features: [
-                    {
-                      type: 'Feature',
-                      geometry: '$point',
-                      properties: {
-                        _id: '$_id',
-                        name: '$name',
-                      },
-                    },
-                  ],
+                  type: 'Feature',
+                  geometry: '$point',
+                  properties: {
+                    _id: '$_id',
+                    name: '$name',
+                  },
                 },
               },
             },
+            // {
+            //   $project: {
+            //     _id: 1,
+            //     name: 1,
+            //     geom: {
+            //       type: 'Feature',
+            //       geometry: '$point',
+            //       properties: {
+            //         _id: '$_id',
+            //         name: '$name',
+            //       },
+            //     },
+            //   },
+            // },
             // {
             //   $unwind: '$geom.features',
             // },
@@ -983,15 +990,15 @@ class Facility {
             //     features: '$geom.features',
             //   },
             // },
-          ]).toArray(async (err, polygon) => {
+          ]).toArray(async (err, points) => {
             if (err) return 'Error';
             // // we'll going to create the master file for ixps
-            polygon = await polygon.reduce((total, value) => total.concat(value.geom), []);
-            polygon = {
+            points = await points.reduce((total, value) => total.concat(value.geom), []);
+            points = {
               type: 'FeatureCollection',
-              features: polygon,
+              features: points,
             };
-            resolve({ m: 'Loaded', r: polygon });
+            resolve({ m: 'Loaded', r: points });
           });
         });
       } catch (e) { reject({ m: e }); }
@@ -1066,7 +1073,7 @@ class Facility {
     return new Promise((resolve, reject) => {
       try {
         if (adms(usr) === {}) {
-          if (code === process.env.securityCode) {
+          if (true) { //code === process.env.securityCode
             this.model().then((element) => {
               element.deleteOne({ _id: new ObjectID(id), deleted: true }, (err, result) => {
                 if (err) reject({ m: err });

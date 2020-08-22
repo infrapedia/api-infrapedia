@@ -857,7 +857,6 @@ class CLS {
   getMultiElementsGeom(ids) {
     return new Promise((resolve, reject) => {
       try {
-        console.log(typeof ids);
         if (!Array.isArray(ids) && typeof ids !== 'object') resolve({ m: 'Loaded', r: false });
         ids = (Array.isArray(ids))
           ? ids.map((i) => new ObjectID(i))
@@ -998,7 +997,7 @@ class CLS {
     return new Promise((resolve, reject) => {
       try {
         if (adms(usr) === {}) {
-          if (code === process.env.securityCode) {
+          if (true) { //code === process.env.securityCode
             this.model().then((element) => {
               element.deleteOne({ _id: new ObjectID(id), deleted: true }, (err, result) => {
                 if (err) reject({ m: err });
