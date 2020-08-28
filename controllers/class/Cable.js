@@ -899,10 +899,10 @@ class Cable {
           // eslint-disable-next-line no-unused-vars
           switch (search.sortBy) {
             case 'nameAsc':
-              sortBy = { name: 1 };
+              sortBy = { slug: 1 };
               break;
             case 'nameDesc':
-              sortBy = { name: -1 };
+              sortBy = { slug: -1 };
               break;
             case 'creatAtAsc':
               sortBy = { rgDate: 1 };
