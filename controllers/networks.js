@@ -11,4 +11,5 @@ module.exports = {
   search: (usr, query) => Network.search(usr, query),
   checkName: (name) => Network.checkName(name),
   permanentDelete: (usr, id, code) => Network.permanentDelete(usr, id, code),
+  getIdBySlug: (slug) => Network.getIdBySlug(slug),
 };

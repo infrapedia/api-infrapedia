@@ -67,22 +67,22 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.get(`${process.env._ROUTE}/cables/geom/:id`, statics, (req, res) => {
+    router.get(`${process.env._ROUTE}/cables/geom/:id`, (req, res) => {
       controllers.cables.getElementGeom(req.headers.userid, req.params.id)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.post(`${process.env._ROUTE}/cables/geoms`, statics, (req, res) => {
+    router.post(`${process.env._ROUTE}/cables/geoms`, (req, res) => {
       controllers.cables.getMultiElementsGeom(req.headers.userid, req.body.ids)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.get(`${process.env._ROUTE}/cables/relationstransfer`, statics, (req, res) => {
+    router.get(`${process.env._ROUTE}/cables/relationstransfer`, (req, res) => {
       controllers.cables.relationsTransfer()
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.get(`${process.env._ROUTE}/cables/checkname`, statics, (req, res) => {
+    router.get(`${process.env._ROUTE}/cables/checkname`, (req, res) => {
       controllers.cables.checkName(req.query.n)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });

@@ -1,6 +1,7 @@
 const luxon = require('luxon');
 const { ObjectID } = require('mongodb');
 const { adms } = require('../helpers/adms');
+const slugToString = require('../helpers/slug');
 
 class Network {
   constructor() {
@@ -16,6 +17,7 @@ class Network {
             data = {
               uuid: String(user),
               name: String(data.name),
+              slug: slugToString(data.name),
               notes: '', // String(data.notes)
               websites: await (Array.isArray(data.websites)) ? data.websites : [],
               organizations: await (Array.isArray(data.organizations)) ? data.organizations.map((item) => new ObjectID(item)) : [],
@@ -73,6 +75,7 @@ class Network {
             // TODO: check if exist another network with the same name
             data = {
               name: String(data.name),
+              slug: slugToString(data.name),
               websites: await (Array.isArray(data.websites)) ? data.websites : [],
               organizations: await (Array.isArray(data.organizations)) ? data.organizations.map((item) => new ObjectID(item)) : [],
               references: (typeof data.references === 'string' && data.references !== '') ? data.references : '',
@@ -409,29 +412,31 @@ class Network {
         this.model().then((cable) => {
           const uuid = (search.psz === '1') ? adms(user) : {};
           let sortBy = {};
+          const limit = 40;
+          const page = (search.page) ? search.page : 0;
           if (search.sortBy !== undefined || search.sortBy !== '') {
             // eslint-disable-next-line no-unused-vars
             switch (search.sortBy) {
               case 'nameAsc':
-                sortBy = { name: 1, yours: -1 };
+                sortBy = { slug: 1 };
                 break;
               case 'nameDesc':
-                sortBy = { name: -1, yours: -1 };
+                sortBy = { slug: -1 };
                 break;
               case 'creatAtAsc':
-                sortBy = { rgDate: 1, yours: -1 };
+                sortBy = { rgDate: 1 };
                 break;
               case 'creatAtDesc':
-                sortBy = { rgDate: -1, yours: -1 };
+                sortBy = { rgDate: -1 };
                 break;
               case 'updateAtAsc':
-                sortBy = { uDate: 1, yours: -1 };
+                sortBy = { uDate: 1 };
                 break;
               case 'updateAtDesc':
-                sortBy = { uDate: -1, yours: -1 };
+                sortBy = { uDate: -1 };
                 break;
               default:
-                sortBy = { name: 1, yours: -1 };
+                sortBy = { name: 1 };
                 break;
             }
           } else { sortBy = { name: 1, yours: -1 }; }
@@ -448,7 +453,7 @@ class Network {
               },
             },
             {
-              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { deleted: { $ne: true } }] },
+              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {
@@ -470,7 +475,8 @@ class Network {
             {
               $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
             },
-            { $limit: 20 },
+            { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit) > 0) ? (parseInt(limit) * parseInt(page)) - parseInt(limit) : 0 },
+            { $limit: limit },
           ]).toArray((err, r) => {
             resolve(r);
           });
@@ -750,6 +756,19 @@ class Network {
         } else {
           reject({ m: 'Permissions denied' });
         }
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  getIdBySlug(slug) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((elemnt) => {
+          elemnt.findOne({ slug }, (err, r) => {
+            if (err) reject({ m: err });
+            resolve({ m: '', r: (r._id) ? r._id : '' });
+          });
+        }).catch((e) => reject({ m: e }));
       } catch (e) { reject({ m: e }); }
     });
   }

@@ -3,6 +3,7 @@ const GJV = require('geojson-validation');
 const { ObjectID } = require('mongodb');
 const redisClient = require('../../config/redis');
 const { adms } = require('../helpers/adms');
+const slugToString = require('../helpers/slug');
 
 class CLS {
   constructor() {
@@ -21,7 +22,7 @@ class CLS {
               country: (data.country) ? data.country : '',
               notes: '', // String(data.notes)
               state: data.state,
-              slug: data.slug,
+              slug: slugToString(data.name),
               geom: (data.geom !== '') ? JSON.parse(data.geom) : {},
               cables: await (Array.isArray(data.cables)) ? data.cables.map((item) => new ObjectID(item)) : [],
               owners: await (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : [],
@@ -37,7 +38,7 @@ class CLS {
               cls.insertOne(data, (err, i) => {
                 // TODO: validation insert
                 if (err) reject({ m: err });
-                resolve({ m: 'CLS created' });
+                resolve({ m: 'CLS created', r: i.insertedId });
               });
             });
           }).catch((e) => { console.log(e); reject({ m: e }); });
@@ -116,7 +117,7 @@ class CLS {
                 name: data.name,
                 country: (data.country) ? data.country : '',
                 state: data.state,
-                slug: data.slug,
+                slug: slugToString(data.name),
                 geom: (data.geom !== '') ? JSON.parse(data.geom) : {},
                 cables: await (Array.isArray(data.cables)) ? data.cables.map((item) => new ObjectID(item)) : [],
                 owners: await (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : [],
@@ -330,7 +331,6 @@ class CLS {
                 $project: {
                   uuid: 0,
                   geom: 0,
-                  deleted: 0,
                 },
               }]).toArray((err, rNetwork) => {
               if (err) reject(err);
@@ -548,26 +548,28 @@ class CLS {
       try {
         const uuid = (search.psz === '1') ? adms(user) : {};
         let sortBy = {};
+        const limit = 40;
+        const page = (search.page) ? search.page : 0;
         if (search.sortBy !== undefined || search.sortBy !== '') {
           // eslint-disable-next-line no-unused-vars
           switch (search.sortBy) {
             case 'nameAsc':
-              sortBy = { name: 1, yours: -1 };
+              sortBy = { slug: 1 };
               break;
             case 'nameDesc':
-              sortBy = { name: -1, yours: -1 };
+              sortBy = { slug: -1 };
               break;
             case 'creatAtAsc':
-              sortBy = { rgDate: 1, yours: -1 };
+              sortBy = { rgDate: 1 };
               break;
             case 'creatAtDesc':
-              sortBy = { rgDate: -1, yours: -1 };
+              sortBy = { rgDate: -1 };
               break;
             case 'updateAtAsc':
-              sortBy = { uDate: 1, yours: -1 };
+              sortBy = { uDate: 1 };
               break;
             case 'updateAtDesc':
-              sortBy = { uDate: -1, yours: -1 };
+              sortBy = { uDate: -1 };
               break;
             default:
               sortBy = { name: 1, yours: -1 };
@@ -598,7 +600,7 @@ class CLS {
               },
             },
             {
-              $match: { $and: [{ $or: [{ name: { $regex: search.s, $options: 'i' } }, { country: { $regex: search.s, $options: 'i' } }] }, uuid, { deleted: { $ne: true } }] }, // { $and: [uuid, , { deleted: false }] },
+              $match: { $and: [{ $or: [{ name: { $regex: search.s, $options: 'i' } }, { country: { $regex: search.s, $options: 'i' } }] }, uuid, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] }, // { $and: [uuid, , { deleted: false }] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } }, name: { $concat: ['$name', ', ', '$country'] } } },
             {
@@ -620,8 +622,12 @@ class CLS {
             {
               $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
             },
-            { $sort: { yours: -1 } },
-            { $limit: 20 },
+            {
+              $sort: sortBy,
+            },
+            { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit) > 0) ? (parseInt(limit) * parseInt(page)) - parseInt(limit) : 0 },
+            { $limit: limit },
+            // { $limit: 20 },
           ]).toArray((err, r) => {
             resolve(r);
           });
@@ -1010,6 +1016,19 @@ class CLS {
         } else {
           reject({ m: 'Permissions denied' });
         }
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  getIdBySlug(slug) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((elemnt) => {
+          elemnt.findOne({ slug }, (err, r) => {
+            if (err) reject({ m: err });
+            resolve({ m: '', r: (r._id) ? r._id : '' });
+          });
+        }).catch((e) => reject({ m: e }));
       } catch (e) { reject({ m: e }); }
     });
   }

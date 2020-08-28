@@ -25,4 +25,5 @@ module.exports = {
   updateOrganizationCable: (usr, idOrganization, idCable, operation) => Organization.updateOrganizationCable(usr, idOrganization, idCable, operation),
   updateOrganizationIXP: (usr, idOrganization, idIXP, operation) => Organization.updateOrganizationIXP(usr, idOrganization, idIXP, operation),
   updateOrganizationFacility: (usr, idOrganization, idFacility, operation) => Organization.updateOrganizationFacility(usr, idOrganization, idFacility, operation),
+  getIdBySlug: (slug) => Organization.getIdBySlug(slug),
 };

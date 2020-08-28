@@ -4,6 +4,7 @@ const fs = require('fs');
 const { ObjectID } = require('mongodb');
 const redisClient = require('../../config/redis');
 // const geojsonHint = require('@mapbox/geojsonhint');
+const slugToString = require('../helpers/slug');
 
 const { adms } = require('../helpers/adms');
 
@@ -30,6 +31,7 @@ class Cable {
                 data = {
                   uuid: String(user),
                   name: String(data.name),
+                  slug: slugToString(data.name),
                   // cc: String(data.cc),
                   notes: '', // String(data.notes)
                   systemLength: String(data.systemLength),
@@ -116,6 +118,7 @@ class Cable {
                 uuid: '',
                 cableid: String(data.cableid),
                 name: String(data.name),
+                slug: slugToString(data.name),
                 notes: '', // String(data.notes)
                 systemLength: String(data.systemLength),
                 activationDateTime: luxon.DateTime.fromJSDate(data.activationDateTime).toUTC(),
@@ -176,7 +179,8 @@ class Cable {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
-          console.log('CONECTION', data);
+          const limit = 40;
+          const page = (search.page) ? search.page : 0;
           this.model().then(async (cables) => {
             const nameFile = Math.floor(Date.now() / 1000);
             const stream = await fs.createWriteStream(`./temp/${nameFile}.json`);
@@ -190,6 +194,7 @@ class Cable {
               data = {
                 uuid: String(user),
                 name: String(data.name),
+                slug: slugToString(data.name),
                 // cc: String(data.cc),
                 systemLength: String(data.systemLength),
                 activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
@@ -809,26 +814,28 @@ class Cable {
       try {
         const uuid = (search.psz === '1') ? adms(user) : {};
         let sortBy = {};
+        const limit = 40;
+        const page = (search.page) ? search.page : 0;
         if (search.sortBy !== undefined || search.sortBy !== '') {
           // eslint-disable-next-line no-unused-vars
           switch (search.sortBy) {
             case 'nameAsc':
-              sortBy = { name: 1, yours: -1 };
+              sortBy = { slug: 1 };
               break;
             case 'nameDesc':
-              sortBy = { name: -1, yours: -1 };
+              sortBy = { slug: -1 };
               break;
             case 'creatAtAsc':
-              sortBy = { rgDate: 1, yours: -1 };
+              sortBy = { rgDate: 1 };
               break;
             case 'creatAtDesc':
-              sortBy = { rgDate: -1, yours: -1 };
+              sortBy = { rgDate: -1 };
               break;
             case 'updateAtAsc':
-              sortBy = { uDate: 1, yours: -1 };
+              sortBy = { uDate: 1 };
               break;
             case 'updateAtDesc':
-              sortBy = { uDate: -1, yours: -1 };
+              sortBy = { uDate: -1 };
               break;
             default:
               sortBy = { name: 1, yours: -1 };
@@ -845,10 +852,11 @@ class Cable {
                 terrestrial: 1,
                 yours: 1,
                 alerts: 1,
+                deleted: 1,
               },
             },
             {
-              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { terrestrial: true }, { deleted: { $ne: true } }] },
+              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { terrestrial: true }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {
@@ -870,6 +878,8 @@ class Cable {
             {
               $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
             },
+            { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit) > 0) ? (parseInt(limit) * parseInt(page)) - parseInt(limit) : 0 },
+            { $limit: limit },
           ]).toArray((err, r) => {
             resolve(r);
           });
@@ -883,32 +893,34 @@ class Cable {
       try {
         const uuid = (search.psz === '1') ? adms(user) : {};
         let sortBy = {};
+        const limit = 40;
+        const page = (search.page) ? search.page : 0;
         if (search.sortBy !== undefined || search.sortBy !== '') {
           // eslint-disable-next-line no-unused-vars
           switch (search.sortBy) {
             case 'nameAsc':
-              sortBy = { name: 1, yours: -1 };
+              sortBy = { name: 1 };
               break;
             case 'nameDesc':
-              sortBy = { name: -1, yours: -1 };
+              sortBy = { name: -1 };
               break;
             case 'creatAtAsc':
-              sortBy = { rgDate: 1, yours: -1 };
+              sortBy = { rgDate: 1 };
               break;
             case 'creatAtDesc':
-              sortBy = { rgDate: -1, yours: -1 };
+              sortBy = { rgDate: -1 };
               break;
             case 'updateAtAsc':
-              sortBy = { uDate: 1, yours: -1 };
+              sortBy = { uDate: 1 };
               break;
             case 'updateAtDesc':
-              sortBy = { uDate: -1, yours: -1 };
+              sortBy = { uDate: -1 };
               break;
             case 'rfsAsc':
-              sortBy = { activationDateTime: 1, yours: -1 };
+              sortBy = { activationDateTime: 1 };
               break;
             case 'rfsDesc':
-              sortBy = { activationDateTime: -1, yours: -1 };
+              sortBy = { activationDateTime: -1 };
               break;
             default:
               sortBy = { name: 1, yours: -1 };
@@ -927,10 +939,11 @@ class Cable {
                 alerts: 1,
                 rgDate: 1,
                 uDate: 1,
+                deleted: 1,
               },
             },
             {
-              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { terrestrial: false }, { deleted: { $ne: true } }] },
+              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { terrestrial: false }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {
@@ -952,6 +965,8 @@ class Cable {
             {
               $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
             },
+            { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit) > 0) ? (parseInt(limit) * parseInt(page)) - parseInt(limit) : 0 },
+            { $limit: limit },
           ]).toArray((err, r) => {
             resolve(r);
           });
@@ -1638,6 +1653,19 @@ class Cable {
         } else {
           reject({ m: 'Permissions denied' });
         }
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  getIdBySlug(slug) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((elemnt) => {
+          elemnt.findOne({ slug }, (err, r) => {
+            if (err) reject({ m: err });
+            resolve({ m: '', r: (r._id) ? r._id : '' });
+          });
+        }).catch((e) => reject({ m: e }));
       } catch (e) { reject({ m: e }); }
     });
   }

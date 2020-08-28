@@ -168,28 +168,30 @@ class Map {
   myMap(user, data) {
     return new Promise((resolve, reject) => {
       try {
+        const dataMap = data;
         this.model().then((maps) => {
           // verify if the user if a owner of map
-          maps.findOne({ subdomain: data.subdomain }, async (err, f) => {
+          console.log(dataMap);
+          maps.findOne({ subdomain: dataMap.subdomain }, async (err, f) => {
             if (err) reject({ m: err });
             else if (!f) { // Can insert
               maps.insertOne({
                 uuid: user,
-                subdomain: data.subdomain,
-                googleID: data.googleID,
-                facilities: (Array.isArray(data.facilities)) ? data.facilities.map((item) => new ObjectID(item)) : [],
-                ixps: (Array.isArray(data.ixps)) ? data.ixps.map((item) => new ObjectID(item)) : [],
-                cls: (Array.isArray(data.cls)) ? data.cls.map((item) => new ObjectID(item)) : [],
-                subsea: (Array.isArray(data.subsea)) ? data.subsea.map((item) => new ObjectID(item)) : [],
-                terrestrials: (Array.isArray(data.terrestrials)) ? data.terrestrials.map((item) => new ObjectID(item)) : [],
-                address: await (data.address === '') ? [] : data.address.map((item) => JSON.parse(item)),
-                techEmail: data.techEmail,
-                techPhone: data.techPhone,
-                saleEmail: data.saleEmail,
-                salePhone: data.salePhone,
-                config: JSON.parse(data.config),
-                logos: data.logos,
-                draw: JSON.parse(data.draw),
+                subdomain: dataMap.subdomain,
+                googleID: dataMap.googleID,
+                facilities: (Array.isArray(dataMap.facilities)) ? dataMap.facilities.map((item) => new ObjectID(item)) : [],
+                ixps: (Array.isArray(dataMap.ixps)) ? dataMap.ixps.map((item) => new ObjectID(item)) : [],
+                cls: (Array.isArray(dataMap.cls)) ? dataMap.cls.map((item) => new ObjectID(item)) : [],
+                subsea: (Array.isArray(dataMap.subsea)) ? data.subsea.map((item) => new ObjectID(item)) : [],
+                terrestrials: (Array.isArray(dataMap.terrestrials)) ? data.terrestrials.map((item) => new ObjectID(item)) : [],
+                address: await (dataMap.address === '') ? [] : data.address.map((item) => JSON.parse(item)),
+                techEmail: dataMap.techEmail,
+                techPhone: dataMap.techPhone,
+                saleEmail: dataMap.saleEmail,
+                salePhone: dataMap.salePhone,
+                config: dataMap.config,
+                logos: dataMap.logos,
+                draw: dataMap.draw,
                 rgDate: luxon.DateTime.utc(),
               }, (err, r) => {
                 if (err) reject({ m: err });
@@ -211,9 +213,9 @@ class Map {
                   techPhone: data.techPhone,
                   saleEmail: data.saleEmail,
                   salePhone: data.salePhone,
-                  config: JSON.parse(data.config),
+                  config: dataMap.config,
                   logos: (Array.isArray(data.logos)) ? data.logos : [],
-                  draw: JSON.parse(data.draw),
+                  draw: dataMap.draw,
                   rgDate: luxon.DateTime.utc(),
                 },
               }, (err, r) => {
@@ -224,7 +226,8 @@ class Map {
               reject({ m: 'You are not allowed to use this subdomain' });
             }
           });
-        }).catch((e) => {});
+        }).catch((e) => {
+        });
       } catch (e) { reject({ m: e }); }
     });
   }

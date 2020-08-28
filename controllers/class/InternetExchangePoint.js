@@ -3,6 +3,7 @@ const GJV = require('geojson-validation');
 const { ObjectID } = require('mongodb');
 const redisClient = require('../../config/redis');
 const countries = require('../helpers/isoCountries');
+const slugToString = require('../helpers/slug');
 
 const { adms } = require('../helpers/adms');
 
@@ -20,6 +21,7 @@ class IXP {
             const element = {
               uuid: user,
               name: String(data.name),
+              slug: slugToString(data.name),
               nameLong: String(data.nameLong),
               owners: await (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : [],
               notes: '', // String(data.notes)
@@ -43,7 +45,7 @@ class IXP {
               else if (c > 0) reject({ m: 'We have another element with the same name' });
               ixps.insertOne(element, (err, f) => {
                 if (err) reject({ m: err + 0 });
-                resolve({ m: 'IXP created' });
+                resolve({ m: 'IXP created', r: f.insertedId });
               });
             });
           } else { reject({ m: 'Error' }); }
@@ -60,6 +62,7 @@ class IXP {
             const geom = JSON.parse(data.geom);
             const element = {
               name: String(data.name),
+              slug: slugToString(data.name),
               nameLong: String(data.nameLong),
               owners: await (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : [],
               notes: '', // String(data.notes)
@@ -494,14 +497,16 @@ class IXP {
         this.model().then((ixp) => {
           const uuid = (search.psz === '1') ? adms(user) : {};
           let sortBy = {};
+          const limit = 40;
+          const page = (search.page) ? search.page : 0;
           if (search.sortBy !== undefined || search.sortBy !== '') {
             // eslint-disable-next-line no-unused-vars
             switch (search.sortBy) {
               case 'nameAsc':
-                sortBy = { name: 1 };
+                sortBy = { slug: 1 };
                 break;
               case 'nameDesc':
-                sortBy = { name: -1 };
+                sortBy = { slug: -1 };
                 break;
               case 'creatAtAsc':
                 sortBy = { rgDate: 1 };
@@ -531,7 +536,7 @@ class IXP {
               },
             },
             {
-              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { nameLong: { $regex: search.s, $options: 'i' } }, { deleted: { $ne: true } }] },
+              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { nameLong: { $regex: search.s, $options: 'i' } }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
             },
             {
               $sort: sortBy,
@@ -552,7 +557,8 @@ class IXP {
             {
               $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
             },
-            { $limit: 20 },
+            { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit) > 0) ? (parseInt(limit) * parseInt(page)) - parseInt(limit) : 0 },
+            { $limit: limit },
           ]).toArray((err, r) => {
             resolve(r);
           });
@@ -790,6 +796,19 @@ class IXP {
         } else {
           reject({ m: 'Permissions denied' });
         }
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  getIdBySlug(slug) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((elemnt) => {
+          elemnt.findOne({ slug }, (err, r) => {
+            if (err) reject({ m: err });
+            resolve({ m: '', r: (r._id) ? r._id : '' });
+          });
+        }).catch((e) => reject({ m: e }));
       } catch (e) { reject({ m: e }); }
     });
   }
