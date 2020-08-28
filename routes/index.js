@@ -207,6 +207,16 @@ const routes = function (router, controllers) {
           .then((r) => { response.success(res, r, false); })
           .catch((e) => { response.err(res, e); });
         break;
+      case 'terrestrial-network':
+        controllers.cables.getIdBySlug(req.params.slug)
+          .then((r) => { response.success(res, r, false); })
+          .catch((e) => { response.err(res, e); });
+        break;
+      case 'subsea-cable':
+        controllers.cables.getIdBySlug(req.params.slug)
+          .then((r) => { response.success(res, r, false); })
+          .catch((e) => { response.err(res, e); });
+        break;
       case 'cls':
         controllers.cableLandingStations.getIdBySlug(req.params.slug)
           .then((r) => { response.success(res, r, false); })
