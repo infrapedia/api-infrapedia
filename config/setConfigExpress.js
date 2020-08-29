@@ -92,7 +92,7 @@ const expressConfig = function (app) {
     next();
   });
   app.use(compression());
-  app.set('views', path.join(process.cwd(), 'templates/email'));
+  app.set('views', path.join(process.cwd(), 'templates/infrapedia'));
   app.set('view engine', 'ejs');
 
   // session config
@@ -134,6 +134,7 @@ const expressConfig = function (app) {
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(null, options));
   app.use(`${process.env._ROUTE}/assets/css/`, express.static(`${process.cwd()}/public/css`));
   app.use(`${process.env._ROUTE}/assets/map/`, express.static(`${process.cwd()}/public/map`));
+  app.use(`${process.env._ROUTE}/seo/map/`, express.static(`${process.cwd()}/public/mapimages`));
 
   // data parser
   app.use(bodyParser.json({ limit: '50mb', extended: true }));

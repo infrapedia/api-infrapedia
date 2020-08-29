@@ -71,7 +71,7 @@ class AlertProvider {
               case 'mandrill':
                 const mandrill = require('../helpers/mandrill');
                 // eslint-disable-next-line no-unused-vars
-                ejs.renderFile('templates/email/email_alerts_one.ejs', params, (err, html) => {
+                ejs.renderFile('templates/infrapedia/email_alerts_one.ejs', params, (err, html) => {
                   mandrill(params.idElement, params.subject, html, options.options.apiKey, options.options.from).then((r) => {
                     resolve(r);
                   }).catch((e) => {

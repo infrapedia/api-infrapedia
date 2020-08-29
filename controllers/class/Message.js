@@ -139,7 +139,7 @@ class Message {
                 ).then(() => {
                   this.getEmail(r[0], token).then((r) => {
                     r = JSON.parse(r);
-                    ejs.renderFile('templates/email/email_notification.ejs', {
+                    ejs.renderFile('templates/infrapedia/email_notification.ejs', {
                       subject: 'Someone has sent you a message on Infrapedia',
                       email: data.email,
                       phone: data.phone,
@@ -152,8 +152,8 @@ class Message {
                       sendEmail('', `${elemntName} - ${elemntType} - Someone has sent you a message on Infrapedia - ${new Date().getDate()}/${new Date().getMonth() + 1}`, html, data.email);
                     });
                   }).catch(() => {
-                    ejs.renderFile('templates/email/email_notification.ejs', {
-                      subject: 'A user wrote a message on the app - End user did not receive email',
+                    ejs.renderFile('templates/infrapedia/email_notification.ejs', {
+                      subject: 'A user wrote a message on the app - End user did not receive Email',
                       email: data.email,
                       phone: data.phone,
                       message: data.message,
