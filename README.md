@@ -10,6 +10,7 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 #### 🏁2.0
 | Version  | Changes |
 | ------------- | ------------- |
+|2.2.20200829|- Email elements moved to new folder and reconfigured the function linked to them  |
 |2.1.9.20200829|- Create images to share elements in SocialNetworks, change the name of template folder, fix the problems with slug sort,  |
 |2.1.2.20200828|- Subsecable slug sort |
 |2.1.1.20200828|- Request slug for terrestrial-network and subsea-cable |
