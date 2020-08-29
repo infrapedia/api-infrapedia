@@ -445,6 +445,7 @@ class Network {
               $project: {
                 _id: 1,
                 name: 1,
+                slug: 1,
                 yours: 1,
                 alerts: 1,
                 deleted: 1,

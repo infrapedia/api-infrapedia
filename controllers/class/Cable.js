@@ -849,6 +849,7 @@ class Cable {
               $project: {
                 _id: 1,
                 name: 1,
+                slug: 1,
                 terrestrial: 1,
                 yours: 1,
                 alerts: 1,
@@ -933,6 +934,7 @@ class Cable {
               $project: {
                 _id: 1,
                 name: 1,
+                slug: 1,
                 terrestrial: 1,
                 activationDateTime: 1,
                 yours: 1,
@@ -968,6 +970,7 @@ class Cable {
             { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit) > 0) ? (parseInt(limit) * parseInt(page)) - parseInt(limit) : 0 },
             { $limit: limit },
           ]).toArray((err, r) => {
+            // console.log(r);
             resolve(r);
           });
         }).catch((e) => { reject({ m: e }); });

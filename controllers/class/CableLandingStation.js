@@ -582,6 +582,7 @@ class CLS {
               $project: {
                 _id: 1,
                 name: 1,
+                slug: 1,
                 country: { $ifNull: ['$country', ''] },
                 yours: 1,
                 alerts: 1,

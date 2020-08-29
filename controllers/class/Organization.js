@@ -304,6 +304,7 @@ class Organization {
               $project: {
                 _id: 1,
                 name: 1,
+                slug: 1,
                 yours: 1,
                 logo: 1,
                 deleted: 1,

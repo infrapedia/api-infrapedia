@@ -530,6 +530,7 @@ class IXP {
               $project: {
                 _id: 1,
                 name: 1,
+                slug: 1,
                 nameLong: 1,
                 alerts: 1,
                 deleted: 1,
