@@ -1,6 +1,8 @@
 const { ObjectID } = require('mongodb');
 const builder = require('xmlbuilder');
 const fs = require('fs');
+const wget = require('node-wget');
+const urlencode = require('urlencode');
 const cable = require('../../models/cable.model');
 const cls = require('../../models/cls.model');
 const facility = require('../../models/facility.model');
@@ -9,8 +11,6 @@ const network = require('../../models/network.model');
 const organization = require('../../models/organization.model');
 const slugToString = require('../helpers/slug');
 // SEO
-const wget = require('node-wget');
-const urlencode = require('urlencode');
 
 class SEO {
   cablesSlug() {
@@ -31,9 +31,9 @@ class SEO {
             let count = 0;
             results.map((c) => {
               try {
-                if (!fs.existsSync(`public/mapimages/cable-${slugToString(c.name)}.jpg`)) {
+                if (!fs.existsSync(`public/mapimages/${(c.terrestrial) ? 'terrestrial-network' : 'subsea-cable'}-${slugToString(c.name)}.jpg`)) {
                   ElementClass.getMultiElementsGeom([c._id]).then((r) => {
-                    wget({ url: `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/geojson(${urlencode(JSON.stringify(r.r))})/auto/600x300@2x?access_token=${process.env.MAPBOX}`, dest: `public/mapimages/cable-${slugToString(c.name)}.jpg` }, (error, response, body)=>{
+                    wget({ url: `https://api.mapbox.com/styles/v1/mapbox/light-v10/static/geojson(${urlencode(JSON.stringify(r.r))})/auto/1200x630@2x?access_token=${process.env.MAPBOX}`, dest: `public/mapimages/${(c.terrestrial) ? 'terrestrial-network' : 'subsea-cable'}-${slugToString(c.name)}.jpg` }, (error, response, body) => {
                       if (error) {
                         console.log('--- error:');
                         console.log(error); // error encountered
@@ -48,7 +48,6 @@ class SEO {
               }
               cable.updateOne({ _id: new ObjectID(c._id) }, { $set: { slug: slugToString(c.name) } },
                 (err, u) => { console.log(count); count += 1; });
-
             });
             if (count === results.length) resolve();
           });
@@ -68,6 +67,7 @@ class SEO {
               $project: {
                 _id: 1,
                 name: 1,
+                terrestrial: 1,
               },
             },
           ]).toArray((err, results) => {
@@ -77,9 +77,9 @@ class SEO {
             let count = 0;
             results.map((c) => {
               try {
-                if (!fs.existsSync(`public/mapimages/cls-${slugToString(c.name)}.jpg`)) {
+                if (!fs.existsSync(`public/mapimages/${cls}-${slugToString(c.name)}.jpg`)) {
                   ElementClass.getMultiElementsGeom([c._id]).then((r) => {
-                    wget({ url: `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/geojson(${urlencode(JSON.stringify(r.r))})/auto/600x300@2x?access_token=${process.env.MAPBOX}`, dest: `public/mapimages/cls-${slugToString(c.name)}.jpg` }, (error, response, body)=>{
+                    wget({ url: `https://api.mapbox.com/styles/v1/mapbox/light-v10/static/geojson(${urlencode(JSON.stringify(r.r))})/auto/1200x630@2x?access_token=${process.env.MAPBOX}`, dest: `public/mapimages/cls-${slugToString(c.name)}.jpg` }, (error, response, body) => {
                       if (error) {
                         console.log('--- error:');
                         console.log(error); // error encountered
@@ -124,7 +124,7 @@ class SEO {
               try {
                 if (!fs.existsSync(`public/mapimages/facility-${slugToString(c.name)}.jpg`)) {
                   ElementClass.getMultiElementsGeomPoints([c._id]).then((r) => {
-                    wget({ url: `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/geojson(${urlencode(JSON.stringify(r.r))})/auto/600x300@2x?access_token=${process.env.MAPBOX}`, dest: `public/mapimages/facility-${slugToString(c.name)}.jpg` }, (error, response, body)=>{
+                    wget({ url: `https://api.mapbox.com/styles/v1/mapbox/light-v10/static/geojson(${urlencode(JSON.stringify(r.r))})/auto/1200x630@2x?access_token=${process.env.MAPBOX}`, dest: `public/mapimages/facility-${slugToString(c.name)}.jpg` }, (error, response, body) => {
                       if (error) {
                         console.log('--- error:');
                         console.log(error); // error encountered
@@ -169,7 +169,7 @@ class SEO {
               try {
                 if (!fs.existsSync(`public/mapimages/ixp-${slugToString(c.name)}.jpg`)) {
                   ElementClass.getMultiElementsGeom([c._id]).then((r) => {
-                    wget({ url: `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/geojson(${urlencode(JSON.stringify(r.r))})/auto/600x300@2x?access_token=${process.env.MAPBOX}`, dest: `public/mapimages/ixp-${slugToString(c.name)}.jpg` }, (error, response, body)=>{
+                    wget({ url: `https://api.mapbox.com/styles/v1/mapbox/light-v10/static/geojson(${urlencode(JSON.stringify(r.r))})/auto/1200x630@2x?access_token=${process.env.MAPBOX}`, dest: `public/mapimages/ixp-${slugToString(c.name)}.jpg` }, (error, response, body) => {
                       if (error) {
                         console.log('--- error:');
                         console.log(error); // error encountered
@@ -262,9 +262,9 @@ class SEO {
     });
   }
 
-  createCables() {
+  terrestrialNetworks() {
     return new Promise((resolve, reject) => {
-      console.log('starting with cables');
+      console.log('starting with cables-terrestrialNetworks');
       cable().then((cable) => {
         cable.aggregate([
           {
@@ -272,11 +272,11 @@ class SEO {
               _id: 1, name: 1, slug: 1, rgDate: 1, terrestial: 1,
             },
           },
-          { $match: { deleted: { $ne: true } } },
+          { $match: { $and: [{ deleted: { $ne: true } }, { terrestrial: true }] } },
           { $addFields: { rgDate: { $dateToString: { date: '$rgDate', format: '%Y-%m-%d', timezone: 'America/Los_Angeles' } } } },
         ])
           .toArray(async (err, elements) => {
-            const dirPath = 'cables.xml';
+            const dirPath = 'seo/terrestrialnetworks.xml';
             let xml;
             xml = builder.create('urlset', {
               version: '1.0',
@@ -286,7 +286,50 @@ class SEO {
             if (elements.length > 0) {
               await elements.map((el) => {
                 xml.ele('url')
-                  .ele('loc', `${process.env._CORSURL}/app/cable/${el.slug}`).up()
+                  .ele('loc', `${process.env._CORSURL}/app/${(c.terrestrial) ? 'terrestrial-network' : 'subsea-cable'}/${el.slug}`).up()
+                  .ele('lastmod', `${el.rgDate}`)
+                  .up()
+                  .ele('changefreq', 'monthly')
+                  .up()
+                  .ele('priority', '0.4')
+                  .up();
+              });
+              const xmldoc = xml.end().toString({ pretty: true });
+              fs.writeFileSync(dirPath, xmldoc, (err) => {
+                if (err) { return console.log(err); }
+              });
+              resolve();
+            }
+          });
+      }).catch((e) => console.log(e));
+    });
+  }
+
+  subseaCables() {
+    return new Promise((resolve, reject) => {
+      console.log('starting with cables-SubseaCables');
+      cable().then((cable) => {
+        cable.aggregate([
+          {
+            $project: {
+              _id: 1, name: 1, slug: 1, rgDate: 1, terrestial: 1,
+            },
+          },
+          { $match: { $and: [{ deleted: { $ne: true } }, { terrestrial: false }] } },
+          { $addFields: { rgDate: { $dateToString: { date: '$rgDate', format: '%Y-%m-%d', timezone: 'America/Los_Angeles' } } } },
+        ])
+          .toArray(async (err, elements) => {
+            const dirPath = 'seo/subseacables.xml';
+            let xml;
+            xml = builder.create('urlset', {
+              version: '1.0',
+              encoding: 'UTF-8',
+            });
+            xml.ele('url');
+            if (elements.length > 0) {
+              await elements.map((el) => {
+                xml.ele('url')
+                  .ele('loc', `${process.env._CORSURL}/app/${(c.terrestrial) ? 'terrestrial-network' : 'subsea-cable'}/${el.slug}`).up()
                   .ele('lastmod', `${el.rgDate}`)
                   .up()
                   .ele('changefreq', 'monthly')
@@ -319,7 +362,7 @@ class SEO {
           { $addFields: { rgDate: { $dateToString: { date: '$rgDate', format: '%Y-%m-%d', timezone: 'America/Los_Angeles' } } } },
         ])
           .toArray(async (err, elements) => {
-            const dirPath = 'cls.xml';
+            const dirPath = 'seo/cls.xml';
             let xml;
             xml = builder.create('urlset', {
               version: '1.0',
@@ -362,7 +405,7 @@ class SEO {
           { $addFields: { rgDate: { $dateToString: { date: '$rgDate', format: '%Y-%m-%d', timezone: 'America/Los_Angeles' } } } },
         ])
           .toArray(async (err, elements) => {
-            const dirPath = 'facilities.xml';
+            const dirPath = 'seo/facilities.xml';
             let xml;
             xml = builder.create('urlset', {
               version: '1.0',
@@ -405,7 +448,7 @@ class SEO {
           { $addFields: { rgDate: { $dateToString: { date: '$rgDate', format: '%Y-%m-%d', timezone: 'America/Los_Angeles' } } } },
         ])
           .toArray(async (err, elements) => {
-            const dirPath = 'ixps.xml';
+            const dirPath = 'seo/ixps.xml';
             let xml;
             xml = builder.create('urlset', {
               version: '1.0',
@@ -448,7 +491,7 @@ class SEO {
           { $addFields: { rgDate: { $dateToString: { date: '$rgDate', format: '%Y-%m-%d', timezone: 'America/Los_Angeles' } } } },
         ])
           .toArray(async (err, elements) => {
-            const dirPath = 'networks.xml';
+            const dirPath = 'seo/networks.xml';
             let xml;
             xml = builder.create('urlset', {
               version: '1.0',
@@ -496,7 +539,7 @@ class SEO {
           { $addFields: { rgDate: { $dateToString: { date: '$rgDate', format: '%Y-%m-%d', timezone: 'America/Los_Angeles' } } } },
         ])
           .toArray(async (err, elements) => {
-            const dirPath = 'organizations.xml';
+            const dirPath = 'seo/organizations.xml';
             let xml;
             xml = builder.create('urlset', {
               version: '1.0',
@@ -529,71 +572,77 @@ class SEO {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise((resolve, reject) => {
       try {
-        this.createCables().then(() => {
-          this.createCls().then(() => {
-            this.createFacilities().then(() => {
-              this.createIXPS().then(() => {
-                this.createNetwork().then(() => {
-                  this.createOrganizations().then(() => {
-                    const obj = {
-                      sitemapindex: {
-                        '@xmlns': 'http://www.sitemaps.org/schemas/sitemap/0.9', // attributes start with @
-                      },
-                    };
-                    const dirPath = 'sitemap.xml';
-                    let xml;
-                    xml = builder.create(obj, {
-                      version: '1.0',
-                      encoding: 'UTF-8',
-                    });
-                    xml.ele('sitemap')
-                      .ele('loc', `${process.env._CORSURL}/company.xml`).up()
-                      .ele('lastmod', new Date(fs.statSync('company.xml').mtime).toLocaleString())
-                      .up();
-                    xml.ele('sitemap')
-                      .ele('loc', 'https://blog.infrapedia.com/sitemap.xml').up()
-                      .ele('lastmod', new Date().toLocaleString())
-                      .up();
-                    xml.ele('sitemap')
-                      .ele('loc', `${process.env._CORSURL}/organizations.xml`).up()
-                      .ele('lastmod', new Date(fs.statSync('organizations.xml').mtime).toLocaleString())
-                      .up();
-                    xml.ele('sitemap')
-                      .ele('loc', 'https://blog.infrapedia.com/sitemap.xml').up()
-                      .ele('lastmod', new Date().toLocaleString())
-                      .up();
-                    xml.ele('sitemap')
-                      .ele('loc', `${process.env._CORSURL}/networks.xml`).up()
-                      .ele('lastmod', new Date(fs.statSync('networks.xml').mtime).toLocaleString())
-                      .up();
-                    xml.ele('sitemap')
-                      .ele('loc', `${process.env._CORSURL}/cables.xml`).up()
-                      .ele('lastmod', new Date(fs.statSync('cables.xml').mtime).toLocaleString())
-                      .up();
-                    xml.ele('sitemap')
-                      .ele('loc', `${process.env._CORSURL}/facilities.xml`).up()
-                      .ele('lastmod', new Date(fs.statSync('facilities.xml').mtime).toLocaleString())
-                      .up();
-                    xml.ele('sitemap')
-                      .ele('loc', `${process.env._CORSURL}/ixps.xml`).up()
-                      .ele('lastmod', new Date(fs.statSync('ixps.xml').mtime).toLocaleString())
-                      .up();
-                    xml.ele('sitemap')
-                      .ele('loc', `${process.env._CORSURL}/cls.xml`).up()
-                      .ele('lastmod', new Date(fs.statSync('cls.xml').mtime).toLocaleString())
-                      .up();
-                    fs.writeFileSync(dirPath, xml.end().toString({ pretty: true }), (err) => {
-                      if (err) { return console.log(err); }
-                    });
-                    resolve();
-                  }).catch((e) => reject({m: e}));
-                }).catch((e) => reject({m: e}));
-              }).catch((e) => reject({m: e}));
-            }).catch((e) => reject({m: e}));
-          }).catch((e) => reject({m: e}));
-        }).catch((e) => reject({m: e}));
+        this.subseaCables().then(() => {
+          this.terrestrialNetworks().then(() => {
+            this.createCls().then(() => {
+              this.createFacilities().then(() => {
+                this.createIXPS().then(() => {
+                  this.createNetwork().then(() => {
+                    this.createOrganizations().then(() => {
+                      const obj = {
+                        sitemapindex: {
+                          '@xmlns': 'http://www.sitemaps.org/schemas/sitemap/0.9', // attributes start with @
+                        },
+                      };
+                      const dirPath = 'seo/sitemap.xml';
+                      let xml;
+                      xml = builder.create(obj, {
+                        version: '1.0',
+                        encoding: 'UTF-8',
+                      });
+                      xml.ele('sitemap')
+                        .ele('loc', `${process.env._CORSURL}/company.xml`).up()
+                        .ele('lastmod', new Date(fs.statSync('company.xml').mtime).toLocaleString())
+                        .up();
+                      xml.ele('sitemap')
+                        .ele('loc', 'https://blog.infrapedia.com/sitemap.xml').up()
+                        .ele('lastmod', new Date().toLocaleString())
+                        .up();
+                      xml.ele('sitemap')
+                        .ele('loc', `${process.env._CORSURL}/organizations.xml`).up()
+                        .ele('lastmod', new Date(fs.statSync('organizations.xml').mtime).toLocaleString())
+                        .up();
+                      xml.ele('sitemap')
+                        .ele('loc', 'https://blog.infrapedia.com/sitemap.xml').up()
+                        .ele('lastmod', new Date().toLocaleString())
+                        .up();
+                      xml.ele('sitemap')
+                        .ele('loc', `${process.env._CORSURL}/networks.xml`).up()
+                        .ele('lastmod', new Date(fs.statSync('networks.xml').mtime).toLocaleString())
+                        .up();
+                      xml.ele('sitemap')
+                        .ele('loc', `${process.env._CORSURL}/subseacables.xml`).up()
+                        .ele('lastmod', new Date(fs.statSync('subseacables.xml').mtime).toLocaleString())
+                        .up();
+                      xml.ele('sitemap')
+                        .ele('loc', `${process.env._CORSURL}/terrestrialnetworks.xml`).up()
+                        .ele('lastmod', new Date(fs.statSync('terrestrialnetworks.xml').mtime).toLocaleString())
+                        .up();
+                      xml.ele('sitemap')
+                        .ele('loc', `${process.env._CORSURL}/facilities.xml`).up()
+                        .ele('lastmod', new Date(fs.statSync('facilities.xml').mtime).toLocaleString())
+                        .up();
+                      xml.ele('sitemap')
+                        .ele('loc', `${process.env._CORSURL}/ixps.xml`).up()
+                        .ele('lastmod', new Date(fs.statSync('ixps.xml').mtime).toLocaleString())
+                        .up();
+                      xml.ele('sitemap')
+                        .ele('loc', `${process.env._CORSURL}/cls.xml`).up()
+                        .ele('lastmod', new Date(fs.statSync('cls.xml').mtime).toLocaleString())
+                        .up();
+                      fs.writeFileSync(dirPath, xml.end().toString({ pretty: true }), (err) => {
+                        if (err) { return console.log(err); }
+                      });
+                      resolve();
+                    }).catch((e) => reject({ m: e }));
+                  }).catch((e) => reject({ m: e }));
+                }).catch((e) => reject({ m: e }));
+              }).catch((e) => reject({ m: e }));
+            }).catch((e) => reject({ m: e }));
+          }).catch((e) => reject({ m: e }));
+        }).catch((e) => reject({ m: e }));
       } catch (e) {
-        reject({m: e})
+        reject({ m: e });
       }
     });
   }

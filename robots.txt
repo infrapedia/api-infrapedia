@@ -1,0 +1,24 @@
+User-Agent: *
+Disallow: /user
+Disallow: /profile
+Disallow: /user/section/alerts
+Disallow: /user/section/issues
+Disallow: /user/section/orgs
+Disallow: /user/section/groups
+Disallow: /user/section/cls
+Disallow: /user/section/subsea-cables
+Disallow: /user/section/terrestrial-networks
+Disallow: /user/section/ixps
+Disallow: /user/section/facilities
+Disallow: /user/section/create
+Allow: /terms-and-conditions
+Allow: /services
+Allow: /sponsors
+Allow: /about
+Allow: /advisory-board
+Allow: /attributions
+Allow: /faq
+Allow: /contact
+Allow: /privacy-policy
+
+Sitemap: https://www.infrapedia.com/sitemap.xml
