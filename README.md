@@ -10,6 +10,7 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 #### 🏁2.0
 | Version  | Changes |
 | ------------- | ------------- |
+|2.5.1.20200831|- Fixed variable declaration not used on cable edit method and added error handle   |
 |2.5.20200830|- Changed de type of IXP for search standarizatiton, robot.txt for Infrapedia.com, changed the path and name(cables = terrestrial or subsea) for the elements   |
 |2.2.20200829|- Email elements moved to new folder and reconfigured the function linked to them  |
 |2.1.9.20200829|- Create images to share elements in SocialNetworks, change the name of template folder, fix the problems with slug sort,  |

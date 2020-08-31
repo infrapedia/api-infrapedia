@@ -179,11 +179,12 @@ class Cable {
     return new Promise((resolve, reject) => {
       try {
         if (user !== undefined || user !== '') {
-          const limit = 40;
-          const page = (search.page) ? search.page : 0;
           this.model().then(async (cables) => {
             const nameFile = Math.floor(Date.now() / 1000);
             const stream = await fs.createWriteStream(`./temp/${nameFile}.json`);
+            stream.on('error', (err) => {
+              reject({ m: err });
+            });
             stream.write(data.geom);
             stream.end(async () => {
               const geomData = await fs.readFileSync(`./temp/${nameFile}.json`, 'utf8');
@@ -282,9 +283,9 @@ class Cable {
                 });
               });
             });
-          }).catch((e) => reject({ m: e }));
+          }).catch((e) => { console.log(e); reject({ m: e }); });
         } else { resolve('Not user found'); }
-      } catch (e) { reject({ m: e }); }
+      } catch (e) { console.log(e); reject({ m: e }); }
     });
   }
 
