@@ -221,6 +221,13 @@ class Facility {
                     let: { facilities: '$_id' },
                     pipeline: [
                       {
+                        $project: {
+                          _id: 1,
+                          name: 1,
+                          terrestrial: 1,
+                        },
+                      },
+                      {
                         $addFields: {
                           facilities: {
                             $cond: {
@@ -243,13 +250,6 @@ class Facility {
                               deleted: false,
                             },
                           ],
-                        },
-                      },
-                      {
-                        $project: {
-                          _id: 1,
-                          name: 1,
-                          terrestrial: 1,
                         },
                       },
                     ],
