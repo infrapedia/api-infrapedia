@@ -10,6 +10,7 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 #### 🏁2.0
 | Version  | Changes |
 | ------------- | ------------- |
+|2.5.5.20200901|- Fixed the company sitemap url |
 |2.5.4.20200901|- Fixed functions tp create xml in the SEO class |
 |2.5.3.20200831|- Add terrestrial key for cables and facilities |
 |2.5.2.20200831|- Add terrestrial key for cables and facilities |
