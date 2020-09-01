@@ -45,37 +45,37 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.get(`${process.env._ROUTE}/cls/geom/:id`, statics, (req, res) => {
+    router.get(`${process.env._ROUTE}/cls/geom/:id`, (req, res) => {
       controllers.cableLandingStations.getElementGeom(req.headers.userid, req.params.id)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.post(`${process.env._ROUTE}/cls/geoms`, statics, (req, res) => {
+    router.post(`${process.env._ROUTE}/cls/geoms`, (req, res) => {
       controllers.cableLandingStations.getMultiElementsGeom(req.headers.userid, req.body.ids)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.post(`${process.env._ROUTE}/cls/update/cable`, statics, (req, res) => {
+    router.post(`${process.env._ROUTE}/cls/update/cable`, (req, res) => {
       controllers.cableLandingStations.updateCable(req.headers.userid, req.body)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.post(`${process.env._ROUTE}/cls/remove/cable`, statics, (req, res) => {
+    router.post(`${process.env._ROUTE}/cls/remove/cable`, (req, res) => {
       controllers.cableLandingStations.removeCable(req.headers.userid, req.body)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.get(`${process.env._ROUTE}/cls/list/cables/:id`, statics, (req, res) => {
+    router.get(`${process.env._ROUTE}/cls/list/cables/:id`, (req, res) => {
       controllers.cableLandingStations.listOfCables(req.headers.userid, req.params.id)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.get(`${process.env._ROUTE}/cls/list/connected/:id`, statics, (req, res) => {
+    router.get(`${process.env._ROUTE}/cls/list/connected/:id`, (req, res) => {
       controllers.cableLandingStations.listOfCLSbyCable(req.headers.userid, req.params.id)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.get(`${process.env._ROUTE}/cls/checkname`, statics, (req, res) => {
+    router.get(`${process.env._ROUTE}/cls/checkname`, (req, res) => {
       controllers.cableLandingStations.checkName(req.query.n)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });

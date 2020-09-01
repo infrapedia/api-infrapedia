@@ -21,4 +21,5 @@ module.exports = {
   delete: (usr, id) => IXP.delete(usr, id),
   checkName: (name) => IXP.checkName(name),
   permanentDelete: (usr, id, code) => IXP.permanentDelete(usr, id, code),
+  getIdBySlug: (slug) => IXP.getIdBySlug(slug),
 };

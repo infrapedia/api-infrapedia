@@ -37,10 +37,13 @@ FROM facility`;
   }),
   getElementGeom: (usr, id) => Facility.getElementGeom(id),
   getMultiElementsGeom: (usr, ids) => Facility.getMultiElementsGeom(ids),
+  getMultiElementsGeomPoints: (usr, ids) => Facility.getMultiElementsGeomPoints(ids),
   add: (usr, data) => Facility.add(usr, data),
   edit: (usr, data) => Facility.edit(usr, data),
   list: (usr, page) => Facility.list(usr, page),
   delete: (usr, id) => Facility.delete(usr, id),
   checkName: (name) => Facility.checkName(name),
   permanentDelete: (usr, id, code) => Facility.permanentDelete(usr, id, code),
+  clustering: () => Facility.clustering(),
+  getIdBySlug: (slug) => Facility.getIdBySlug(slug),
 };

@@ -26,22 +26,27 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.get(`${process.env._ROUTE}/facilities/geom/:id`, statics, (req, res) => {
+    router.get(`${process.env._ROUTE}/facilities/geom/:id`, (req, res) => {
       controllers.facilities.getElementGeom(req.headers.userid, req.params.id)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.post(`${process.env._ROUTE}/facilities/geoms`, statics, (req, res) => {
+    router.post(`${process.env._ROUTE}/facilities/geoms`, (req, res) => {
       controllers.facilities.getMultiElementsGeom(req.headers.userid, req.body.ids)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.post(`${process.env._ROUTE}/auth/facilities/add`, statics, (req, res) => {
+    router.post(`${process.env._ROUTE}/facilities/geomspoints`, (req, res) => {
+      controllers.facilities.getMultiElementsGeomPoints(req.headers.userid, req.body.ids)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.post(`${process.env._ROUTE}/auth/facilities/add`, (req, res) => {
       controllers.facilities.add(req.headers.userid, req.body)
         .then((r) => { response.success(res, r); })
         .catch((e) => { response.err(res, e); });
     });
-    router.put(`${process.env._ROUTE}/auth/facilities/edit`, statics, (req, res) => {
+    router.put(`${process.env._ROUTE}/auth/facilities/edit`, (req, res) => {
       controllers.facilities.edit(req.headers.userid, req.body)
         .then((r) => { response.success(res, r); })
         .catch((e) => { response.err(res, e); });
@@ -56,13 +61,18 @@ module.exports = {
         .then((r) => { response.success(res, r); })
         .catch((e) => { response.err(res, e); });
     });
-    router.get(`${process.env._ROUTE}/facilities/checkname`, statics, (req, res) => {
+    router.get(`${process.env._ROUTE}/facilities/checkname`, (req, res) => {
       controllers.facilities.checkName(req.query.n)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
     router.delete(`${process.env._ROUTE}/auth/facilities/permanentdelete/:id`, (req, res) => {
       controllers.facilities.permanentDelete(req.headers.userid, req.params.id, req.body.code)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.get(`${process.env._ROUTE}/auth/facilities/clustering`, (req, res) => {
+      controllers.facilities.clustering()
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });

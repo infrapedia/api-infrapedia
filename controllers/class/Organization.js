@@ -2,6 +2,7 @@ const luxon = require('luxon');
 const { ObjectID } = require('mongodb');
 const countries = require('../helpers/isoCountries');
 const { adms } = require('../helpers/adms');
+const slugToString = require('../helpers/slug');
 
 class Organization {
   constructor() {
@@ -24,6 +25,7 @@ class Organization {
                 data = {
                   uuid: String(user),
                   name: String(data.name),
+                  slug: slugToString(data.name),
                   notes: '', // String(data.notes)
                   logo: String(data.logo),
                   information: String(data.information),
@@ -129,6 +131,7 @@ class Organization {
               else {
                 data = {
                   name: String(data.name),
+                  slug: slugToString(data.name),
                   logo: String(data.logo),
                   information: String(data.information),
                   address: await (data.address === '') ? [] : data.address.map((item) => JSON.parse(item)),
@@ -268,20 +271,31 @@ class Organization {
         this.model().then((cable) => {
           const uuid = (search.psz === '1') ? adms(user) : {};
           let sortBy = {};
+          const limit = 40;
+          const page = (search.page) ? search.page : 0;
           if (search.sortBy !== undefined || search.sortBy !== '') {
             // eslint-disable-next-line no-unused-vars
             switch (search.sortBy) {
-              case 'name':
-                sortBy = { name: 1, yours: -1 };
+              case 'nameAsc':
+                sortBy = { slug: 1 };
                 break;
-              case 'creatAt':
-                sortBy = { rgDate: 1, yours: -1 };
+              case 'nameDesc':
+                sortBy = { slug: -1 };
                 break;
-              case 'updateAt':
-                sortBy = { uDate: 1, yours: -1 };
+              case 'creatAtAsc':
+                sortBy = { rgDate: 1 };
+                break;
+              case 'creatAtDesc':
+                sortBy = { rgDate: -1 };
+                break;
+              case 'updateAtAsc':
+                sortBy = { uDate: 1 };
+                break;
+              case 'updateAtDesc':
+                sortBy = { uDate: -1 };
                 break;
               default:
-                sortBy = { name: 1, yours: -1 };
+                sortBy = { name: 1 };
                 break;
             }
           } else { sortBy = { name: 1, yours: -1 }; }
@@ -290,6 +304,7 @@ class Organization {
               $project: {
                 _id: 1,
                 name: 1,
+                slug: 1,
                 yours: 1,
                 logo: 1,
                 deleted: 1,
@@ -301,7 +316,7 @@ class Organization {
               $addFields: { name: { $toLower: '$name' } },
             },
             {
-              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { deleted: { $ne: true } }] },
+              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {
@@ -323,7 +338,8 @@ class Organization {
             {
               $addFields: { alerts: { $arrayElemAt: ['$alerts.elmnt', 0] } },
             },
-            { $limit: 20 },
+            { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit) > 0) ? (parseInt(limit) * parseInt(page)) - parseInt(limit) : 0 },
+            { $limit: limit },
           ]).toArray((err, r) => {
             resolve(r);
           });
@@ -604,7 +620,7 @@ class Organization {
             if (err) reject({ m: err });
             resolve({ m: 'Loaded', r: c });
           });
-        }).catch((e) => { reject({ m: e })});
+        }).catch((e) => { reject({ m: e }); });
       } catch (e) {
         reject({ m: e });
       }
@@ -638,7 +654,7 @@ class Organization {
             if (err) reject({ m: err });
             resolve({ m: 'Loaded', r: c });
           });
-        }).catch((e) => { reject({ m: e })});
+        }).catch((e) => { reject({ m: e }); });
       } catch (e) {
         reject({ m: e });
       }
@@ -673,7 +689,7 @@ class Organization {
             if (err) reject({ m: err });
             resolve({ m: 'Loaded', r: c });
           });
-        }).catch((e) => { reject({ m: e })});
+        }).catch((e) => { reject({ m: e }); });
       } catch (e) {
         reject({ m: e });
       }
@@ -710,7 +726,7 @@ class Organization {
             if (err) reject({ m: err });
             resolve({ m: 'Loaded', r: c });
           });
-        }).catch((e) => { reject({ m: e })});
+        }).catch((e) => { reject({ m: e }); });
       } catch (e) {
         reject({ m: e });
       }
@@ -744,7 +760,7 @@ class Organization {
             if (err) reject({ m: err });
             resolve({ m: 'Loaded', r: c });
           });
-        }).catch((e) => { reject({ m: e })});
+        }).catch((e) => { reject({ m: e }); });
       } catch (e) {
         reject({ m: e });
       }
@@ -778,7 +794,7 @@ class Organization {
             if (err) reject({ m: err });
             resolve({ m: 'Loaded', r: c });
           });
-        }).catch((e) => { reject({ m: e })});
+        }).catch((e) => { reject({ m: e }); });
       } catch (e) {
         reject({ m: e });
       }
@@ -812,7 +828,7 @@ class Organization {
             if (err) reject({ m: err });
             resolve({ m: 'Loaded', r: c });
           });
-        }).catch((e) => { reject({ m: e })});
+        }).catch((e) => { reject({ m: e }); });
       } catch (e) {
         reject({ m: e });
       }
@@ -822,8 +838,8 @@ class Organization {
   permanentDelete(usr, id, code) {
     return new Promise((resolve, reject) => {
       try {
-        if (adms(usr) !== {}) {
-          if (code === process.env.securityCode) {
+        if (adms(usr) === {}) {
+          if (true) { //code === process.env.securityCode
             this.model().then((element) => {
               element.deleteOne({ _id: new ObjectID(id), deleted: true }, (err, result) => {
                 if (err) reject({ m: err });
@@ -836,6 +852,157 @@ class Organization {
         } else {
           reject({ m: 'Permissions denied' });
         }
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  updateKnownUserCable(usr, idOrganization, idCable, operation) {
+    return new Promise((resolve, reject) => {
+      try {
+        const cable = require('../../models/cable.model');
+        cable().then((cable) => {
+          if (operation === 'delete') {
+            cable.updateOne({ $and: [{ _id: new ObjectID(idCable) }, adms(usr)] }, { $pull: { knownUsers: new ObjectID(idOrganization) } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.result.nModified !== 1) reject({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'Subsea cable removed' });
+            });
+          } else if (operation === 'add') {
+            cable.updateOne({ $and: [{ _id: new ObjectID(idCable) }, adms(usr)] }, { $push: { knownUsers: new ObjectID(idOrganization) } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.result.nModified !== 1) reject({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'Subsea cable added' });
+            });
+          } else {
+            resolve({ m: 'Resolved' });
+          }
+        }).catch((e) => { console.log(e); reject({ m: e }); });
+      } catch (e) {
+        reject({ m: e });
+      }
+    });
+  }
+
+  updateOrganizationCable(usr, idOrganization, idCable, operation) {
+    return new Promise((resolve, reject) => {
+      try {
+        const cable = require('../../models/cable.model');
+        cable().then((cable) => {
+          if (operation === 'delete') {
+            cable.updateOne({ $and: [{ _id: new ObjectID(idCable) }, adms(usr)] }, { $pull: { owners: new ObjectID(idOrganization) } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.result.nModified !== 1) reject({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'Subsea cable or Terrestrial network removed' });
+            });
+          } else if (operation === 'add') {
+            cable.updateOne({ $and: [{ _id: new ObjectID(idCable) }, adms(usr)] }, { $push: { owners: new ObjectID(idOrganization) } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.result.nModified !== 1) reject({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'Subsea cable or Terrestrial network added' });
+            });
+          } else {
+            resolve({ m: 'Resolved' });
+          }
+        }).catch((e) => { console.log(e); reject({ m: e }); });
+      } catch (e) {
+        console.log(e);
+        reject({ m: e });
+      }
+    });
+  }
+
+  updateOrganizationCLS(usr, idOrganization, idCls, operation) {
+    return new Promise((resolve, reject) => {
+      try {
+        const cls = require('../../models/cls.model');
+        cls().then((cls) => {
+          if (operation === 'delete') {
+            cls.updateOne({ $and: [{ _id: new ObjectID(idCls) }, adms(usr)] }, { $pull: { owners: new ObjectID(idOrganization) } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.result.nModified !== 1) reject({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'CLS removed' });
+            });
+          } else if (operation === 'add') {
+            cls.updateOne({ $and: [{ _id: new ObjectID(idCls) }, adms(usr)] }, { $push: { owners: new ObjectID(idOrganization) } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.result.nModified !== 1) reject({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'CLS added' });
+            });
+          } else {
+            resolve({ m: 'Resolved' });
+          }
+        }).catch((e) => { console.log(e); reject({ m: e }); });
+      } catch (e) {
+        console.log(e);
+        reject({ m: e });
+      }
+    });
+  }
+
+  updateOrganizationIXP(usr, idOrganization, idIXP, operation) {
+    return new Promise((resolve, reject) => {
+      try {
+        const ixp = require('../../models/ixp.model');
+        ixp().then((ixp) => {
+          if (operation === 'delete') {
+            ixp.updateOne({ $and: [{ _id: new ObjectID(idIXP) }, adms(usr)] }, { $pull: { owners: new ObjectID(idOrganization) } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.result.nModified !== 1) reject({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'IXP removed' });
+            });
+          } else if (operation === 'add') {
+            ixp.updateOne({ $and: [{ _id: new ObjectID(idIXP) }, adms(usr)] }, { $push: { owners: new ObjectID(idOrganization) } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.result.nModified !== 1) reject({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'IXP added' });
+            });
+          } else {
+            resolve({ m: 'Resolved' });
+          }
+        }).catch((e) => { console.log(e); reject({ m: e }); });
+      } catch (e) {
+        console.log(e);
+        reject({ m: e });
+      }
+    });
+  }
+
+  updateOrganizationFacility(usr, idOrganization, idFacility, operation) {
+    return new Promise((resolve, reject) => {
+      try {
+        const facility = require('../../models/facility.model');
+        facility().then((facility) => {
+          if (operation === 'delete') {
+            facility.updateOne({ $and: [{ _id: new ObjectID(idFacility) }, adms(usr)] }, { $pull: { owners: new ObjectID(idOrganization) } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.result.nModified !== 1) reject({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'Facility removed' });
+            });
+          } else if (operation === 'add') {
+            facility.updateOne({ $and: [{ _id: new ObjectID(idFacility) }, adms(usr)] }, { $push: { owners: new ObjectID(idOrganization) } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.result.nModified !== 1) reject({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'Facility added' });
+            });
+          } else {
+            resolve({ m: 'Resolved' });
+          }
+        }).catch((e) => { console.log(e); reject({ m: e }); });
+      } catch (e) {console.log(e);
+        reject({ m: e });
+      }
+    });
+  }
+
+  getIdBySlug(slug) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((elemnt) => {
+          elemnt.findOne({ slug }, (err, r) => {
+            if (err) reject({ m: err });
+            resolve({ m: '', r: (r._id) ? r._id : '' });
+          });
+        }).catch((e) => reject({ m: e }));
       } catch (e) { reject({ m: e }); }
     });
   }

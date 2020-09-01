@@ -28,4 +28,5 @@ module.exports = {
   checkName: (name) => Cable.checkName(name),
   subSealistByName: (req, res) => Cable.subSealistByName(req, res),
   permanentDelete: (usr, id, code) => Cable.permanentDelete(usr, id, code),
+  getIdBySlug: (slug) => Cable.getIdBySlug(slug),
 };

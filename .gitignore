@@ -1,8 +1,15 @@
 
 # Created by https://www.gitignore.io/api/node,dotenv,webstorm,jetbrains,virtualenv
 # Edit at https://www.gitignore.io/?templates=node,dotenv,webstorm,jetbrains,virtualenv
-
+sitemap.xml
+cables.xml
+cls.xml
+organizations.xml
+facilities.xml
+ixps.xml
+networks.xml
 temp/*
+public/mapimages/*
 
 ### dotenv ###
 .env
@@ -280,3 +287,14 @@ public/map/facilities.json
 public/map/cls.json
 temp/cables_terrestrial.json
 temp/cables_subsea.json
+subsea/
+.idea/misc.xml
+.idea/vcs.xml
+networks.xml
+organizations.xml
+organizations.xml
+networks.xml
+ixps.xml
+facilities.xml
+cables.xml
+.DS_Store

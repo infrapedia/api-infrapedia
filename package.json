@@ -1,6 +1,6 @@
 {
   "name": "api-infrapedia",
-  "version": "2.0",
+  "version": "2.5.2",
   "description": "Api for infrapedia",
   "main": "app.js",
   "scripts": {
@@ -75,6 +75,7 @@
     "passport-auth0": "^1.2.1",
     "pg": "^7.17.1",
     "querystring": "^0.2.0",
+    "realm": "^6.0.5",
     "redis": "^2.8.0",
     "request": "^2.88.2",
     "saslprep": "^1.0.3",
@@ -85,10 +86,12 @@
     "unirest": "^0.6.0",
     "unzip2": "^0.2.5",
     "url": "^0.11.0",
+    "urlencode": "^1.1.0",
     "util": "^0.12.1",
     "utils": "^0.3.1",
     "uuid": "^3.3.3",
     "valid-url": "^1.0.9",
+    "xmlbuilder": "^15.1.1",
     "xmldom": "^0.2.1"
   }
 }

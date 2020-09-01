@@ -20,4 +20,10 @@ module.exports = {
   associationsIXPS: (id) => Organization.associationsIXPS(id),
   associationsFacilities: (id) => Organization.associationsFacilities(id),
   permanentDelete: (usr, id, code) => Organization.permanentDelete(usr, id, code),
+  updateOrganizationCLS: (usr, idOrganization, idCls, operation) => Organization.updateOrganizationCLS(usr, idOrganization, idCls, operation),
+  updateKnownUserCable: (usr, idOrganization, idCable, operation) => Organization.updateKnownUserCable(usr, idOrganization, idCable, operation),
+  updateOrganizationCable: (usr, idOrganization, idCable, operation) => Organization.updateOrganizationCable(usr, idOrganization, idCable, operation),
+  updateOrganizationIXP: (usr, idOrganization, idIXP, operation) => Organization.updateOrganizationIXP(usr, idOrganization, idIXP, operation),
+  updateOrganizationFacility: (usr, idOrganization, idFacility, operation) => Organization.updateOrganizationFacility(usr, idOrganization, idFacility, operation),
+  getIdBySlug: (slug) => Organization.getIdBySlug(slug),
 };

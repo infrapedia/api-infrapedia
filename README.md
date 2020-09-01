@@ -10,12 +10,20 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 #### 🏁2.0
 | Version  | Changes |
 | ------------- | ------------- |
+|2.5.2.20200831|- Add terrestrial key for cables and facilities    |
+|2.5.1.20200831|- Fixed variable declaration not used on cable edit method and added error handle   |
+|2.5.20200830|- Changed de type of IXP for search standarizatiton, robot.txt for Infrapedia.com, changed the path and name(cables = terrestrial or subsea) for the elements   |
+|2.2.20200829|- Email elements moved to new folder and reconfigured the function linked to them  |
+|2.1.9.20200829|- Create images to share elements in SocialNetworks, change the name of template folder, fix the problems with slug sort,  |
+|2.1.2.20200828|- Subsecable slug sort |
+|2.1.1.20200828|- Request slug for terrestrial-network and subsea-cable |
+|2.1.20200828|- Create slug for each elements, change the map config insertion in the database, create XML in the sitemap |
+|2.0.8.20200817|- Sort resolved in cables, get geom facilities by points, update organization information  |
+|2.0.5.20200817|- Permanent delete fixed for administrators, ASC and DESC sort for search information, sorting by RFS for subseaCables and organization add or remove connections  |
 |2.0.20200817|- Fixed problem with cables with multiples CLS |
 
 ## V.1
-#### 🏁1.9
-| Version  | Changes |
-| ------------- | ------------- |
+```
 |1.9.9.2.20200816|- Add RgDate and Udate to the search service response |
 |1.9.9.1.20200816|- Problem with the endpoints for permanent delete |
 |1.9.9.20200816|- Sorting data on search results and property deleted on the list table |
@@ -27,10 +35,6 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 |1.9.4.20200810|- Send an email when the user makes an offer |
 |1.9.3.20200806|- Resolved issue with the search of cables, create endpoints for get data by API for maps, resolved the data of maps using REDIS |
 |1.9.0.20200802|- Problems resolved with MongoDb connection |
-
-#### 🏁1.8
-| Version  | Changes |
-| ------------- | ------------- |
 |1.8.9.20200731|- Adding new functionalities for organizations (Associations to anothers elements), geoms validation with name in properties |
 |1.8.5.20200723|- Adding name to the geom properties functions  |
 |1.8.4.20200713|- Market place status update and rename the file of MarketPlace  |
@@ -55,7 +59,7 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 |1.5.9.20200609|Functionality for infrapedia awards voting  |
 |1.5.8.20200602|Fixed the problem with the cls finder  |
 |1.5.7.20200529|Connection to the database, Connection to Redis Sessions, eslintRules  |
-
+```
 
 App network: 
 

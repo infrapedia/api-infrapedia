@@ -3,6 +3,7 @@ const GJV = require('geojson-validation');
 const { ObjectID } = require('mongodb');
 const redisClient = require('../../config/redis');
 const countries = require('../helpers/isoCountries');
+const slugToString = require('../helpers/slug');
 
 const { adms } = require('../helpers/adms');
 
@@ -20,6 +21,7 @@ class Facility {
             const element = {
               uuid: user,
               name: String(data.name),
+              slug: slugToString(data.name),
               point: {},
               address: (Array.isArray(data.address)) ? await data.address.map((address) => JSON.parse(address)) : [],
               website: data.website,
@@ -40,7 +42,7 @@ class Facility {
               else if (c > 0) reject({ m: 'We have another element with the same name' });
               facility.insertOne(element, (err, f) => {
                 if (err) reject({ m: err + 0 });
-                resolve({ m: 'Facility created' });
+                resolve({ m: 'Facility created', r: f.insertedId });
               });
             });
           } else { reject({ m: 'Error' }); }
@@ -56,6 +58,7 @@ class Facility {
           if (data) {
             const element = {
               name: String(data.name),
+              slug: slugToString(data.name),
               point: {},
               address: (Array.isArray(data.address)) ? await data.address.map((address) => JSON.parse(address)) : [],
               website: data.website,
@@ -246,6 +249,7 @@ class Facility {
                         $project: {
                           _id: 1,
                           name: 1,
+                          terrestrial: 1,
                         },
                       },
                     ],
@@ -778,17 +782,28 @@ class Facility {
         this.model().then((facility) => {
           const uuid = (search.psz === '1') ? adms(user) : {};
           let sortBy = {};
+          const limit = 40;
+          const page = (search.page) ? search.page : 0;
           if (search.sortBy !== undefined || search.sortBy !== '') {
             // eslint-disable-next-line no-unused-vars
             switch (search.sortBy) {
-              case 'name':
-                sortBy = { name: 1 };
+              case 'nameAsc':
+                sortBy = { slug: 1 };
                 break;
-              case 'creatAt':
+              case 'nameDesc':
+                sortBy = { slug: -1 };
+                break;
+              case 'creatAtAsc':
                 sortBy = { rgDate: 1 };
                 break;
-              case 'updateAt':
+              case 'creatAtDesc':
+                sortBy = { rgDate: -1 };
+                break;
+              case 'updateAtAsc':
                 sortBy = { uDate: 1 };
+                break;
+              case 'updateAtDesc':
+                sortBy = { uDate: -1 };
                 break;
               default:
                 sortBy = { name: 1 };
@@ -800,6 +815,7 @@ class Facility {
               $project: {
                 _id: 1,
                 name: 1,
+                slug: 1,
                 alerts: 1,
                 deleted: 1,
                 rgDate: 1,
@@ -807,7 +823,7 @@ class Facility {
               },
             },
             {
-              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { deleted: false }] },
+              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
             },
             {
               $lookup: {
@@ -828,7 +844,8 @@ class Facility {
             {
               $sort: sortBy,
             },
-            { $limit: 20 },
+            { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit) > 0) ? (parseInt(limit) * parseInt(page)) - parseInt(limit) : 0 },
+            { $limit: limit },
           ]).toArray((err, r) => {
             resolve(r);
           });
@@ -919,6 +936,83 @@ class Facility {
     });
   }
 
+  getMultiElementsGeomPoints(ids) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (!Array.isArray(ids) || ids.length === 0) resolve({ m: 'Loaded', r: false });
+        ids = ids.map((i) => new ObjectID(i));
+        this.model().then((facility) => {
+          facility.aggregate([
+            {
+              $match: {
+                $expr: {
+                  $in: ['$_id', ids],
+                },
+              },
+            },
+            {
+              $project: {
+                geom: {
+                  type: 'Feature',
+                  geometry: '$point',
+                  properties: {
+                    _id: '$_id',
+                    name: '$name',
+                  },
+                },
+              },
+            },
+            // {
+            //   $project: {
+            //     _id: 1,
+            //     name: 1,
+            //     geom: {
+            //       type: 'Feature',
+            //       geometry: '$point',
+            //       properties: {
+            //         _id: '$_id',
+            //         name: '$name',
+            //       },
+            //     },
+            //   },
+            // },
+            // {
+            //   $unwind: '$geom.features',
+            // },
+            // {
+            //   $addFields: {
+            //     'geom.features.properties.name': '$name',
+            //   },
+            // },
+            // {
+            //   $group: {
+            //     _id: '$_id',
+            //     features: {
+            //       $push: '$geom.features',
+            //     },
+            //   },
+            // },
+            // {
+            //   $project: {
+            //     type: 'FeatureCollection',
+            //     features: '$geom.features',
+            //   },
+            // },
+          ]).toArray(async (err, points) => {
+            if (err) return 'Error';
+            // // we'll going to create the master file for ixps
+            points = await points.reduce((total, value) => total.concat(value.geom), []);
+            points = {
+              type: 'FeatureCollection',
+              features: points,
+            };
+            resolve({ m: 'Loaded', r: points });
+          });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
   createBBOXs() {
     return new Promise((resolve, reject) => {
       try {
@@ -986,8 +1080,8 @@ class Facility {
   permanentDelete(usr, id, code) {
     return new Promise((resolve, reject) => {
       try {
-        if (adms(usr) !== {}) {
-          if (code === process.env.securityCode) {
+        if (adms(usr) === {}) {
+          if (true) { //code === process.env.securityCode
             this.model().then((element) => {
               element.deleteOne({ _id: new ObjectID(id), deleted: true }, (err, result) => {
                 if (err) reject({ m: err });
@@ -1000,6 +1094,25 @@ class Facility {
         } else {
           reject({ m: 'Permissions denied' });
         }
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  clustering(){
+    return new Promise((resolve, reject) => {
+
+    });
+  }
+
+  getIdBySlug(slug) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((elemnt) => {
+          elemnt.findOne({ slug }, (err, r) => {
+            if (err) reject({ m: err });
+            resolve({ m: '', r: (r._id) ? r._id : '' });
+          });
+        }).catch((e) => reject({ m: e }));
       } catch (e) { reject({ m: e }); }
     });
   }

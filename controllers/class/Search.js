@@ -391,7 +391,7 @@ class Search {
                 _id: 1,
                 name: 1,
                 networks: 1,
-                t: 'ixps',
+                t: 'ixp',
               },
             },
           ]).toArray((err, r) => {

@@ -190,8 +190,62 @@ const routes = function (router, controllers) {
       }).catch(() => res.sendStatus(500));
     });
   });
+
+  router.get(`${process.env._ROUTE}/createSlugs`, (req, res) => {
+    controllers.SEO.createSlugs().then((r) => res.sendStatus(200)).catch((res.sendStatus(500)));
+  });
+  router.get(`${process.env._ROUTE}/createSiteMap`, (req, res) => {
+    controllers.SEO.createSitemap().then((r) => res.sendStatus(200)).catch((res.sendStatus(500)));
+  });
   router.get('/debug-sentry', (req, res) => {
     throw new Error('My first Sentry error!');
+  });
+  router.get(`${process.env._ROUTE}/:type/:slug`, (req, res) => {
+    switch (req.params.type) {
+      case 'cable':
+        controllers.cables.getIdBySlug(req.params.slug)
+          .then((r) => { response.success(res, r, false); })
+          .catch((e) => { response.err(res, e); });
+        break;
+      case 'terrestrial-network':
+        controllers.cables.getIdBySlug(req.params.slug)
+          .then((r) => { response.success(res, r, false); })
+          .catch((e) => { response.err(res, e); });
+        break;
+      case 'subsea-cable':
+        controllers.cables.getIdBySlug(req.params.slug)
+          .then((r) => { response.success(res, r, false); })
+          .catch((e) => { response.err(res, e); });
+        break;
+      case 'cls':
+        controllers.cableLandingStations.getIdBySlug(req.params.slug)
+          .then((r) => { response.success(res, r, false); })
+          .catch((e) => { response.err(res, e); });
+        break;
+      case 'ixp':
+        controllers.facilities.getIdBySlug(req.params.slug)
+          .then((r) => { response.success(res, r, false); })
+          .catch((e) => { response.err(res, e); });
+        break;
+      case 'facility':
+        controllers.internetExchangePoints.getIdBySlug(req.params.slug)
+          .then((r) => { response.success(res, r, false); })
+          .catch((e) => { response.err(res, e); });
+        break;
+      case 'network':
+        controllers.networks.getIdBySlug(req.params.slug)
+          .then((r) => { response.success(res, r, false); })
+          .catch((e) => { response.err(res, e); });
+        break;
+      case 'organization':
+        controllers.organizations.getIdBySlug(req.params.slug)
+          .then((r) => { response.success(res, r, false); })
+          .catch((e) => { response.err(res, e); });
+        break;
+      default:
+        res.sendStatus(500);
+        break;
+    }
   });
 };
 module.exports = routes;

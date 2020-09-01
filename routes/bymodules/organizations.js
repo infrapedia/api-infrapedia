@@ -92,5 +92,59 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+
+    //UPDATE ELEMENTS
+    router.delete(`${process.env._ROUTE}/auth/updateknownuserCable`, (req, res) => {
+      controllers.organizations.updateKnownUserCable(req.headers.userid, req.body.idorg, req.body.idcable, 'delete')
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.post(`${process.env._ROUTE}/auth/updateknownuserCable`, (req, res) => {
+      console.log(req.body);
+      controllers.organizations.updateKnownUserCable(req.headers.userid, req.body.idorg, req.body.idcable, 'add')
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.delete(`${process.env._ROUTE}/auth/updateOrganizationCable`, (req, res) => {
+      controllers.organizations.updateOrganizationCable(req.headers.userid, req.body.idorg, req.body.idcable, 'delete')
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.post(`${process.env._ROUTE}/auth/updateOrganizationCable`, (req, res) => {
+      controllers.organizations.updateOrganizationCable(req.headers.userid, req.body.idorg, req.body.idcable, 'add')
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.delete(`${process.env._ROUTE}/auth/updateOrganizationCls`, (req, res) => {
+      controllers.organizations.updateOrganizationCLS(req.headers.userid, req.body.idorg, req.body.idcls, 'delete')
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.post(`${process.env._ROUTE}/auth/updateOrganizationCls`, (req, res) => {
+      controllers.organizations.updateOrganizationCLS(req.headers.userid, req.body.idorg, req.body.idcls, 'add')
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.delete(`${process.env._ROUTE}/auth/updateOrganizationIXP`, (req, res) => {
+      console.log(req.body);
+      controllers.organizations.updateOrganizationIXP(req.headers.userid, req.body.idorg, req.body.idixp, 'delete')
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.post(`${process.env._ROUTE}/auth/updateOrganizationIXP`, (req, res) => {
+      controllers.organizations.updateOrganizationIXP(req.headers.userid, req.body.idorg, req.body.idixp, 'add')
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.delete(`${process.env._ROUTE}/auth/updateOrganizationFacility`, (req, res) => {
+      controllers.organizations.updateOrganizationFacility(req.headers.userid, req.body.idorg, req.body.idfacility, 'delete')
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.post(`${process.env._ROUTE}/auth/updateOrganizationFacility`, (req, res) => {
+      controllers.organizations.updateOrganizationFacility(req.headers.userid, req.body.idorg, req.body.idfacility, 'add')
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
   },
 };
