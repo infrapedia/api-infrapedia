@@ -665,6 +665,14 @@ class CLS {
                     let: { cables: '$cables' },
                     pipeline: [
                       {
+                        $project: {
+                          _id: 1,
+                          name: 1,
+                          terrestrial: 1,
+                          deleted: 1,
+                        },
+                      },
+                      {
                         $match: {
                           $and: [
                             {
@@ -676,13 +684,6 @@ class CLS {
                               deleted: { $ne: true },
                             },
                           ],
-                        },
-                      },
-                      {
-                        $project: {
-                          _id: 1,
-                          name: 1,
-                          terrestrial: 1,
                         },
                       },
                     ],
