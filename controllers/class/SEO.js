@@ -324,7 +324,8 @@ class SEO {
             xml = builder.create('urlset', {
               version: '1.0',
               encoding: 'UTF-8',
-            });
+            }).att({ xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9' });
+            // xml.prev('urlset',{ xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9' });
             xml.ele('url');
             if (elements.length > 0) {
               await elements.map((el) => {
@@ -367,7 +368,7 @@ class SEO {
             xml = builder.create('urlset', {
               version: '1.0',
               encoding: 'UTF-8',
-            });
+            }).att({ xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9' });
             xml.ele('url');
             if (elements.length > 0) {
               await elements.map((el) => {
@@ -410,7 +411,7 @@ class SEO {
             xml = builder.create('urlset', {
               version: '1.0',
               encoding: 'UTF-8',
-            });
+            }).att({ xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9' });
             xml.ele('url');
             if (elements.length > 0) {
               await elements.map((el) => {
@@ -453,7 +454,7 @@ class SEO {
             xml = builder.create('urlset', {
               version: '1.0',
               encoding: 'UTF-8',
-            });
+            }).att({ xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9' });
             xml.ele('url');
             if (elements.length > 0) {
               await elements.map((el) => {
@@ -496,7 +497,7 @@ class SEO {
             xml = builder.create('urlset', {
               version: '1.0',
               encoding: 'UTF-8',
-            });
+            }).att({ xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9' });
             xml.ele('url');
             if (elements.length > 0) {
               await elements.map((el) => {
@@ -535,7 +536,7 @@ class SEO {
               _id: 1, name: 1, slug: 1, rgDate: 1,
             },
           },
-          { $match: { deleted: { $ne: true } } },
+          { $match: { $and: [{ name: { $exists: true } }, { deleted: { $ne: true } }] } },
           { $addFields: { rgDate: { $dateToString: { date: '$rgDate', format: '%Y-%m-%d', timezone: 'America/Los_Angeles' } } } },
         ])
           .toArray(async (err, elements) => {
@@ -544,7 +545,7 @@ class SEO {
             xml = builder.create('urlset', {
               version: '1.0',
               encoding: 'UTF-8',
-            });
+            }).att({ xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9' });
             xml.ele('url');
             if (elements.length > 0) {
               await elements.map((el) => {
@@ -601,10 +602,6 @@ class SEO {
                       xml.ele('sitemap')
                         .ele('loc', `${process.env._CORSURL}/organizations.xml`).up()
                         .ele('lastmod', new Date(fs.statSync('seo/organizations.xml').mtime).toLocaleString())
-                        .up();
-                      xml.ele('sitemap')
-                        .ele('loc', 'https://blog.infrapedia.com/sitemap.xml').up()
-                        .ele('lastmod', new Date().toLocaleString())
                         .up();
                       xml.ele('sitemap')
                         .ele('loc', `${process.env._CORSURL}/networks.xml`).up()
