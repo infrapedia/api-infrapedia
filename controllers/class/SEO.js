@@ -412,7 +412,7 @@ class SEO {
             if (elements.length > 0) {
               await elements.map((el) => {
                 xml.ele('url')
-                  .ele('loc', `${process.env._CORSURL}/app/facilities/${el.slug}`).up()
+                  .ele('loc', `${process.env._CORSURL}/app/facility/${el.slug}`).up()
                   .ele('lastmod', `${el.rgDate}`)
                   .up()
                   .ele('changefreq', 'monthly')
