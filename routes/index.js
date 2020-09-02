@@ -223,12 +223,17 @@ const routes = function (router, controllers) {
           .catch((e) => { response.err(res, e); });
         break;
       case 'ixp':
-        controllers.facilities.getIdBySlug(req.params.slug)
+        controllers.internetExchangePoints.getIdBySlug(req.params.slug)
+          .then((r) => { response.success(res, r, false); })
+          .catch((e) => { response.err(res, e); });
+        break;
+      case 'ixps':
+        controllers.internetExchangePoints.getIdBySlug(req.params.slug)
           .then((r) => { response.success(res, r, false); })
           .catch((e) => { response.err(res, e); });
         break;
       case 'facility':
-        controllers.internetExchangePoints.getIdBySlug(req.params.slug)
+        controllers.facilities.getIdBySlug(req.params.slug)
           .then((r) => { response.success(res, r, false); })
           .catch((e) => { response.err(res, e); });
         break;
