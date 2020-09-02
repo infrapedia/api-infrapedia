@@ -281,8 +281,7 @@ class SEO {
             xml = builder.create('urlset', {
               version: '1.0',
               encoding: 'UTF-8',
-            });
-            xml.ele('url');
+            }).att({ xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9' });
             if (elements.length > 0) {
               await elements.map((el) => {
                 xml.ele('url')
@@ -326,7 +325,6 @@ class SEO {
               encoding: 'UTF-8',
             }).att({ xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9' });
             // xml.prev('urlset',{ xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9' });
-            xml.ele('url');
             if (elements.length > 0) {
               await elements.map((el) => {
                 xml.ele('url')
@@ -369,7 +367,6 @@ class SEO {
               version: '1.0',
               encoding: 'UTF-8',
             }).att({ xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9' });
-            xml.ele('url');
             if (elements.length > 0) {
               await elements.map((el) => {
                 xml.ele('url')
@@ -412,7 +409,6 @@ class SEO {
               version: '1.0',
               encoding: 'UTF-8',
             }).att({ xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9' });
-            xml.ele('url');
             if (elements.length > 0) {
               await elements.map((el) => {
                 xml.ele('url')
@@ -455,7 +451,6 @@ class SEO {
               version: '1.0',
               encoding: 'UTF-8',
             }).att({ xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9' });
-            xml.ele('url');
             if (elements.length > 0) {
               await elements.map((el) => {
                 xml.ele('url')
@@ -498,7 +493,6 @@ class SEO {
               version: '1.0',
               encoding: 'UTF-8',
             }).att({ xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9' });
-            xml.ele('url');
             if (elements.length > 0) {
               await elements.map((el) => {
                 xml.ele('url')
@@ -546,7 +540,6 @@ class SEO {
               version: '1.0',
               encoding: 'UTF-8',
             }).att({ xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9' });
-            xml.ele('url');
             if (elements.length > 0) {
               await elements.map((el) => {
                 xml.ele('url')
