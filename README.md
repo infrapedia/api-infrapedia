@@ -10,6 +10,7 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 #### 🏁2.0
 | Version  | Changes |
 | ------------- | ------------- |
+|2.6.20200904|- Changed the env variable to get the domain and changed the time of sitemap.xml to fix the google error |
 |2.5.9.20200902|- Fixed the bug slug for facilities and ixps controller link |
 |2.5.8.20200902|- Fixed the bug slug for facilities and ixps  |
 |2.5.7.20200902|- Fixed the SEO structure files  |
