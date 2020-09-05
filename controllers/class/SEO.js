@@ -285,7 +285,7 @@ class SEO {
             if (elements.length > 0) {
               await elements.map((el) => {
                 xml.ele('url')
-                  .ele('loc', `${process.env._CORSURL}/app/${(el.terrestrial) ? 'terrestrial-network' : 'subsea-cable'}/${el.slug}`).up()
+                  .ele('loc', `${process.env._SEOURL}/app/${(el.terrestrial) ? 'terrestrial-network' : 'subsea-cable'}/${el.slug}`).up()
                   .ele('lastmod', `${el.rgDate}`)
                   .up()
                   .ele('changefreq', 'monthly')
@@ -328,7 +328,7 @@ class SEO {
             if (elements.length > 0) {
               await elements.map((el) => {
                 xml.ele('url')
-                  .ele('loc', `${process.env._CORSURL}/app/${(el.terrestrial) ? 'terrestrial-network' : 'subsea-cable'}/${el.slug}`).up()
+                  .ele('loc', `${process.env._SEOURL}/app/${(el.terrestrial) ? 'terrestrial-network' : 'subsea-cable'}/${el.slug}`).up()
                   .ele('lastmod', `${el.rgDate}`)
                   .up()
                   .ele('changefreq', 'monthly')
@@ -370,7 +370,7 @@ class SEO {
             if (elements.length > 0) {
               await elements.map((el) => {
                 xml.ele('url')
-                  .ele('loc', `${process.env._CORSURL}/app/cls/${el.slug}`).up()
+                  .ele('loc', `${process.env._SEOURL}/app/cls/${el.slug}`).up()
                   .ele('lastmod', `${el.rgDate}`)
                   .up()
                   .ele('changefreq', 'monthly')
@@ -412,7 +412,7 @@ class SEO {
             if (elements.length > 0) {
               await elements.map((el) => {
                 xml.ele('url')
-                  .ele('loc', `${process.env._CORSURL}/app/facility/${el.slug}`).up()
+                  .ele('loc', `${process.env._SEOURL}/app/facility/${el.slug}`).up()
                   .ele('lastmod', `${el.rgDate}`)
                   .up()
                   .ele('changefreq', 'monthly')
@@ -454,7 +454,7 @@ class SEO {
             if (elements.length > 0) {
               await elements.map((el) => {
                 xml.ele('url')
-                  .ele('loc', `${process.env._CORSURL}/app/ixp/${el.slug}`).up()
+                  .ele('loc', `${process.env._SEOURL}/app/ixp/${el.slug}`).up()
                   .ele('lastmod', `${el.rgDate}`)
                   .up()
                   .ele('changefreq', 'monthly')
@@ -496,7 +496,7 @@ class SEO {
             if (elements.length > 0) {
               await elements.map((el) => {
                 xml.ele('url')
-                  .ele('loc', `${process.env._CORSURL}/app/network/${el.slug}`).up()
+                  .ele('loc', `${process.env._SEOURL}/app/network/${el.slug}`).up()
                   .ele('lastmod', `${el.rgDate}`)
                   .up()
                   .ele('changefreq', 'monthly')
@@ -543,7 +543,7 @@ class SEO {
             if (elements.length > 0) {
               await elements.map((el) => {
                 xml.ele('url')
-                  .ele('loc', `${process.env._CORSURL}/app/organization/${el.slug}`).up()
+                  .ele('loc', `${process.env._SEOURL}/app/organization/${el.slug}`).up()
                   .ele('lastmod', `${el.rgDate}`)
                   .up()
                   .ele('changefreq', 'monthly')
@@ -585,40 +585,40 @@ class SEO {
                         encoding: 'UTF-8',
                       });
                       xml.ele('sitemap')
-                        .ele('loc', `${process.env._CORSURL}/company.xml`).up()
-                        .ele('lastmod', new Date(fs.statSync('company.xml').mtime).toLocaleString())
+                        .ele('loc', `${process.env._SEOURL}/company.xml`).up()
+                        .ele('lastmod', new Date(fs.statSync('company.xml').mtime).toISOString())
                         .up();
                       xml.ele('sitemap')
                         .ele('loc', 'https://blog.infrapedia.com/sitemap.xml').up()
                         .ele('lastmod', new Date().toLocaleString())
                         .up();
                       xml.ele('sitemap')
-                        .ele('loc', `${process.env._CORSURL}/organizations.xml`).up()
-                        .ele('lastmod', new Date(fs.statSync('seo/organizations.xml').mtime).toLocaleString())
+                        .ele('loc', `${process.env._SEOURL}/organizations.xml`).up()
+                        .ele('lastmod', new Date(fs.statSync('seo/organizations.xml').mtime).toISOString())
                         .up();
                       xml.ele('sitemap')
-                        .ele('loc', `${process.env._CORSURL}/networks.xml`).up()
-                        .ele('lastmod', new Date(fs.statSync('seo/networks.xml').mtime).toLocaleString())
+                        .ele('loc', `${process.env._SEOURL}/networks.xml`).up()
+                        .ele('lastmod', new Date(fs.statSync('seo/networks.xml').mtime).toISOString())
                         .up();
                       xml.ele('sitemap')
-                        .ele('loc', `${process.env._CORSURL}/subseacables.xml`).up()
-                        .ele('lastmod', new Date(fs.statSync('seo/subseacables.xml').mtime).toLocaleString())
+                        .ele('loc', `${process.env._SEOURL}/subseacables.xml`).up()
+                        .ele('lastmod', new Date(fs.statSync('seo/subseacables.xml').mtime).toISOString())
                         .up();
                       xml.ele('sitemap')
-                        .ele('loc', `${process.env._CORSURL}/terrestrialnetworks.xml`).up()
-                        .ele('lastmod', new Date(fs.statSync('seo/terrestrialnetworks.xml').mtime).toLocaleString())
+                        .ele('loc', `${process.env._SEOURL}/terrestrialnetworks.xml`).up()
+                        .ele('lastmod', new Date(fs.statSync('seo/terrestrialnetworks.xml').mtime).toISOString())
                         .up();
                       xml.ele('sitemap')
-                        .ele('loc', `${process.env._CORSURL}/facilities.xml`).up()
-                        .ele('lastmod', new Date(fs.statSync('seo/facilities.xml').mtime).toLocaleString())
+                        .ele('loc', `${process.env._SEOURL}/facilities.xml`).up()
+                        .ele('lastmod', new Date(fs.statSync('seo/facilities.xml').mtime).toISOString())
                         .up();
                       xml.ele('sitemap')
-                        .ele('loc', `${process.env._CORSURL}/ixps.xml`).up()
-                        .ele('lastmod', new Date(fs.statSync('seo/ixps.xml').mtime).toLocaleString())
+                        .ele('loc', `${process.env._SEOURL}/ixps.xml`).up()
+                        .ele('lastmod', new Date(fs.statSync('seo/ixps.xml').mtime).toISOString())
                         .up();
                       xml.ele('sitemap')
-                        .ele('loc', `${process.env._CORSURL}/cls.xml`).up()
-                        .ele('lastmod', new Date(fs.statSync('seo/cls.xml').mtime).toLocaleString())
+                        .ele('loc', `${process.env._SEOURL}/cls.xml`).up()
+                        .ele('lastmod', new Date(fs.statSync('seo/cls.xml').mtime).toISOString())
                         .up();
                       fs.writeFileSync(dirPath, xml.end().toString({ pretty: true }), (err) => {
                         if (err) { return console.log(err); }
