@@ -322,9 +322,9 @@ module.exports = {
     } catch (e) { return e; }
   }),
   createUniqueFile: (id) => new Promise((resolve, reject) => {
-    const cable = require('../models/cable.model');
     let secuencial = Math.floor(Math.random() * (2000 - 1000) + 1000);
-    cable.aggregate([
+    const cable = require('../models/cable.model');
+    cable().aggregate([
       {
         $match: {
           _id: new ObjectID(id),
