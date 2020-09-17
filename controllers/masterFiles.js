@@ -185,31 +185,35 @@ module.exports = {
       }).catch((e) => e);
     } catch (e) { return e; }
   },
-  validateCables: () => {
-    return new Promise((resolve, reject) => {
-      try {
-        const cable = require('../models/cable.model');
-        let secuencial = 0;
-        cable().then((cable) => {
-          cable.aggregate([
-            // {
-            //   $match: { $and: [{ terrestrial: true }] },
-            // },
-            {
-              $match: { $and: [{ deleted: false }] },
+  validateCables: () => new Promise((resolve, reject) => {
+    try {
+      const cable = require('../models/cable.model');
+      let secuencial = 0;
+      cable().then((cable) => {
+        cable.aggregate([
+          // {
+          //   $match: { $and: [{ terrestrial: true }] },
+          // },
+          {
+            $match: { $and: [{ deleted: false }] },
+          },
+          {
+            $project: {
+              _id: 1,
             },
-            {
-              $project: {
-                _id: 1,
-              },
-            },
-          ])
-            .toArray(async (err, ids) => {
-              let checkedFiles = 0;
-              await ids.map(async (id) => {
-                secuencial += 1;
-                if (!fs.existsSync(path.join(__dirname, `./temp/cables/${id._id}.json`))){
-                  console.log(fs.existsSync(path.join(__dirname, `./temp/cables/${id._id}.json`)), `./temp/cables/${id._id}.json`);
+          },
+        ])
+          .toArray(async (err, ids) => {
+            const checkedFiles = 0;
+            await ids.map(async (id) => {
+              secuencial += 1;
+
+              fs.stat(path.join(__dirname, `/temp/cables/${id._id}.json`), (err, stat) => {
+                if (err == null) {
+                  console.log('File exists', path.join(__dirname, `./temp/cables/${id._id}.json`));
+                } else if (err.code === 'ENOENT') {
+                  // file does not exist
+                  console.log('File not exists', path.join(__dirname, `./temp/cables/${id._id}.json`));
                   cable.aggregate([
                     {
                       $match: {
@@ -308,13 +312,15 @@ module.exports = {
                       });
                     } catch (err) { return err; }
                   });
+                } else {
+                  console.log('Some other error: ', err.code);
                 }
               });
             });
-        }).catch((e) => e);
-      } catch (e) { return e; }
-    });
-  },
+          });
+      }).catch((e) => e);
+    } catch (e) { return e; }
+  }),
   // cablesT: () => {
   //   try {
   //     const cable = require('../models/cable.model');
