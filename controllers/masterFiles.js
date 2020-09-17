@@ -16,6 +16,7 @@ module.exports = {
           reject('Unable to scan directory: ');
         }
         fs.createWriteStream(path.join(__dirname, `../temp/${layer}.json`)).end();
+        fs.createWriteStream(path.join(__dirname, `../temp/${layer}.json`)).end();
         fs.appendFileSync(path.join(__dirname, `../temp/${layer}.json`), '{\n'
           + '                              "type": "FeatureCollection",\n'
           + '                              "features":[', 'utf8');
@@ -183,6 +184,138 @@ module.exports = {
         });
       }).catch((e) => e);
     } catch (e) { return e; }
+  },
+  validateCables: () => {
+    return new Promise((resolve, reject) => {
+      try {
+        const cable = require('../models/cable.model');
+        let secuencial = 0;
+        cable().then((cable) => {
+          cable.aggregate([
+            // {
+            //   $match: { $and: [{ terrestrial: true }] },
+            // },
+            {
+              $match: { $and: [{ deleted: false }] },
+            },
+            {
+              $project: {
+                _id: 1,
+              },
+            },
+          ])
+            .toArray(async (err, ids) => {
+              let checkedFiles = 0;
+              await ids.map(async (id) => {
+                secuencial += 1;
+                if (!fs.existsSync(path.join(__dirname, `./temp/cables/${id._id}.json`))){
+                  await ids.map((id) => {
+                    secuencial += 1;
+                    cable.aggregate([
+                      {
+                        $match: {
+                          _id: new ObjectID(id._id),
+                        },
+                      },
+                      {
+                        $lookup: {
+                          from: 'cables_segments',
+                          localField: '_id',
+                          foreignField: 'cable_id',
+                          as: 'geom',
+                        },
+                      },
+                      {
+                        $unwind:
+                          {
+                            path: '$geom',
+                            preserveNullAndEmptyArrays: false,
+                          },
+                      },
+                      {
+                        $addFields: {
+                          id: { $toInt: secuencial },
+                          'properties.id': { $toInt: secuencial },
+                          day: { $dayOfMonth: '$activationDateTime' },
+                          month: { $month: '$activationDateTime' },
+                          year: { $year: '$activationDateTime' },
+                        },
+                      },
+                      {
+                        $addFields: { activationDateTimeRFS: { $dateFromString: { dateString: { $concat: [{ $toString: '$day' }, '-', { $toString: '$month' }, '-', { $toString: { $add: ['$year', 25] } }] } } } },
+                      },
+                      {
+                        $project: {
+                          type: 'Feature',
+                          id: 1,
+                          'properties.id': 1,
+                          'properties.length': '$systemLength',
+                          'properties.name': '$name',
+                          'properties.status': {
+                            $switch: {
+                              branches: [
+                                // { case: { $gt: [{ $divide: [{ $toLong: '$activationDateTime' }, 1000] }, Math.floor(new Date().getTime() / 1000.0)] }, then: 0 },
+                                { case: { $eq: ['$category', 'project'] }, then: 0 },
+                                { case: { $eq: ['$category', 'active'] }, then: 1 },
+                                { case: { $eq: ['$category', 'decommissioned'] }, then: 0 },
+                                { case: { $eq: ['$category', 'unknown'] }, then: 1 },
+                                { case: { $eq: ['$category', 'fault'] }, then: 0 },
+                              ],
+                              default: 1,
+                            },
+                          }, // { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }, { $eq: ['$category', 'unknown'] }] }, then: 1, else: 0 } }
+                          'properties.category': '$category', // { $cond: { if: { $or: [{ $eq: ['$category', 'active'] }, { $eq: ['$category', ''] }] }, then: 'active', else: '$category' } },
+                          // 'properties.activationDateTime': { $subtract: ['$activationDateTime', new Date('1970-01-01')] },
+                          'properties.active': { $cond: [{ $and: [{ $lt: [{ $divide: [{ $toLong: '$activationDateTime' }, 1000] }, Math.floor(new Date().getTime() / 1000.0)] }, { $ne: ['$category', 'fault'] }, { $ne: ['$category', 'project'] }, { $ne: ['$category', 'decommissioned'] }] }, 1, 0] },
+                          'properties.activationDateTime': { $divide: [{ $toLong: '$activationDateTime' }, 1000] },
+                          'properties.eol': { $divide: [{ $toLong: '$activationDateTimeRFS' }, 1000] },
+                          'properties.hasoutage': { $cond: { if: { $eq: ['$category', 'fault'] }, then: 'true', else: 'false' } },
+                          'properties.haspartial': { $cond: { if: { $eq: ['$geom.properties.status', 'Inactive'] }, then: 'true', else: 'false' } },
+                          'properties.terrestrial': { $toString: '$terrestrial' },
+                          'properties.segment': '$geom.properties._id',
+                          'properties._id': '$_id',
+                          geometry: '$geom.geometry',
+                        },
+                      },
+                    ], { allowDiskUse: true }).toArray(async (err, lines) => {
+                      if (err) return 'Error';
+                      // we'll going to create the master file for ixps
+                      // lines = await lines.reduce((total, value) => total.concat(value.geom), []);
+                      lines = `{
+                                  "id": "${id._id}",
+                                  "type": "FeatureCollection",
+                                  "features": ${JSON.stringify(lines)}
+                              }`;
+
+                      if (!fs.existsSync(path.join(__dirname, '../temp/cables'))) fs.mkdirSync(path.join(__dirname, '../temp/cables'));
+                      try {
+                        const stream = await fs.createWriteStream(`./temp/cables/${id._id}.json`);
+                        stream.write(lines);
+                        stream.on('err', () => {
+                          console.log('Error to create the file');
+                        });
+                        stream.end(async () => {
+                          checkedFiles += 1;
+                          console.log(checkedFiles);
+                          if (checkedFiles === ids.length) {
+                            // module.exports.buildMasterFile('cables').then((mf) => {
+                            //   console.log('Finish');
+                            // }).catch((e) => console.log(e));
+                            const stream = fs.createWriteStream('./temp/check.txt');
+                            stream.write(`${ids.length}`);
+                            stream.on('err', () => { console.log('Error to create the file'); });
+                            stream.end(async () => {});
+                          }
+                        });
+                      } catch (err) { return err; }
+                    });
+                  });
+                }
+              });
+            });
+        }).catch((e) => e);
+      } catch (e) { return e; }
+    });
   },
   // cablesT: () => {
   //   try {
