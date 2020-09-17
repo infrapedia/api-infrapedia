@@ -208,8 +208,8 @@ module.exports = {
               let checkedFiles = 0;
               await ids.map(async (id) => {
                 secuencial += 1;
-                if (!fs.exists(path.join(__dirname, `./temp/cables/${id._id}.json`))){
-                  console.log(fs.exists(path.join(__dirname, `./temp/cables/${id._id}.json`)), `./temp/cables/${id._id}.json`);
+                if (!fs.existsSync(path.join(__dirname, `./temp/cables/${id._id}.json`))){
+                  console.log(fs.existsSync(path.join(__dirname, `./temp/cables/${id._id}.json`)), `./temp/cables/${id._id}.json`);
                   await ids.map((id) => {
                     secuencial += 1;
                     cable.aggregate([
