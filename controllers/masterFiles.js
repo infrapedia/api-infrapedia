@@ -204,7 +204,7 @@ module.exports = {
           },
         ])
           .toArray(async (err, ids) => {
-            const checkedFiles = 0;
+            let checkedFiles = 0;
             await ids.map(async (id) => {
               secuencial += 1;
 
