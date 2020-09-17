@@ -213,7 +213,7 @@ module.exports = {
                   console.log('File exists', path.join(__dirname, `../temp/cables/${id._id}.json`));
                 } else if (err.code === 'ENOENT') {
                   // file does not exist
-                  console.log('File not exists', path.join(__dirname, `./temp/cables/${id._id}.json`));
+                  console.log('---------------------- File not exists', path.join(__dirname, `./temp/cables/${id._id}.json`));
                   cable.aggregate([
                     {
                       $match: {
