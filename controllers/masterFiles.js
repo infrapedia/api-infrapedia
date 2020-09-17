@@ -209,7 +209,7 @@ module.exports = {
               await ids.map(async (id) => {
                 secuencial += 1;
                 if (!fs.existsSync(path.join(__dirname, `./temp/cables/${id._id}.json`))){
-                  cpnsole.log(`./temp/cables/${id._id}.json`);
+                  console.log(`./temp/cables/${id._id}.json`);
                   await ids.map((id) => {
                     secuencial += 1;
                     cable.aggregate([
