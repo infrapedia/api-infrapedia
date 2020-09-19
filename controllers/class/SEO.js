@@ -564,14 +564,15 @@ class SEO {
 
   createSiteMapXMLPrincipal() {
     // eslint-disable-next-line no-async-promise-executor
-    return new Promise((resolve, reject) => {
+
+
       try {
         this.subseaCables().then(() => {
           this.terrestrialNetworks().then(() => {
             this.createCls().then(() => {
               this.createFacilities().then(() => {
                 this.createIXPS().then(() => {
-                  this.createNetwork().then(() => {
+                  this.createGroup().then(() => {
                     this.createOrganizations().then(() => {
                       const obj = {
                         sitemapindex: {
@@ -596,10 +597,10 @@ class SEO {
                         .ele('loc', `${process.env._SEOURL}/organizations.xml`).up()
                         .ele('lastmod', new Date(fs.statSync('seo/organizations.xml').mtime).toISOString())
                         .up();
-                      // xml.ele('sitemap')
-                      //   .ele('loc', `${process.env._SEOURL}/groups.xml`).up()
-                      //   .ele('lastmod', new Date(fs.statSync('seo/groups.xml').mtime).toISOString())
-                      //   .up();
+                      xml.ele('sitemap')
+                        .ele('loc', `${process.env._SEOURL}/groups.xml`).up()
+                        .ele('lastmod', new Date(fs.statSync('seo/groups.xml').mtime).toISOString())
+                        .up();
                       xml.ele('sitemap')
                         .ele('loc', `${process.env._SEOURL}/subseacables.xml`).up()
                         .ele('lastmod', new Date(fs.statSync('seo/subseacables.xml').mtime).toISOString())
