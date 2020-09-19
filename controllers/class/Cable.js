@@ -61,14 +61,15 @@ class Cable {
                     // TODO: validation insert
                     if (err) reject({ m: err + 0 });
                     //
-                    if (Array.isArray(data.cls)) {
-                      let cableLandingStation = require('./CableLandingStation');
-                      cableLandingStation = new cableLandingStation();
-                      await data.cls.map((c) => {
-                        cableLandingStation.updateCable(user, c, i.insertedId).then((r) => '').catch((e) => '');
-                      });
-                    }
+                    // if (Array.isArray(data.cls)) {
+                    //   let cableLandingStation = require('./CableLandingStation');
+                    //   cableLandingStation = new cableLandingStation();
+                    //   await data.cls.map((c) => {
+                    //     cableLandingStation.updateCable(user, c, i.insertedId).then((r) => '').catch((e) => '');
+                    //   });
+                    // }
                     // we going to update the segments
+                    await data.cables.map((cls) => this.updateCLSConnection(cls, i.insertedId));
                     // insert the segments
                     const segments = require('../../models/cable_segments.model');
                     segments().then(async (segments) => {
@@ -175,6 +176,37 @@ class Cable {
     });
   }
 
+
+  updateCLSConnection(idCls, idCable) {
+    try {
+      const cls = require('../../models/cls.model');
+      cls().then((cls) => {
+        cls.updateOne({ _id: new ObjectID(idCls) }, { $addToSet: { cables: idCable } }, (err, u) => {
+          if (err) return err;
+          else if (u.result.nModified !== 1) return 'Not updated 1';
+          else return 'Removed';
+        });
+      }).catch((e) => (e));
+    } catch (e) {
+      return e;
+    }
+  }
+
+  removeCLSConnection(idCls, idCable) {
+    try {
+      const cls = require('../../models/cls.model');
+      cls().then((cls) => {
+        cls.updateOne({ _id: new ObjectID(idCls) }, { $pull: { cables: idCable } }, (err, u) => {
+          if (err) return err;
+          else if (u.result.nModified !== 1) return 'Not updated 2';
+          else return 'Removed';
+        });
+      }).catch((e) => (e));
+    } catch (e) {
+      return e;
+    }
+  }
+
   edit(user, data) {
     return new Promise((resolve, reject) => {
       try {
@@ -216,8 +248,12 @@ class Cable {
               };
               // we're going to search if the user is the own of the cable
               let listSegments = JSON.parse(geomData);
-              cables.findOne({ $and: [adms(user), { _id: id }] }, (err, c) => {
-                console.log(c);
+              cables.findOne({ $and: [adms(user), { _id: id }] }, async (err, c) => {
+                c.cls = await c.cls.map((cls) => String(cls));
+                const clsNotFounds = await (Array.isArray(data.cls) && c.cls !== undefined) ? c.cls.filter((f) => !data.cls.includes(f)) : [];
+                await data.cls.map((cls) => this.updateCLSConnection(cls, id));
+                await clsNotFounds.map((cls) => this.removeCLSConnection(cls, id));
+
                 if (err) reject({ m: err });
                 const segments = require('../../models/cable_segments.model');
                 segments().then(async (segments) => {

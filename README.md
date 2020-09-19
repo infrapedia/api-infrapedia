@@ -6,10 +6,15 @@ We're using NodeJS version v10.19.0
 If we have a problem installing the SQLite we can use sudo npm install --unsafe-perm=true --allow-root
 
 ## Versions
-## V.2
-#### 🏁2.0
+## V.3
 | Version  | Changes |
 | ------------- | ------------- |
+|3.0.4.20200919|- Fixed SEO problems with organizations, fixed problem with cables master files, cables and CLS fixed update conections  |
+
+## V.2
+```
+|2.9.3.20200919|- SEO changed networks by groups, added group to the SEO direct link, cluster creation for organization, cluster endpoints, and cluster funcions |
+|2.9.3.20200919|- SEO changed networks by groups, added group to the SEO direct link, cluster creation for organization, cluster endpoints, and cluster funcions |
 |2.7.20200916|- Cables master file validation |
 |2.6.20200904|- Changed the env variable to get the domain and changed the time of sitemap.xml to fix the google error |
 |2.5.9.20200902|- Fixed the bug slug for facilities and ixps controller link |
@@ -30,7 +35,7 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 |2.0.8.20200817|- Sort resolved in cables, get geom facilities by points, update organization information  |
 |2.0.5.20200817|- Permanent delete fixed for administrators, ASC and DESC sort for search information, sorting by RFS for subseaCables and organization add or remove connections  |
 |2.0.20200817|- Fixed problem with cables with multiples CLS |
-
+```
 ## V.1
 ```
 |1.9.9.2.20200816|- Add RgDate and Udate to the search service response |

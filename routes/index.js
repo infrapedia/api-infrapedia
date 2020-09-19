@@ -247,6 +247,11 @@ const routes = function (router, controllers) {
           .then((r) => { response.success(res, r, false); })
           .catch((e) => { response.err(res, e); });
         break;
+      case 'group':
+        controllers.networks.getIdBySlug(req.params.slug)
+          .then((r) => { response.success(res, r, false); })
+          .catch((e) => { response.err(res, e); });
+        break;
       case 'organization':
         controllers.organizations.getIdBySlug(req.params.slug)
           .then((r) => { response.success(res, r, false); })
