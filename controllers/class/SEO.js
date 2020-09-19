@@ -530,7 +530,7 @@ class SEO {
               _id: 1, name: 1, slug: 1, rgDate: 1, one: 1,
             },
           },
-          { $match: { $and: [{ name: { $exists: true } }, { deleted: { $ne: true } }, { one: { $exists: false } }] } },
+          { $match: { $and: [{ name: { $exists: true } }, { deleted: { $ne: true } }, { one: { $exists: false } } ] } },
           { $addFields: { rgDate: { $dateToString: { date: '$rgDate', format: '%Y-%m-%d', timezone: 'America/Los_Angeles' } } } },
         ])
           .toArray(async (err, elements) => {
@@ -564,8 +564,7 @@ class SEO {
 
   createSiteMapXMLPrincipal() {
     // eslint-disable-next-line no-async-promise-executor
-
-
+    return new Promise((resolve, reject) => {
       try {
         this.subseaCables().then(() => {
           this.terrestrialNetworks().then(() => {
