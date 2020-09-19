@@ -473,7 +473,7 @@ class SEO {
     });
   }
 
-  createNetwork() {
+  createGroup() {
     return new Promise((resolve, reject) => {
       console.log('starting with networks');
       network().then((network) => {
@@ -487,7 +487,7 @@ class SEO {
           { $addFields: { rgDate: { $dateToString: { date: '$rgDate', format: '%Y-%m-%d', timezone: 'America/Los_Angeles' } } } },
         ])
           .toArray(async (err, elements) => {
-            const dirPath = 'seo/networks.xml';
+            const dirPath = 'seo/groups.xml';
             let xml;
             xml = builder.create('urlset', {
               version: '1.0',
@@ -496,7 +496,7 @@ class SEO {
             if (elements.length > 0) {
               await elements.map((el) => {
                 xml.ele('url')
-                  .ele('loc', `${process.env._SEOURL}/app/network/${el.slug}`).up()
+                  .ele('loc', `${process.env._SEOURL}/app/group/${el.slug}`).up()
                   .ele('lastmod', `${el.rgDate}`)
                   .up()
                   .ele('changefreq', 'monthly')
@@ -590,16 +590,16 @@ class SEO {
                         .up();
                       xml.ele('sitemap')
                         .ele('loc', 'https://blog.infrapedia.com/sitemap.xml').up()
-                        .ele('lastmod', new Date().toLocaleString())
+                        .ele('lastmod', new Date().toISOString())
                         .up();
                       xml.ele('sitemap')
                         .ele('loc', `${process.env._SEOURL}/organizations.xml`).up()
                         .ele('lastmod', new Date(fs.statSync('seo/organizations.xml').mtime).toISOString())
                         .up();
-                      xml.ele('sitemap')
-                        .ele('loc', `${process.env._SEOURL}/networks.xml`).up()
-                        .ele('lastmod', new Date(fs.statSync('seo/networks.xml').mtime).toISOString())
-                        .up();
+                      // xml.ele('sitemap')
+                      //   .ele('loc', `${process.env._SEOURL}/groups.xml`).up()
+                      //   .ele('lastmod', new Date(fs.statSync('seo/groups.xml').mtime).toISOString())
+                      //   .up();
                       xml.ele('sitemap')
                         .ele('loc', `${process.env._SEOURL}/subseacables.xml`).up()
                         .ele('lastmod', new Date(fs.statSync('seo/subseacables.xml').mtime).toISOString())

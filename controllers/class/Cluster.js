@@ -1,4 +1,5 @@
 const { ObjectID } = require('mongodb');
+const redisClient = require('../../config/redis');
 
 class Cluster {
   constructor() {
@@ -350,9 +351,204 @@ class Cluster {
   //   });
   // }
 
-  organization(id){
+  createOrganizationCluster(id) {
     return new Promise((resolve, reject) => {
+      try {
+        this.model()
+          .then((organization) => {
+            console.log(id);
+            organization.aggregate([
+              {
+                $project: {
+                  _id: 1,
+                },
+              },
+              {
+                $match: {
+                  _id: new ObjectID(id),
+                },
+              },
+              {
+                $lookup: {
+                  from: 'cls',
+                  let: { f: '$_id' },
+                  pipeline: [
+                    {
+                      $project: {
+                        _id: 1,
+                        owners: 1,
+                        geom: 1,
+                      },
+                    },
+                    {
+                      $addFields: {
+                        owners: { $ifNull: ['$owners', []] },
+                      },
+                    },
+                    {
+                      $match: {
+                        $expr: {
+                          $in: ['$$f', '$owners'],
+                        },
+                      },
+                    },
+                    {
+                      $addFields: {
+                        point: { $arrayElemAt: ['$geom.features.geometry', 0] },
+                      },
+                    },
+                    {
+                      $addFields: {
+                        ppdata: {
+                          type: 'Feature',
+                          properties: {
+                            _id: '$_id',
+                          },
+                          geometry: '$point',
+                        },
+                      },
+                    },
+                  ],
+                  as: 'cls',
+                },
+              },
+              {
+                $lookup: {
+                  from: 'facilities',
+                  let: { f: '$_id' },
+                  pipeline: [
+                    {
+                      $project: {
+                        _id: 1,
+                        owners: 1,
+                        point: 1,
+                      },
+                    },
+                    {
+                      $addFields: {
+                        owners: { $ifNull: ['$owners', []] },
+                      },
+                    },
+                    {
+                      $match: {
+                        $expr: {
+                          $in: ['$$f', '$owners'],
+                        },
+                      },
+                    },
+                    {
+                      $addFields: {
+                        ppdata: {
+                          type: 'Feature',
+                          properties: {
+                            _id: '$_id',
+                          },
+                          geometry: '$point',
+                        },
+                      },
+                    },
+                  ],
+                  as: 'facilities',
+                },
+              },
+              {
+                $lookup: {
+                  from: 'ixps',
+                  let: { f: '$_id' },
+                  pipeline: [
+                    {
+                      $project: {
+                        _id: 1,
+                        owners: 1,
+                        geom: 1,
+                      },
+                    },
+                    {
+                      $addFields: {
+                        owners: { $ifNull: ['$owners', []] },
+                      },
+                    },
+                    {
+                      $match: {
+                        $expr: {
+                          $in: ['$$f', '$owners'],
+                        },
+                      },
+                    },
+                    {
+                      $addFields: {
+                        point: '$geom',
+                      },
+                    },
+                    {
+                      $addFields: {
+                        ppdata: {
+                          type: 'Feature',
+                          properties: {
+                            _id: '$_id',
+                          },
+                          geometry: '$point',
+                        },
+                      },
+                    },
+                  ],
+                  as: 'ixps',
+                },
+              },
+            ], { allowDiskUse: true }).toArray(async (err, points) => {
+              if (err) reject({ m: err });
+              let data = [];
+              console.log(points);
+              if (Array.isArray(points)) {
+                points[0].cls.map((i) => data.push(i.ppdata));
+                points[0].facilities.map((i) => data.push(i.ppdata));
+                points[0].ixps.map((i) => data.push(i.ppdata));
+                // if(points[0].cls > 0) data.push(await points[0].cls.reduce((total, value) => total.concat(value.ppdata), []));
+                // if(points[0].facilities > 0) data.push(await points[0].facilities.reduce((total, value) => total.concat(value.ppdata), []));
+                // if(points[0].ixps > 0) data.push(await points[0].ixps.reduce((total, value) => total.concat(value.ppdata), []));
+              }
+              // data = await data.map((i) => ((i.length > 0) ? i : ''));
+              // data.filter(Boolean);
+              points = {
+                type: 'FeatureCollection',
+                features: data,
+              };
+              console.log(points);
+              redisClient.set(`v_co_${id}`, JSON.stringify(points), 'EX', 172800);
+              resolve({ m: 'Loaded', r: points });
+            });
+          });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
 
+
+  organizationsCluster() {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model()
+          .then((organization) => {
+            organization.aggregate(
+              [
+                {
+                  $project: {
+                    _id: 1,
+                  },
+                },
+              ],
+            ).toArray((err, orgs) => {
+              if (err) reject({ m: err });
+              Promise.all([orgs.map((i) => this.createOrganizationCluster(i._id))])
+                .then((r) => {
+                  resolve({ m: 'Data created' });
+                }).catch((e) => {
+                  reject({ m: e });
+                });
+            });
+          });
+      } catch (e) {
+        reject({ m: e });
+      }
     });
   }
 }

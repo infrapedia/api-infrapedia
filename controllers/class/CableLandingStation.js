@@ -96,6 +96,36 @@ class CLS {
     });
   }
 
+  updateCableConnection(idCable, idCls) {
+    try {
+      const cable = require('../../models/cable.model');
+      cable().then((cable) => {
+        cable.updateOne({ _id: new ObjectID(idCable) }, { $addToSet: { cls: idCls } }, (err, u) => {
+          if (err) return err;
+          else if (u.result.nModified !== 1) return 'Not updated 1';
+          else return 'Removed';
+        });
+      }).catch((e) => (e));
+    } catch (e) {
+      return e;
+    }
+  }
+
+  removeCableConnection(idCable, idCls) {
+    try {
+      const cable = require('../../models/cable.model');
+      cable().then((cable) => {
+        cable.updateOne({ _id: new ObjectID(idCable) }, { $pull: { cls: idCls } }, (err, u) => {
+          if (err) return err;
+          else if (u.result.nModified !== 1) return 'Not updated 2';
+          else return 'Removed';
+        });
+      }).catch((e) => (e));
+    } catch (e) {
+      return e;
+    }
+  }
+
   edit(user, data) {
     return new Promise((resolve, reject) => {
       try {
@@ -103,16 +133,15 @@ class CLS {
           this.model().then(async (cls) => {
             const id = new ObjectID(data._id);
             // we need to validate if  don't have another organization with the same name
-            cls.find({
-              $and:
-                 [{ _id: { $ne: id } }, { name: String(data.name) }],
-            }).count(async (err, c) => {
+            cls.findOne({ _id: { $eq: id } }, async (err, c) => {
               // if (err) reject({ m: err });
               // else if (c > 0) reject({ m: 'We have registered in our system more than one cls with the same name' });
               // else {
               //
               // }
               // TODO: validate the numbers of cls with the same name
+              c.cables = await c.cables.map((cable) => String(cable));
+              const cableNotFounds = await (Array.isArray(data.cables) && c.cables !== undefined) ? c.cables.filter((f) => !data.cables.includes(f)) : [];
               data = {
                 name: data.name,
                 country: (data.country) ? data.country : '',
@@ -125,10 +154,15 @@ class CLS {
                 uDate: luxon.DateTime.utc(),
               };
               cls.updateOne(
-                { $and: [adms(user), { _id: id }] }, { $set: data }, (err, u) => {
+                { $and: [adms(user), { _id: id }] }, { $set: data }, async (err, u) => {
                   if (err) reject(err);
                   else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
-                  else resolve({ m: 'CLS updated', r: data });
+                  else {
+                    // update cables
+                    await data.cables.map((cable) => this.updateCableConnection(cable, id));
+                    await cableNotFounds.map((cable) => this.removeCableConnection(cable, id));
+                    resolve({ m: 'CLS updated', r: data });
+                  }
                 },
               );
             });
@@ -1006,7 +1040,7 @@ class CLS {
     return new Promise((resolve, reject) => {
       try {
         if (adms(usr) === {}) {
-          if (true) { //code === process.env.securityCode
+          if (true) { // code === process.env.securityCode
             this.model().then((element) => {
               element.deleteOne({ _id: new ObjectID(id), deleted: true }, (err, result) => {
                 if (err) reject({ m: err });
