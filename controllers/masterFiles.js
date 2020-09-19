@@ -244,9 +244,9 @@ module.exports = {
                         year: { $year: '$activationDateTime' },
                       },
                     },
-                    {
-                      $addFields: { activationDateTimeRFS: { $dateFromString: { dateString: { $concat: [{ $toString: '$day' }, '-', { $toString: '$month' }, '-', { $toString: { $add: ['$year', 25] } }] } } } },
-                    },
+                    // {
+                    //   $addFields: { activationDateTimeRFS: { $dateFromString: { dateString: { $concat: [{ $toString: '$day' }, '-', { $toString: '$month' }, '-', { $toString: { $add: ['$year', 25] } }] } } } },
+                    // },
                     {
                       $project: {
                         type: 'Feature',

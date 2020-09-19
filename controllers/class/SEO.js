@@ -527,10 +527,10 @@ class SEO {
         organization.aggregate([
           {
             $project: {
-              _id: 1, name: 1, slug: 1, rgDate: 1,
+              _id: 1, name: 1, slug: 1, rgDate: 1, one: 1,
             },
           },
-          { $match: { $and: [{ name: { $exists: true } }, { deleted: { $ne: true } }] } },
+          { $match: { $and: [{ name: { $exists: true } }, { deleted: { $ne: true } }, { one: { $exists: false } }] } },
           { $addFields: { rgDate: { $dateToString: { date: '$rgDate', format: '%Y-%m-%d', timezone: 'America/Los_Angeles' } } } },
         ])
           .toArray(async (err, elements) => {
