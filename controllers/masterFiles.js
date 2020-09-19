@@ -112,8 +112,30 @@ module.exports = {
                   year: { $year: '$activationDateTime' },
                 },
               },
+              // {
+              //   $addFields: { activationDateTimeRFS: { $dateFromString: { dateString: { $concat: [{ $toString: '$day' }, '-', { $toString: '$month' }, '-', { $toString: { $add: ['$year', 25] } }] } } } },
+              // },
               {
-                $addFields: { activationDateTimeRFS: { $dateFromString: { dateString: { $concat: [{ $toString: '$day' }, '-', { $toString: '$month' }, '-', { $toString: { $add: ['$year', 25] } }] } } } },
+                $addFields: {
+                  activationDateTimeRFS: {
+                    $concat: [
+                      { $toString: '$month' },
+                      '/',
+                      '1',
+                      '/',
+                      { $toString: { $add: [{ $toInt: { $substr: [{ $year: '$activationDateTime' }, 0, 4] } }, 25] } },
+                    ],
+                  },
+                },
+              },
+              {
+                $addFields: {
+                  activationDateTimeRFS: {
+                    $dateFromString: {
+                      dateString: '$activationDateTimeRFS',
+                    },
+                  },
+                },
               },
               {
                 $project: {
@@ -248,6 +270,28 @@ module.exports = {
                     //   $addFields: { activationDateTimeRFS: { $dateFromString: { dateString: { $concat: [{ $toString: '$day' }, '-', { $toString: '$month' }, '-', { $toString: { $add: ['$year', 25] } }] } } } },
                     // },
                     {
+                      $addFields: {
+                        activationDateTimeRFS: {
+                          $concat: [
+                            { $toString: '$month' },
+                            '/',
+                            '1',
+                            '/',
+                            { $toString: { $add: [{ $toInt: { $substr: [{ $year: '$activationDateTime' }, 0, 4] } }, 25] } },
+                          ],
+                        },
+                      },
+                    },
+                    {
+                      $addFields: {
+                        activationDateTimeRFS: {
+                          $dateFromString: {
+                            dateString: '$activationDateTimeRFS',
+                          },
+                        },
+                      },
+                    },
+                    {
                       $project: {
                         type: 'Feature',
                         id: 1,
@@ -322,7 +366,7 @@ module.exports = {
     } catch (e) { return e; }
   }),
   createUniqueFile: (id) => new Promise((resolve, reject) => {
-    let secuencial = Math.floor(Math.random() * (2000 - 1000) + 1000);
+    const secuencial = Math.floor(Math.random() * (2000 - 1000) + 1000);
     const cable = require('../models/cable.model');
     cable().then((cable) => {
       cable.aggregate([
