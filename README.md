@@ -9,6 +9,7 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 ## V.3
 | Version  | Changes |
 | ------------- | ------------- |
+|3.1.8.20200919|- Fixed permanent delete nd update CLS and Cables connections   |
 |3.1.1.20200919|- Fixed problem with groups SEO section   |
 |3.1.20200919|- Fixed subsea cable problems with dates   |
 |3.0.4.20200919|- Fixed SEO problems with organizations, fixed problem with cables master files, cables and CLS fixed update conections  |
