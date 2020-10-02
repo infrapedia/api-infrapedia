@@ -838,7 +838,7 @@ class Organization {
   permanentDelete(usr, id, code) {
     return new Promise((resolve, reject) => {
       try {
-        if (adms(usr) === {}) {
+        if (Object.keys(adms(usr)).length === 0) {
           if (true) { //code === process.env.securityCode
             this.model().then((element) => {
               element.deleteOne({ _id: new ObjectID(id), deleted: true }, (err, result) => {
