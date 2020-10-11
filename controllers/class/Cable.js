@@ -59,7 +59,7 @@ class Cable {
                   else if (c.length > 0 && c._id !== data._id) reject({ m: 'We have another element with the same name' });
                   cables.insertOne(data, async (err, i) => {
                     // TODO: validation insert
-                    if (err) reject({ m: err + 0 });
+                      if (err) reject({ m: err + 0 });
                     //
                     // if (Array.isArray(data.cls)) {
                     //   let cableLandingStation = require('./CableLandingStation');

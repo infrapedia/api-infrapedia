@@ -38,6 +38,8 @@ const routes = function (router, controllers) {
   require('./bymodules/networks').callEndPoints(router, controllers, response);
   // CLS ---------------->
   require('./bymodules/cls').callEndPoints(router, controllers, response);
+  // CLS ---------------->
+  require('./bymodules/cloud').callEndPoints(router, controllers, response);
   // CABLES ---------------->
   require('./bymodules/cables').callEndPoints(router, controllers, response);
   // FACILITIES --->
@@ -190,7 +192,6 @@ const routes = function (router, controllers) {
       }).catch(() => res.sendStatus(500));
     });
   });
-
   router.get(`${process.env._ROUTE}/createSlugs`, (req, res) => {
     controllers.SEO.createSlugs().then((r) => res.sendStatus(200)).catch((res.sendStatus(500)));
   });
