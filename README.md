@@ -9,6 +9,7 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 V.4
 | Version  | Changes |
 | ------------- | ------------- |
+|4.2.20201017|- New fields on facilities endpoints (Add, Update), new endpoints to see the cloud layers information |
 |4.0.20201011|- Cloud layer - Add and Edit new functionalities |
 
 ## V.3

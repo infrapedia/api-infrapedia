@@ -24,7 +24,7 @@ class Cloud {
           color: data.color,
           cloudRegion: JSON.parse(data.cloudRegion),
           onRamp: JSON.parse(data.onRamp),
-          knownUsers: data.knownUsers((company) => new ObjectID(company))
+          knownUsers: data.knownUsers((company) => new ObjectID(company)),
         };
         this.model().then((cloud) => {
           cloud.find({ name: String(data.name) }).count((err, c) => {
@@ -68,6 +68,67 @@ class Cloud {
           });
         }).catch((e) => reject(e));
       } catch (e) { reject({ m: e + 2 }); }
+    });
+  }
+
+  owner(user, id) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (user !== undefined || user !== '') {
+          this.model().then((cls) => {
+            id = new ObjectID(id);
+            cls.aggregate([
+              {
+                $match: {
+                  _id: id,
+                },
+              },
+              {
+                $lookup: {
+                  from: 'organizations',
+                  let: { f: '$knownUsers' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $and: [
+                          {
+                            $expr: {
+                              $in: ['$_id', {
+                                $cond: {
+                                  if: { $isArray: '$$f' },
+                                  then: '$$f',
+                                  else: [],
+                                },
+                              }],
+                            },
+                          },
+                          {
+                            deleted: { $ne: true },
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      $project: {
+                        _id: 1,
+                        label: '$name',
+                      },
+                    },
+                  ],
+                  as: 'knownUsers',
+                },
+              },
+            ]).toArray((err, o) => {
+              if (err) reject(err);
+              if (o !== undefined) {
+                resolve({ m: 'Loaded', r: o[0] });
+              } else {
+                reject({ m: 'Not found' });
+              }
+            });
+          });
+        } else { resolve('Not user found'); }
+      } catch (e) { reject({ m: e }); }
     });
   }
 }

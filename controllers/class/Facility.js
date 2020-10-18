@@ -18,6 +18,7 @@ class Facility {
       try {
         this.model().then(async (facility) => {
           if (data) {
+            console.log(data);
             const element = {
               uuid: user,
               name: String(data.name),
@@ -32,6 +33,38 @@ class Facility {
               StartDate: String(data.StartDate),
               building: String(data.building),
               owners: (Array.isArray(data.owners)) ? await data.owners.map((owner) => new ObjectID(owner)) : [],
+              // --- New fields ---
+              buildingSize: parseInt(data.buildingSize),
+              grossColocationSize: parseInt(data.grossColocationSize),
+              floorLoadingCapacity: parseInt(data.floorLoadingCapacity),
+              isCarrierNeutral: (data.isCarrierNeutral),
+              isLoadingDocks: (data.isLoadingDocks),
+              enType: String(data.enType), //*
+              rackHeight: parseInt(data.rackHeight),
+              meetMeRooms: parseInt(data.meetMeRooms),
+              platform: String(data.platform),
+              totalPower: parseInt(data.totalPower),
+              pue: parseFloat(data.pue),
+              utilityConnectionRedundancy: String(data.utilityConnectionRedundancy),
+              maxRackPower: parseInt(data.maxRackPower),
+              backupPowerDuration: parseInt(data.backupPowerDuration),
+              backupPowerRedundancy: String(data.backupPowerRedundancy),
+              coolingCapacity: parseInt(data.coolingCapacity),
+              temperature: parseInt(data.temperature),
+              humidity: parseInt(data.humidity),
+              bulletProffGlass: (data.bulletProffGlass === '') ? '' : data.bulletProffGlass,
+              cctv: (data.cctv === '') ? '' : data.cctv,
+              securityGuards: (data.securityGuards),
+              mantrap: (data.mantrap),
+              biometric: (data.biometric),
+              meetingRooms: (data.meetingRooms),
+              breakRooms: (data.breakRooms),
+              carParking: (data.carParking),
+              spareParts: (data.spareParts),
+              stagingRooms: (data.stagingRooms),
+              officeSpace: (data.officeSpace),
+              internetAccess: (data.internetAccess),
+              // --- New fields ---
               rgDate: luxon.DateTime.utc(),
               uDate: luxon.DateTime.utc(),
               status: false,
@@ -69,12 +102,44 @@ class Facility {
               StartDate: String(data.StartDate),
               building: String(data.building),
               owners: (Array.isArray(data.owners)) ? await data.owners.map((owner) => new ObjectID(owner)) : [],
+              // --- New fields ---
+              buildingSize: parseInt(data.buildingSize),
+              grossColocationSize: parseInt(data.grossColocationSize),
+              floorLoadingCapacity: parseInt(data.floorLoadingCapacity),
+              isCarrierNeutral: (data.isCarrierNeutral),
+              isLoadingDocks: (data.isLoadingDocks),
+              enType: String(data.enType),
+              rackHeight: parseInt(data.rackHeight),
+              meetMeRooms: parseInt(data.meetMeRooms),
+              platform: String(data.platform),
+              totalPower: parseInt(data.totalPower),
+              pue: parseFloat(data.pue),
+              utilityConnectionRedundancy: String(data.utilityConnectionRedundancy),
+              maxRackPower: parseInt(data.maxRackPower),
+              backupPowerDuration: parseInt(data.backupPowerDuration),
+              backupPowerRedundancy: String(data.backupPowerRedundancy),
+              coolingCapacity: parseInt(data.coolingCapacity),
+              temperature: parseInt(data.temperature),
+              humidity: parseInt(data.humidity),
+              bulletProffGlass: (data.bulletProffGlass === '') ? '' : data.bulletProffGlass,
+              cctv: (data.cctv === '') ? '' : data.cctv,
+              securityGuards: (data.securityGuards),
+              mantrap: (data.mantrap),
+              biometric: (data.biometric),
+              meetingRooms: (data.meetingRooms),
+              breakRooms: (data.breakRooms),
+              carParking: (data.carParking),
+              spareParts: (data.spareParts),
+              stagingRooms: (data.stagingRooms),
+              officeSpace: (data.officeSpace),
+              internetAccess: (data.internetAccess),
+              // --- New fields ---
               uDate: luxon.DateTime.utc(),
               deleted: false,
             };
             facility.updateOne({ $and: [adms(user), { _id: new ObjectID(data._id) }] }, { $set: element }, (err, f) => {
               if (err) reject({ m: err + 0 });
-              resolve({ m: 'Facility created' });
+              resolve({ m: 'Facility edited', r: data._id });
             });
           } else { reject({ m: 'Error' }); }
         });
@@ -690,7 +755,7 @@ class Facility {
                   ixps: { $first: '$ixps' },
                   tags: { $first: '$tags' },
                   t: { $first: '$t' },
-                  startDate: { $first: '$startDate' },
+                  StartDate: { $first: '$StartDate' },
                   building: { $first: '$building' },
                   rgDate: { $first: '$rgDate' },
                   uDate: { $first: '$uDate' },
@@ -698,6 +763,37 @@ class Facility {
                   deleted: { $first: '$deleted' },
                   owners: { $first: '$owners' },
                   features: { $push: '$geom.features' },
+                  // New Fields
+                  buildingSize: { $first: '$buildingSize' },
+                  grossColocationSize: { $first: '$grossColocationSize' },
+                  floorLoadingCapacity: { $first: '$floorLoadingCapacity' },
+                  isCarrierNeutral: { $first: '$isCarrierNeutral' },
+                  isLoadingDocks: { $first: '$isLoadingDocks' },
+                  enType: { $first: '$enType' },
+                  rackHeight: { $first: '$rackHeight' },
+                  meetMeRooms: { $first: '$meetMeRooms' },
+                  platform: { $first: '$platform' },
+                  totalPower: { $first: '$totalPower' },
+                  pue: { $first: '$pue' },
+                  utilityConnectionRedundancy: { $first: '$utilityConnectionRedundancy' },
+                  maxRackPower: { $first: '$maxRackPower' },
+                  backupPowerDuration: { $first: '$backupPowerDuration' },
+                  backupPowerRedundancy: { $first: '$backupPowerRedundancy' },
+                  coolingCapacity: { $first: '$coolingCapacity' },
+                  temperature: { $first: '$temperature' },
+                  humidity: { $first: '$humidity' },
+                  bulletProffGlass: { $first: '$bulletProffGlass' },
+                  cctv: { $first: '$cctv' },
+                  securityGuards: { $first: '$securityGuards' },
+                  mantrap: { $first: '$mantrap' },
+                  biometric: { $first: '$biometric' },
+                  meetingRooms: { $first: '$meetingRooms' },
+                  breakRooms: { $first: '$breakRooms' },
+                  carParking: { $first: '$carParking' },
+                  spareParts: { $first: '$spareParts' },
+                  stagingRooms: { $first: '$stagingRooms' },
+                  officeSpace: { $first: '$officeSpace' },
+                  internetAccess: { $first: '$internetAccess' },
                 },
               },
               {
@@ -714,7 +810,6 @@ class Facility {
                 },
               },
             ]).toArray((err, o) => {
-              console.log(err);
               if (err) reject(err);
               resolve({ m: 'Loaded', r: o[0] });
             });
@@ -1113,6 +1208,35 @@ class Facility {
             resolve({ m: '', r: (r._id) ? r._id : '' });
           });
         }).catch((e) => reject({ m: e }));
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  getNamesByList(ids){
+    return new Promise((resolve, reject) => {
+      try {
+        if (!Array.isArray(ids) || ids.length === 0) resolve({ m: 'Loaded', r: false });
+        ids = ids.map((i) => new ObjectID(i));
+        this.model().then((facility) => {
+          facility.aggregate([
+            {
+              $match: {
+                $expr: {
+                  $in: ['$_id', ids],
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+              },
+            },
+          ]).toArray(async (err, names) => {
+            if (err) return 'Error';
+            resolve({ m: 'Loaded', r: names });
+          });
+        });
       } catch (e) { reject({ m: e }); }
     });
   }

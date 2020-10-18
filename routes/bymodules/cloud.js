@@ -20,5 +20,10 @@ module.exports = {
           response.err(res, e);
         });
     });
-  }
+    router.get(`${process.env._ROUTE}/auth/cloud/owner/:id`, (req, res) => {
+      controllers.cloud.owner(req.headers.userid, req.params.id)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+  },
 };
