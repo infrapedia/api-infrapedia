@@ -76,5 +76,10 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+    router.post(`${process.env._ROUTE}/facilities/namesbylist`, (req, res) => {
+      controllers.facilities.getNamesByList(req.headers.userid, req.body.ids)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
   },
 };

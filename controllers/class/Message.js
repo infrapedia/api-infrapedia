@@ -128,6 +128,35 @@ class Message {
                 const elemntName = r[1];
                 const elemntType = r[2];
 
+
+                this.getEmail(r[0], token).then((r) => {
+                  r = JSON.parse(r);
+                  ejs.renderFile('templates/infrapedia/email_notification.ejs', {
+                    subject: 'Someone has sent you a message on Infrapedia',
+                    email: data.email,
+                    phone: data.phone,
+                    message: data.message,
+                    element: elemntName,
+                    type: elemntType,
+                    url: process.env._BASEURL,
+                  }, (err, html) => {
+                    // When we want to include the email of user we can use r.email
+                    sendEmail('', `${elemntName} - ${elemntType} - Someone has sent you a message on Infrapedia - ${new Date().getDate()}/${new Date().getMonth() + 1}`, html, data.email);
+                  });
+                }).catch(() => {
+                  ejs.renderFile('templates/infrapedia/email_notification.ejs', {
+                    subject: 'A user wrote a message on the app - End user did not receive Email',
+                    email: data.email,
+                    phone: data.phone,
+                    message: data.message,
+                    element: data.elemnt,
+                    type: data.t,
+                    url: process.env._BASEURL,
+                  }, (err, html) => {
+                    sendEmail('', `A user wrote a message on the app - ${new Date().getDate()}/${new Date().getMonth() + 1}`, html, data.email);
+                  });
+                });
+
                 sendTicket(
                   {
                     email: data.email,
@@ -137,36 +166,9 @@ class Message {
                     priority: 1,
                   },
                 ).then(() => {
-                  this.getEmail(r[0], token).then((r) => {
-                    r = JSON.parse(r);
-                    ejs.renderFile('templates/infrapedia/email_notification.ejs', {
-                      subject: 'Someone has sent you a message on Infrapedia',
-                      email: data.email,
-                      phone: data.phone,
-                      message: data.message,
-                      element: elemntName,
-                      type: elemntType,
-                      url: process.env._BASEURL,
-                    }, (err, html) => {
-                      // When we want to include the email of user we can use r.email
-                      sendEmail('', `${elemntName} - ${elemntType} - Someone has sent you a message on Infrapedia - ${new Date().getDate()}/${new Date().getMonth() + 1}`, html, data.email);
-                    });
-                  }).catch(() => {
-                    ejs.renderFile('templates/infrapedia/email_notification.ejs', {
-                      subject: 'A user wrote a message on the app - End user did not receive Email',
-                      email: data.email,
-                      phone: data.phone,
-                      message: data.message,
-                      element: data.elemnt,
-                      type: data.t,
-                      url: process.env._BASEURL,
-                    }, (err, html) => {
-                      sendEmail('', `A user wrote a message on the app - ${new Date().getDate()}/${new Date().getMonth() + 1}`, html, data.email);
-                    });
-                  });
                   resolve({ m: 'Message sent successfully' });
                 }).catch((err) => {
-                  reject({ m: `The message could not be created: ${err}` });
+                  resolve({ m: 'Message sent successfully' });
                 });
                 //
               }).catch((err) => {

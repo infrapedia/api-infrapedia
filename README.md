@@ -6,14 +6,19 @@ We're using NodeJS version v10.19.0
 If we have a problem installing the SQLite we can use sudo npm install --unsafe-perm=true --allow-root
 
 ## Versions
-## V.3
+V.4
 | Version  | Changes |
 | ------------- | ------------- |
+|4.2.20201017|- New fields on facilities endpoints (Add, Update), new endpoints to see the cloud layers information |
+|4.0.20201011|- Cloud layer - Add and Edit new functionalities |
+
+## V.3
+```
 |3.1.8.20200927|- Fixed permanent delete nd update CLS and Cables connections   |
 |3.1.1.20200919|- Fixed problem with groups SEO section   |
 |3.1.20200919|- Fixed subsea cable problems with dates   |
 |3.0.4.20200919|- Fixed SEO problems with organizations, fixed problem with cables master files, cables and CLS fixed update conections  |
-
+```
 ## V.2
 ```
 |2.9.3.20200919|- SEO changed networks by groups, added group to the SEO direct link, cluster creation for organization, cluster endpoints, and cluster funcions |

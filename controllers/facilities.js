@@ -46,4 +46,5 @@ FROM facility`;
   permanentDelete: (usr, id, code) => Facility.permanentDelete(usr, id, code),
   clustering: () => Facility.clustering(),
   getIdBySlug: (slug) => Facility.getIdBySlug(slug),
+  getNamesByList: (slug) => Facility.getNamesByList(slug),
 };
