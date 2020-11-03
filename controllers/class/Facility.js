@@ -18,7 +18,6 @@ class Facility {
       try {
         this.model().then(async (facility) => {
           if (data) {
-            console.log(data);
             const element = {
               uuid: user,
               name: String(data.name),
@@ -28,6 +27,10 @@ class Facility {
               website: data.website,
               geom: JSON.parse(data.geom),
               ixps: (Array.isArray(data.ixps)) ? await data.ixps.map((ixp) => new ObjectID(ixp)) : [],
+              terrestrials: (Array.isArray(data.terrestrials)) ? await data.terrestrials.map((terrestrial) => new ObjectID(terrestrial)) : [],
+              subsea: (Array.isArray(data.subsea)) ? await data.subsea.map((subsea) => new ObjectID(subsea)) : [],
+              csp: (Array.isArray(data.csp)) ? await data.csp.map((csp) => new ObjectID(csp)) : [],
+              sProviders: (Array.isArray(data.sProviders)) ? await data.sProviders.map((sProvider) => new ObjectID(sProvider)) : [],
               tags: data.tags,
               t: data.t,
               StartDate: String(data.StartDate),
@@ -39,7 +42,8 @@ class Facility {
               floorLoadingCapacity: parseInt(data.floorLoadingCapacity),
               isCarrierNeutral: (data.isCarrierNeutral),
               isLoadingDocks: (data.isLoadingDocks),
-              enType: String(data.enType), //*
+              enType: data.enType, //*
+              authentication: (data.authentication),
               rackHeight: parseInt(data.rackHeight),
               meetMeRooms: parseInt(data.meetMeRooms),
               platform: String(data.platform),
@@ -50,8 +54,8 @@ class Facility {
               backupPowerDuration: parseInt(data.backupPowerDuration),
               backupPowerRedundancy: String(data.backupPowerRedundancy),
               coolingCapacity: parseInt(data.coolingCapacity),
-              temperature: parseInt(data.temperature),
-              humidity: parseInt(data.humidity),
+              temperature: JSON.parse(data.temperature),
+              humidity: JSON.parse(data.humidity),
               bulletProffGlass: (data.bulletProffGlass === '') ? '' : data.bulletProffGlass,
               cctv: (data.cctv === '') ? '' : data.cctv,
               securityGuards: (data.securityGuards),
@@ -97,6 +101,10 @@ class Facility {
               website: data.website,
               geom: JSON.parse(data.geom),
               ixps: (Array.isArray(data.ixps)) ? await data.ixps.map((ixp) => new ObjectID(ixp)) : [],
+              terrestrials: (Array.isArray(data.terrestrials)) ? await data.terrestrials.map((terrestrial) => new ObjectID(terrestrial)) : [],
+              subsea: (Array.isArray(data.subsea)) ? await data.subsea.map((subsea) => new ObjectID(subsea)) : [],
+              csp: (Array.isArray(data.csp)) ? await data.csp.map((csp) => new ObjectID(csp)) : [],
+              sProviders: (Array.isArray(data.sProviders)) ? await data.sProviders.map((sProvider) => new ObjectID(sProvider)) : [],
               tags: data.tags,
               t: data.t,
               StartDate: String(data.StartDate),
@@ -108,7 +116,8 @@ class Facility {
               floorLoadingCapacity: parseInt(data.floorLoadingCapacity),
               isCarrierNeutral: (data.isCarrierNeutral),
               isLoadingDocks: (data.isLoadingDocks),
-              enType: String(data.enType),
+              enType: data.enType, //*
+              authentication: (data.authentication),
               rackHeight: parseInt(data.rackHeight),
               meetMeRooms: parseInt(data.meetMeRooms),
               platform: String(data.platform),
@@ -119,8 +128,8 @@ class Facility {
               backupPowerDuration: parseInt(data.backupPowerDuration),
               backupPowerRedundancy: String(data.backupPowerRedundancy),
               coolingCapacity: parseInt(data.coolingCapacity),
-              temperature: parseInt(data.temperature),
-              humidity: parseInt(data.humidity),
+              temperature: JSON.parse(data.temperature),
+              humidity: JSON.parse(data.humidity),
               bulletProffGlass: (data.bulletProffGlass === '') ? '' : data.bulletProffGlass,
               cctv: (data.cctv === '') ? '' : data.cctv,
               securityGuards: (data.securityGuards),
@@ -709,6 +718,118 @@ class Facility {
               },
               {
                 $lookup: {
+                  from: 'cables',
+                  let: { f: '$terrestrials' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $in: ['$_id', '$$f'],
+                        },
+                      },
+                    },
+                    {
+                      $addFields: {
+                        label: '$name',
+                        value: '$_id',
+                      },
+                    },
+                    {
+                      $project: {
+                        label: 1,
+                        value: 1,
+                      },
+                    },
+                  ],
+                  as: 'terrestrials',
+                },
+              },
+              {
+                $lookup: {
+                  from: 'cables',
+                  let: { f: '$subsea' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $in: ['$_id', '$$f'],
+                        },
+                      },
+                    },
+                    {
+                      $addFields: {
+                        label: '$name',
+                        value: '$_id',
+                      },
+                    },
+                    {
+                      $project: {
+                        label: 1,
+                        value: 1,
+                      },
+                    },
+                  ],
+                  as: 'subsea',
+                },
+              },
+              {
+                $lookup: {
+                  from: 'cloud',
+                  let: { f: '$csp' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $in: ['$_id', '$$f'],
+                        },
+                      },
+                    },
+                    {
+                      $addFields: {
+                        label: '$name',
+                        value: '$_id',
+                      },
+                    },
+                    {
+                      $project: {
+                        label: 1,
+                        value: 1,
+                      },
+                    },
+                  ],
+                  as: 'csp',
+                },
+              },
+              {
+                $lookup: {
+                  from: 'organizations',
+                  let: { f: '$sProviders' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $in: ['$_id', '$$f'],
+                        },
+                      },
+                    },
+                    {
+                      $addFields: {
+                        label: '$name',
+                        value: '$_id',
+                      },
+                    },
+                    {
+                      $project: {
+                        label: 1,
+                        value: 1,
+                      },
+                    },
+                  ],
+                  as: 'sProviders',
+                },
+              },
+              {
+                $lookup: {
                   from: 'organizations',
                   let: { f: '$owners' },
                   pipeline: [
@@ -753,6 +874,10 @@ class Facility {
                   address: { $first: '$address' },
                   website: { $first: '$website' },
                   ixps: { $first: '$ixps' },
+                  terrestrials: { $first: '$terrestrials' },
+                  subsea: { $first: '$subsea' },
+                  csp: { $first: '$csp' },
+                  sProviders: { $first: '$sProviders' },
                   tags: { $first: '$tags' },
                   t: { $first: '$t' },
                   StartDate: { $first: '$StartDate' },
@@ -770,6 +895,7 @@ class Facility {
                   isCarrierNeutral: { $first: '$isCarrierNeutral' },
                   isLoadingDocks: { $first: '$isLoadingDocks' },
                   enType: { $first: '$enType' },
+                  authentication: { $first: '$authentication' },
                   rackHeight: { $first: '$rackHeight' },
                   meetMeRooms: { $first: '$meetMeRooms' },
                   platform: { $first: '$platform' },
