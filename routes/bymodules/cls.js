@@ -85,5 +85,8 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+    router.get(`${process.env._ROUTE}/cls/checkelements`, (req, res) => {
+      controllers.cableLandingStations.checkElements(res);
+    });
   },
 };

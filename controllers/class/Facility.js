@@ -1293,7 +1293,7 @@ class Facility {
           });
         });
       } catch (e) {
-        reject({m: e });
+        reject({ m: e });
       }
     });
   }
@@ -1302,7 +1302,7 @@ class Facility {
     return new Promise((resolve, reject) => {
       try {
         if (Object.keys(adms(usr)).length === 0) {
-          if (true) { //code === process.env.securityCode
+          if (true) { // code === process.env.securityCode
             this.model().then((element) => {
               element.deleteOne({ _id: new ObjectID(id), deleted: true }, (err, result) => {
                 if (err) reject({ m: err });
@@ -1319,7 +1319,7 @@ class Facility {
     });
   }
 
-  clustering(){
+  clustering() {
     return new Promise((resolve, reject) => {
 
     });
@@ -1338,7 +1338,7 @@ class Facility {
     });
   }
 
-  getNamesByList(ids){
+  getNamesByList(ids) {
     return new Promise((resolve, reject) => {
       try {
         if (!Array.isArray(ids) || ids.length === 0) resolve({ m: 'Loaded', r: false });
@@ -1362,6 +1362,91 @@ class Facility {
             if (err) return 'Error';
             resolve({ m: 'Loaded', r: names });
           });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  centroid() {
+    return new Promise((resolve, reject) => {
+      try {
+        const turf = require('@turf/turf');
+        this.model().then((facilities) => {
+          facilities.aggregate([
+            {
+              $match: {
+                deleted: { $ne: true },
+              },
+            },
+            {
+              $project: {
+                geom: 1,
+              },
+            },
+            {
+              $unwind: {
+                path: '$geom.features',
+                preserveNullAndEmptyArrays: false,
+              },
+            },
+            {
+              $group: {
+                _id: '$_id',
+                geom: { $first: '$geom' },
+              },
+            },
+          ]).toArray(async (err, r) => {
+            if (err) { reject({ m: 'Error' }); }
+            await r.map((item) => {
+              if (Array.isArray(item.geom.features.geometry.coordinates)) {
+                const centroid = turf.centroid(item.geom.features);
+                facilities.updateOne({
+                  _id: new ObjectID(item._id),
+                }, { $set: { point: centroid.geometry } }, (err, u) => {});
+              }
+            });
+            resolve({ m: 'Loaded' });
+          });
+        }).catch((e) => {
+          reject({ m: 'Error' });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  checkElements(res) {
+    return new Promise((resolve, reject) => {
+      try {
+        const urlencode = require('urlencode');
+        this.model().then((facilities) => {
+          facilities.aggregate([
+            {
+              $match: {
+                deleted: { $ne: true },
+              },
+            },
+            {
+              $project: {
+                name: 1,
+                slug: 1,
+                point: 1,
+                address: 1,
+                fac_id: 1
+              },
+            },
+          ], { allowDiskUse: true }).toArray((err, fs) => {
+            const ejs = require('ejs');
+            ejs.renderFile('templates/infrapedia/checkElementsFacilities.ejs', {
+              facilities: fs,
+              urlencode,
+              key: process.env.MAPBOX,
+            }, (err, html) => {
+              if (err) { res.sendStatus(400); }
+              res.send(html);
+            });
+          });
+        }).catch((e) => {
+          res.sendStatus(400);
         });
       } catch (e) { reject({ m: e }); }
     });
