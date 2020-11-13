@@ -405,6 +405,46 @@ class Facility {
                 },
                 {
                   $lookup: {
+                    from: 'ixps',
+                    let: { f: '$_id' },
+                    pipeline: [
+                      {
+                        $project: {
+                          _id: 1,
+                          name: 1,
+                        },
+                      },
+                      {
+                        $addFields: {
+                          f: {
+                            $cond: {
+                              if: { $eq: [{ $type: '$$f' }, 'array'] },
+                              then: '$$f',
+                              else: [],
+                            },
+                          },
+                        },
+                      },
+                      {
+                        $match: {
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$_id', '$f'],
+                              },
+                            },
+                            {
+                              deleted: false,
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                    as: 'ixps',
+                  },
+                },
+                {
+                  $lookup: {
                     from: 'alerts',
                     let: { elemnt: { $toString: '$_id' } },
                     pipeline: [

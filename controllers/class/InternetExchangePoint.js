@@ -24,6 +24,7 @@ class IXP {
               slug: slugToString(data.name),
               nameLong: String(data.nameLong),
               owners: await (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : [],
+              facilities: (Array.isArray(data.facilities)) ? await data.facilities.map((facility) => new ObjectID(facility)) : [],
               notes: '', // String(data.notes)
               geom: geom.features[0].geometry,
               media: String(data.media),
@@ -65,6 +66,7 @@ class IXP {
               slug: slugToString(data.name),
               nameLong: String(data.nameLong),
               owners: await (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : [],
+              facilities: (Array.isArray(data.facilities)) ? await data.facilities.map((facility) => new ObjectID(facility)) : [],
               notes: '', // String(data.notes)
               geom: geom.features[0].geometry,
               media: String(data.media),
@@ -83,7 +85,7 @@ class IXP {
             };
             ixps.updateOne({ $and: [adms(user), { _id: new ObjectID(data._id) }] }, { $set: element }, (err, f) => {
               if (err) reject({ m: err + 0 });
-              resolve({ m: 'IXP created' });
+              resolve({ m: 'IXP edited' });
             });
           } else { reject({ m: 'Error' }); }
         });
@@ -251,18 +253,35 @@ class IXP {
                 {
                   $lookup: {
                     from: 'facilities',
-                    let: { ixps: '$_id' },
+                    let: { f: '$facilities' },
                     pipeline: [
+                      {
+                        $project: {
+                          _id: 1,
+                          name: 1,
+                        },
+                      },
+                      {
+                        $addFields: {
+                          f: {
+                            $cond: {
+                              if: { $eq: [{ $type: '$$f' }, 'array'] },
+                              then: '$$f',
+                              else: [],
+                            },
+                          },
+                        },
+                      },
                       {
                         $match: {
                           $and: [
                             {
                               $expr: {
-                                $in: ['$$ixps', '$ixps'],
+                                $in: ['$_id', '$f'],
                               },
                             },
                             {
-                              deleted: false,
+                              deleted: { $ne: true },
                             },
                           ],
                         },
@@ -270,11 +289,57 @@ class IXP {
                       {
                         $project: {
                           _id: 1,
-                          name: 1,
+                          label: '$name',
                         },
                       },
                     ],
                     as: 'facilities',
+                  },
+                },
+                {
+                  $lookup: {
+                    from: 'organizations',
+                    let: { f: '$owners' },
+                    pipeline: [
+                      {
+                        $project: {
+                          _id: 1,
+                          name: 1,
+                        },
+                      },
+                      {
+                        $addFields: {
+                          f: {
+                            $cond: {
+                              if: { $eq: [{ $type: '$$f' }, 'array'] },
+                              then: '$$f',
+                              else: [],
+                            },
+                          },
+                        },
+                      },
+                      {
+                        $match: {
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$_id', '$f'],
+                              },
+                            },
+                            {
+                              deleted: { $ne: true },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        $project: {
+                          _id: 1,
+                          label: '$name',
+                        },
+                      },
+                    ],
+                    as: 'owners',
                   },
                 },
                 {
@@ -429,11 +494,102 @@ class IXP {
         if (user !== undefined || user !== '') {
           this.model().then((ixp) => {
             id = new ObjectID(id);
-            console.log(id);
             ixp.aggregate([
               {
                 $match: {
                   _id: id,
+                },
+              },
+              {
+                $lookup: {
+                  from: 'facilities',
+                  let: { f: '$facilities' },
+                  pipeline: [
+                    {
+                      $project: {
+                        _id: 1,
+                        name: 1,
+                      },
+                    },
+                    {
+                      $addFields: {
+                        f: {
+                          $cond: {
+                            if: { $eq: [{ $type: '$$f' }, 'array'] },
+                            then: '$$f',
+                            else: [],
+                          },
+                        },
+                      },
+                    },
+                    {
+                      $match: {
+                        $and: [
+                          {
+                            $expr: {
+                              $in: ['$_id', '$f'],
+                            },
+                          },
+                          {
+                            deleted: { $ne: true },
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      $project: {
+                        _id: 1,
+                        label: '$name',
+                      },
+                    },
+                  ],
+                  as: 'facilities',
+                },
+              },
+              {
+                $lookup: {
+                  from: 'organizations',
+                  let: { f: '$owners' },
+                  pipeline: [
+                    {
+                      $project: {
+                        _id: 1,
+                        name: 1,
+                      },
+                    },
+                    {
+                      $addFields: {
+                        f: {
+                          $cond: {
+                            if: { $eq: [{ $type: '$$f' }, 'array'] },
+                            then: '$$f',
+                            else: [],
+                          },
+                        },
+                      },
+                    },
+                    {
+                      $match: {
+                        $and: [
+                          {
+                            $expr: {
+                              $in: ['$_id', '$f'],
+                            },
+                          },
+                          {
+                            deleted: { $ne: true },
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      $project: {
+                        _id: 1,
+                        label: '$name',
+                      },
+                    },
+                  ],
+                  as: 'owners',
                 },
               },
               {
