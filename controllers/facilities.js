@@ -47,4 +47,6 @@ FROM facility`;
   clustering: () => Facility.clustering(),
   getIdBySlug: (slug) => Facility.getIdBySlug(slug),
   getNamesByList: (slug) => Facility.getNamesByList(slug),
+  centroid: () => Facility.centroid(),
+  checkElements: (res) => Facility.checkElements(res),
 };

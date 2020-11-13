@@ -81,5 +81,13 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+    router.get(`${process.env._ROUTE}/facilities/centroid`, (req, res) => {
+      controllers.facilities.centroid()
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.get(`${process.env._ROUTE}/facilities/checkelements`, (req, res) => {
+      controllers.facilities.checkElements(res);
+    });
   },
 };

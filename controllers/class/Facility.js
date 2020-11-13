@@ -18,7 +18,6 @@ class Facility {
       try {
         this.model().then(async (facility) => {
           if (data) {
-            console.log(data);
             const element = {
               uuid: user,
               name: String(data.name),
@@ -28,6 +27,10 @@ class Facility {
               website: data.website,
               geom: JSON.parse(data.geom),
               ixps: (Array.isArray(data.ixps)) ? await data.ixps.map((ixp) => new ObjectID(ixp)) : [],
+              terrestrials: (Array.isArray(data.terrestrials)) ? await data.terrestrials.map((terrestrial) => new ObjectID(terrestrial)) : [],
+              subsea: (Array.isArray(data.subsea)) ? await data.subsea.map((subsea) => new ObjectID(subsea)) : [],
+              csp: (Array.isArray(data.csp)) ? await data.csp.map((csp) => new ObjectID(csp)) : [],
+              sProviders: (Array.isArray(data.sProviders)) ? await data.sProviders.map((sProvider) => new ObjectID(sProvider)) : [],
               tags: data.tags,
               t: data.t,
               StartDate: String(data.StartDate),
@@ -39,7 +42,8 @@ class Facility {
               floorLoadingCapacity: parseInt(data.floorLoadingCapacity),
               isCarrierNeutral: (data.isCarrierNeutral),
               isLoadingDocks: (data.isLoadingDocks),
-              enType: String(data.enType), //*
+              enType: data.enType, //*
+              authentication: (data.authentication),
               rackHeight: parseInt(data.rackHeight),
               meetMeRooms: parseInt(data.meetMeRooms),
               platform: String(data.platform),
@@ -50,8 +54,8 @@ class Facility {
               backupPowerDuration: parseInt(data.backupPowerDuration),
               backupPowerRedundancy: String(data.backupPowerRedundancy),
               coolingCapacity: parseInt(data.coolingCapacity),
-              temperature: parseInt(data.temperature),
-              humidity: parseInt(data.humidity),
+              temperature: JSON.parse(data.temperature),
+              humidity: JSON.parse(data.humidity),
               bulletProffGlass: (data.bulletProffGlass === '') ? '' : data.bulletProffGlass,
               cctv: (data.cctv === '') ? '' : data.cctv,
               securityGuards: (data.securityGuards),
@@ -97,6 +101,10 @@ class Facility {
               website: data.website,
               geom: JSON.parse(data.geom),
               ixps: (Array.isArray(data.ixps)) ? await data.ixps.map((ixp) => new ObjectID(ixp)) : [],
+              terrestrials: (Array.isArray(data.terrestrials)) ? await data.terrestrials.map((terrestrial) => new ObjectID(terrestrial)) : [],
+              subsea: (Array.isArray(data.subsea)) ? await data.subsea.map((subsea) => new ObjectID(subsea)) : [],
+              csp: (Array.isArray(data.csp)) ? await data.csp.map((csp) => new ObjectID(csp)) : [],
+              sProviders: (Array.isArray(data.sProviders)) ? await data.sProviders.map((sProvider) => new ObjectID(sProvider)) : [],
               tags: data.tags,
               t: data.t,
               StartDate: String(data.StartDate),
@@ -108,7 +116,8 @@ class Facility {
               floorLoadingCapacity: parseInt(data.floorLoadingCapacity),
               isCarrierNeutral: (data.isCarrierNeutral),
               isLoadingDocks: (data.isLoadingDocks),
-              enType: String(data.enType),
+              enType: data.enType, //*
+              authentication: (data.authentication),
               rackHeight: parseInt(data.rackHeight),
               meetMeRooms: parseInt(data.meetMeRooms),
               platform: String(data.platform),
@@ -119,8 +128,8 @@ class Facility {
               backupPowerDuration: parseInt(data.backupPowerDuration),
               backupPowerRedundancy: String(data.backupPowerRedundancy),
               coolingCapacity: parseInt(data.coolingCapacity),
-              temperature: parseInt(data.temperature),
-              humidity: parseInt(data.humidity),
+              temperature: JSON.parse(data.temperature),
+              humidity: JSON.parse(data.humidity),
               bulletProffGlass: (data.bulletProffGlass === '') ? '' : data.bulletProffGlass,
               cctv: (data.cctv === '') ? '' : data.cctv,
               securityGuards: (data.securityGuards),
@@ -709,6 +718,118 @@ class Facility {
               },
               {
                 $lookup: {
+                  from: 'cables',
+                  let: { f: '$terrestrials' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $in: ['$_id', '$$f'],
+                        },
+                      },
+                    },
+                    {
+                      $addFields: {
+                        label: '$name',
+                        value: '$_id',
+                      },
+                    },
+                    {
+                      $project: {
+                        label: 1,
+                        value: 1,
+                      },
+                    },
+                  ],
+                  as: 'terrestrials',
+                },
+              },
+              {
+                $lookup: {
+                  from: 'cables',
+                  let: { f: '$subsea' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $in: ['$_id', '$$f'],
+                        },
+                      },
+                    },
+                    {
+                      $addFields: {
+                        label: '$name',
+                        value: '$_id',
+                      },
+                    },
+                    {
+                      $project: {
+                        label: 1,
+                        value: 1,
+                      },
+                    },
+                  ],
+                  as: 'subsea',
+                },
+              },
+              {
+                $lookup: {
+                  from: 'cloud',
+                  let: { f: '$csp' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $in: ['$_id', '$$f'],
+                        },
+                      },
+                    },
+                    {
+                      $addFields: {
+                        label: '$name',
+                        value: '$_id',
+                      },
+                    },
+                    {
+                      $project: {
+                        label: 1,
+                        value: 1,
+                      },
+                    },
+                  ],
+                  as: 'csp',
+                },
+              },
+              {
+                $lookup: {
+                  from: 'organizations',
+                  let: { f: '$sProviders' },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $in: ['$_id', '$$f'],
+                        },
+                      },
+                    },
+                    {
+                      $addFields: {
+                        label: '$name',
+                        value: '$_id',
+                      },
+                    },
+                    {
+                      $project: {
+                        label: 1,
+                        value: 1,
+                      },
+                    },
+                  ],
+                  as: 'sProviders',
+                },
+              },
+              {
+                $lookup: {
                   from: 'organizations',
                   let: { f: '$owners' },
                   pipeline: [
@@ -753,6 +874,10 @@ class Facility {
                   address: { $first: '$address' },
                   website: { $first: '$website' },
                   ixps: { $first: '$ixps' },
+                  terrestrials: { $first: '$terrestrials' },
+                  subsea: { $first: '$subsea' },
+                  csp: { $first: '$csp' },
+                  sProviders: { $first: '$sProviders' },
                   tags: { $first: '$tags' },
                   t: { $first: '$t' },
                   StartDate: { $first: '$StartDate' },
@@ -770,6 +895,7 @@ class Facility {
                   isCarrierNeutral: { $first: '$isCarrierNeutral' },
                   isLoadingDocks: { $first: '$isLoadingDocks' },
                   enType: { $first: '$enType' },
+                  authentication: { $first: '$authentication' },
                   rackHeight: { $first: '$rackHeight' },
                   meetMeRooms: { $first: '$meetMeRooms' },
                   platform: { $first: '$platform' },
@@ -1167,7 +1293,7 @@ class Facility {
           });
         });
       } catch (e) {
-        reject({m: e });
+        reject({ m: e });
       }
     });
   }
@@ -1176,7 +1302,7 @@ class Facility {
     return new Promise((resolve, reject) => {
       try {
         if (Object.keys(adms(usr)).length === 0) {
-          if (true) { //code === process.env.securityCode
+          if (true) { // code === process.env.securityCode
             this.model().then((element) => {
               element.deleteOne({ _id: new ObjectID(id), deleted: true }, (err, result) => {
                 if (err) reject({ m: err });
@@ -1193,7 +1319,7 @@ class Facility {
     });
   }
 
-  clustering(){
+  clustering() {
     return new Promise((resolve, reject) => {
 
     });
@@ -1212,7 +1338,7 @@ class Facility {
     });
   }
 
-  getNamesByList(ids){
+  getNamesByList(ids) {
     return new Promise((resolve, reject) => {
       try {
         if (!Array.isArray(ids) || ids.length === 0) resolve({ m: 'Loaded', r: false });
@@ -1236,6 +1362,91 @@ class Facility {
             if (err) return 'Error';
             resolve({ m: 'Loaded', r: names });
           });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  centroid() {
+    return new Promise((resolve, reject) => {
+      try {
+        const turf = require('@turf/turf');
+        this.model().then((facilities) => {
+          facilities.aggregate([
+            {
+              $match: {
+                deleted: { $ne: true },
+              },
+            },
+            {
+              $project: {
+                geom: 1,
+              },
+            },
+            {
+              $unwind: {
+                path: '$geom.features',
+                preserveNullAndEmptyArrays: false,
+              },
+            },
+            {
+              $group: {
+                _id: '$_id',
+                geom: { $first: '$geom' },
+              },
+            },
+          ]).toArray(async (err, r) => {
+            if (err) { reject({ m: 'Error' }); }
+            await r.map((item) => {
+              if (Array.isArray(item.geom.features.geometry.coordinates)) {
+                const centroid = turf.centroid(item.geom.features);
+                facilities.updateOne({
+                  _id: new ObjectID(item._id),
+                }, { $set: { point: centroid.geometry } }, (err, u) => {});
+              }
+            });
+            resolve({ m: 'Loaded' });
+          });
+        }).catch((e) => {
+          reject({ m: 'Error' });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  checkElements(res) {
+    return new Promise((resolve, reject) => {
+      try {
+        const urlencode = require('urlencode');
+        this.model().then((facilities) => {
+          facilities.aggregate([
+            {
+              $match: {
+                deleted: { $ne: true },
+              },
+            },
+            {
+              $project: {
+                name: 1,
+                slug: 1,
+                point: 1,
+                address: 1,
+                fac_id: 1
+              },
+            },
+          ], { allowDiskUse: true }).toArray((err, fs) => {
+            const ejs = require('ejs');
+            ejs.renderFile('templates/infrapedia/checkElementsFacilities.ejs', {
+              facilities: fs,
+              urlencode,
+              key: process.env.MAPBOX,
+            }, (err, html) => {
+              if (err) { res.sendStatus(400); }
+              res.send(html);
+            });
+          });
+        }).catch((e) => {
+          res.sendStatus(400);
         });
       } catch (e) { reject({ m: e }); }
     });

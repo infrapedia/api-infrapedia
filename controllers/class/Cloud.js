@@ -131,5 +131,65 @@ class Cloud {
       } catch (e) { reject({ m: e }); }
     });
   }
+
+  list(user, page) {
+    return new Promise((resolve, reject) => {
+      try {
+        if (user !== undefined || user !== '') {
+          const limit = 40;
+          this.model().then((facilities) => {
+            facilities.aggregate([
+              {
+                $project: {
+                  name: 1,
+                  uuid: 1,
+                  deleted: 1,
+                  rgDate: 1,
+                  uDate: 1,
+                },
+              },
+              {
+                $sort: { name: 1 },
+              },
+              {
+                $match: adms(user),
+              },
+              { $skip: ((parseInt(limit) * parseInt(page)) - parseInt(limit) > 0) ? (parseInt(limit) * parseInt(page)) - parseInt(limit) : 0 },
+              { $limit: limit },
+            ]).toArray((err, rCables) => {
+              if (err) reject(err);
+              resolve({ m: 'Loaded', r: rCables });
+            });
+          });
+        } else { resolve('Not user found'); }
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  search(user, search) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((cable) => {
+          const uuid = (search.psz === '1') ? adms(user) : {};
+          cable.aggregate([
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+              },
+            },
+            {
+              $match: { $and: [{ name: { $regex: search.s, $options: 'i' } }, uuid, { deleted: { $ne: true } }] }, // , uuid, { deleted: { $ne: true } } { $and: [uuid, , { deleted: false }] },
+            },
+            { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
+            { $sort: { name: 1, yours: -1 } },
+            { $limit: 20 },
+          ]).toArray((err, r) => {
+            resolve(r);
+          });
+        }).catch((e) => { reject({ m: e }); });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
 }
 module.exports = Cloud;

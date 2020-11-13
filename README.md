@@ -9,6 +9,9 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 V.4
 | Version  | Changes |
 | ------------- | ------------- |
+|4.5.9.20201112|- Remove freshdesk service on the contact form and message service|
+|4.5.8.20201109|- Create a solution to validate the facilities, IXPS, CLS, create an updater for the centroid of facilities |
+|4.5.20201103|- Cloud layers (Add, Edit, View, and Search), Facilities edition and Issues permanent delete |
 |4.2.20201017|- New fields on facilities endpoints (Add, Update), new endpoints to see the cloud layers information |
 |4.0.20201011|- Cloud layer - Add and Edit new functionalities |
 

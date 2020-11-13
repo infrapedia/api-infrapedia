@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>IXPS Check Elements</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div>
+    <h2>Check Elements: IXPS</h2>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Point</th>
+        </tr>
+        </thead>
+        <tbody>
+            <% facilities.map((item) => { %>
+                <tr>
+                    <td><%= item._id %></td>
+                    <td><a href="https://infrapedia.com/app/facility/<%= item.slug %>" target="_blank"><%= item.name %></a></td>
+                    <td>
+                        <% if(item.address.length > 0) { %>
+                            <table>
+                                <tbody>
+                                <tr>
+                                    <td>Reference</td>
+                                    <td><%= item.address[0].reference %></td>
+                                </tr>
+                                <tr>
+                                    <td>Street:</td>
+                                    <td><%= item.address[0].street %></td>
+                                </tr>
+                                <tr>
+                                    <td>City:</td>
+                                    <td><%= item.address[0].city %></td>
+                                </tr>
+                                <tr>
+                                    <td>Country:</td>
+                                    <td><%= item.address[0].country %></td>
+                                </tr>
+                                </tbody>
+
+                            </table>
+                        <% } %>
+                    </td>
+                    <td><a href="https://api.mapbox.com/styles/v1/mapbox/light-v10/static/geojson(<%= urlencode(JSON.stringify(item.point)) %>)/auto/1200x630@2x?access_token=<%= key%>" target="_blank"><img src="https://api.mapbox.com/styles/v1/mapbox/light-v10/static/geojson(<%= urlencode(JSON.stringify(item.point)) %>)/auto/1200x630@2x?access_token=<%= key%>" width="300px" /></a></td>
+                </tr>
+            <%  });%>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

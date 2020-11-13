@@ -25,4 +25,5 @@ module.exports = {
   checkName: (name) => CLS.checkName(name),
   permanentDelete: (usr, id, code) => CLS.permanentDelete(usr, id, code),
   getIdBySlug: (slug) => CLS.getIdBySlug(slug),
+  checkElements: (res) => CLS.checkElements(res),
 };

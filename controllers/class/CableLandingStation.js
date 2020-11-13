@@ -1070,5 +1070,59 @@ class CLS {
       } catch (e) { reject({ m: e }); }
     });
   }
+
+  checkElements(res) {
+    return new Promise((resolve, reject) => {
+      try {
+        const urlencode = require('urlencode');
+        this.model().then((facilities) => {
+          facilities.aggregate([
+            {
+              $match: {
+                deleted: { $ne: true },
+              },
+            },
+            {
+              $project: {
+                name: 1,
+                country: 1,
+                slug: 1,
+                geom: 1,
+                cid: 1,
+              },
+            },
+            {
+              $unwind: {
+                path: '$geom.features',
+                preserveNullAndEmptyArrays: false,
+              },
+            },
+            {
+              $addFields: {
+                point: '$geom.features.geometry',
+              },
+            },
+            {
+              $project: {
+                geom: 0,
+              },
+            },
+          ], { allowDiskUse: true }).toArray((err, fs) => {
+            const ejs = require('ejs');
+            ejs.renderFile('templates/infrapedia/checkElementsCls.ejs', {
+              cls: fs,
+              urlencode,
+              key: process.env.MAPBOX,
+            }, (err, html) => {
+              if (err) { res.sendStatus(400); }
+              res.send(html);
+            });
+          });
+        }).catch((e) => {
+          res.sendStatus(400);
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
 }
 module.exports = CLS;
