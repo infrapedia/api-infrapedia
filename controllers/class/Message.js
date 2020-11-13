@@ -157,19 +157,19 @@ class Message {
                   });
                 });
 
-                sendTicket(
-                  {
-                    email: data.email,
-                    subject: 'A user received a new message',
-                    description: `${data.message} <br /><br /><strong>${elemntName} - ${elemntType}</strong>`,
-                    status: 2,
-                    priority: 1,
-                  },
-                ).then(() => {
-                  resolve({ m: 'Message sent successfully' });
-                }).catch((err) => {
-                  resolve({ m: 'Message sent successfully' });
-                });
+                // sendTicket(
+                //   {
+                //     email: data.email,
+                //     subject: 'A user received a new message',
+                //     description: `${data.message} <br /><br /><strong>${elemntName} - ${elemntType}</strong>`,
+                //     status: 2,
+                //     priority: 1,
+                //   },
+                // ).then(() => {
+                //   resolve({ m: 'Message sent successfully' });
+                // }).catch((err) => {
+                //   resolve({ m: 'Message sent successfully' });
+                // });
                 //
               }).catch((err) => {
                 reject({ m: `The message could not be created: ${err}` });
