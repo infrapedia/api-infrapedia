@@ -44,8 +44,9 @@ class IXP {
             ixps.find({ name: data.name }).count((err, c) => {
               if (err) reject({ m: err + 0 });
               else if (c > 0) reject({ m: 'We have another element with the same name' });
-              ixps.insertOne(element, (err, f) => {
+              ixps.insertOne(element, async (err, f) => {
                 if (err) reject({ m: err + 0 });
+                await element.facilities.map((facility) => this.updateFacilityConnection(f.insertedId, facility));
                 resolve({ m: 'IXP created', r: f.insertedId });
               });
             });
@@ -83,11 +84,125 @@ class IXP {
               status: false,
               deleted: false,
             };
-            ixps.updateOne({ $and: [adms(user), { _id: new ObjectID(data._id) }] }, { $set: element }, (err, f) => {
+            ixps.updateOne({ $and: [adms(user), { _id: new ObjectID(data._id) }] }, { $set: element }, async (err, f) => {
               if (err) reject({ m: err + 0 });
+              await element.facilities.map((facility) => this.updateFacilityConnection(new ObjectID(data._id), facility));
               resolve({ m: 'IXP edited' });
             });
           } else { reject({ m: 'Error' }); }
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  updateFacilityConnection(idIxp, idFacility) {
+    try {
+      const facility = require('../../models/facility.model');
+      facility().then((facility) => {
+        facility.updateOne({ _id: new ObjectID(idFacility) }, { $addToSet: { ixps: idIxp } }, (err, u) => {
+          if (err) return err;
+          if (u.result.nModified !== 1) return 'Not updated 1';
+          return 'Removed';
+        });
+      }).catch((e) => (e));
+    } catch (e) {
+      return e;
+    }
+  }
+
+  clusterFacilityConnection(idIxp) {
+    return new Promise((resolve, reject) => {
+      try {
+        redisClient.redisClient.get(`v_cluster_ixp_${idIxp}`, (err, reply) => {
+          if (err) reject({ m: err });
+          else if (reply) resolve(((JSON.parse(reply))));
+          else {
+            this.model().then((facilities) => {
+              facilities.aggregate(
+                [
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                      geom: 1,
+                      facilities: 1,
+                    },
+                  },
+                  {
+                    $addFields: { facilities: { $ifNull: ['$facilities', []] } },
+                  },
+                  {
+                    $match: {
+                      $and: [{ geom: { $ne: {} } }], // { facilities: { $ne: [] } }
+                    },
+                  },
+                  {
+                    $lookup: {
+                      from: 'facilities',
+                      let: { f: '$facilities' },
+                      pipeline: [
+                        {
+                          $project: {
+                            _id: 1,
+                            name: 1,
+                            point: 1,
+                          },
+                        },
+                        {
+                          $match: {
+                            $expr: {
+                              $in: ['$_id', '$$f'],
+                            },
+                          },
+                        },
+                        {
+                          $match: {
+                            point: { $ne: {} },
+                          },
+                        },
+                      ],
+                      as: 'facilities',
+                    },
+                  },
+                  {
+                    $unwind: {
+                      path: '$facilities',
+                      preserveNullAndEmptyArrays: false,
+                    },
+                  },
+                  {
+                    $group: {
+                      _id: '$_id',
+                      name: { $first: '$name' },
+                      point: { $first: '$geom' },
+                      features: {
+                        $push: {
+                          type: 'feature',
+                          properties: {
+                            name: '$facilities.name',
+                            type: 'facility',
+                            _id: '$facilities._id',
+                          },
+                          geometry: '$facilities.point',
+                        },
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      type: 'FeatureCollection',
+                      features: { $concatArrays: ['$features', [{ type: 'feature', properties: { name: '$name', type: 'ixp', _id: '$_id' }, geom: '$point' }]] },
+                    },
+                  },
+                ],
+                { allowDiskUse: true },
+              ).toArray((err, points) => {
+                if (err) reject(err);
+                redisClient.set(`v_cluster_ixp_${idIxp}`, JSON.stringify(points), 'EX', 172800);
+                resolve(points);
+              });
+            }).catch((e) => reject({ m: e }));
+          }
         });
       } catch (e) { reject({ m: e }); }
     });
@@ -868,6 +983,7 @@ class IXP {
             else if (results.length !== []) {
               await results.map((element) => {
                 this.view('', element._id);
+                this.clusterFacilityConnection(element._id);
               });
             }
             resolve({ m: 'loaded' });
@@ -940,7 +1056,7 @@ class IXP {
     return new Promise((resolve, reject) => {
       try {
         if (Object.keys(adms(usr)).length === 0) {
-          if (true) { //code === process.env.securityCode
+          if (true) { // code === process.env.securityCode
             this.model().then((element) => {
               element.deleteOne({ _id: new ObjectID(id), deleted: true }, (err, result) => {
                 if (err) reject({ m: err });

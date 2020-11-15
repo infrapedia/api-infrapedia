@@ -7,6 +7,7 @@ module.exports = {
   search: (usr, query) => IXP.search(usr, query),
   owner: (usr, id) => IXP.owner(usr, id),
   view: (usr, id) => IXP.view(usr, id),
+  clusterFacilityConnection: (id) => IXP.clusterFacilityConnection(id),
   bbox: (user, id) => new Promise((resolve, reject) => {
     redisClient.redisClient.get(`ixp_${id}`, (err, reply) => {
       if (err) reject({ m: err });

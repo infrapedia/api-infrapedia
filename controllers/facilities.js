@@ -29,6 +29,7 @@ FROM facility`;
   }),
   owner: (usr, id) => Facility.owner(usr, id),
   view: (usr, id) => Facility.view(usr, id),
+  clusterIxpConnection: (id) => Facility.clusterIxpConnection(id),
   bbox: (user, id) => new Promise((resolve, reject) => {
     redisClient.redisClient.get(`facility_${id}`, (err, reply) => {
       if (err) reject({ m: err });
