@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const { ObjectID } = require('mongodb');
+const luxon = require('luxon');
 
 const notifications = function (a) { return a; };
 
@@ -70,7 +71,7 @@ module.exports = {
           //   $match: { $and: [{ terrestrial: true }] },
           // },
           {
-            $match: { $and: [{ deleted: false }] },
+            $match: { $and: [{ deleted: { $ne: true } }] },
           },
           {
             $project: {
@@ -86,6 +87,17 @@ module.exports = {
               {
                 $match: {
                   _id: new ObjectID(id._id),
+                },
+              },
+              {
+                $addFields: {
+                  activationDateTime: {
+                    $cond: [
+                      { $eq: ['$activationDateTime', ''] },
+                      luxon.DateTime.utc(),
+                      { $ifNull: ['$activationDateTime', luxon.DateTime.utc()] },
+                    ],
+                  },
                 },
               },
               {

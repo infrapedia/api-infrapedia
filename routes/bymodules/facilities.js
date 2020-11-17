@@ -89,5 +89,10 @@ module.exports = {
     router.get(`${process.env._ROUTE}/facilities/checkelements`, (req, res) => {
       controllers.facilities.checkElements(res);
     });
+    router.get(`${process.env._ROUTE}/facilities/clusterixpconnection/:id`, (req, res) => {
+      controllers.facilities.clusterIxpConnection(req.params.id)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
   },
 };

@@ -77,8 +77,9 @@ class Facility {
             facility.find({ name: data.name }).count((err, c) => {
               if (err) reject({ m: err + 0 });
               else if (c > 0) reject({ m: 'We have another element with the same name' });
-              facility.insertOne(element, (err, f) => {
+              facility.insertOne(element, async (err, f) => {
                 if (err) reject({ m: err + 0 });
+                await element.ixps.map((ixp) => this.updateIXPConnection(ixp, new ObjectID(f.insertedId)));
                 resolve({ m: 'Facility created', r: f.insertedId });
               });
             });
@@ -146,11 +147,111 @@ class Facility {
               uDate: luxon.DateTime.utc(),
               deleted: false,
             };
-            facility.updateOne({ $and: [adms(user), { _id: new ObjectID(data._id) }] }, { $set: element }, (err, f) => {
+            facility.updateOne({ $and: [adms(user), { _id: new ObjectID(data._id) }] }, { $set: element }, async (err, f) => {
               if (err) reject({ m: err + 0 });
+              await element.ixps.map((ixp) => this.updateIXPConnection(ixp, new ObjectID(data._id)));
               resolve({ m: 'Facility edited', r: data._id });
             });
           } else { reject({ m: 'Error' }); }
+        }).catch((e) => reject({ m: e }));
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  updateIXPConnection(idIxp, idFacility) {
+    try {
+      const ixp = require('../../models/ixp.model');
+      ixp().then((ixp) => {
+        ixp.updateOne({ _id: new ObjectID(idIxp) }, { $addToSet: { facilities: idFacility } }, (err, u) => {
+          if (err) return err;
+          if (u.result.nModified !== 1) return 'Not updated 1';
+          return 'Removed';
+        });
+      }).catch((e) => (e));
+    } catch (e) { reject({ m: e }); }
+  }
+
+  clusterIxpConnection(idFacility) {
+    return new Promise((resolve, reject) => {
+      try {
+        redisClient.redisClient.get(`v_cluster_facility_${idFacility}`, (err, reply) => {
+          if (err) reject({ m: err });
+          else if (reply) resolve(((JSON.parse(reply))));
+          else {
+            this.model().then((facilities) => {
+              facilities.aggregate(
+                [
+                  {
+                    $project: {
+                      name: 1,
+                      point: 1,
+                      ixps: 1,
+                    },
+                  },
+                  {
+                    $match: {
+                      $and: [
+                        { _id: new ObjectID(idFacility) }, { point: { $ne: {} } },  // { point: { $ne: {} } }, //{ ixps: { $ne: [] } },
+                      ],
+                    },
+                  },
+                  {
+                    $lookup: {
+                      from: 'ixps',
+                      let: { f: '$ixps' },
+                      pipeline: [
+                        {
+                          $project: {
+                            _id: 1,
+                            geom: 1,
+                            name: 1,
+                          },
+                        },
+                        {
+                          $match: { $expr: { $in: ['$_id', '$$f'] } },
+                        },
+                      ],
+                      as: 'ixps',
+                    },
+                  },
+                  {
+                    $unwind: { path: '$ixps', preserveNullAndEmptyArrays: false },
+                  },
+                  {
+                    $group: {
+                      _id: '$_id',
+                      name: { $first: '$name' },
+                      point: {
+                        $first: '$point',
+                      },
+                      features: {
+                        $push: {
+                          type: 'feature',
+                          properties: {
+                            name: '$ixps.name',
+                            type: 'ixp',
+                            _id: '$ixps._id',
+                          },
+                          geometry: '$ixps.geom',
+                        },
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      type: 'FeatureCollection',
+                      features: { $concatArrays: ['$features', [{ type: 'feature', properties: { name: '$name', type: 'facility', _id: '$_id' }, geom: '$point' }]] },
+                    },
+                  },
+                ],
+                { allowDiskUse: true },
+              ).toArray((err, points) => {
+                if (err) reject(err);
+                redisClient.set(`v_cluster_facility_${idFacility}`, JSON.stringify(points), 'EX', 172800);
+                resolve(points);
+              });
+            }).catch((e) => reject({ m: e }));
+          }
         });
       } catch (e) { reject({ m: e }); }
     });
@@ -401,6 +502,46 @@ class Facility {
                       },
                     ],
                     as: 'owners',
+                  },
+                },
+                {
+                  $lookup: {
+                    from: 'ixps',
+                    let: { f: '$_id' },
+                    pipeline: [
+                      {
+                        $project: {
+                          _id: 1,
+                          name: 1,
+                        },
+                      },
+                      {
+                        $addFields: {
+                          f: {
+                            $cond: {
+                              if: { $eq: [{ $type: '$$f' }, 'array'] },
+                              then: '$$f',
+                              else: [],
+                            },
+                          },
+                        },
+                      },
+                      {
+                        $match: {
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$_id', '$f'],
+                              },
+                            },
+                            {
+                              deleted: false,
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                    as: 'ixps',
                   },
                 },
                 {
@@ -1271,6 +1412,7 @@ class Facility {
             else if (results.length !== []) {
               await results.map((element) => {
                 this.view('', element._id);
+                this.clusterIxpConnection(element._id);
               });
             }
             resolve({ m: 'loaded' });
@@ -1316,12 +1458,6 @@ class Facility {
           reject({ m: 'Permissions denied' });
         }
       } catch (e) { reject({ m: e }); }
-    });
-  }
-
-  clustering() {
-    return new Promise((resolve, reject) => {
-
     });
   }
 
@@ -1431,7 +1567,7 @@ class Facility {
                 slug: 1,
                 point: 1,
                 address: 1,
-                fac_id: 1
+                fac_id: 1,
               },
             },
           ], { allowDiskUse: true }).toArray((err, fs) => {

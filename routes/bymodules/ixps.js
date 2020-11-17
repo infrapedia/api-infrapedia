@@ -66,5 +66,10 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+    router.get(`${process.env._ROUTE}/ixps/clusterfacilityconnection/:id`, (req, res) => {
+      controllers.facilities.clusterFacilityConnection(req.params.id)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
   },
 };
