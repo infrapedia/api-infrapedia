@@ -9,6 +9,7 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 V.4
 | Version  | Changes |
 | ------------- | ------------- |
+|4.8.1.20201121|- Fix messages service|
 |4.8.20201116|- Fix script to create layer of cables|
 |4.7.20201115|- Cluster information by connections between IXP and facilities and update connections side by side|
 |4.5.11.20201112|- Add facilities and owners to endpoints for edit, add and view information on ixps, add information on facilities endpoints|

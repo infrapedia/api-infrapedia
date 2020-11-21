@@ -142,6 +142,7 @@ class Message {
                   }, (err, html) => {
                     // When we want to include the email of user we can use r.email
                     sendEmail('', `${elemntName} - ${elemntType} - Someone has sent you a message on Infrapedia - ${new Date().getDate()}/${new Date().getMonth() + 1}`, html, data.email);
+                    resolve({ m: 'Message sent successfully' });
                   });
                 }).catch(() => {
                   ejs.renderFile('templates/infrapedia/email_notification.ejs', {
@@ -154,6 +155,7 @@ class Message {
                     url: process.env._BASEURL,
                   }, (err, html) => {
                     sendEmail('', `A user wrote a message on the app - ${new Date().getDate()}/${new Date().getMonth() + 1}`, html, data.email);
+                    resolve({ m: 'Message sent successfully' });
                   });
                 });
 
