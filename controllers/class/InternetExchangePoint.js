@@ -84,15 +84,35 @@ class IXP {
               status: false,
               deleted: false,
             };
-            ixps.updateOne({ $and: [adms(user), { _id: new ObjectID(data._id) }] }, { $set: element }, async (err, f) => {
-              if (err) reject({ m: err + 0 });
-              await element.facilities.map((facility) => this.updateFacilityConnection(new ObjectID(data._id), facility));
-              resolve({ m: 'IXP edited' });
+            ixps.findOne({_id: new ObjectID(data._id)}, async (err, c) => {
+              c.facilities = await c.facilities.map((facility) => String(facility));
+              const facilityNotFounds = await (Array.isArray(data.facilities) && c.facilities !== undefined) ? c.facilities.filter((f) => !data.facilities.includes(f)) : [];
+              await facilityNotFounds.map((facility) => this.removeFacilityConnection(data._id, facility));
+              ixps.updateOne({ $and: [adms(user), { _id: new ObjectID(data._id) }] }, { $set: element }, async (err, f) => {
+                if (err) reject({ m: err + 0 });
+                await element.facilities.map((facility) => this.updateFacilityConnection(new ObjectID(data._id), facility));
+                resolve({ m: 'IXP edited' });
+              });
             });
           } else { reject({ m: 'Error' }); }
         });
       } catch (e) { reject({ m: e }); }
     });
+  }
+
+  removeFacilityConnection(idIxp, idFacility) {
+    try {
+      const facility = require('../../models/facility.model');
+      facility().then((facility) => {
+        facility.updateOne({ _id: new ObjectID(idFacility) }, { $pull: { ixps: new ObjectID(idIxp) } }, (err, u) => {
+          if (err) return err;
+          else if (u.result.nModified !== 1) return 'Not updated 2';
+          else return 'Removed';
+        });
+      }).catch((e) => (e));
+    } catch (e) {
+      return e;
+    }
   }
 
   updateFacilityConnection(idIxp, idFacility) {
@@ -890,7 +910,6 @@ class IXP {
   getMultiElementsGeom(ids) {
     return new Promise((resolve, reject) => {
       try {
-        console.log(ids);
         if (!Array.isArray(ids) || ids.length === 0) resolve({ m: 'Loaded', r: false });
         ids = ids.map((i) => new ObjectID(i));
         this.model().then((ixp) => {
