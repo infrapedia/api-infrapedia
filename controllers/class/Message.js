@@ -659,19 +659,20 @@ class Message {
         this.getEmail(user, token).then((userData) => {
           if (data.email !== undefined && data.name !== undefined && data.subject !== undefined) {
             userData = JSON.parse(userData);
-            const sendTicket = require('../helpers/freshdesk');
-            sendTicket(
-              {
-                email: data.email,
-                subject: `${data.name} did an offer | ${data.subject}`,
-                description: `${data.message} <br /><br /><strong>${userData.email} - ${userData.name}</strong>`,
-                status: 2,
-                priority: 1,
-              },
-            ).then(() => {
-              sendEmail('', `${data.name} did an offer | ${data.subject} - ${new Date().getDate()}/${new Date().getMonth() + 1}`, `${data.message} <br /><br /><strong>${data.email} - ${data.name}</strong>`, data.email);
-              resolve({ m: 'Your offer was sent' });
-            }).catch((e) => { reject({ m: e }); });
+            sendEmail('', `${data.name} did an offer | ${data.subject} - ${new Date().getDate()}/${new Date().getMonth() + 1}`, `${data.message} <br /><br /><strong>${data.email} - ${data.name}</strong>`, data.email);
+            resolve({ m: 'Your offer was sent' });
+            // const sendTicket = require('../helpers/freshdesk');
+            // sendTicket(
+            //   {
+            //     email: data.email,
+            //     subject: `${data.name} did an offer | ${data.subject}`,
+            //     description: `${data.message} <br /><br /><strong>${userData.email} - ${userData.name}</strong>`,
+            //     status: 2,
+            //     priority: 1,
+            //   },
+            // ).then(() => {
+            //
+            // }).catch((e) => { reject({ m: e }); });
           } else { console.log('Hi'); }
         }).catch((e) => { console.log(e); });
       } catch (e) { reject({}); }

@@ -6,9 +6,14 @@ We're using NodeJS version v10.19.0
 If we have a problem installing the SQLite we can use sudo npm install --unsafe-perm=true --allow-root
 
 ## Versions
-V.4
+V.5
 | Version  | Changes |
 | ------------- | ------------- |
+|5.0.6.20201123|- Fix the make offer, sender email reply to accepted and changed the emails template| 
+|5.0.4.20201123|- Fix the connections btwn facilities & ixps, changed endpoint for get the id using slug | 
+
+V.4
+```
 |4.8.1.20201121|- Fix messages service|
 |4.8.20201116|- Fix script to create layer of cables|
 |4.7.20201115|- Cluster information by connections between IXP and facilities and update connections side by side|
@@ -18,7 +23,7 @@ V.4
 |4.5.20201103|- Cloud layers (Add, Edit, View, and Search), Facilities edition and Issues permanent delete |
 |4.2.20201017|- New fields on facilities endpoints (Add, Update), new endpoints to see the cloud layers information |
 |4.0.20201011|- Cloud layer - Add and Edit new functionalities |
-
+```
 ## V.3
 ```
 |3.1.8.20200927|- Fixed permanent delete nd update CLS and Cables connections   |

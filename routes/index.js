@@ -201,7 +201,7 @@ const routes = function (router, controllers) {
   router.get('/debug-sentry', (req, res) => {
     throw new Error('My first Sentry error!');
   });
-  router.get(`${process.env._ROUTE}/create/:type/:slug`, (req, res) => {
+  router.get(`${process.env._ROUTE}/idslug/:type/:slug`, (req, res) => {
     switch (req.params.type) {
       case 'cable':
         controllers.cables.getIdBySlug(req.params.slug)

@@ -1362,7 +1362,6 @@ class Cable {
     });
   }
 
-
   getNameElemnt(id) {
     return new Promise((resolve, reject) => {
       try {

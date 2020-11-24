@@ -7,7 +7,7 @@ function sendNotificationEmailUsingMandrill(emailReceive, subject, html, replyTo
       Mandrill('/messages/send', {
         message: {
           to: [{ email }],//(email !== '') ? [] : [{ email }],
-          // 'Reply-To': (replyToEmail) || '',
+          'Reply-To': (replyToEmail) || '',
           from_email: process.env.MANDRILL_EMAIL,
           subject,
           html,

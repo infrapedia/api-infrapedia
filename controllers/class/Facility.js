@@ -147,15 +147,36 @@ class Facility {
               uDate: luxon.DateTime.utc(),
               deleted: false,
             };
-            facility.updateOne({ $and: [adms(user), { _id: new ObjectID(data._id) }] }, { $set: element }, async (err, f) => {
-              if (err) reject({ m: err + 0 });
-              await element.ixps.map((ixp) => this.updateIXPConnection(ixp, new ObjectID(data._id)));
-              resolve({ m: 'Facility edited', r: data._id });
+
+            facility.findOne({_id: new ObjectID(data._id)}, async (err, c) => {
+              c.ixps = await c.ixps.map((ixp) => String(ixp));
+              const ixpNotFounds = await (Array.isArray(data.ixps) && c.ixps !== undefined) ? c.ixps.filter((f) => !data.ixps.includes(f)) : [];
+              await ixpNotFounds.map((ixp) => this.removeIxpConnection(ixp, data._id));
+              facility.updateOne({ $and: [adms(user), { _id: new ObjectID(data._id) }] }, { $set: element }, async (err, f) => {
+                if (err) reject({ m: err + 0 });
+                await element.ixps.map((ixp) => this.updateIXPConnection(ixp, new ObjectID(data._id)));
+                resolve({ m: 'Facility edited', r: data._id });
+              });
             });
           } else { reject({ m: 'Error' }); }
         }).catch((e) => reject({ m: e }));
       } catch (e) { reject({ m: e }); }
     });
+  }
+
+  removeIxpConnection(idIxp, idFacility) {
+    try {
+      const ixp = require('../../models/ixp.model');
+      ixp().then((ixp) => {
+        ixp.updateOne({ _id: new ObjectID(idIxp) }, { $pull: { facilities: new ObjectID(idFacility) } }, (err, u) => {
+          if (err) return err;
+          else if (u.result.nModified !== 1) return 'Not updated 2';
+          else return 'Removed';
+        });
+      }).catch((e) => (e));
+    } catch (e) {
+      return e;
+    }
   }
 
   updateIXPConnection(idIxp, idFacility) {
@@ -327,7 +348,6 @@ class Facility {
               };// we need search about the information
               facility.insertOne(data, (err, i) => {
                 if (err) resolve({ m: err + 0 });
-                console.log(i);
                 resolve();
               });
             }
@@ -820,6 +840,16 @@ class Facility {
               },
               {
                 $addFields: {
+                  ixps: { $ifNull: ['$ixps', []] },
+                  terrestrials: { $ifNull: ['$terrestrials', []] },
+                  subsea: { $ifNull: ['$subsea', []] },
+                  csp: { $ifNull: ['$csp', []] },
+                  sProviders: { $ifNull: ['$sProviders', []] },
+                  owners: { $ifNull: ['$owners', []] },
+                },
+              },
+              {
+                $addFields: {
                   owners: {
                     $cond: {
                       if: { $eq: [{ $type: '$owners' }, 'array'] },
@@ -1078,7 +1108,7 @@ class Facility {
               },
             ]).toArray((err, o) => {
               if (err) reject(err);
-              resolve({ m: 'Loaded', r: o[0] });
+              if (typeof o !== 'undefined') { resolve({ m: 'Loaded', r: o[0] }); } else resolve({ m: 'Loaded', r: {} });
             });
           });
         } else { resolve('Not user found'); }
@@ -1427,7 +1457,6 @@ class Facility {
   checkName(name) {
     return new Promise((resolve, reject) => {
       try {
-        console.log(name);
         this.model().then((search) => {
           search.find({ name }).count((err, c) => {
             if (err) reject({ m: err });
