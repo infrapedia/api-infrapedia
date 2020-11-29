@@ -36,6 +36,7 @@ class IXP {
               techEmail: String(data.techEmail),
               techPhone: String(data.techPhone),
               tags: data.tags,
+              ix_id: String(data.ix_id),
               rgDate: luxon.DateTime.utc(),
               uDate: luxon.DateTime.utc(),
               status: false,
@@ -79,6 +80,7 @@ class IXP {
               techEmail: String(data.techEmail),
               techPhone: String(data.techPhone),
               tags: data.tags,
+              ix_id: String(data.ix_id),
               rgDate: luxon.DateTime.utc(),
               uDate: luxon.DateTime.utc(),
               status: false,
@@ -655,6 +657,7 @@ class IXP {
                             else: [],
                           },
                         },
+                        ix_id: { $ifNull: ['$ix_id', ''] },
                       },
                     },
                     {

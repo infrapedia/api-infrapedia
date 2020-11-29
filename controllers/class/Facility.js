@@ -69,6 +69,7 @@ class Facility {
               officeSpace: (data.officeSpace),
               internetAccess: (data.internetAccess),
               // --- New fields ---
+              fac_id: String(data.fac_id),
               rgDate: luxon.DateTime.utc(),
               uDate: luxon.DateTime.utc(),
               status: false,
@@ -144,17 +145,30 @@ class Facility {
               officeSpace: (data.officeSpace),
               internetAccess: (data.internetAccess),
               // --- New fields ---
+              fac_id: String(data.fac_id),
               uDate: luxon.DateTime.utc(),
               deleted: false,
             };
 
             facility.findOne({_id: new ObjectID(data._id)}, async (err, c) => {
+              //Founds IXPS
               c.ixps = await c.ixps.map((ixp) => String(ixp));
               const ixpNotFounds = await (Array.isArray(data.ixps) && c.ixps !== undefined) ? c.ixps.filter((f) => !data.ixps.includes(f)) : [];
               await ixpNotFounds.map((ixp) => this.removeIxpConnection(ixp, data._id));
+
+              //Found Subsea&Terrestrial
+              let cables = data.subsea.concat(data.terrestrials);
+              let cablesSaved = c.subsea.concat(c.terrestrials);
+              cables = await cables.map((cable) => String(cable));
+              cablesSaved = await cablesSaved.map((cable) => String(cable));
+              const cablesNotFounds = await (Array.isArray(cables) && cablesSaved !== undefined) ? cablesSaved.filter((f) => !cables.includes(f)) : [];
+              await cablesNotFounds.map((cable) => this.removeCableConnection(cable, data._id));
+
               facility.updateOne({ $and: [adms(user), { _id: new ObjectID(data._id) }] }, { $set: element }, async (err, f) => {
                 if (err) reject({ m: err + 0 });
                 await element.ixps.map((ixp) => this.updateIXPConnection(ixp, new ObjectID(data._id)));
+                await element.subsea.map((subsea) => this.updateCableConnection(subsea, new ObjectID(data._id)));
+                await element.terrestrials.map((terrestrial) => this.updateCableConnection(terrestrial, new ObjectID(data._id)));
                 resolve({ m: 'Facility edited', r: data._id });
               });
             });
@@ -164,6 +178,20 @@ class Facility {
     });
   }
 
+  removeCableConnection(idCable, idFacility) {
+    try {
+      const cable = require('../../models/cable.model');
+      cable().then((cable) => {
+        cable.updateOne({ _id: new ObjectID(idCable) }, { $pull: { facilities: new ObjectID(idFacility) } }, (err, u) => {
+          if (err) return err;
+          else if (u.result.nModified !== 1) return 'Not updated 2';
+          else return 'Removed';
+        });
+      }).catch((e) => (e));
+    } catch (e) {
+      return e;
+    }
+  }
   removeIxpConnection(idIxp, idFacility) {
     try {
       const ixp = require('../../models/ixp.model');
@@ -177,6 +205,19 @@ class Facility {
     } catch (e) {
       return e;
     }
+  }
+
+  updateCableConnection(idCable, idFacility) {
+    try {
+      const cable = require('../../models/cable.model');
+      cable().then((cable) => {
+        cable.updateOne({ _id: new ObjectID(idCable) }, { $addToSet: { facilities: idFacility } }, (err, u) => {
+          if (err) return err;
+          if (u.result.nModified !== 1) return 'Not updated 1';
+          return 'Removed';
+        });
+      }).catch((e) => (e));
+    } catch (e) { reject({ m: e }); }
   }
 
   updateIXPConnection(idIxp, idFacility) {
@@ -846,6 +887,7 @@ class Facility {
                   csp: { $ifNull: ['$csp', []] },
                   sProviders: { $ifNull: ['$sProviders', []] },
                   owners: { $ifNull: ['$owners', []] },
+                  fac_id: { $ifNull: ['$fac_id', ''] },
                 },
               },
               {
@@ -1091,6 +1133,7 @@ class Facility {
                   stagingRooms: { $first: '$stagingRooms' },
                   officeSpace: { $first: '$officeSpace' },
                   internetAccess: { $first: '$internetAccess' },
+                  fac_id: { $first: '$fac_id' },
                 },
               },
               {

@@ -9,6 +9,7 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 V.5
 | Version  | Changes |
 | ------------- | ------------- |
+|5.2.20201129|- Create relations btw cables & facilities, add fields for peering db (Facilities, IXPS) | 
 |5.0.6.20201123|- Fix the make offer, sender email reply to accepted and changed the emails template| 
 |5.0.4.20201123|- Fix the connections btwn facilities & ixps, changed endpoint for get the id using slug | 
 
