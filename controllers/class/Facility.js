@@ -150,13 +150,13 @@ class Facility {
               deleted: false,
             };
 
-            facility.findOne({_id: new ObjectID(data._id)}, async (err, c) => {
-              //Founds IXPS
+            facility.findOne({ _id: new ObjectID(data._id) }, async (err, c) => {
+              // Founds IXPS
               c.ixps = await c.ixps.map((ixp) => String(ixp));
               const ixpNotFounds = await (Array.isArray(data.ixps) && c.ixps !== undefined) ? c.ixps.filter((f) => !data.ixps.includes(f)) : [];
               await ixpNotFounds.map((ixp) => this.removeIxpConnection(ixp, data._id));
 
-              //Found Subsea&Terrestrial
+              // Found Subsea&Terrestrial
               let cables = data.subsea.concat(data.terrestrials);
               let cablesSaved = c.subsea.concat(c.terrestrials);
               cables = await cables.map((cable) => String(cable));
@@ -184,22 +184,23 @@ class Facility {
       cable().then((cable) => {
         cable.updateOne({ _id: new ObjectID(idCable) }, { $pull: { facilities: new ObjectID(idFacility) } }, (err, u) => {
           if (err) return err;
-          else if (u.result.nModified !== 1) return 'Not updated 2';
-          else return 'Removed';
+          if (u.result.nModified !== 1) return 'Not updated 2';
+          return 'Removed';
         });
       }).catch((e) => (e));
     } catch (e) {
       return e;
     }
   }
+
   removeIxpConnection(idIxp, idFacility) {
     try {
       const ixp = require('../../models/ixp.model');
       ixp().then((ixp) => {
         ixp.updateOne({ _id: new ObjectID(idIxp) }, { $pull: { facilities: new ObjectID(idFacility) } }, (err, u) => {
           if (err) return err;
-          else if (u.result.nModified !== 1) return 'Not updated 2';
-          else return 'Removed';
+          if (u.result.nModified !== 1) return 'Not updated 2';
+          return 'Removed';
         });
       }).catch((e) => (e));
     } catch (e) {
@@ -253,7 +254,7 @@ class Facility {
                   {
                     $match: {
                       $and: [
-                        { _id: new ObjectID(idFacility) }, { point: { $ne: {} } },  // { point: { $ne: {} } }, //{ ixps: { $ne: [] } },
+                        { _id: new ObjectID(idFacility) }, { point: { $ne: {} } }, // { point: { $ne: {} } }, //{ ixps: { $ne: [] } },
                       ],
                     },
                   },
@@ -452,9 +453,19 @@ class Facility {
                   $project: { geom: 0 },
                 },
                 {
+                  $addFields: {
+                    subsea: { $ifNull: ['$subsea', []] },
+                    terrestrials: { $ifNull: ['$terrestrials', []] },
+                    sProviders: { $ifNull: ['$sProviders', []] },
+                    csp: { $ifNull: ['$csp', []] },
+                    owners: { $ifNull: ['$owners', []] },
+                    ixps: { $ifNull: ['$ixps', []] },
+                  },
+                },
+                {
                   $lookup: {
                     from: 'cables',
-                    let: { facilities: '$_id' },
+                    let: { f: '$subsea' },
                     pipeline: [
                       {
                         $project: {
@@ -465,10 +476,10 @@ class Facility {
                       },
                       {
                         $addFields: {
-                          facilities: {
+                          f: {
                             $cond: {
-                              if: { $eq: [{ $type: '$facilities' }, 'array'] },
-                              then: '$facilities',
+                              if: { $eq: [{ $type: '$$f' }, 'array'] },
+                              then: '$$f',
                               else: [],
                             },
                           },
@@ -479,30 +490,44 @@ class Facility {
                           $and: [
                             {
                               $expr: {
-                                $in: ['$$facilities', '$facilities'],
+                                $in: ['$_id', '$$f'],
                               },
                             },
                             {
-                              deleted: false,
+                              deleted: { $ne: true },
+                            },
+                            {
+                              terrestrial: false,
                             },
                           ],
                         },
                       },
+                      {
+                        $project: {
+                          terrestrial: 0, f: 0,
+                        },
+                      },
                     ],
-                    as: 'cables',
+                    as: 'subsea',
                   },
-                },
-                {
+                }, {
                   $lookup: {
-                    from: 'networks',
-                    let: { ixps: '$_id' },
+                    from: 'cables',
+                    let: { f: '$terrestrials' },
                     pipeline: [
                       {
+                        $project: {
+                          _id: 1,
+                          name: 1,
+                          terrestrial: 1,
+                        },
+                      },
+                      {
                         $addFields: {
-                          ixps: {
+                          f: {
                             $cond: {
-                              if: { $eq: [{ $type: '$ixps' }, 'array'] },
-                              then: '$ixps',
+                              if: { $eq: [{ $type: '$$f' }, 'array'] },
+                              then: '$$f',
                               else: [],
                             },
                           },
@@ -510,65 +535,34 @@ class Facility {
                       },
                       {
                         $match: {
-                          $expr: {
-                            $in: ['$$ixps', '$ixps'],
-                          },
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$_id', '$$f'],
+                              },
+                            },
+                            {
+                              deleted: { $ne: true },
+                            },
+                            {
+                              terrestrial: true,
+                            },
+                          ],
                         },
                       },
                       {
                         $project: {
-                          _id: 1,
-                          name: 1,
-                          organizations: 1,
+                          terrestrial: 0, f: 0,
                         },
                       },
                     ],
-                    as: 'networks',
+                    as: 'terrestrials',
                   },
                 },
                 {
                   $lookup: {
                     from: 'organizations',
-                    let: { f: '$owners' },
-                    pipeline: [
-                      {
-                        $addFields: {
-                          f: {
-                            $cond: {
-                              if: { $eq: [{ $type: '$owners' }, 'array'] },
-                              then: '$owners',
-                              else: [],
-                            },
-                          },
-                        },
-                      },
-                      {
-                        $match: {
-                          $and: [
-                            {
-                              $expr: {
-                                $in: ['$_id', '$f'],
-                              },
-                            },
-                            {
-                              deleted: false,
-                            },
-                          ],
-                        },
-                      },
-                      {
-                        $project: {
-                          label: '$name',
-                        },
-                      },
-                    ],
-                    as: 'owners',
-                  },
-                },
-                {
-                  $lookup: {
-                    from: 'ixps',
-                    let: { f: '$_id' },
+                    let: { f: '$sProviders' },
                     pipeline: [
                       {
                         $project: {
@@ -592,13 +586,153 @@ class Facility {
                           $and: [
                             {
                               $expr: {
-                                $in: ['$_id', '$f'],
+                                $in: ['$_id', '$$f'],
                               },
                             },
                             {
-                              deleted: false,
+                              deleted: { $ne: true },
                             },
                           ],
+                        },
+                      },
+                      {
+                        $project: {
+                          f: 0,
+                        },
+                      },
+                    ],
+                    as: 'sProviders',
+                  },
+                },
+                {
+                  $lookup: {
+                    from: 'organizations',
+                    let: { f: '$csp' },
+                    pipeline: [
+                      {
+                        $project: {
+                          _id: 1,
+                          name: 1,
+                        },
+                      },
+                      {
+                        $addFields: {
+                          f: {
+                            $cond: {
+                              if: { $eq: [{ $type: '$$f' }, 'array'] },
+                              then: '$$f',
+                              else: [],
+                            },
+                          },
+                        },
+                      },
+                      {
+                        $match: {
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$_id', '$$f'],
+                              },
+                            },
+                            {
+                              deleted: { $ne: true },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        $project: {
+                          f: 0,
+                        },
+                      },
+                    ],
+                    as: 'csp',
+                  },
+                },
+                {
+                  $lookup: {
+                    from: 'organizations',
+                    let: { f: '$owners' },
+                    pipeline: [
+                      {
+                        $project: {
+                          _id: 1,
+                          name: 1,
+                        },
+                      },
+                      {
+                        $addFields: {
+                          f: {
+                            $cond: {
+                              if: { $eq: [{ $type: '$$f' }, 'array'] },
+                              then: '$$f',
+                              else: [],
+                            },
+                          },
+                        },
+                      },
+                      {
+                        $match: {
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$_id', '$$f'],
+                              },
+                            },
+                            {
+                              deleted: { $ne: true },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        $project: {
+                          f: 0,
+                        },
+                      },
+                    ],
+                    as: 'owners',
+                  },
+                },
+                {
+                  $lookup: {
+                    from: 'ixps',
+                    let: { f: '$ixps' },
+                    pipeline: [
+                      {
+                        $project: {
+                          _id: 1,
+                          name: 1,
+                        },
+                      },
+                      {
+                        $addFields: {
+                          f: {
+                            $cond: {
+                              if: { $eq: [{ $type: '$$f' }, 'array'] },
+                              then: '$$f',
+                              else: [],
+                            },
+                          },
+                        },
+                      },
+                      {
+                        $match: {
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$_id', '$$f'],
+                              },
+                            },
+                            {
+                              deleted: { $ne: true },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        $project: {
+                          f: 0,
                         },
                       },
                     ],
