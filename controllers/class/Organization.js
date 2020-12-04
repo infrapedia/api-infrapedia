@@ -268,7 +268,7 @@ class Organization {
   search(user, search) {
     return new Promise((resolve, reject) => {
       try {
-        this.model().then((cable) => {
+        this.model().then((organization) => {
           const uuid = (search.psz === '1') ? adms(user) : {};
           let sortBy = {};
           const limit = 40;
@@ -299,7 +299,7 @@ class Organization {
                 break;
             }
           } else { sortBy = { name: 1, yours: -1 }; }
-          cable.aggregate([
+          organization.aggregate([
             {
               $project: {
                 _id: 1,

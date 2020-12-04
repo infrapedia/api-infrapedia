@@ -1,6 +1,7 @@
 module.exports = {
   callEndPoints: (router, controllers, response) => {
     const statics = require('../../lib/middleware/statics');
+
     router.post(`${process.env._ROUTE}/auth/organization/add`, (req, res) => {
       controllers.organizations.add(req.headers.userid, req.body)
         .then((r) => { response.success(res, r); })
@@ -126,7 +127,6 @@ module.exports = {
         .catch((e) => { response.err(res, e); });
     });
     router.delete(`${process.env._ROUTE}/auth/updateOrganizationIXP`, (req, res) => {
-      console.log(req.body);
       controllers.organizations.updateOrganizationIXP(req.headers.userid, req.body.idorg, req.body.idixp, 'delete')
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });

@@ -87,9 +87,11 @@ class IXP {
               deleted: false,
             };
             ixps.findOne({_id: new ObjectID(data._id)}, async (err, c) => {
-              c.facilities = await c.facilities.map((facility) => String(facility));
-              const facilityNotFounds = await (Array.isArray(data.facilities) && c.facilities !== undefined) ? c.facilities.filter((f) => !data.facilities.includes(f)) : [];
-              await facilityNotFounds.map((facility) => this.removeFacilityConnection(data._id, facility));
+              if(Array.isArray(c.facilities)){
+                c.facilities = await c.facilities.map((facility) => String(facility));
+                const facilityNotFounds = await (Array.isArray(data.facilities) && c.facilities !== undefined) ? c.facilities.filter((f) => !data.facilities.includes(f)) : [];
+                await facilityNotFounds.map((facility) => this.removeFacilityConnection(data._id, facility));
+              }
               ixps.updateOne({ $and: [adms(user), { _id: new ObjectID(data._id) }] }, { $set: element }, async (err, f) => {
                 if (err) reject({ m: err + 0 });
                 await element.facilities.map((facility) => this.updateFacilityConnection(new ObjectID(data._id), facility));
