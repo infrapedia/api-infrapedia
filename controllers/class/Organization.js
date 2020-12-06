@@ -381,8 +381,8 @@ class Organization {
   view(user, id) {
     return new Promise((resolve, reject) => {
       try {
-        this.model().then((cables) => {
-          cables.aggregate([
+        this.model().then((organization) => {
+          organization.aggregate([
             {
               $match: {
                 _id: new ObjectID(id),

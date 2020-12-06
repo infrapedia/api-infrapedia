@@ -1124,12 +1124,16 @@ class IXP {
                 if (data) {
                   await data.rows.map((connection) => {
                     facility().then((facility) => {
-                      facility.findOneAndUpdate({ fac_id: String(connection.fac_id) },{ $addToSet: { ixps: new ObjectID(elm._id) } }, (err, f) => {
-                        ixp.updateOne({ _id: new ObjectID(elm._id) }, { $addToSet: { facilities: new ObjectID(f._id) } }, (err, u) =>{
-                          console.log(new Date());
-                          return 'Ready';
+                      if(elm !== null){
+                        facility.findOneAndUpdate({ fac_id: String(connection.fac_id) },{ $addToSet: { ixps: new ObjectID(elm._id) } }, (err, f) => {
+                          if (f !== null && elm !== null) {
+                            ixp.updateOne({ _id: new ObjectID(elm._id) }, { $addToSet: { facilities: new ObjectID(f.value._id) } }, (err, u) =>{
+                              console.log('IXP ---->', elm._id, ' ====> Fac', f.value._id, new Date());
+                              return 'Ready';
+                            });
+                          }
                         });
-                      });
+                      }
                     });
                   });
                 } else {
