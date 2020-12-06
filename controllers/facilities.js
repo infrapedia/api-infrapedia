@@ -20,7 +20,7 @@ ST_AsGeoJSON(point) as point
 FROM facility`;
     pool.query(SQLQuery, async (error, results) => {
       if (error) { throw error; }
-      Promise.all(results.rows.map((f) => Facility.addByTransfer('', f))).then((r) => {
+      Promise.all(results.rows.map((f) => Facility.addByTransfer(f))).then((r) => {
         resolve({ m: 'The transfer was finished' });
       }).catch((e) => {
         reject({ m: 'The transfer was finished', r: e });

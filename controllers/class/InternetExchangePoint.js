@@ -86,8 +86,8 @@ class IXP {
               status: false,
               deleted: false,
             };
-            ixps.findOne({_id: new ObjectID(data._id)}, async (err, c) => {
-              if(Array.isArray(c.facilities)){
+            ixps.findOne({ _id: new ObjectID(data._id) }, async (err, c) => {
+              if (Array.isArray(c.facilities)) {
                 c.facilities = await c.facilities.map((facility) => String(facility));
                 const facilityNotFounds = await (Array.isArray(data.facilities) && c.facilities !== undefined) ? c.facilities.filter((f) => !data.facilities.includes(f)) : [];
                 await facilityNotFounds.map((facility) => this.removeFacilityConnection(data._id, facility));
@@ -110,8 +110,8 @@ class IXP {
       facility().then((facility) => {
         facility.updateOne({ _id: new ObjectID(idFacility) }, { $pull: { ixps: new ObjectID(idIxp) } }, (err, u) => {
           if (err) return err;
-          else if (u.result.nModified !== 1) return 'Not updated 2';
-          else return 'Removed';
+          if (u.result.nModified !== 1) return 'Not updated 2';
+          return 'Removed';
         });
       }).catch((e) => (e));
     } catch (e) {
@@ -1106,6 +1106,40 @@ class IXP {
             resolve({ m: '', r: (r._id) ? r._id : '' });
           });
         }).catch((e) => reject({ m: e }));
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  connectionIXPFAC() {
+    return new Promise((resolve, reject) => {
+      try {
+        const pool = require('../../config/pgSQL.js');
+        let facility = require('../../models/facility.model');
+        this.model().then((ixp) => {
+          ixp.aggregate([{$project: { _id: 1, ix_id: 1}}]).toArray(async (err, getIXPS) => {
+            if (err) { reject({ m: 'Cant conntinue' }); }
+            await getIXPS.map((elm) => {
+              const SQLquery = `SELECT ix_id, fac_id FROM public.ix_fac WHERE ix_id = ${elm.ix_id}`;
+              pool.query(SQLquery, async (err, data) => {
+                if (data) {
+                  await data.rows.map((connection) => {
+                    facility().then((facility) => {
+                      facility.findOneAndUpdate({ fac_id: String(connection.fac_id) },{ $addToSet: { ixps: new ObjectID(elm._id) } }, (err, f) => {
+                        ixp.updateOne({ _id: new ObjectID(elm._id) }, { $addToSet: { facilities: new ObjectID(f._id) } }, (err, u) =>{
+                          console.log(new Date());
+                          return 'Ready';
+                        });
+                      });
+                    });
+                  });
+                } else {
+                  console.log('Conttinue working');
+                }
+              });
+            });
+            resolve({ m: 'Completed' });
+          });
+        });
       } catch (e) { reject({ m: e }); }
     });
   }

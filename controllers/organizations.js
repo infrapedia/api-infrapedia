@@ -26,4 +26,7 @@ module.exports = {
   updateOrganizationIXP: (usr, idOrganization, idIXP, operation) => Organization.updateOrganizationIXP(usr, idOrganization, idIXP, operation),
   updateOrganizationFacility: (usr, idOrganization, idFacility, operation) => Organization.updateOrganizationFacility(usr, idOrganization, idFacility, operation),
   getIdBySlug: (slug) => Organization.getIdBySlug(slug),
+  connectionORGIXP: () => Organization.connectionORGIXP(),
+  connectionORGFAC: () => Organization.connectionORGFAC(),
+  connectionUASN: () => Organization.connectionUASN()
 };

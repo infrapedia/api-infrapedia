@@ -30,6 +30,7 @@ class Organization {
                   logo: String(data.logo),
                   information: String(data.information),
                   // TODO: when array is empty not use the map
+                  asn: await (data.asn === '') ? [] : data.asn.map((item) => item),
                   address: await (data.address === '') ? [] : data.address.map((item) => JSON.parse(item)),
                   url: String(data.url),
                   premium: false,
@@ -66,9 +67,7 @@ class Organization {
         this.model().then((organization) => {
           // we need to validate if  don't have another organization with the same name
           // TODO: discard deleted files
-          console.log(data.name);
           organization.find({ ooid: String(data.ooid) }).count((err, c) => {
-            console.log(c);
             if (err) resolve({ m: err });
             else if (c > 0) resolve({ m: 'We have registered in our system more than one organization with the same name' });
             else {
@@ -115,6 +114,36 @@ class Organization {
     });
   }
 
+  // connectionUPDATEIXP(data) {
+  //   return new Promise((resolve, reject) => {
+  //     // eslint-disable-next-line import/no-absolute-path,import/no-unresolved
+  //     let ixp = require('../../models/ixp.model');
+  //     // let organization = require('/models/facility.model');
+  //     console.log('VERIFICATION', data);
+  //     this.model().then((organization) => {
+  //       organization.findOne({ ooid: String(data.org_id) }, (err, dataOrg) => {
+  //         console.log(dataOrg);
+  //         // ixp().then((ixp) => {
+  //         //   console.log(dataOrg);
+  //         //   ixp.updateOne({ ix_id: data.ix_id }, { $set: { $addToSet: { owners: new ObjectID(dataOrg._id) } } }, (err, u) => {
+  //         //     if (u.result.nModified !== 1) {
+  //         //       console.log('not update');
+  //         //       resolve();
+  //         //     } else {
+  //         //       console.log('Updated');
+  //         //       resolve();
+  //         //     }
+  //         //   });
+  //         // }).catch((e) => {
+  //         //
+  //         // });
+  //       });
+  //     }).catch((e) => {
+  //
+  //     });
+  //   });
+  // }
+
   edit(user, data) {
     return new Promise((resolve, reject) => {
       try {
@@ -134,6 +163,7 @@ class Organization {
                   slug: slugToString(data.name),
                   logo: String(data.logo),
                   information: String(data.information),
+                  asn: await (data.asn === '') ? [] : data.asn.map((item) => item),
                   address: await (data.address === '') ? [] : data.address.map((item) => JSON.parse(item)),
                   url: String(data.url),
                   tags: [],
@@ -1006,5 +1036,96 @@ class Organization {
       } catch (e) { reject({ m: e }); }
     });
   }
+
+  connectionORGFAC(){
+    return new Promise((resolve, reject) => {
+      try{
+        const pool = require('../../config/pgSQL.js');
+        const elmConnection = require('../../models/ixp.model');
+        this.model().then((organization) => {
+          organization.aggregate([{ $project: { _id: 1, ooid: 1 } }]).toArray(async (err, os) => {
+            if(err) { reject({ m: err }); }
+            await os.map((org) => {
+              const SQLquery = `SELECT org_id, fac_id FROM public.org_fac WHERE org_id = ${org.ooid}`;
+              pool.query(SQLquery, async (err, data) => {
+                if (data) {
+                  await data.rows.map((getConnection) => {
+                    elmConnection().then((elmConnection) => {
+                      elmConnection.findOneAndUpdate({ fac_id: getConnection.fac_id }, { $addToSet: { owners: new ObjectID(org._id) } }, (err, u) => {
+                        console.log(org.name, ' -------->', u.ok, '--->', new Date());
+                      });
+                    });
+                  });
+                } else {
+                  console.log('Conttinue working');
+                }
+              });
+            });
+            resolve({ m: 'Completed' });
+          });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  connectionORGIXP(){
+    return new Promise((resolve, reject) => {
+      try{
+        const pool = require('../../config/pgSQL.js');
+        const elmConnection = require('../../models/ixp.model');
+        this.model().then((organization) => {
+          organization.aggregate([{ $project: { _id: 1, name: 1, ooid: 1 } }]).toArray(async (err, os) => {
+            if(err) { reject({ m: err }); }
+            await os.map((org) => {
+              const SQLquery = `SELECT org_id, ix_id FROM public.org_ix WHERE org_id = ${org.ooid}`;
+              pool.query(SQLquery, async (err, data) => {
+                if (data) {
+                  await data.rows.map((getConnection) => {
+                    elmConnection().then((elmConnection) => {
+                      elmConnection.findOneAndUpdate({ ix_id: getConnection.ix_id }, { $addToSet: { owners: new ObjectID(org._id) } }, (err, u) => {
+                        console.log(org.name, ' -------->', u.ok, '--->', new Date());
+                      });
+                    });
+                  });
+                } else {
+                  console.log('Conttinue working');
+                }
+              });
+            });
+            resolve({ m: 'Completed' });
+          });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  connectionUASN(){
+    return new Promise((resolve, reject) => {
+      try{
+        const pool = require('../../config/pgSQL.js');
+        this.model().then((organization) => {
+          organization.aggregate([{ $project: { _id: 1, name: 1, ooid: 1 } }]).toArray(async (err, os) => {
+            if(err) { reject({ m: err }); }
+            await os.map((org) => {
+              const SQLquery = `SELECT org_id, asn, name FROM public.network WHERE org_id = ${org.ooid}`;
+              pool.query(SQLquery, async (err, data) => {
+                if (data) {
+                  await data.rows.map((getASN) => {
+                    organization.findOneAndUpdate({ _id: new ObjectID(org._id) }, { $addToSet: { asn: String(getASN.asn) } }, (err, u) => {
+                      console.log(org.name, ' -------->', u.ok, '--->',getASN.asn, ' --->', new Date());
+                    });
+                  });
+                } else {
+                  console.log('Conttinue working');
+                }
+              });
+            });
+            resolve({ m: 'Completed' });
+          });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
 }
 module.exports = Organization;

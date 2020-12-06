@@ -9,6 +9,7 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 V.5
 | Version  | Changes |
 | ------------- | ------------- |
+|5.6.20201204|- Update the connection from peering db to Infrapedia.com  | 
 |5.2.5.20201204|- Fix the problem with organizations and fix errors on the facilities module  | 
 |5.2.1.20201130|- Upgraded the functionality to get the information of facilities with the new fields | 
 |5.2.20201129|- Create relations btw cables & facilities, add fields for peering db (Facilities, IXPS) | 

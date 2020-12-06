@@ -13,11 +13,22 @@ module.exports = {
     const SQLQuery = 'SELECT org_id as ooid, name, website as url, notes, address1, address2, city, country, state, zipcode, created, updated, status, non_peering, premium, logo FROM org';
     pool.query(SQLQuery, async (error, results) => {
       if (error) { throw error; }
-      console.log(results);
       Promise.all(results.rows.map((f) => Organization.addByTransfer(f))).then((r) => {
         resolve({ m: 'The transfer was finished' });
       }).catch((e) => {
         reject({ m: 'The transfer was finished', r: e });
+      });
+    });
+  }),
+  organizationIXP: () => new Promise((resolve, reject) => {
+    Organization = new Organization();
+    const SQLQuery = 'SELECT org_id, ix_id FROM public.org_ix';
+    pool.query(SQLQuery, async (error, results) => {
+      if (error) { throw error; }
+      Promise.all(results.rows.map((f) => Organization.connectionUPDATEIXP(f))).then((r) => {
+        resolve({ m: 'The connections was finished' });
+      }).catch((e) => {
+        reject({ m: 'The connections was finished', r: e });
       });
     });
   }),
@@ -36,6 +47,9 @@ ST_AsGeoJSON(point) as point
 FROM facility`;
     pool.query(SQLQuery, async (error, results) => {
       if (error) { throw error; }
+      // results.rows.map((r) => {
+      //   console.log(r);
+      // });
       Promise.all(results.rows.map((f) => Facility.addByTransfer(f))).then((r) => {
         resolve({ m: 'The transfer was finished' });
       }).catch((e) => {

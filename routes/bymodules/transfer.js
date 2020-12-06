@@ -5,6 +5,11 @@ module.exports = {
         .then((r) => { response.success(res, r); })
         .catch((e) => { response.err(res, e); });
     });
+    router.get(`${process.env._ROUTE}/transfer/organizationsixp`, (req, res) => {
+      controllers.transfer.organizationIXP()
+        .then((r) => { response.success(res, r); })
+        .catch((e) => { response.err(res, e); });
+    });
     router.get(`${process.env._ROUTE}/transfer/facilities`, (req, res) => {
       controllers.transfer.facilities()
         .then((r) => { response.success(res, r); })
@@ -32,6 +37,27 @@ module.exports = {
     });
     router.get(`${process.env._ROUTE}/transfer/orgfacilities`, (req, res) => {
       controllers.transfer.orgFacilities()
+        .then((r) => { response.success(res, r); })
+        .catch((e) => { response.err(res, e); });
+    });
+
+    router.get(`${process.env._ROUTE}/transfer/connectionixpwfac`, (req, res) => {
+      controllers.InternetExchangePoints.connectionIXPFAC()
+        .then((r) => { response.success(res, r); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.get(`${process.env._ROUTE}/transfer/connectionorgwixp`, (req, res) => {
+      controllers.organizations.connectionORGIXP()
+        .then((r) => { response.success(res, r); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.get(`${process.env._ROUTE}/transfer/connectionorgwfac`, (req, res) => {
+      controllers.organizations.connectionORGIXP()
+        .then((r) => { response.success(res, r); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.get(`${process.env._ROUTE}/transfer/connectionoguasn`, (req, res) => {
+      controllers.organizations.connectionUASN()
         .then((r) => { response.success(res, r); })
         .catch((e) => { response.err(res, e); });
     });

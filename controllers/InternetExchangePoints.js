@@ -23,4 +23,5 @@ module.exports = {
   checkName: (name) => IXP.checkName(name),
   permanentDelete: (usr, id, code) => IXP.permanentDelete(usr, id, code),
   getIdBySlug: (slug) => IXP.getIdBySlug(slug),
+  connectionIXPFAC: () => IXP.connectionIXPFAC(),
 };
