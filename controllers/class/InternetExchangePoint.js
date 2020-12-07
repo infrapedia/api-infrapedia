@@ -398,6 +398,67 @@ class IXP {
                         $project: {
                           _id: 1,
                           name: 1,
+                          point: 1,
+                        },
+                      },
+                      {
+                        $addFields: {
+                          f: {
+                            $cond: {
+                              if: { $eq: [{ $type: '$$f' }, 'array'] },
+                              then: '$$f',
+                              else: [],
+                            },
+                          },
+                        },
+                      },
+                      {
+                        $match: {
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$_id', '$f'],
+                              },
+                            },
+                            {
+                              deleted: { $ne: true },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        $addFields: {
+                          elmnt: {
+                            type: 'Feature',
+                            properties: { name: '$name', id: { $toString: '$_id' }, _id: { $toString: '$_id' } },
+                            geometry: '$point',
+                          },
+                        },
+                      },
+                      {
+                        $project: { elmnt: 1 },
+                      },
+                    ],
+                    as: 'facsElements',
+                  },
+                },
+                {
+                  $addFields: {
+                    cluster: {
+                      type: 'FeatureCollection',
+                      features: '$facsElements.elmnt',
+                    },
+                  },
+                },
+                {
+                  $lookup: {
+                    from: 'facilities',
+                    let: { f: '$facilities' },
+                    pipeline: [
+                      {
+                        $project: {
+                          _id: 1,
+                          name: 1,
                         },
                       },
                       {
@@ -511,6 +572,7 @@ class IXP {
                     as: 'networks',
                   },
                 },
+
                 // {
                 //   $lookup: {
                 //     from: 'organizations',
@@ -569,6 +631,7 @@ class IXP {
                 },
                 {
                   $project: {
+                    facsElements: 0,
                     geom: 0,
                     status: 0,
                     deleted: 0,

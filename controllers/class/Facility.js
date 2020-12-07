@@ -155,12 +155,11 @@ class Facility {
               c.ixps = await c.ixps.map((ixp) => String(ixp));
               const ixpNotFounds = await (Array.isArray(data.ixps) && c.ixps !== undefined) ? c.ixps.filter((f) => !data.ixps.includes(f)) : [];
               await ixpNotFounds.map((ixp) => this.removeIxpConnection(ixp, data._id));
-
               // Found Subsea&Terrestrial
-              let cables = data.subsea.concat(data.terrestrials);
-              let cablesSaved = c.subsea.concat(c.terrestrials);
-              cables = await cables.map((cable) => String(cable));
-              cablesSaved = await cablesSaved.map((cable) => String(cable));
+              let cables = (c.subsea) ? data.subsea.concat(data.terrestrials) : [];
+              let cablesSaved = (c.subsea) ? c.subsea.concat(c.terrestrials) : [];
+              cables = (cables) ? await cables.map((cable) => String(cable)) : [];
+              cablesSaved = (cablesSaved) ? await cablesSaved.map((cable) => String(cable)) : [];
               const cablesNotFounds = await (Array.isArray(cables) && cablesSaved !== undefined) ? cablesSaved.filter((f) => !cables.includes(f)) : [];
               await cablesNotFounds.map((cable) => this.removeCableConnection(cable, data._id));
 
@@ -704,6 +703,67 @@ class Facility {
                         $project: {
                           _id: 1,
                           name: 1,
+                          geom: 1,
+                        },
+                      },
+                      {
+                        $addFields: {
+                          f: {
+                            $cond: {
+                              if: { $eq: [{ $type: '$$f' }, 'array'] },
+                              then: '$$f',
+                              else: [],
+                            },
+                          },
+                        },
+                      },
+                      {
+                        $match: {
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$_id', '$$f'],
+                              },
+                            },
+                            {
+                              deleted: { $ne: true },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        $addFields: {
+                          elmnt: {
+                            type: 'Feature',
+                            properties: { name: '$name', id: { $toString: '$_id' }, _id: { $toString: '$_id' } },
+                            geometry: '$geom',
+                          },
+                        },
+                      },
+                      {
+                        $project: { elmnt: 1 },
+                      },
+                    ],
+                    as: 'ixpsElements',
+                  },
+                },
+                {
+                  $addFields: {
+                    cluster: {
+                      type: 'FeatureCollection',
+                      features: '$ixpsElements.elmnt',
+                    },
+                  },
+                },
+                {
+                  $lookup: {
+                    from: 'ixps',
+                    let: { f: '$ixps' },
+                    pipeline: [
+                      {
+                        $project: {
+                          _id: 1,
+                          name: 1,
                         },
                       },
                       {
@@ -757,6 +817,7 @@ class Facility {
                 },
                 {
                   $project: {
+                    ixpsElements: 0,
                     point: 0,
                     status: 0,
                     deleted: 0,
