@@ -356,7 +356,6 @@ class Cluster {
       try {
         this.model()
           .then((organization) => {
-            console.log(id);
             organization.aggregate([
               {
                 $project: {
@@ -498,7 +497,6 @@ class Cluster {
             ], { allowDiskUse: true }).toArray(async (err, points) => {
               if (err) reject({ m: err });
               let data = [];
-              console.log(points);
               if (Array.isArray(points)) {
                 points[0].cls.map((i) => data.push(i.ppdata));
                 points[0].facilities.map((i) => data.push(i.ppdata));
@@ -513,7 +511,6 @@ class Cluster {
                 type: 'FeatureCollection',
                 features: data,
               };
-              console.log(points);
               redisClient.set(`v_co_${id}`, JSON.stringify(points), 'EX', 172800);
               resolve({ m: 'Loaded', r: points });
             });

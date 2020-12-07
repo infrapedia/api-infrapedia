@@ -60,9 +60,9 @@ class Network {
                 resolve({ m: 'Group created' });
               });
             });
-          }).catch((e) => { console.log(e); reject({ m: e + 1 }); });
+          }).catch((e) => { reject({ m: e + 1 }); });
         } else { resolve('Not user found'); }
-      } catch (e) { console.log(e); reject({ m: e + 2 }); }
+      } catch (e) { reject({ m: e + 2 }); }
     });
   }
 

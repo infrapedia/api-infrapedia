@@ -906,7 +906,7 @@ class Organization {
           } else {
             resolve({ m: 'Resolved' });
           }
-        }).catch((e) => { console.log(e); reject({ m: e }); });
+        }).catch((e) => { reject({ m: e }); });
       } catch (e) {
         reject({ m: e });
       }

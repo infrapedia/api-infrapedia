@@ -171,7 +171,6 @@ class Map {
         const dataMap = data;
         this.model().then((maps) => {
           // verify if the user if a owner of map
-          console.log(dataMap);
           maps.findOne({ subdomain: dataMap.subdomain }, async (err, f) => {
             if (err) reject({ m: err });
             else if (!f) { // Can insert

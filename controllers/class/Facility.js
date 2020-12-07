@@ -348,7 +348,6 @@ class Facility {
   addByTransfer(data) {
     return new Promise((resolve, reject) => {
       try {
-        console.log(data.fac_id);
         this.model().then((facility) => {
           facility.find({ fac_id: String(data.fac_id) }).count(async (err, c) => {
             if (err) resolve({ m: err });
