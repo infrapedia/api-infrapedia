@@ -9,6 +9,7 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 V.5
 | Version  | Changes |
 | ------------- | ------------- |
+|5.9.20201208|- Check peering id, validate empty points for cluster connections && fix bugs with bigs relations  | 
 |5.8.20201206|- Create cluster relation from Facilities to IXP and IXP to Facilities  | 
 |5.6.2.20201206|- Facility-IXP connection endpoint was updated, change the word cable for organization in organization class  | 
 |5.6.20201206|- Update the connection from peering db to Infrapedia.com  | 
