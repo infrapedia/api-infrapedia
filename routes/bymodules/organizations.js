@@ -58,6 +58,11 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+    router.get(`${process.env._ROUTE}/organization/checkpeeringdb`, statics, (req, res) => {
+      controllers.organizations.checkPeeringDb(req.query.p)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
     router.get(`${process.env._ROUTE}/organization/groups/:id`, (req, res) => {
       controllers.organizations.associationsGroups(req.params.id)
         .then((r) => { response.success(res, r, false); })

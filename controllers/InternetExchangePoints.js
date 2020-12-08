@@ -21,6 +21,7 @@ module.exports = {
   list: (usr, page) => IXP.list(usr, page),
   delete: (usr, id) => IXP.delete(usr, id),
   checkName: (name) => IXP.checkName(name),
+  checkPeeringDb: (ix_id) => IXP.checkPeeringDb(ix_id),
   permanentDelete: (usr, id, code) => IXP.permanentDelete(usr, id, code),
   getIdBySlug: (slug) => IXP.getIdBySlug(slug),
   connectionIXPFAC: () => IXP.connectionIXPFAC(),

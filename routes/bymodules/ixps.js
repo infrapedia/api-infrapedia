@@ -61,6 +61,11 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+    router.get(`${process.env._ROUTE}/ixps/checkpeeringdb`, statics, (req, res) => {
+      controllers.InternetExchangePoints.checkPeeringDb(req.query.p)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
     router.delete(`${process.env._ROUTE}/auth/ixps/permanentdelete/:id`, (req, res) => {
       controllers.InternetExchangePoints.permanentDelete(req.headers.userid, req.params.id, req.body.code)
         .then((r) => { response.success(res, r, false); })

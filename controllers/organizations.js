@@ -12,6 +12,7 @@ module.exports = {
   partners: () => Organization.partners(),
   istrusted: () => Organization.istrusted(),
   checkName: (name) => Organization.checkName(name),
+  checkPeeringDb: (ooid) => Organization.checkPeeringDb(ooid),
   associationsGroups: (id) => Organization.associationsGroups(id),
   associationsCLS: (id) => Organization.associationsCLS(id),
   associationsSubseas: (id) => Organization.associationsSubseas(id),

@@ -26,11 +26,11 @@ class Facility {
               address: (Array.isArray(data.address)) ? await data.address.map((address) => JSON.parse(address)) : [],
               website: data.website,
               geom: JSON.parse(data.geom),
-              ixps: (Array.isArray(data.ixps)) ? await data.ixps.map((ixp) => new ObjectID(ixp)) : [],
-              terrestrials: (Array.isArray(data.terrestrials)) ? await data.terrestrials.map((terrestrial) => new ObjectID(terrestrial)) : [],
-              subsea: (Array.isArray(data.subsea)) ? await data.subsea.map((subsea) => new ObjectID(subsea)) : [],
-              csp: (Array.isArray(data.csp)) ? await data.csp.map((csp) => new ObjectID(csp)) : [],
-              sProviders: (Array.isArray(data.sProviders)) ? await data.sProviders.map((sProvider) => new ObjectID(sProvider)) : [],
+              ixps: (Array.isArray(data.ixps)) ? await data.ixps.map((ixp) => new ObjectID(ixp)) : (data.ixps !== '') ? await Object.keys(data.ixps).map((key) => new ObjectID(data.ixps[key])) : [],
+              terrestrials: (Array.isArray(data.terrestrials)) ? await data.terrestrials.map((terrestrial) => new ObjectID(terrestrial)) : (data.terrestrials !== '') ? await Object.keys(data.terrestrials).map((key) => new ObjectID(data.terrestrials[key])) : [],
+              subsea: (Array.isArray(data.subsea)) ? await data.subsea.map((subsea) => new ObjectID(subsea)) : (data.subsea !== '') ? await Object.keys(data.subsea).map((key) => new ObjectID(data.subsea[key])) : [],
+              csp: (Array.isArray(data.csp)) ? await data.csp.map((csp) => new ObjectID(csp)) : (data.ixps !== '') ? await Object.keys(data.csp).map((key) => new ObjectID(data.csp[key])) : [],
+              sProviders: (Array.isArray(data.sProviders)) ? await data.sProviders.map((sProvider) => new ObjectID(sProvider)) : (data.sProviders !== '') ? await Object.keys(data.sProviders).map((key) => new ObjectID(data.sProviders[key])) : [],
               tags: data.tags,
               t: data.t,
               StartDate: String(data.StartDate),
@@ -102,11 +102,11 @@ class Facility {
               address: (Array.isArray(data.address)) ? await data.address.map((address) => JSON.parse(address)) : [],
               website: data.website,
               geom: JSON.parse(data.geom),
-              ixps: (Array.isArray(data.ixps)) ? await data.ixps.map((ixp) => new ObjectID(ixp)) : [],
-              terrestrials: (Array.isArray(data.terrestrials)) ? await data.terrestrials.map((terrestrial) => new ObjectID(terrestrial)) : [],
-              subsea: (Array.isArray(data.subsea)) ? await data.subsea.map((subsea) => new ObjectID(subsea)) : [],
-              csp: (Array.isArray(data.csp)) ? await data.csp.map((csp) => new ObjectID(csp)) : [],
-              sProviders: (Array.isArray(data.sProviders)) ? await data.sProviders.map((sProvider) => new ObjectID(sProvider)) : [],
+              ixps: (Array.isArray(data.ixps)) ? await data.ixps.map((ixp) => new ObjectID(ixp)) : (data.ixps !== '') ? await Object.keys(data.ixps).map((key) => new ObjectID(data.ixps[key])) : [],
+              terrestrials: (Array.isArray(data.terrestrials)) ? await data.terrestrials.map((terrestrial) => new ObjectID(terrestrial)) : (data.terrestrials !== '') ? await Object.keys(data.terrestrials).map((key) => new ObjectID(data.terrestrials[key])) : [],
+              subsea: (Array.isArray(data.subsea)) ? await data.subsea.map((subsea) => new ObjectID(subsea)) : (data.subsea !== '') ? await Object.keys(data.subsea).map((key) => new ObjectID(data.subsea[key])) : [],
+              csp: (Array.isArray(data.csp)) ? await data.csp.map((csp) => new ObjectID(csp)) : (data.ixps !== '') ? await Object.keys(data.csp).map((key) => new ObjectID(data.csp[key])) : [],
+              sProviders: (Array.isArray(data.sProviders)) ? await data.sProviders.map((sProvider) => new ObjectID(sProvider)) : (data.sProviders !== '') ? await Object.keys(data.sProviders).map((key) => new ObjectID(data.sProviders[key])) : [],
               tags: data.tags,
               t: data.t,
               StartDate: String(data.StartDate),
@@ -714,6 +714,7 @@ class Facility {
                               else: [],
                             },
                           },
+                          geom: { $ifNull: ['$geom', {}] },
                         },
                       },
                       {
@@ -723,6 +724,9 @@ class Facility {
                               $expr: {
                                 $in: ['$_id', '$$f'],
                               },
+                            },
+                            {
+                              geom: { $ne: {} },
                             },
                             {
                               deleted: { $ne: true },
@@ -1697,6 +1701,21 @@ class Facility {
       try {
         this.model().then((search) => {
           search.find({ name }).count((err, c) => {
+            if (err) reject({ m: err });
+            resolve({ m: 'Loaded', r: c });
+          });
+        });
+      } catch (e) {
+        reject({ m: e });
+      }
+    });
+  }
+
+  checkPeeringDb(fac_id) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((search) => {
+          search.find({ fac_id }).count((err, c) => {
             if (err) reject({ m: err });
             resolve({ m: 'Loaded', r: c });
           });

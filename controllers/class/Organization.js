@@ -30,6 +30,7 @@ class Organization {
                   logo: String(data.logo),
                   information: String(data.information),
                   // TODO: when array is empty not use the map
+                  ooid: String(data.ooid),
                   asn: await (data.asn === '') ? [] : data.asn.map((item) => item),
                   address: await (data.address === '') ? [] : data.address.map((item) => JSON.parse(item)),
                   url: String(data.url),
@@ -163,6 +164,7 @@ class Organization {
                   slug: slugToString(data.name),
                   logo: String(data.logo),
                   information: String(data.information),
+                  ooid: String(data.ooid),
                   asn: await (data.asn === '') ? [] : data.asn.map((item) => item),
                   address: await (data.address === '') ? [] : data.address.map((item) => JSON.parse(item)),
                   url: String(data.url),
@@ -615,6 +617,21 @@ class Organization {
           ]).toArray((err, c) => {
             if (err) reject({ m: err });
             resolve({ m: 'Loaded', r: c.length });
+          });
+        });
+      } catch (e) {
+        reject({ m: e });
+      }
+    });
+  }
+
+  checkPeeringDb(ooid) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((search) => {
+          search.find({ ooid }).count((err, c) => {
+            if (err) reject({ m: err });
+            resolve({ m: 'Loaded', r: c });
           });
         });
       } catch (e) {

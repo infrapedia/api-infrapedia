@@ -23,8 +23,8 @@ class IXP {
               name: String(data.name),
               slug: slugToString(data.name),
               nameLong: String(data.nameLong),
-              owners: await (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : [],
-              facilities: (Array.isArray(data.facilities)) ? await data.facilities.map((facility) => new ObjectID(facility)) : [],
+              owners:  (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : (data.owners !== '') ? await Object.keys(data.owners).map((key) => new ObjectID(data.owners[key])) : [],
+              facilities: (Array.isArray(data.facilities)) ? await data.facilities.map((facility) => new ObjectID(facility)) : (data.facilities !== '') ? await Object.keys(data.facilities).map((key) => new ObjectID(data.facilities[key])) : [],
               notes: '', // String(data.notes)
               geom: geom.features[0].geometry,
               media: String(data.media),
@@ -67,8 +67,8 @@ class IXP {
               name: String(data.name),
               slug: slugToString(data.name),
               nameLong: String(data.nameLong),
-              owners: await (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : [],
-              facilities: (Array.isArray(data.facilities)) ? await data.facilities.map((facility) => new ObjectID(facility)) : [],
+              owners:  (Array.isArray(data.owners)) ? await data.owners.map((item) => new ObjectID(item)) : (data.owners !== '') ? await Object.keys(data.owners).map((key) => new ObjectID(data.owners[key])) : [],
+              facilities: (Array.isArray(data.facilities)) ? await data.facilities.map((facility) => new ObjectID(facility)) : (data.facilities !== '') ? await Object.keys(data.facilities).map((key) => new ObjectID(data.facilities[key])) : [],
               notes: '', // String(data.notes)
               geom: geom.features[0].geometry,
               media: String(data.media),
@@ -410,6 +410,7 @@ class IXP {
                               else: [],
                             },
                           },
+                          point: { $ifNull: ['$point', {}] },
                         },
                       },
                       {
@@ -419,6 +420,9 @@ class IXP {
                               $expr: {
                                 $in: ['$_id', '$f'],
                               },
+                            },
+                            {
+                              point: { $ne: {} },
                             },
                             {
                               deleted: { $ne: true },
@@ -1131,6 +1135,21 @@ class IXP {
           ]).toArray((err, c) => {
             if (err) reject({ m: err });
             resolve({ m: 'Loaded', r: c.length });
+          });
+        });
+      } catch (e) {
+        reject({ m: e });
+      }
+    });
+  }
+
+  checkPeeringDb(ix_id) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((search) => {
+          search.find({ ix_id }).count((err, c) => {
+            if (err) reject({ m: err });
+            resolve({ m: 'Loaded', r: c });
           });
         });
       } catch (e) {
