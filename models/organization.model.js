@@ -40,7 +40,7 @@ module.exports = function () {
       //     validationAction: 'warn',
       //   },
       //}
-    ).then((organization) => { organization.insertOne({ one: 1 }); resolve(organization); }).catch((err) => {
+    ).then((organization) => { resolve(organization); }).catch((err) => {
       resolve(db.get().collection('organizations'));
     });
   });

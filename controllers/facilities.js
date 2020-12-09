@@ -20,7 +20,7 @@ ST_AsGeoJSON(point) as point
 FROM facility`;
     pool.query(SQLQuery, async (error, results) => {
       if (error) { throw error; }
-      Promise.all(results.rows.map((f) => Facility.addByTransfer('', f))).then((r) => {
+      Promise.all(results.rows.map((f) => Facility.addByTransfer(f))).then((r) => {
         resolve({ m: 'The transfer was finished' });
       }).catch((e) => {
         reject({ m: 'The transfer was finished', r: e });
@@ -44,6 +44,7 @@ FROM facility`;
   list: (usr, page) => Facility.list(usr, page),
   delete: (usr, id) => Facility.delete(usr, id),
   checkName: (name) => Facility.checkName(name),
+  checkPeeringDb: (fac_id) => Facility.checkPeeringDb(fac_id),
   permanentDelete: (usr, id, code) => Facility.permanentDelete(usr, id, code),
   clustering: () => Facility.clustering(),
   getIdBySlug: (slug) => Facility.getIdBySlug(slug),

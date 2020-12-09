@@ -23,8 +23,8 @@ class IXP {
               name: String(data.name),
               slug: slugToString(data.name),
               nameLong: String(data.nameLong),
-              owners: await (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : [],
-              facilities: (Array.isArray(data.facilities)) ? await data.facilities.map((facility) => new ObjectID(facility)) : [],
+              owners:  (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : (data.owners !== '') ? await Object.keys(data.owners).map((key) => new ObjectID(data.owners[key])) : [],
+              facilities: (Array.isArray(data.facilities)) ? await data.facilities.map((facility) => new ObjectID(facility)) : (data.facilities !== '') ? await Object.keys(data.facilities).map((key) => new ObjectID(data.facilities[key])) : [],
               notes: '', // String(data.notes)
               geom: geom.features[0].geometry,
               media: String(data.media),
@@ -36,6 +36,7 @@ class IXP {
               techEmail: String(data.techEmail),
               techPhone: String(data.techPhone),
               tags: data.tags,
+              ix_id: String(data.ix_id),
               rgDate: luxon.DateTime.utc(),
               uDate: luxon.DateTime.utc(),
               status: false,
@@ -66,8 +67,8 @@ class IXP {
               name: String(data.name),
               slug: slugToString(data.name),
               nameLong: String(data.nameLong),
-              owners: await (Array.isArray(data.owners)) ? data.owners.map((item) => new ObjectID(item)) : [],
-              facilities: (Array.isArray(data.facilities)) ? await data.facilities.map((facility) => new ObjectID(facility)) : [],
+              owners:  (Array.isArray(data.owners)) ? await data.owners.map((item) => new ObjectID(item)) : (data.owners !== '') ? await Object.keys(data.owners).map((key) => new ObjectID(data.owners[key])) : [],
+              facilities: (Array.isArray(data.facilities)) ? await data.facilities.map((facility) => new ObjectID(facility)) : (data.facilities !== '') ? await Object.keys(data.facilities).map((key) => new ObjectID(data.facilities[key])) : [],
               notes: '', // String(data.notes)
               geom: geom.features[0].geometry,
               media: String(data.media),
@@ -79,15 +80,18 @@ class IXP {
               techEmail: String(data.techEmail),
               techPhone: String(data.techPhone),
               tags: data.tags,
+              ix_id: String(data.ix_id),
               rgDate: luxon.DateTime.utc(),
               uDate: luxon.DateTime.utc(),
               status: false,
               deleted: false,
             };
-            ixps.findOne({_id: new ObjectID(data._id)}, async (err, c) => {
-              c.facilities = await c.facilities.map((facility) => String(facility));
-              const facilityNotFounds = await (Array.isArray(data.facilities) && c.facilities !== undefined) ? c.facilities.filter((f) => !data.facilities.includes(f)) : [];
-              await facilityNotFounds.map((facility) => this.removeFacilityConnection(data._id, facility));
+            ixps.findOne({ _id: new ObjectID(data._id) }, async (err, c) => {
+              if (Array.isArray(c.facilities)) {
+                c.facilities = await c.facilities.map((facility) => String(facility));
+                const facilityNotFounds = await (Array.isArray(data.facilities) && c.facilities !== undefined) ? c.facilities.filter((f) => !data.facilities.includes(f)) : [];
+                await facilityNotFounds.map((facility) => this.removeFacilityConnection(data._id, facility));
+              }
               ixps.updateOne({ $and: [adms(user), { _id: new ObjectID(data._id) }] }, { $set: element }, async (err, f) => {
                 if (err) reject({ m: err + 0 });
                 await element.facilities.map((facility) => this.updateFacilityConnection(new ObjectID(data._id), facility));
@@ -106,8 +110,8 @@ class IXP {
       facility().then((facility) => {
         facility.updateOne({ _id: new ObjectID(idFacility) }, { $pull: { ixps: new ObjectID(idIxp) } }, (err, u) => {
           if (err) return err;
-          else if (u.result.nModified !== 1) return 'Not updated 2';
-          else return 'Removed';
+          if (u.result.nModified !== 1) return 'Not updated 2';
+          return 'Removed';
         });
       }).catch((e) => (e));
     } catch (e) {
@@ -394,6 +398,71 @@ class IXP {
                         $project: {
                           _id: 1,
                           name: 1,
+                          point: 1,
+                        },
+                      },
+                      {
+                        $addFields: {
+                          f: {
+                            $cond: {
+                              if: { $eq: [{ $type: '$$f' }, 'array'] },
+                              then: '$$f',
+                              else: [],
+                            },
+                          },
+                          point: { $ifNull: ['$point', {}] },
+                        },
+                      },
+                      {
+                        $match: {
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$_id', '$f'],
+                              },
+                            },
+                            {
+                              point: { $ne: {} },
+                            },
+                            {
+                              deleted: { $ne: true },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        $addFields: {
+                          elmnt: {
+                            type: 'Feature',
+                            properties: { name: '$name', id: { $toString: '$_id' }, _id: { $toString: '$_id' } },
+                            geometry: '$point',
+                          },
+                        },
+                      },
+                      {
+                        $project: { elmnt: 1 },
+                      },
+                    ],
+                    as: 'facsElements',
+                  },
+                },
+                {
+                  $addFields: {
+                    cluster: {
+                      type: 'FeatureCollection',
+                      features: '$facsElements.elmnt',
+                    },
+                  },
+                },
+                {
+                  $lookup: {
+                    from: 'facilities',
+                    let: { f: '$facilities' },
+                    pipeline: [
+                      {
+                        $project: {
+                          _id: 1,
+                          name: 1,
                         },
                       },
                       {
@@ -507,6 +576,7 @@ class IXP {
                     as: 'networks',
                   },
                 },
+
                 // {
                 //   $lookup: {
                 //     from: 'organizations',
@@ -565,6 +635,7 @@ class IXP {
                 },
                 {
                   $project: {
+                    facsElements: 0,
                     geom: 0,
                     status: 0,
                     deleted: 0,
@@ -655,6 +726,7 @@ class IXP {
                             else: [],
                           },
                         },
+                        ix_id: { $ifNull: ['$ix_id', ''] },
                       },
                     },
                     {
@@ -1071,6 +1143,21 @@ class IXP {
     });
   }
 
+  checkPeeringDb(ix_id) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((search) => {
+          search.find({ ix_id }).count((err, c) => {
+            if (err) reject({ m: err });
+            resolve({ m: 'Loaded', r: c });
+          });
+        });
+      } catch (e) {
+        reject({ m: e });
+      }
+    });
+  }
+
   permanentDelete(usr, id, code) {
     return new Promise((resolve, reject) => {
       try {
@@ -1101,6 +1188,44 @@ class IXP {
             resolve({ m: '', r: (r._id) ? r._id : '' });
           });
         }).catch((e) => reject({ m: e }));
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  connectionIXPFAC() {
+    return new Promise((resolve, reject) => {
+      try {
+        const pool = require('../../config/pgSQL.js');
+        let facility = require('../../models/facility.model');
+        this.model().then((ixp) => {
+          ixp.aggregate([{$project: { _id: 1, ix_id: 1}}]).toArray(async (err, getIXPS) => {
+            if (err) { reject({ m: 'Cant conntinue' }); }
+            await getIXPS.map((elm) => {
+              const SQLquery = `SELECT ix_id, fac_id FROM public.ix_fac WHERE ix_id = ${elm.ix_id}`;
+              pool.query(SQLquery, async (err, data) => {
+                if (data) {
+                  await data.rows.map((connection) => {
+                    facility().then((facility) => {
+                      if(elm !== null){
+                        facility.findOneAndUpdate({ fac_id: String(connection.fac_id) },{ $addToSet: { ixps: new ObjectID(elm._id) } }, (err, f) => {
+                          if (f !== null && elm !== null) {
+                            ixp.updateOne({ _id: new ObjectID(elm._id) }, { $addToSet: { facilities: new ObjectID(f.value._id) } }, (err, u) =>{
+                              console.log('IXP ---->', elm._id, ' ====> Fac', f.value._id, new Date());
+                              return 'Ready';
+                            });
+                          }
+                        });
+                      }
+                    });
+                  });
+                } else {
+                  console.log('Conttinue working');
+                }
+              });
+            });
+            resolve({ m: 'Completed' });
+          });
+        });
       } catch (e) { reject({ m: e }); }
     });
   }

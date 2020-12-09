@@ -54,9 +54,10 @@ class Cable {
                   deleted: false,
                 };
                 let listSegments = JSON.parse(geomData);
-                cables.find({ name: data.name }, (err, c) => {
+                cables.find({ name: data.name }, async (err, c) => {
                   if (err) reject({ m: err + 0 });
                   else if (c.length > 0 && c._id !== data._id) reject({ m: 'We have another element with the same name' });
+
                   cables.insertOne(data, async (err, i) => {
                     // TODO: validation insert
                       if (err) reject({ m: err + 0 });
@@ -71,6 +72,7 @@ class Cable {
                     // we going to update the segments
 
                     await data.cls.map((cls) => this.updateCLSConnection(cls, i.insertedId));
+                    await data.facilities.map((facility) => this.updateFacilityConnection(facility, i.insertedId, (data.terrestrial === 'True' || data.terrestrial === 'true') ? 't' : 's'));
                     // insert the segments
                     const segments = require('../../models/cable_segments.model');
                     segments().then(async (segments) => {
@@ -193,6 +195,38 @@ class Cable {
     }
   }
 
+  updateFacilityConnection(idFacility, idCable, subseaOrTerrestrial) {
+    try {
+      const facility = require('../../models/facility.model');
+      facility().then((facility) => {
+        const query = (subseaOrTerrestrial === 's') ? { $addToSet: { subsea: idCable } } : { $addToSet: { terrestrials: idCable } };
+        facility.updateOne({ _id: new ObjectID(idFacility) }, query, (err, u) => {
+          if (err) return err;
+          else if (u.result.nModified !== 1) return 'Not updated 1';
+          else return 'Removed';
+        });
+      }).catch((e) => (e));
+    } catch (e) {
+      return e;
+    }
+  }
+
+  removeFacilityConnection(idFacility, idCable, subseaOrTerrestrial) {
+    try {
+      const facility = require('../../models/facility.model');
+      facility().then((facility) => {
+        const query = (subseaOrTerrestrial === 's') ? { $pull: { subsea: idCable } } : { $pull: { terrestrials: idCable } };
+        facility.updateOne({ _id: new ObjectID(idFacility) }, query, (err, u) => {
+          if (err) return err;
+          else if (u.result.nModified !== 1) return 'Not updated 1';
+          else return 'Removed';
+        });
+      }).catch((e) => (e));
+    } catch (e) {
+      return e;
+    }
+  }
+
   removeCLSConnection(idCls, idCable) {
     try {
       const cls = require('../../models/cls.model');
@@ -250,10 +284,17 @@ class Cable {
               // we're going to search if the user is the own of the cable
               let listSegments = JSON.parse(geomData);
               cables.findOne({ $and: [adms(user), { _id: id }] }, async (err, c) => {
+                //Founds CLS
                 c.cls = await c.cls.map((cls) => String(cls));
                 const clsNotFounds = await (Array.isArray(data.cls) && c.cls !== undefined) ? c.cls.filter((f) => !data.cls.includes(f)) : [];
                 await data.cls.map((cls) => this.updateCLSConnection(cls, id));
                 await clsNotFounds.map((cls) => this.removeCLSConnection(cls, id));
+                //Founds cables
+                c.facilities = await c.facilities.map((facility) => String(facility));
+                const facilitiesNotFounds = await (Array.isArray(data.facilities) && c.facilities !== undefined) ? c.facilities.filter((f) => !data.facilities.includes(f)) : [];
+                await data.facilities.map((facility) => this.updateFacilityConnection(facility, id, (c.terrestrial) ? 't' : 's'));
+                await facilitiesNotFounds.map((facility) => this.removeFacilityConnection(facility, id, (c.terrestrial) ? 't' : 's'));
+
 
                 if (err) reject({ m: err });
                 const segments = require('../../models/cable_segments.model');

@@ -12,6 +12,7 @@ module.exports = {
   partners: () => Organization.partners(),
   istrusted: () => Organization.istrusted(),
   checkName: (name) => Organization.checkName(name),
+  checkPeeringDb: (ooid) => Organization.checkPeeringDb(ooid),
   associationsGroups: (id) => Organization.associationsGroups(id),
   associationsCLS: (id) => Organization.associationsCLS(id),
   associationsSubseas: (id) => Organization.associationsSubseas(id),
@@ -26,4 +27,7 @@ module.exports = {
   updateOrganizationIXP: (usr, idOrganization, idIXP, operation) => Organization.updateOrganizationIXP(usr, idOrganization, idIXP, operation),
   updateOrganizationFacility: (usr, idOrganization, idFacility, operation) => Organization.updateOrganizationFacility(usr, idOrganization, idFacility, operation),
   getIdBySlug: (slug) => Organization.getIdBySlug(slug),
+  connectionORGIXP: () => Organization.connectionORGIXP(),
+  connectionORGFAC: () => Organization.connectionORGFAC(),
+  connectionUASN: () => Organization.connectionUASN()
 };

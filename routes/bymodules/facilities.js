@@ -66,6 +66,11 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+    router.get(`${process.env._ROUTE}/facilities/checkpeeringdb`, statics, (req, res) => {
+      controllers.facilities.checkPeeringDb(req.query.p)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
     router.delete(`${process.env._ROUTE}/auth/facilities/permanentdelete/:id`, (req, res) => {
       controllers.facilities.permanentDelete(req.headers.userid, req.params.id, req.body.code)
         .then((r) => { response.success(res, r, false); })

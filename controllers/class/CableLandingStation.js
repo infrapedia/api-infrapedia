@@ -42,7 +42,7 @@ class CLS {
                 resolve({ m: 'CLS created', r: i.insertedId });
               });
             });
-          }).catch((e) => { console.log(e); reject({ m: e }); });
+          }).catch((e) => { reject({ m: e }); });
         } else { resolve('Not user found'); }
       } catch (e) { reject({ m: e }); }
     });
@@ -853,7 +853,6 @@ class CLS {
   // }
 
   getElementGeom(id) {
-    console.log(id);
     return new Promise((resolve, reject) => {
       try {
         this.model().then((cls) => {

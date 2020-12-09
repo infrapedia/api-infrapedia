@@ -26,11 +26,11 @@ class Facility {
               address: (Array.isArray(data.address)) ? await data.address.map((address) => JSON.parse(address)) : [],
               website: data.website,
               geom: JSON.parse(data.geom),
-              ixps: (Array.isArray(data.ixps)) ? await data.ixps.map((ixp) => new ObjectID(ixp)) : [],
-              terrestrials: (Array.isArray(data.terrestrials)) ? await data.terrestrials.map((terrestrial) => new ObjectID(terrestrial)) : [],
-              subsea: (Array.isArray(data.subsea)) ? await data.subsea.map((subsea) => new ObjectID(subsea)) : [],
-              csp: (Array.isArray(data.csp)) ? await data.csp.map((csp) => new ObjectID(csp)) : [],
-              sProviders: (Array.isArray(data.sProviders)) ? await data.sProviders.map((sProvider) => new ObjectID(sProvider)) : [],
+              ixps: (Array.isArray(data.ixps)) ? await data.ixps.map((ixp) => new ObjectID(ixp)) : (data.ixps !== '') ? await Object.keys(data.ixps).map((key) => new ObjectID(data.ixps[key])) : [],
+              terrestrials: (Array.isArray(data.terrestrials)) ? await data.terrestrials.map((terrestrial) => new ObjectID(terrestrial)) : (data.terrestrials !== '') ? await Object.keys(data.terrestrials).map((key) => new ObjectID(data.terrestrials[key])) : [],
+              subsea: (Array.isArray(data.subsea)) ? await data.subsea.map((subsea) => new ObjectID(subsea)) : (data.subsea !== '') ? await Object.keys(data.subsea).map((key) => new ObjectID(data.subsea[key])) : [],
+              csp: (Array.isArray(data.csp)) ? await data.csp.map((csp) => new ObjectID(csp)) : (data.ixps !== '') ? await Object.keys(data.csp).map((key) => new ObjectID(data.csp[key])) : [],
+              sProviders: (Array.isArray(data.sProviders)) ? await data.sProviders.map((sProvider) => new ObjectID(sProvider)) : (data.sProviders !== '') ? await Object.keys(data.sProviders).map((key) => new ObjectID(data.sProviders[key])) : [],
               tags: data.tags,
               t: data.t,
               StartDate: String(data.StartDate),
@@ -69,6 +69,7 @@ class Facility {
               officeSpace: (data.officeSpace),
               internetAccess: (data.internetAccess),
               // --- New fields ---
+              fac_id: String(data.fac_id),
               rgDate: luxon.DateTime.utc(),
               uDate: luxon.DateTime.utc(),
               status: false,
@@ -101,11 +102,11 @@ class Facility {
               address: (Array.isArray(data.address)) ? await data.address.map((address) => JSON.parse(address)) : [],
               website: data.website,
               geom: JSON.parse(data.geom),
-              ixps: (Array.isArray(data.ixps)) ? await data.ixps.map((ixp) => new ObjectID(ixp)) : [],
-              terrestrials: (Array.isArray(data.terrestrials)) ? await data.terrestrials.map((terrestrial) => new ObjectID(terrestrial)) : [],
-              subsea: (Array.isArray(data.subsea)) ? await data.subsea.map((subsea) => new ObjectID(subsea)) : [],
-              csp: (Array.isArray(data.csp)) ? await data.csp.map((csp) => new ObjectID(csp)) : [],
-              sProviders: (Array.isArray(data.sProviders)) ? await data.sProviders.map((sProvider) => new ObjectID(sProvider)) : [],
+              ixps: (Array.isArray(data.ixps)) ? await data.ixps.map((ixp) => new ObjectID(ixp)) : (data.ixps !== '') ? await Object.keys(data.ixps).map((key) => new ObjectID(data.ixps[key])) : [],
+              terrestrials: (Array.isArray(data.terrestrials)) ? await data.terrestrials.map((terrestrial) => new ObjectID(terrestrial)) : (data.terrestrials !== '') ? await Object.keys(data.terrestrials).map((key) => new ObjectID(data.terrestrials[key])) : [],
+              subsea: (Array.isArray(data.subsea)) ? await data.subsea.map((subsea) => new ObjectID(subsea)) : (data.subsea !== '') ? await Object.keys(data.subsea).map((key) => new ObjectID(data.subsea[key])) : [],
+              csp: (Array.isArray(data.csp)) ? await data.csp.map((csp) => new ObjectID(csp)) : (data.ixps !== '') ? await Object.keys(data.csp).map((key) => new ObjectID(data.csp[key])) : [],
+              sProviders: (Array.isArray(data.sProviders)) ? await data.sProviders.map((sProvider) => new ObjectID(sProvider)) : (data.sProviders !== '') ? await Object.keys(data.sProviders).map((key) => new ObjectID(data.sProviders[key])) : [],
               tags: data.tags,
               t: data.t,
               StartDate: String(data.StartDate),
@@ -144,17 +145,29 @@ class Facility {
               officeSpace: (data.officeSpace),
               internetAccess: (data.internetAccess),
               // --- New fields ---
+              fac_id: String(data.fac_id),
               uDate: luxon.DateTime.utc(),
               deleted: false,
             };
 
-            facility.findOne({_id: new ObjectID(data._id)}, async (err, c) => {
+            facility.findOne({ _id: new ObjectID(data._id) }, async (err, c) => {
+              // Founds IXPS
               c.ixps = await c.ixps.map((ixp) => String(ixp));
               const ixpNotFounds = await (Array.isArray(data.ixps) && c.ixps !== undefined) ? c.ixps.filter((f) => !data.ixps.includes(f)) : [];
               await ixpNotFounds.map((ixp) => this.removeIxpConnection(ixp, data._id));
+              // Found Subsea&Terrestrial
+              let cables = (c.subsea) ? data.subsea.concat(data.terrestrials) : [];
+              let cablesSaved = (c.subsea) ? c.subsea.concat(c.terrestrials) : [];
+              cables = (cables) ? await cables.map((cable) => String(cable)) : [];
+              cablesSaved = (cablesSaved) ? await cablesSaved.map((cable) => String(cable)) : [];
+              const cablesNotFounds = await (Array.isArray(cables) && cablesSaved !== undefined) ? cablesSaved.filter((f) => !cables.includes(f)) : [];
+              await cablesNotFounds.map((cable) => this.removeCableConnection(cable, data._id));
+
               facility.updateOne({ $and: [adms(user), { _id: new ObjectID(data._id) }] }, { $set: element }, async (err, f) => {
                 if (err) reject({ m: err + 0 });
                 await element.ixps.map((ixp) => this.updateIXPConnection(ixp, new ObjectID(data._id)));
+                await element.subsea.map((subsea) => this.updateCableConnection(subsea, new ObjectID(data._id)));
+                await element.terrestrials.map((terrestrial) => this.updateCableConnection(terrestrial, new ObjectID(data._id)));
                 resolve({ m: 'Facility edited', r: data._id });
               });
             });
@@ -164,19 +177,47 @@ class Facility {
     });
   }
 
+  removeCableConnection(idCable, idFacility) {
+    try {
+      const cable = require('../../models/cable.model');
+      cable().then((cable) => {
+        cable.updateOne({ _id: new ObjectID(idCable) }, { $pull: { facilities: new ObjectID(idFacility) } }, (err, u) => {
+          if (err) return err;
+          if (u.result.nModified !== 1) return 'Not updated 2';
+          return 'Removed';
+        });
+      }).catch((e) => (e));
+    } catch (e) {
+      return e;
+    }
+  }
+
   removeIxpConnection(idIxp, idFacility) {
     try {
       const ixp = require('../../models/ixp.model');
       ixp().then((ixp) => {
         ixp.updateOne({ _id: new ObjectID(idIxp) }, { $pull: { facilities: new ObjectID(idFacility) } }, (err, u) => {
           if (err) return err;
-          else if (u.result.nModified !== 1) return 'Not updated 2';
-          else return 'Removed';
+          if (u.result.nModified !== 1) return 'Not updated 2';
+          return 'Removed';
         });
       }).catch((e) => (e));
     } catch (e) {
       return e;
     }
+  }
+
+  updateCableConnection(idCable, idFacility) {
+    try {
+      const cable = require('../../models/cable.model');
+      cable().then((cable) => {
+        cable.updateOne({ _id: new ObjectID(idCable) }, { $addToSet: { facilities: idFacility } }, (err, u) => {
+          if (err) return err;
+          if (u.result.nModified !== 1) return 'Not updated 1';
+          return 'Removed';
+        });
+      }).catch((e) => (e));
+    } catch (e) { reject({ m: e }); }
   }
 
   updateIXPConnection(idIxp, idFacility) {
@@ -212,7 +253,7 @@ class Facility {
                   {
                     $match: {
                       $and: [
-                        { _id: new ObjectID(idFacility) }, { point: { $ne: {} } },  // { point: { $ne: {} } }, //{ ixps: { $ne: [] } },
+                        { _id: new ObjectID(idFacility) }, { point: { $ne: {} } }, // { point: { $ne: {} } }, //{ ixps: { $ne: [] } },
                       ],
                     },
                   },
@@ -411,9 +452,19 @@ class Facility {
                   $project: { geom: 0 },
                 },
                 {
+                  $addFields: {
+                    subsea: { $ifNull: ['$subsea', []] },
+                    terrestrials: { $ifNull: ['$terrestrials', []] },
+                    sProviders: { $ifNull: ['$sProviders', []] },
+                    csp: { $ifNull: ['$csp', []] },
+                    owners: { $ifNull: ['$owners', []] },
+                    ixps: { $ifNull: ['$ixps', []] },
+                  },
+                },
+                {
                   $lookup: {
                     from: 'cables',
-                    let: { facilities: '$_id' },
+                    let: { f: '$subsea' },
                     pipeline: [
                       {
                         $project: {
@@ -424,10 +475,10 @@ class Facility {
                       },
                       {
                         $addFields: {
-                          facilities: {
+                          f: {
                             $cond: {
-                              if: { $eq: [{ $type: '$facilities' }, 'array'] },
-                              then: '$facilities',
+                              if: { $eq: [{ $type: '$$f' }, 'array'] },
+                              then: '$$f',
                               else: [],
                             },
                           },
@@ -438,30 +489,44 @@ class Facility {
                           $and: [
                             {
                               $expr: {
-                                $in: ['$$facilities', '$facilities'],
+                                $in: ['$_id', '$$f'],
                               },
                             },
                             {
-                              deleted: false,
+                              deleted: { $ne: true },
+                            },
+                            {
+                              terrestrial: false,
                             },
                           ],
                         },
                       },
+                      {
+                        $project: {
+                          terrestrial: 0, f: 0,
+                        },
+                      },
                     ],
-                    as: 'cables',
+                    as: 'subsea',
                   },
-                },
-                {
+                }, {
                   $lookup: {
-                    from: 'networks',
-                    let: { ixps: '$_id' },
+                    from: 'cables',
+                    let: { f: '$terrestrials' },
                     pipeline: [
                       {
+                        $project: {
+                          _id: 1,
+                          name: 1,
+                          terrestrial: 1,
+                        },
+                      },
+                      {
                         $addFields: {
-                          ixps: {
+                          f: {
                             $cond: {
-                              if: { $eq: [{ $type: '$ixps' }, 'array'] },
-                              then: '$ixps',
+                              if: { $eq: [{ $type: '$$f' }, 'array'] },
+                              then: '$$f',
                               else: [],
                             },
                           },
@@ -469,65 +534,34 @@ class Facility {
                       },
                       {
                         $match: {
-                          $expr: {
-                            $in: ['$$ixps', '$ixps'],
-                          },
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$_id', '$$f'],
+                              },
+                            },
+                            {
+                              deleted: { $ne: true },
+                            },
+                            {
+                              terrestrial: true,
+                            },
+                          ],
                         },
                       },
                       {
                         $project: {
-                          _id: 1,
-                          name: 1,
-                          organizations: 1,
+                          terrestrial: 0, f: 0,
                         },
                       },
                     ],
-                    as: 'networks',
+                    as: 'terrestrials',
                   },
                 },
                 {
                   $lookup: {
                     from: 'organizations',
-                    let: { f: '$owners' },
-                    pipeline: [
-                      {
-                        $addFields: {
-                          f: {
-                            $cond: {
-                              if: { $eq: [{ $type: '$owners' }, 'array'] },
-                              then: '$owners',
-                              else: [],
-                            },
-                          },
-                        },
-                      },
-                      {
-                        $match: {
-                          $and: [
-                            {
-                              $expr: {
-                                $in: ['$_id', '$f'],
-                              },
-                            },
-                            {
-                              deleted: false,
-                            },
-                          ],
-                        },
-                      },
-                      {
-                        $project: {
-                          label: '$name',
-                        },
-                      },
-                    ],
-                    as: 'owners',
-                  },
-                },
-                {
-                  $lookup: {
-                    from: 'ixps',
-                    let: { f: '$_id' },
+                    let: { f: '$sProviders' },
                     pipeline: [
                       {
                         $project: {
@@ -551,13 +585,218 @@ class Facility {
                           $and: [
                             {
                               $expr: {
-                                $in: ['$_id', '$f'],
+                                $in: ['$_id', '$$f'],
                               },
                             },
                             {
-                              deleted: false,
+                              deleted: { $ne: true },
                             },
                           ],
+                        },
+                      },
+                      {
+                        $project: {
+                          f: 0,
+                        },
+                      },
+                    ],
+                    as: 'sProviders',
+                  },
+                },
+                {
+                  $lookup: {
+                    from: 'organizations',
+                    let: { f: '$csp' },
+                    pipeline: [
+                      {
+                        $project: {
+                          _id: 1,
+                          name: 1,
+                        },
+                      },
+                      {
+                        $addFields: {
+                          f: {
+                            $cond: {
+                              if: { $eq: [{ $type: '$$f' }, 'array'] },
+                              then: '$$f',
+                              else: [],
+                            },
+                          },
+                        },
+                      },
+                      {
+                        $match: {
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$_id', '$$f'],
+                              },
+                            },
+                            {
+                              deleted: { $ne: true },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        $project: {
+                          f: 0,
+                        },
+                      },
+                    ],
+                    as: 'csp',
+                  },
+                },
+                {
+                  $lookup: {
+                    from: 'organizations',
+                    let: { f: '$owners' },
+                    pipeline: [
+                      {
+                        $project: {
+                          _id: 1,
+                          name: 1,
+                        },
+                      },
+                      {
+                        $addFields: {
+                          f: {
+                            $cond: {
+                              if: { $eq: [{ $type: '$$f' }, 'array'] },
+                              then: '$$f',
+                              else: [],
+                            },
+                          },
+                        },
+                      },
+                      {
+                        $match: {
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$_id', '$$f'],
+                              },
+                            },
+                            {
+                              deleted: { $ne: true },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        $project: {
+                          f: 0,
+                        },
+                      },
+                    ],
+                    as: 'owners',
+                  },
+                },
+                {
+                  $lookup: {
+                    from: 'ixps',
+                    let: { f: '$ixps' },
+                    pipeline: [
+                      {
+                        $project: {
+                          _id: 1,
+                          name: 1,
+                          geom: 1,
+                        },
+                      },
+                      {
+                        $addFields: {
+                          f: {
+                            $cond: {
+                              if: { $eq: [{ $type: '$$f' }, 'array'] },
+                              then: '$$f',
+                              else: [],
+                            },
+                          },
+                          geom: { $ifNull: ['$geom', {}] },
+                        },
+                      },
+                      {
+                        $match: {
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$_id', '$$f'],
+                              },
+                            },
+                            {
+                              geom: { $ne: {} },
+                            },
+                            {
+                              deleted: { $ne: true },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        $addFields: {
+                          elmnt: {
+                            type: 'Feature',
+                            properties: { name: '$name', id: { $toString: '$_id' }, _id: { $toString: '$_id' } },
+                            geometry: '$geom',
+                          },
+                        },
+                      },
+                      {
+                        $project: { elmnt: 1 },
+                      },
+                    ],
+                    as: 'ixpsElements',
+                  },
+                },
+                {
+                  $addFields: {
+                    cluster: {
+                      type: 'FeatureCollection',
+                      features: '$ixpsElements.elmnt',
+                    },
+                  },
+                },
+                {
+                  $lookup: {
+                    from: 'ixps',
+                    let: { f: '$ixps' },
+                    pipeline: [
+                      {
+                        $project: {
+                          _id: 1,
+                          name: 1,
+                        },
+                      },
+                      {
+                        $addFields: {
+                          f: {
+                            $cond: {
+                              if: { $eq: [{ $type: '$$f' }, 'array'] },
+                              then: '$$f',
+                              else: [],
+                            },
+                          },
+                        },
+                      },
+                      {
+                        $match: {
+                          $and: [
+                            {
+                              $expr: {
+                                $in: ['$_id', '$$f'],
+                              },
+                            },
+                            {
+                              deleted: { $ne: true },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        $project: {
+                          f: 0,
                         },
                       },
                     ],
@@ -581,6 +820,7 @@ class Facility {
                 },
                 {
                   $project: {
+                    ixpsElements: 0,
                     point: 0,
                     status: 0,
                     deleted: 0,
@@ -846,6 +1086,7 @@ class Facility {
                   csp: { $ifNull: ['$csp', []] },
                   sProviders: { $ifNull: ['$sProviders', []] },
                   owners: { $ifNull: ['$owners', []] },
+                  fac_id: { $ifNull: ['$fac_id', ''] },
                 },
               },
               {
@@ -1091,6 +1332,7 @@ class Facility {
                   stagingRooms: { $first: '$stagingRooms' },
                   officeSpace: { $first: '$officeSpace' },
                   internetAccess: { $first: '$internetAccess' },
+                  fac_id: { $first: '$fac_id' },
                 },
               },
               {
@@ -1459,6 +1701,21 @@ class Facility {
       try {
         this.model().then((search) => {
           search.find({ name }).count((err, c) => {
+            if (err) reject({ m: err });
+            resolve({ m: 'Loaded', r: c });
+          });
+        });
+      } catch (e) {
+        reject({ m: e });
+      }
+    });
+  }
+
+  checkPeeringDb(fac_id) {
+    return new Promise((resolve, reject) => {
+      try {
+        this.model().then((search) => {
+          search.find({ fac_id }).count((err, c) => {
             if (err) reject({ m: err });
             resolve({ m: 'Loaded', r: c });
           });

@@ -275,7 +275,6 @@ class Search {
               },
             },
           ]).toArray((err, r) => {
-            console.log(err);
             resolve(r);
           });
         }).catch((e) => { reject({ m: e }); });

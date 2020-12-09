@@ -1,9 +1,15 @@
 module.exports = {
   callEndPoints: (router, controllers, response) => {
     const statics = require('../../lib/middleware/statics');
+
     router.post(`${process.env._ROUTE}/auth/organization/add`, (req, res) => {
       controllers.organizations.add(req.headers.userid, req.body)
         .then((r) => { response.success(res, r); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.get(`${process.env._ROUTE}/organization/transfer`, (req, res) => {
+      controllers.organizations.transferFacilities()
+        .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
     //https://www.infrapedia.com/api/auth/organization/edit
@@ -49,6 +55,11 @@ module.exports = {
     });
     router.get(`${process.env._ROUTE}/organization/checkname`, statics, (req, res) => {
       controllers.organizations.checkName(req.query.n)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.get(`${process.env._ROUTE}/organization/checkpeeringdb`, statics, (req, res) => {
+      controllers.organizations.checkPeeringDb(req.query.p)
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
@@ -100,7 +111,6 @@ module.exports = {
         .catch((e) => { response.err(res, e); });
     });
     router.post(`${process.env._ROUTE}/auth/updateknownuserCable`, (req, res) => {
-      console.log(req.body);
       controllers.organizations.updateKnownUserCable(req.headers.userid, req.body.idorg, req.body.idcable, 'add')
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
@@ -126,7 +136,6 @@ module.exports = {
         .catch((e) => { response.err(res, e); });
     });
     router.delete(`${process.env._ROUTE}/auth/updateOrganizationIXP`, (req, res) => {
-      console.log(req.body);
       controllers.organizations.updateOrganizationIXP(req.headers.userid, req.body.idorg, req.body.idixp, 'delete')
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
@@ -141,10 +150,10 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
-    router.post(`${process.env._ROUTE}/auth/updateOrganizationFacility`, (req, res) => {
-      controllers.organizations.updateOrganizationFacility(req.headers.userid, req.body.idorg, req.body.idfacility, 'add')
-        .then((r) => { response.success(res, r, false); })
-        .catch((e) => { response.err(res, e); });
-    });
+    // router.post(`${process.env._ROUTE}/auth/updateOrganizationFacility`, (req, res) => {
+    //   controllers.organizations.updateOrganizationFacility(req.headers.userid, req.body.idorg, req.body.idfacility, 'add')
+    //     .then((r) => { response.success(res, r, false); })
+    //     .catch((e) => { response.err(res, e); });
+    // });
   },
 };

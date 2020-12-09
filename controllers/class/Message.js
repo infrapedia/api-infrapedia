@@ -673,7 +673,10 @@ class Message {
             // ).then(() => {
             //
             // }).catch((e) => { reject({ m: e }); });
-          } else { console.log('Hi'); }
+          } else {
+            //TODO finish
+
+          }
         }).catch((e) => { console.log(e); });
       } catch (e) { reject({}); }
     });
