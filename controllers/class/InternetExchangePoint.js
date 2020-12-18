@@ -266,7 +266,7 @@ class IXP {
           this.model().then((ixps) => {
             ixps.aggregate([
               {
-                $sort: { name: 1 },
+                $sort: { slug: 1 },
               },
               {
                 $project: {
@@ -285,7 +285,7 @@ class IXP {
                 },
               },
               {
-                $sort: { name: 1 },
+                $sort: { slug: 1 },
               },
               {
                 $match: adms(user),
@@ -496,6 +496,7 @@ class IXP {
                           label: '$name',
                         },
                       },
+                      { $sort: { label: 1 } },
                     ],
                     as: 'facilities',
                   },
@@ -542,6 +543,7 @@ class IXP {
                           label: '$name',
                         },
                       },
+                      { $sort: { label: 1 } },
                     ],
                     as: 'owners',
                   },
@@ -568,10 +570,11 @@ class IXP {
                       {
                         $project: {
                           _id: 1,
-                          name: 1,
+                          label: 1,
                           organizations: 1,
                         },
                       },
+                      { $sort: { label: 1 } },
                     ],
                     as: 'networks',
                   },
@@ -884,10 +887,10 @@ class IXP {
                 sortBy = { uDate: -1 };
                 break;
               default:
-                sortBy = { name: 1 };
+                sortBy = { slug: 1 };
                 break;
             }
-          } else { sortBy = { name: 1 }; }
+          } else { sortBy = { slug: 1 }; }
           ixp.aggregate([
             {
               $project: {
@@ -900,7 +903,7 @@ class IXP {
               },
             },
             {
-              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { nameLong: { $regex: search.s, $options: 'i' } }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
+              $match: { $and: [uuid, { name: { $regex: search.s.toLowerCase(), $options: 'i' } }, { nameLong: { $regex: search.s, $options: 'i' } }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
             },
             {
               $sort: sortBy,

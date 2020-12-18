@@ -875,10 +875,10 @@ class Cable {
               },
             },
             {
-              $match: { $and: [{ name: { $regex: search.s, $options: 'i' } }, uuid, { deleted: { $ne: true } }] }, // , uuid, { deleted: { $ne: true } } { $and: [uuid, , { deleted: false }] },
+              $match: { $and: [{ name: { $regex: search.s.toLowerCase(), $options: 'i' } }, uuid, { deleted: { $ne: true } }] }, // , uuid, { deleted: { $ne: true } } { $and: [uuid, , { deleted: false }] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
-            { $sort: { name: 1, yours: -1 } },
+            { $sort: { slug: 1 } },
             { $limit: 20 },
           ]).toArray((err, r) => {
             resolve(r);
@@ -917,10 +917,10 @@ class Cable {
               sortBy = { uDate: -1 };
               break;
             default:
-              sortBy = { name: 1, yours: -1 };
+              sortBy = { slug: 1 };
               break;
           }
-        } else { sortBy = { name: 1, yours: -1 }; }
+        } else { sortBy = { slug: 1 }; }
 
         this.model().then((cable) => {
           cable.aggregate([
@@ -936,7 +936,7 @@ class Cable {
               },
             },
             {
-              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { terrestrial: true }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
+              $match: { $and: [uuid, { name: { $regex: search.s.toLowerCase(), $options: 'i' } }, { terrestrial: true }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {
@@ -1003,10 +1003,10 @@ class Cable {
               sortBy = { activationDateTime: -1 };
               break;
             default:
-              sortBy = { name: 1, yours: -1 };
+              sortBy = { slug: 1 };
               break;
           }
-        } else { sortBy = { name: 1, yours: -1 }; }
+        } else { sortBy = { slug: 1 }; }
         this.model().then((cable) => {
           cable.aggregate([
             {
@@ -1024,7 +1024,7 @@ class Cable {
               },
             },
             {
-              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { terrestrial: false }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
+              $match: { $and: [uuid, { name: { $regex: search.s.toLowerCase(), $options: 'i' } }, { terrestrial: false }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {

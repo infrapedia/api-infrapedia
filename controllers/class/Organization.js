@@ -193,7 +193,8 @@ class Organization {
             organization.aggregate([
               {
                 $sort: { name: 1 },
-              }, {
+              },
+              {
                 $match: {
                   $and: [
                     adms(user),
@@ -327,10 +328,10 @@ class Organization {
                 sortBy = { uDate: -1 };
                 break;
               default:
-                sortBy = { name: 1 };
+                sortBy = { slug: 1 };
                 break;
             }
-          } else { sortBy = { name: 1, yours: -1 }; }
+          } else { sortBy = { slug: 1 }; }
           organization.aggregate([
             {
               $project: {
@@ -348,7 +349,7 @@ class Organization {
               $addFields: { name: { $toLower: '$name' } },
             },
             {
-              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
+              $match: { $and: [uuid, { name: { $regex: search.s.toLowerCase(), $options: 'i' } }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {
@@ -471,6 +472,7 @@ class Organization {
                       // cables: 1,
                     },
                   },
+                  { $sort: { name: 1 } },
                 ],
                 as: 'networks',
               },
