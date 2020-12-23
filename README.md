@@ -9,6 +9,7 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 V.6
 | Version  | Changes |
 | ------------- | ------------- |
+|6.2.1.20201221|- Fix script to update information from peering db  | 
 |6.2.20201221|- New functionalities to update information from peering db  | 
 |6.1.20201218|- Fix some bugs at the last commit  | 
 |6.0.20201213|- Create highlight for cable association  | 

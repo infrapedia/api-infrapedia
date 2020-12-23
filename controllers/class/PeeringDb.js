@@ -145,7 +145,7 @@ class PeeringDb {
                             country: countries(body.data[0].country),
                           },
                         ];
-                        facility.updateOne({ fac_id: String(f.fac_id) }, { $addToSet: { owners: new ObjectID(r._id) }, $set: { name: body.data[0].name, building: 'data_center', address, uDate: luxon.DateTime.utc() } }, (err, fu) => {
+                        facility.updateOne({ fac_id: String(f.fac_id) }, { $addToSet: { owners: new ObjectID(r._id) }, $set: { name: body.data[0].name, t: 'data_center', address, uDate: luxon.DateTime.utc() } }, (err, fu) => {
                           console.log('Update facility ====>', f.fac_id, ' =====> ', body.data[0].org_id, '=====>', fu.result.nModified);
                           return '';
                         });

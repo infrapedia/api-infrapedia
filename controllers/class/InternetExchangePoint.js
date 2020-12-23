@@ -1211,7 +1211,7 @@ class IXP {
                     facility().then((facility) => {
                       if(elm !== null){
                         facility.findOneAndUpdate({ fac_id: String(connection.fac_id) },{ $addToSet: { ixps: new ObjectID(elm._id) } }, (err, f) => {
-                          if (f !== null && elm !== null) {
+                          if (f !== null && elm !== null && f.value !== null) {
                             ixp.updateOne({ _id: new ObjectID(elm._id) }, { $addToSet: { facilities: new ObjectID(f.value._id) } }, (err, u) =>{
                               console.log('IXP ---->', elm._id, ' ====> Fac', f.value._id, new Date());
                               return 'Ready';
