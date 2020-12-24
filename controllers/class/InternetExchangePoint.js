@@ -305,7 +305,7 @@ class IXP {
   addByTransfer(data) {
     return new Promise((resolve, reject) => {
       try {
-        if (GJV.valid(JSON.parse(data.point))) {
+        if (true) {
           this.model().then((ixps) => {
             console.log(data.ix_id);
             ixps.find({ ix_id: String(data.ix_id) }).count(async (err, c) => {
