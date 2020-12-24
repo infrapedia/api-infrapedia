@@ -307,7 +307,8 @@ class IXP {
       try {
         if (GJV.valid(JSON.parse(data.point))) {
           this.model().then((ixps) => {
-            ixps.find({ name: String(data.name) }).count(async (err, c) => {
+            console.log(data.ix_id);
+            ixps.find({ ix_id: String(data.ix_id) }).count(async (err, c) => {
               if (err) resolve({ m: err });
               else if (c > 0) { resolve({ m: 'We have registered in our system more than one organization with the same name' }); } else {
                 console.log(transfer); transfer += 1;
