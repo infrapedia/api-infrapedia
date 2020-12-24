@@ -319,7 +319,7 @@ class IXP {
                   nameLong: String(data.name_long),
                   owners: [],
                   notes: '', // String(data.notes)
-                  geom: JSON.parse(data.point),
+                  geom: {},
                   address: [
                     {
                       reference: '',
