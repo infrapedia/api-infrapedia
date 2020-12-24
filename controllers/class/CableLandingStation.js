@@ -635,8 +635,17 @@ class CLS {
                 country: { $cond: [{ $ne: ['$country', ''] }, { $concat: [',', '$country'] }, ''] },
               },
             },
+            // {
+            //   $match: { $and: [{ $or: [{ name: { $regex: search.s.toLowerCase(), $options: 'i' } }, { country: { $regex: search.s.toLowerCase(), $options: 'i' } }] }, uuid, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] }, // { $and: [uuid, , { deleted: false }] },
+            // },
             {
-              $match: { $and: [{ $or: [{ name: { $regex: search.s.toLowerCase(), $options: 'i' } }, { country: { $regex: search.s.toLowerCase(), $options: 'i' } }] }, uuid, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] }, // { $and: [uuid, , { deleted: false }] },
+              $match: {
+                $and: [
+                  uuid,
+                  { name: { $regex: search.s, $options: 'i' } },
+                  (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {},
+                ],
+              },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } }, name: { $concat: ['$name', ', ', '$country'] } } },
             {

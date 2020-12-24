@@ -16,6 +16,7 @@ class Facility {
   add(user, data) {
     return new Promise((resolve, reject) => {
       try {
+        console.log(data.facilities);
         this.model().then(async (facility) => {
           if (data) {
             const element = {
@@ -1463,8 +1464,17 @@ class Facility {
                 uDate: 1,
               },
             },
+            // {
+            //   $match: { $and: [uuid, { name: { $regex: search.s.toLowerCase(), $options: 'i' } }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
+            // },
             {
-              $match: { $and: [uuid, { name: { $regex: search.s.toLowerCase(), $options: 'i' } }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
+              $match: {
+                $and: [
+                  uuid,
+                  { name: { $regex: search.s, $options: 'i' } },
+                  (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {},
+                ],
+              },
             },
             {
               $lookup: {

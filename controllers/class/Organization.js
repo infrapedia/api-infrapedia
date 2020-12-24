@@ -176,7 +176,7 @@ class Organization {
                 organization.updateOne({ $and: [adms(user), { _id: id }] }, { $set: data }, (err, u) => {
                   if (err) reject(err);
                   else if (u.result.nModified !== 1) resolve({ m: 'Not updated' });
-                  elsve resolve({ m: 'Loaded', r: data });
+                  else resolve({ m: 'Loaded', r: data });
                 });
               }
             });
@@ -350,8 +350,17 @@ class Organization {
             {
               $addFields: { name: { $toLower: '$name' } },
             },
+            // {
+            //   $match: { $and: [uuid, { name: { $regex: search.s.toLowerCase(), $options: 'i' } }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
+            // },
             {
-              $match: { $and: [uuid, { name: { $regex: search.s.toLowerCase(), $options: 'i' } }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
+              $match: {
+                $and: [
+                  uuid,
+                  { name: { $regex: search.s, $options: 'i' } },
+                  (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {},
+                ],
+              },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {

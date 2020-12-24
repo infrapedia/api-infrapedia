@@ -903,7 +903,13 @@ class IXP {
               },
             },
             {
-              $match: { $and: [uuid, { name: { $regex: search.s.toLowerCase(), $options: 'i' } }, { nameLong: { $regex: search.s, $options: 'i' } }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
+              $match: {
+                $and: [
+                  uuid,
+                  { $or: [{ name: { $regex: search.s, $options: 'i' } }, { nameLong: { $regex: search.s, $options: 'i' } }] },
+                  (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {},
+                ],
+              },
             },
             {
               $sort: sortBy,

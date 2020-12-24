@@ -259,6 +259,9 @@ class Cable {
               const idUpdate = data._id;
               const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
               const cls = (Array.isArray(data.cls)) ? data.cls : [];
+
+              // console.log(data.facilities);
+
               data = {
                 uuid: String(user),
                 name: String(data.name),
@@ -292,9 +295,10 @@ class Cable {
                 // Founds cables
                 c.facilities = await c.facilities.map((facility) => String(facility));
                 const facilitiesNotFounds = await (Array.isArray(data.facilities) && c.facilities !== undefined) ? c.facilities.filter((f) => !data.facilities.includes(f)) : [];
-                await data.facilities.map((facility) => this.updateFacilityConnection(facility, id, (c.terrestrial) ? 't' : 's'));
                 await facilitiesNotFounds.map((facility) => this.removeFacilityConnection(facility, id, (c.terrestrial) ? 't' : 's'));
+                await data.facilities.map((facility) => this.updateFacilityConnection(facility, id, (c.terrestrial) ? 't' : 's'));
 
+                console.log('estos son los facilities a actualziar', facilitiesNotFounds);
 
                 if (err) reject({ m: err });
                 const segments = require('../../models/cable_segments.model');
@@ -875,8 +879,17 @@ class Cable {
               },
             },
             {
-              $match: { $and: [{ name: { $regex: search.s.toLowerCase(), $options: 'i' } }, uuid, { deleted: { $ne: true } }] }, // , uuid, { deleted: { $ne: true } } { $and: [uuid, , { deleted: false }] },
+              $match: {
+                $and: [
+                  uuid,
+                  { name: { $regex: search.s, $options: 'i' } },
+                  (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {},
+                ],
+              },
             },
+            // {
+            //   $match: { $and: [{ name: { $regex: search.s.toLowerCase(), $options: 'i' } }, uuid, { deleted: { $ne: true } }] }, // , uuid, { deleted: { $ne: true } } { $and: [uuid, , { deleted: false }] },
+            // },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             { $sort: { slug: 1 } },
             { $limit: 20 },
