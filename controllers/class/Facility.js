@@ -1447,10 +1447,10 @@ class Facility {
                 sortBy = { uDate: -1 };
                 break;
               default:
-                sortBy = { name: 1 };
+                sortBy = { slug: 1 };
                 break;
             }
-          } else { sortBy = { name: 1 }; }
+          } else { sortBy = { slug: 1 }; }
           facility.aggregate([
             {
               $project: {

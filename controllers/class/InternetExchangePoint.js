@@ -276,7 +276,6 @@ class IXP {
                   proto_ipv6: 1,
                   proto_multicast: 1,
                   proto_unicast: 1,
-                  techEmail: 1,
                   techPhone: 1,
                   uuid: 1,
                   deleted: 1,
