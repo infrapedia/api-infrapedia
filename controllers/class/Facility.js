@@ -349,6 +349,7 @@ class Facility {
     return new Promise((resolve, reject) => {
       try {
         this.model().then((facility) => {
+          console.log(data.fac_id);
           facility.find({ fac_id: String(data.fac_id) }).count(async (err, c) => {
             if (err) resolve({ m: err });
             else if (c > 0) resolve({ m: 'We have registered in our system more than one organization with the same name' });
