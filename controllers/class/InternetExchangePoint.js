@@ -305,7 +305,7 @@ class IXP {
   addByTransfer(data) {
     return new Promise((resolve, reject) => {
       try {
-        if (true) {
+        if (GJV.valid(JSON.parse(data.point))) {
           this.model().then((ixps) => {
             console.log(data.ix_id);
             ixps.find({ ix_id: String(data.ix_id) }).count(async (err, c) => {
@@ -319,7 +319,7 @@ class IXP {
                   nameLong: String(data.name_long),
                   owners: [],
                   notes: '', // String(data.notes)
-                  geom: {},
+                  geom: (data.point)JSON.parse(data.point),
                   address: [
                     {
                       reference: '',
