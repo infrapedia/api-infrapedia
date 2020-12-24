@@ -52,7 +52,7 @@ module.exports = {
         .catch((e) => { response.err(res, e); });
     });
     router.get(`${process.env._ROUTE}/transfer/connectionorgwfac`, (req, res) => {
-      controllers.organizations.connectionORGIXP()
+      controllers.organizations.connectionORGFAC()
         .then((r) => { response.success(res, r); })
         .catch((e) => { response.err(res, e); });
     });

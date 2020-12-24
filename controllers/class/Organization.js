@@ -65,6 +65,7 @@ class Organization {
   addByTransfer(data) {
     return new Promise((resolve, reject) => {
       try {
+        console.log(data.ooid);
         this.model().then((organization) => {
           // we need to validate if  don't have another organization with the same name
           // TODO: discard deleted files
@@ -106,6 +107,7 @@ class Organization {
               organization.insertOne(data, (err, i) => {
                 // TODO: validation insert
                 if (err) resolve({ m: err });
+                console.log('Organization created', String(data.ooid));
                 resolve({ m: 'Organization created' });
               });
             }
@@ -1070,8 +1072,8 @@ class Organization {
                 if (data) {
                   await data.rows.map((getConnection) => {
                     elmConnection().then((elmConnection) => {
-                      elmConnection.findOneAndUpdate({ fac_id: getConnection.fac_id }, { $addToSet: { owners: new ObjectID(org._id) } }, (err, u) => {
-                        console.log(org.name, ' -------->', u.ok, '--->', new Date());
+                      elmConnection.findOneAndUpdate({ fac_id: getConnection.fac_id }, { $addToSet: { owners: new ObjectID(os._id) } }, (err, u) => {
+                        console.log(os.name, ' -------->', u.ok, '--->', new Date());
                       });
                     });
                   });

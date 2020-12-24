@@ -13,5 +13,11 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+    router.get(`${process.env._ROUTE}/peeringdb/facilitiesuinformationid`, (req, res) => {
+      req.setTimeout(3600000);
+      controllers.peeringDb.getFacilitiesInformationById(req.query.p)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
   },
 };

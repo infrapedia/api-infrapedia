@@ -59,7 +59,7 @@ class PeeringDb {
                                     media: body.data[0].media,
                                   },
                                 }, (err, ixu) => {
-                                  console.log(`Facilities updated ====> ${u.value._id} ===> ${ixIid} ====> ${ixPid}`);
+                                  console.log(`IXP updated ====> ${u.value._id} ===> ${ixIid} ====> ${ixPid}`);
                                   // if (err) { reject(ixIid); }
                                   return 'Ok';
                                 });
@@ -136,7 +136,7 @@ class PeeringDb {
                       if (r !== null) {
                         const address = [
                           {
-                            reference: `${body.data[0].address1} ${body.data[0].address2}`,
+                            fullAddress: `${body.data[0].address1} ${body.data[0].address2}`,
                             street: `${body.data[0].address1} ${body.data[0].address2}`,
                             apt: '',
                             city: body.data[0].city,
@@ -145,12 +145,161 @@ class PeeringDb {
                             country: countries(body.data[0].country),
                           },
                         ];
-                        facility.updateOne({ fac_id: String(f.fac_id) }, { $addToSet: { owners: new ObjectID(r._id) }, $set: { name: body.data[0].name, t: 'data_center', address, uDate: luxon.DateTime.utc() } }, (err, fu) => {
+                        facility.updateOne({ fac_id: String(f.fac_id) }, { $set: { owners: [new ObjectID(r._id)], name: body.data[0].name, t: 'data_center', address, uDate: luxon.DateTime.utc() } }, (err, fu) => {
                           console.log('Update facility ====>', f.fac_id, ' =====> ', body.data[0].org_id, '=====>', fu.result.nModified);
                           return '';
                         });
+                      } else {
+                        const url = `https://www.peeringdb.com/api/org/${String(body.data[0].org_id)}`;
+                        const options = { json: true };
+                        request(url, options, async (error, res, body) => {
+                          console.log(body);
+                          let data = {
+                            uuid: '',
+                            ooid: String(body.data[0].id),
+                            name: String(body.data[0].name),
+                            notes: '', // String(data.notes)
+                            logo: '',
+                            information: '',
+                            address: [
+                              {
+                                reference: `${body.data[0].address1} ${body.data[0].address2}`,
+                                street: `${body.data[0].address1} ${body.data[0].address2}`,
+                                apt: '',
+                                city: `${body.data[0].city}`,
+                                state: `${body.data[0].state}`,
+                                zipcode: `${body.data[0].zipcode}`,
+                                country: countries(body.data[0].country),
+                              },
+                            ],
+                            url: String(body.data[0].url),
+                            premium: '',
+                            istrusted: false,
+                            non_peering: '',
+                            tags: [],
+                            rgDate: luxon.DateTime.utc(),
+                            uDate: luxon.DateTime.utc(),
+                            status: true,
+                            deleted: false,
+                            validated: false,
+                          };
+                          // console.log( JSON.stringify( data ) );
+                          organization.insertOne(data, (err, i) => {
+                            // TODO: validation insert
+                            if (err) resolve({ m: err });
+                            console.log('Organization created', String(data.ooid));
+                            resolve({ m: 'Organization created' });
+                          });
+                        });
                       }
                     });
+                  }
+                });
+              }
+            });
+            resolve({ m: 'Information saved' });
+          });
+        });
+      }).catch((e) => {
+
+      });
+    });
+  }
+
+  getFacilitiesInformationById(fac_id){
+    return new Promise((resolve, reject) => {
+      console.log(fac_id);
+      facility().then((facility) => {
+        org().then((organization) => {
+          facility.aggregate([
+            {
+              $match: {
+                fac_id: String(fac_id),
+              },
+            },
+            {
+              $project: {
+                _id: 1,
+                fac_id: 1,
+              },
+            },
+          ]).toArray(async (err, facs) => {
+            if (err) {
+              console.log(err);
+            }
+            await facs.map((f) => {
+              if (f.fac_id !== undefined && f.fac_id !== ''){
+                const url = `https://www.peeringdb.com/api/fac/${f.fac_id}`;
+                const options = { json: true };
+                request(url, options, async (error, res, body) => {
+                  if (body !== undefined && body.data !== undefined) {
+                    organization.findOne({ ooid: String(body.data[0].org_id) }, (err, r) => {
+                      if (r !== null) {
+                        const address = [
+                          {
+                            fullAddress: `${body.data[0].address1} ${body.data[0].address2}`,
+                            street: `${body.data[0].address1} ${body.data[0].address2}`,
+                            apt: '',
+                            city: body.data[0].city,
+                            state: body.data[0].state,
+                            zipcode: body.data[0].zipcode,
+                            country: countries(body.data[0].country),
+                          },
+                        ];
+
+                        console.log(r._id);
+
+                        facility.updateOne({ fac_id: String(f.fac_id) }, { $set: { owners: [new ObjectID(r._id)], name: body.data[0].name, t: 'data_center', address, uDate: luxon.DateTime.utc() } }, (err, fu) => {
+                          console.log('Update facility ====>', f.fac_id, ' =====> ', body.data[0].org_id, '=====>', fu.result.nModified);
+                          return '';
+                        });
+                      } else {
+                        const url = `https://www.peeringdb.com/api/org/${String(body.data[0].org_id)}`;
+                        const options = { json: true };
+                        request(url, options, async (error, res, body) => {
+                          console.log(body);
+                          let data = {
+                            uuid: '',
+                            ooid: String(body.data[0].id),
+                            name: String(body.data[0].name),
+                            notes: '', // String(data.notes)
+                            logo: '',
+                            information: '',
+                            address: [
+                              {
+                                reference: `${body.data[0].address1} ${body.data[0].address2}`,
+                                street: `${body.data[0].address1} ${body.data[0].address2}`,
+                                apt: '',
+                                city: `${body.data[0].city}`,
+                                state: `${body.data[0].state}`,
+                                zipcode: `${body.data[0].zipcode}`,
+                                country: countries(body.data[0].country),
+                              },
+                            ],
+                            url: String(body.data[0].url),
+                            premium: '',
+                            istrusted: false,
+                            non_peering: '',
+                            tags: [],
+                            rgDate: luxon.DateTime.utc(),
+                            uDate: luxon.DateTime.utc(),
+                            status: true,
+                            deleted: false,
+                            validated: false,
+                          };
+                          // console.log( JSON.stringify( data ) );
+                          organization.insertOne(data, (err, i) => {
+                            // TODO: validation insert
+                            if (err) resolve({ m: err });
+                            console.log('Organization created', String(data.ooid));
+                            resolve({ m: 'Organization created' });
+                          });
+                        });
+                      }
+                    });
+                  }
+                  else {
+                    console.log(error);
                   }
                 });
               }
