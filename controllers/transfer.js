@@ -64,7 +64,7 @@ FROM facility`;
                       left outer join facility f on (fi.fac_id=f.fac_id)`;
     pool.query(SQLquery, async (error, results) => {
       if (error) { throw error; }
-      console.log(results.rows.length);
+      console.log('------ QUANTITY -----------',results.rows.length, '-----------------');
       Promise.all(results.rows.map((f) => IXP.addByTransfer(f))).then((r) => {
         resolve({ m: 'The transfer was finished' });
       }).catch((e) => {
