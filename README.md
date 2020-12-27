@@ -6,9 +6,18 @@ We're using NodeJS version v10.19.0
 If we have a problem installing the SQLite we can use sudo npm install --unsafe-perm=true --allow-root
 
 ## Versions
-V.5
+V.6
 | Version  | Changes |
 | ------------- | ------------- |
+|6.2.5.20201224|- Fix the search fields  | 
+|6.2.2.20201224|- Fix the elements order  | 
+|6.2.1.20201221|- Fix script to update information from peering db  | 
+|6.2.20201221|- New functionalities to update information from peering db  | 
+|6.1.20201218|- Fix some bugs at the last commit  | 
+|6.0.20201213|- Create highlight for cable association  | 
+
+PREVIUS VERSIONS
+```
 |5.9.20201208|- Check peering id, validate empty points for cluster connections && fix bugs with bigs relations  | 
 |5.8.20201206|- Create cluster relation from Facilities to IXP and IXP to Facilities  | 
 |5.6.2.20201206|- Facility-IXP connection endpoint was updated, change the word cable for organization in organization class  | 
@@ -18,28 +27,10 @@ V.5
 |5.2.20201129|- Create relations btw cables & facilities, add fields for peering db (Facilities, IXPS) | 
 |5.0.6.20201123|- Fix the make offer, sender email reply to accepted and changed the emails template| 
 |5.0.4.20201123|- Fix the connections btwn facilities & ixps, changed endpoint for get the id using slug | 
-
-V.4
-```
-|4.8.1.20201121|- Fix messages service|
-|4.8.20201116|- Fix script to create layer of cables|
-|4.7.20201115|- Cluster information by connections between IXP and facilities and update connections side by side|
-|4.5.11.20201112|- Add facilities and owners to endpoints for edit, add and view information on ixps, add information on facilities endpoints|
-|4.5.9.20201112|- Remove freshdesk service on the contact form and message service|
-|4.5.8.20201109|- Create a solution to validate the facilities, IXPS, CLS, create an updater for the centroid of facilities |
-|4.5.20201103|- Cloud layers (Add, Edit, View, and Search), Facilities edition and Issues permanent delete |
-|4.2.20201017|- New fields on facilities endpoints (Add, Update), new endpoints to see the cloud layers information |
-|4.0.20201011|- Cloud layer - Add and Edit new functionalities |
-```
-## V.3
-```
 |3.1.8.20200927|- Fixed permanent delete nd update CLS and Cables connections   |
 |3.1.1.20200919|- Fixed problem with groups SEO section   |
 |3.1.20200919|- Fixed subsea cable problems with dates   |
 |3.0.4.20200919|- Fixed SEO problems with organizations, fixed problem with cables master files, cables and CLS fixed update conections  |
-```
-## V.2
-```
 |2.9.3.20200919|- SEO changed networks by groups, added group to the SEO direct link, cluster creation for organization, cluster endpoints, and cluster funcions |
 |2.9.3.20200919|- SEO changed networks by groups, added group to the SEO direct link, cluster creation for organization, cluster endpoints, and cluster funcions |
 |2.7.20200916|- Cables master file validation |
@@ -62,9 +53,6 @@ V.4
 |2.0.8.20200817|- Sort resolved in cables, get geom facilities by points, update organization information  |
 |2.0.5.20200817|- Permanent delete fixed for administrators, ASC and DESC sort for search information, sorting by RFS for subseaCables and organization add or remove connections  |
 |2.0.20200817|- Fixed problem with cables with multiples CLS |
-```
-## V.1
-```
 |1.9.9.2.20200816|- Add RgDate and Udate to the search service response |
 |1.9.9.1.20200816|- Problem with the endpoints for permanent delete |
 |1.9.9.20200816|- Sorting data on search results and property deleted on the list table |

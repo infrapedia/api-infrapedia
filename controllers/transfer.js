@@ -62,9 +62,12 @@ FROM facility`;
     const SQLquery = `select i.*, ST_AsGeoJSON(point) as point from ix_fac fi
                       left outer join ix i on (fi.ix_id=i.ix_id)
                       left outer join facility f on (fi.fac_id=f.fac_id)`;
+    // const SQLquery = 'SELECT ix_id, org_id, name, name_long, city, country, region_continent, ' +
+    //   'media, notes, proto_unicast, proto_multicast, proto_ipv6, website, url_stats, tech_email, ' +
+    //   'tech_phone, policy_email, policy_phone, created, updated, status, premium FROM public.ix';
     pool.query(SQLquery, async (error, results) => {
       if (error) { throw error; }
-      console.log(results.rows.length);
+      console.log('------ QUANTITY -----------',results.rows.length, '-----------------');
       Promise.all(results.rows.map((f) => IXP.addByTransfer(f))).then((r) => {
         resolve({ m: 'The transfer was finished' });
       }).catch((e) => {

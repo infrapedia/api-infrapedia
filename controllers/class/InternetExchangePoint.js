@@ -266,7 +266,7 @@ class IXP {
           this.model().then((ixps) => {
             ixps.aggregate([
               {
-                $sort: { name: 1 },
+                $sort: { slug: 1 },
               },
               {
                 $project: {
@@ -276,7 +276,6 @@ class IXP {
                   proto_ipv6: 1,
                   proto_multicast: 1,
                   proto_unicast: 1,
-                  techEmail: 1,
                   techPhone: 1,
                   uuid: 1,
                   deleted: 1,
@@ -285,7 +284,7 @@ class IXP {
                 },
               },
               {
-                $sort: { name: 1 },
+                $sort: { slug: 1 },
               },
               {
                 $match: adms(user),
@@ -307,7 +306,8 @@ class IXP {
       try {
         if (GJV.valid(JSON.parse(data.point))) {
           this.model().then((ixps) => {
-            ixps.find({ name: String(data.name) }).count(async (err, c) => {
+            console.log(data.ix_id);
+            ixps.find({ ix_id: String(data.ix_id) }).count(async (err, c) => {
               if (err) resolve({ m: err });
               else if (c > 0) { resolve({ m: 'We have registered in our system more than one organization with the same name' }); } else {
                 console.log(transfer); transfer += 1;
@@ -496,6 +496,7 @@ class IXP {
                           label: '$name',
                         },
                       },
+                      { $sort: { label: 1 } },
                     ],
                     as: 'facilities',
                   },
@@ -542,6 +543,7 @@ class IXP {
                           label: '$name',
                         },
                       },
+                      { $sort: { label: 1 } },
                     ],
                     as: 'owners',
                   },
@@ -568,10 +570,11 @@ class IXP {
                       {
                         $project: {
                           _id: 1,
-                          name: 1,
+                          label: 1,
                           organizations: 1,
                         },
                       },
+                      { $sort: { label: 1 } },
                     ],
                     as: 'networks',
                   },
@@ -884,10 +887,10 @@ class IXP {
                 sortBy = { uDate: -1 };
                 break;
               default:
-                sortBy = { name: 1 };
+                sortBy = { slug: 1 };
                 break;
             }
-          } else { sortBy = { name: 1 }; }
+          } else { sortBy = { slug: 1 }; }
           ixp.aggregate([
             {
               $project: {
@@ -900,7 +903,13 @@ class IXP {
               },
             },
             {
-              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { nameLong: { $regex: search.s, $options: 'i' } }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
+              $match: {
+                $and: [
+                  uuid,
+                  { $or: [{ name: { $regex: search.s, $options: 'i' } }, { nameLong: { $regex: search.s, $options: 'i' } }] },
+                  (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {},
+                ],
+              },
             },
             {
               $sort: sortBy,
@@ -1208,7 +1217,7 @@ class IXP {
                     facility().then((facility) => {
                       if(elm !== null){
                         facility.findOneAndUpdate({ fac_id: String(connection.fac_id) },{ $addToSet: { ixps: new ObjectID(elm._id) } }, (err, f) => {
-                          if (f !== null && elm !== null) {
+                          if (f !== null && elm !== null && f.value !== null) {
                             ixp.updateOne({ _id: new ObjectID(elm._id) }, { $addToSet: { facilities: new ObjectID(f.value._id) } }, (err, u) =>{
                               console.log('IXP ---->', elm._id, ' ====> Fac', f.value._id, new Date());
                               return 'Ready';

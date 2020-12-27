@@ -60,7 +60,7 @@ class Cable {
 
                   cables.insertOne(data, async (err, i) => {
                     // TODO: validation insert
-                      if (err) reject({ m: err + 0 });
+                    if (err) reject({ m: err + 0 });
                     //
                     // if (Array.isArray(data.cls)) {
                     //   let cableLandingStation = require('./CableLandingStation');
@@ -186,8 +186,8 @@ class Cable {
       cls().then((cls) => {
         cls.updateOne({ _id: new ObjectID(idCls) }, { $addToSet: { cables: idCable } }, (err, u) => {
           if (err) return err;
-          else if (u.result.nModified !== 1) return 'Not updated 1';
-          else return 'Removed';
+          if (u.result.nModified !== 1) return 'Not updated 1';
+          return 'Removed';
         });
       }).catch((e) => (e));
     } catch (e) {
@@ -202,8 +202,8 @@ class Cable {
         const query = (subseaOrTerrestrial === 's') ? { $addToSet: { subsea: idCable } } : { $addToSet: { terrestrials: idCable } };
         facility.updateOne({ _id: new ObjectID(idFacility) }, query, (err, u) => {
           if (err) return err;
-          else if (u.result.nModified !== 1) return 'Not updated 1';
-          else return 'Removed';
+          if (u.result.nModified !== 1) return 'Not updated 1';
+          return 'Removed';
         });
       }).catch((e) => (e));
     } catch (e) {
@@ -218,8 +218,8 @@ class Cable {
         const query = (subseaOrTerrestrial === 's') ? { $pull: { subsea: idCable } } : { $pull: { terrestrials: idCable } };
         facility.updateOne({ _id: new ObjectID(idFacility) }, query, (err, u) => {
           if (err) return err;
-          else if (u.result.nModified !== 1) return 'Not updated 1';
-          else return 'Removed';
+          if (u.result.nModified !== 1) return 'Not updated 1';
+          return 'Removed';
         });
       }).catch((e) => (e));
     } catch (e) {
@@ -233,8 +233,8 @@ class Cable {
       cls().then((cls) => {
         cls.updateOne({ _id: new ObjectID(idCls) }, { $pull: { cables: idCable } }, (err, u) => {
           if (err) return err;
-          else if (u.result.nModified !== 1) return 'Not updated 2';
-          else return 'Removed';
+          if (u.result.nModified !== 1) return 'Not updated 2';
+          return 'Removed';
         });
       }).catch((e) => (e));
     } catch (e) {
@@ -259,6 +259,9 @@ class Cable {
               const idUpdate = data._id;
               const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
               const cls = (Array.isArray(data.cls)) ? data.cls : [];
+
+              // console.log(data.facilities);
+
               data = {
                 uuid: String(user),
                 name: String(data.name),
@@ -284,17 +287,18 @@ class Cable {
               // we're going to search if the user is the own of the cable
               let listSegments = JSON.parse(geomData);
               cables.findOne({ $and: [adms(user), { _id: id }] }, async (err, c) => {
-                //Founds CLS
+                // Founds CLS
                 c.cls = await c.cls.map((cls) => String(cls));
                 const clsNotFounds = await (Array.isArray(data.cls) && c.cls !== undefined) ? c.cls.filter((f) => !data.cls.includes(f)) : [];
                 await data.cls.map((cls) => this.updateCLSConnection(cls, id));
                 await clsNotFounds.map((cls) => this.removeCLSConnection(cls, id));
-                //Founds cables
+                // Founds cables
                 c.facilities = await c.facilities.map((facility) => String(facility));
                 const facilitiesNotFounds = await (Array.isArray(data.facilities) && c.facilities !== undefined) ? c.facilities.filter((f) => !data.facilities.includes(f)) : [];
-                await data.facilities.map((facility) => this.updateFacilityConnection(facility, id, (c.terrestrial) ? 't' : 's'));
                 await facilitiesNotFounds.map((facility) => this.removeFacilityConnection(facility, id, (c.terrestrial) ? 't' : 's'));
+                await data.facilities.map((facility) => this.updateFacilityConnection(facility, id, (c.terrestrial) ? 't' : 's'));
 
+                console.log('estos son los facilities a actualziar', facilitiesNotFounds);
 
                 if (err) reject({ m: err });
                 const segments = require('../../models/cable_segments.model');
@@ -875,10 +879,19 @@ class Cable {
               },
             },
             {
-              $match: { $and: [{ name: { $regex: search.s, $options: 'i' } }, uuid, { deleted: { $ne: true } }] }, // , uuid, { deleted: { $ne: true } } { $and: [uuid, , { deleted: false }] },
+              $match: {
+                $and: [
+                  uuid,
+                  { name: { $regex: search.s, $options: 'i' } },
+                  (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {},
+                ],
+              },
             },
+            // {
+            //   $match: { $and: [{ name: { $regex: search.s.toLowerCase(), $options: 'i' } }, uuid, { deleted: { $ne: true } }] }, // , uuid, { deleted: { $ne: true } } { $and: [uuid, , { deleted: false }] },
+            // },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
-            { $sort: { name: 1, yours: -1 } },
+            { $sort: { slug: 1 } },
             { $limit: 20 },
           ]).toArray((err, r) => {
             resolve(r);
@@ -917,10 +930,10 @@ class Cable {
               sortBy = { uDate: -1 };
               break;
             default:
-              sortBy = { name: 1, yours: -1 };
+              sortBy = { slug: 1 };
               break;
           }
-        } else { sortBy = { name: 1, yours: -1 }; }
+        } else { sortBy = { slug: 1 }; }
 
         this.model().then((cable) => {
           cable.aggregate([
@@ -936,7 +949,7 @@ class Cable {
               },
             },
             {
-              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { terrestrial: true }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
+              $match: { $and: [uuid, { name: { $regex: search.s.toLowerCase(), $options: 'i' } }, { terrestrial: true }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {
@@ -1003,10 +1016,10 @@ class Cable {
               sortBy = { activationDateTime: -1 };
               break;
             default:
-              sortBy = { name: 1, yours: -1 };
+              sortBy = { slug: 1 };
               break;
           }
-        } else { sortBy = { name: 1, yours: -1 }; }
+        } else { sortBy = { slug: 1 }; }
         this.model().then((cable) => {
           cable.aggregate([
             {
@@ -1024,7 +1037,7 @@ class Cable {
               },
             },
             {
-              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, { terrestrial: false }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
+              $match: { $and: [uuid, { name: { $regex: search.s.toLowerCase(), $options: 'i' } }, { terrestrial: false }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {
@@ -1069,6 +1082,136 @@ class Cable {
             },
             {
               $project: { geom: 0 },
+            },
+            {
+              $lookup: {
+                from: 'facilities',
+                let: { f: '$facilities' },
+                pipeline: [
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                      point: 1,
+                    },
+                  },
+                  {
+                    $addFields: {
+                      f: {
+                        $cond: {
+                          if: { $eq: [{ $type: '$$f' }, 'array'] },
+                          then: '$$f',
+                          else: [],
+                        },
+                      },
+                      point: { $ifNull: ['$point', {}] },
+                    },
+                  },
+                  {
+                    $match: {
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$_id', '$f'],
+                          },
+                        },
+                        {
+                          point: { $ne: {} },
+                        },
+                        {
+                          deleted: { $ne: true },
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    $addFields: {
+                      elmnt: {
+                        type: 'Feature',
+                        properties: { name: '$name', id: { $toString: '$_id' }, _id: { $toString: '$_id' } },
+                        geometry: '$point',
+                      },
+                    },
+                  },
+                  {
+                    $project: { elmnt: 1 },
+                  },
+                ],
+                as: 'facsElements',
+              },
+            },
+            {
+              $lookup: {
+                from: 'cls',
+                let: { f: '$cls' },
+                pipeline: [
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                      geom: 1,
+                    },
+                  },
+                  {
+                    $addFields: {
+                      f: {
+                        $cond: {
+                          if: { $eq: [{ $type: '$$f' }, 'array'] },
+                          then: '$$f',
+                          else: [],
+                        },
+                      },
+                      geom: { $ifNull: ['$geom', {}] },
+                    },
+                  },
+                  {
+                    $match: {
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$_id', '$f'],
+                          },
+                        },
+                        {
+                          geom: { $ne: {} },
+                        },
+                        {
+                          deleted: { $ne: true },
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    $unwind: '$geom.features',
+                  },
+                  {
+                    $addFields: {
+                      elmnt: {
+                        type: 'Feature',
+                        properties: { name: '$name', id: { $toString: '$_id' }, _id: { $toString: '$_id' } },
+                        geometry: '$geom.features.geometry',
+                      },
+                    },
+                  },
+                  {
+                    $project: { elmnt: 1 },
+                  },
+                ],
+                as: 'clsElements',
+              },
+            },
+            {
+              $addFields: {
+                clusterRelations: { $concatArrays: ['$facsElements.elmnt', '$clsElements.elmnt'] },
+              },
+            },
+            {
+              $addFields: {
+                cluster: {
+                  type: 'FeatureCollection',
+                  features: '$clusterRelations',
+                },
+              },
             },
             {
               $lookup: {
@@ -1391,6 +1534,9 @@ class Cable {
                 geom: 0,
                 status: 0,
                 deleted: 0,
+                facsElements: 0,
+                clsElements: 0,
+                clusterRelations: 0
               },
             },
           ]).toArray((err, c) => {
@@ -1678,7 +1824,7 @@ class Cable {
     return new Promise((resolve, reject) => {
       try {
         if (Object.keys(adms(usr)).length === 0) {
-          if (true) { //code === process.env.securityCode
+          if (true) { // code === process.env.securityCode
             this.model().then((element) => {
               element.deleteOne({ _id: new ObjectID(id), deleted: true }, (err, result) => {
                 if (err) reject({ m: err });

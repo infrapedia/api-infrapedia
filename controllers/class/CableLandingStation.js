@@ -607,7 +607,7 @@ class CLS {
               sortBy = { uDate: -1 };
               break;
             default:
-              sortBy = { name: 1, yours: -1 };
+              sortBy = { slug: 1 };
               break;
           }
         } else { sortBy = { name: 1, yours: -1 }; }
@@ -635,8 +635,17 @@ class CLS {
                 country: { $cond: [{ $ne: ['$country', ''] }, { $concat: [',', '$country'] }, ''] },
               },
             },
+            // {
+            //   $match: { $and: [{ $or: [{ name: { $regex: search.s.toLowerCase(), $options: 'i' } }, { country: { $regex: search.s.toLowerCase(), $options: 'i' } }] }, uuid, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] }, // { $and: [uuid, , { deleted: false }] },
+            // },
             {
-              $match: { $and: [{ $or: [{ name: { $regex: search.s, $options: 'i' } }, { country: { $regex: search.s, $options: 'i' } }] }, uuid, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] }, // { $and: [uuid, , { deleted: false }] },
+              $match: {
+                $and: [
+                  uuid,
+                  { name: { $regex: search.s, $options: 'i' } },
+                  (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {},
+                ],
+              },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } }, name: { $concat: ['$name', ', ', '$country'] } } },
             {
@@ -721,6 +730,7 @@ class CLS {
                           ],
                         },
                       },
+                      { $sort: { name: 1 } },
                     ],
                     as: 'cables',
                   },
@@ -751,6 +761,7 @@ class CLS {
                           organizations: 1,
                         },
                       },
+                      { $sort: { name: 1 } },
                     ],
                     as: 'networks',
                   },
@@ -790,6 +801,7 @@ class CLS {
                           name: 1,
                         },
                       },
+                      { $sort: { name: 1 } },
                     ],
                     as: 'organizations',
                   },

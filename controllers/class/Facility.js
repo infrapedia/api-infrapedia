@@ -16,6 +16,7 @@ class Facility {
   add(user, data) {
     return new Promise((resolve, reject) => {
       try {
+        console.log(data.facilities);
         this.model().then(async (facility) => {
           if (data) {
             const element = {
@@ -349,6 +350,7 @@ class Facility {
     return new Promise((resolve, reject) => {
       try {
         this.model().then((facility) => {
+          console.log(data.fac_id);
           facility.find({ fac_id: String(data.fac_id) }).count(async (err, c) => {
             if (err) resolve({ m: err });
             else if (c > 0) resolve({ m: 'We have registered in our system more than one organization with the same name' });
@@ -506,6 +508,7 @@ class Facility {
                           terrestrial: 0, f: 0,
                         },
                       },
+                      { $sort: { name: 1 } },
                     ],
                     as: 'subsea',
                   },
@@ -554,6 +557,7 @@ class Facility {
                           terrestrial: 0, f: 0,
                         },
                       },
+                      { $sort: { name: 1 } },
                     ],
                     as: 'terrestrials',
                   },
@@ -599,6 +603,7 @@ class Facility {
                           f: 0,
                         },
                       },
+                      { $sort: { name: 1 } },
                     ],
                     as: 'sProviders',
                   },
@@ -644,6 +649,7 @@ class Facility {
                           f: 0,
                         },
                       },
+                      { $sort: { name: 1 } },
                     ],
                     as: 'csp',
                   },
@@ -689,6 +695,7 @@ class Facility {
                           f: 0,
                         },
                       },
+                      { $sort: { name: 1 } },
                     ],
                     as: 'owners',
                   },
@@ -799,6 +806,7 @@ class Facility {
                           f: 0,
                         },
                       },
+                      { $sort: { name: 1 } },
                     ],
                     as: 'ixps',
                   },
@@ -1440,10 +1448,10 @@ class Facility {
                 sortBy = { uDate: -1 };
                 break;
               default:
-                sortBy = { name: 1 };
+                sortBy = { slug: 1 };
                 break;
             }
-          } else { sortBy = { name: 1 }; }
+          } else { sortBy = { slug: 1 }; }
           facility.aggregate([
             {
               $project: {
@@ -1456,8 +1464,17 @@ class Facility {
                 uDate: 1,
               },
             },
+            // {
+            //   $match: { $and: [uuid, { name: { $regex: search.s.toLowerCase(), $options: 'i' } }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
+            // },
             {
-              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
+              $match: {
+                $and: [
+                  uuid,
+                  { name: { $regex: search.s, $options: 'i' } },
+                  (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {},
+                ],
+              },
             },
             {
               $lookup: {

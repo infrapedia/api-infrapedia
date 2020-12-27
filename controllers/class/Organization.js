@@ -65,6 +65,7 @@ class Organization {
   addByTransfer(data) {
     return new Promise((resolve, reject) => {
       try {
+        console.log(data.ooid);
         this.model().then((organization) => {
           // we need to validate if  don't have another organization with the same name
           // TODO: discard deleted files
@@ -106,6 +107,7 @@ class Organization {
               organization.insertOne(data, (err, i) => {
                 // TODO: validation insert
                 if (err) resolve({ m: err });
+                console.log('Organization created', String(data.ooid));
                 resolve({ m: 'Organization created' });
               });
             }
@@ -193,7 +195,8 @@ class Organization {
             organization.aggregate([
               {
                 $sort: { name: 1 },
-              }, {
+              },
+              {
                 $match: {
                   $and: [
                     adms(user),
@@ -327,10 +330,10 @@ class Organization {
                 sortBy = { uDate: -1 };
                 break;
               default:
-                sortBy = { name: 1 };
+                sortBy = { slug: 1 };
                 break;
             }
-          } else { sortBy = { name: 1, yours: -1 }; }
+          } else { sortBy = { slug: 1 }; }
           organization.aggregate([
             {
               $project: {
@@ -347,8 +350,17 @@ class Organization {
             {
               $addFields: { name: { $toLower: '$name' } },
             },
+            // {
+            //   $match: { $and: [uuid, { name: { $regex: search.s.toLowerCase(), $options: 'i' } }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
+            // },
             {
-              $match: { $and: [uuid, { name: { $regex: search.s, $options: 'i' } }, (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {}] },
+              $match: {
+                $and: [
+                  uuid,
+                  { name: { $regex: search.s, $options: 'i' } },
+                  (String(search.psz) !== '1') ? { deleted: { $ne: true } } : {},
+                ],
+              },
             },
             { $addFields: { yours: { $cond: { if: { $eq: ['$uuid', user] }, then: 1, else: 0 } } } },
             {
@@ -471,6 +483,7 @@ class Organization {
                       // cables: 1,
                     },
                   },
+                  { $sort: { name: 1 } },
                 ],
                 as: 'networks',
               },
@@ -1068,8 +1081,8 @@ class Organization {
                 if (data) {
                   await data.rows.map((getConnection) => {
                     elmConnection().then((elmConnection) => {
-                      elmConnection.findOneAndUpdate({ fac_id: getConnection.fac_id }, { $addToSet: { owners: new ObjectID(org._id) } }, (err, u) => {
-                        console.log(org.name, ' -------->', u.ok, '--->', new Date());
+                      elmConnection.findOneAndUpdate({ fac_id: getConnection.fac_id }, { $addToSet: { owners: new ObjectID(os._id) } }, (err, u) => {
+                        console.log(os.name, ' -------->', u.ok, '--->', new Date());
                       });
                     });
                   });
