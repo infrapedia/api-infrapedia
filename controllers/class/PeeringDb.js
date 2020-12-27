@@ -31,6 +31,7 @@ class PeeringDb {
                 $and: [
                   {
                     $or: [
+                      { 'point.coordinates': [0, 0] },
                       { point: { } },
                       { point: '' },
                       { geom: { } },
@@ -114,6 +115,7 @@ class PeeringDb {
                 $and: [
                   {
                     $or: [
+                      { 'geom.coordinates': [0, 0] },
                       { geom: { } },
                       { geom: '' },
                     ],
@@ -138,7 +140,7 @@ class PeeringDb {
                           type: 'Point',
                           coordinates: [
                             body.results[0].geometry.location.lng,
-                            body.results[0].geometry.location.lat
+                            body.results[0].geometry.location.lat,
                           ],
                         },
                         googleUpdate: 1,
