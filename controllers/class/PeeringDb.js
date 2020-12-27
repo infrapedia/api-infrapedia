@@ -1,6 +1,7 @@
 const luxon = require('luxon');
 const { ObjectID } = require('mongodb');
 const request = require('request');
+const url = require('url');
 const pool = require('../../config/pgSQL');
 //
 const facility = require('../../models/facility.model');
@@ -10,6 +11,155 @@ const org = require('../../models/organization.model');
 const countries = require('../helpers/isoCountries');
 
 class PeeringDb {
+  updateGeoJsonPointFacilities() {
+    return new Promise((resolve, reject) => {
+      try {
+        const facilityModel = require('../../models/facility.model');
+        facilityModel().then((facility) => {
+          facility.aggregate([
+            {
+              $project: {
+                _id: 1,
+                fac_id: 1,
+                geom: 1,
+                point: 1,
+                address: 1,
+              },
+            },
+            {
+              $match: {
+                $and: [
+                  {
+                    $or: [
+                      { point: { } },
+                      { point: '' },
+                      { geom: { } },
+                      { geom: '' },
+                    ],
+                  },
+                  {
+                    fac_id: { $ne: '' },
+                  },
+                ],
+              },
+            },
+          ]).toArray(async (err, r) => {
+            if (err) { reject({ m: err }); } else {
+              await r.map((fac) => {
+                let url = `https://maps.googleapis.com/maps/api/geocode/json?address=${fac.address[0].fullAddress}, ${fac.address[0].country}&key=${process.env.GoogleAPIKey}`;
+                url = new URL(url);
+                const options = { json: true };
+                request(url.href, options, async (error, res, body) => {
+                  facility.updateOne({ _id: new ObjectID(fac._id) }, {
+                    $set: {
+                      point: {
+                        type: 'Point',
+                        coordinates: [
+                          body.results[0].geometry.location.lng,
+                          body.results[0].geometry.location.lat,
+                        ],
+                      },
+                      geom: {
+                        type: 'FeatureCollection',
+                        features: [
+                          {
+                            type: 'Feature',
+                            properties: {},
+                            geometry: {
+                              type: 'Point',
+                              coordinates: [
+                                body.results[0].geometry.location.lng,
+                                body.results[0].geometry.location.lat,
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                      googleUpdate: 1,
+                    },
+                  }, (err, result) => {
+                    console.log(result.ok);
+                    return 'Ready';
+                  });
+                });
+              });
+              resolve({ m: 'Ready' });
+            }
+          });
+        }).catch((e) => {
+          reject({ m: e });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
+
+  // eslint-disable-next-line class-methods-use-this
+  updateGeoJsonPointIXP() {
+    return new Promise((resolve, reject) => {
+      try {
+        const ixpModel = require('../../models/ixp.model');
+        ixpModel().then((ixp) => {
+          ixp.aggregate([
+            {
+              $project: {
+                _id: 1,
+                ix_id: 1,
+                geom: 1,
+                address: 1,
+              },
+            },
+            {
+              $match: {
+                $and: [
+                  {
+                    $or: [
+                      { geom: { } },
+                      { geom: '' },
+                    ],
+                  },
+                  {
+                    ix_id: { $ne: '' },
+                  },
+                ],
+              },
+            },
+          ]).toArray(async (err, r) => {
+            if (err) { reject({ m: err }); } else {
+              await r.map((ix) => {
+                let url = `https://maps.googleapis.com/maps/api/geocode/json?address=${ix.address[0].street}, ${ix.address[0].city}, ${ix.address[0].state}, ${ix.address[0].country}&key=${process.env.GoogleAPIKey}`;
+                url = new URL(url);
+                const options = { json: true };
+                request(url.href, options, async (error, res, body) => {
+                  if (body.results[0] !== undefined) {
+                    ixp.updateOne({ _id: new ObjectID(ix._id) }, {
+                      $set: {
+                        geom: {
+                          type: 'Point',
+                          coordinates: [
+                            body.results[0].geometry.location.lng,
+                            body.results[0].geometry.location.lat
+                          ],
+                        },
+                        googleUpdate: 1,
+                      },
+                    }, (err, result) => {
+                      console.log(result);
+                      return 'Ready';
+                    });
+                  }
+                });
+              });
+              resolve({ m: 'Ready' });
+            }
+          });
+        }).catch((e) => {
+          reject({ m: e });
+        });
+      } catch (e) { reject({ m: e }); }
+    });
+  }
+
   updateInformation(ixIid, ixPid) {
     return new Promise((resolve, reject) => {
       try {
@@ -20,7 +170,6 @@ class PeeringDb {
             if (error) { reject(ixIid); } else if (!error && res.statusCode === 200) {
               if (body.data[0]) {
                 if (Array.isArray(body.data[0].fac_set)) {
-
                   if (body.data[0].org !== {}) {
                     org().then((org) => {
                       ixp().then(async (ixp) => {
@@ -113,7 +262,7 @@ class PeeringDb {
     });
   }
 
-  getFacilitiesInformation(){
+  getFacilitiesInformation() {
     return new Promise((resolve, reject) => {
       facility().then((facility) => {
         org().then((organization) => {
@@ -127,7 +276,7 @@ class PeeringDb {
           ]).toArray(async (err, facs) => {
             if (err) {}
             await facs.map((f) => {
-              if (f.fac_id !== undefined && f.fac_id !== ''){
+              if (f.fac_id !== undefined && f.fac_id !== '') {
                 const url = `https://www.peeringdb.com/api/fac/${f.fac_id}`;
                 const options = { json: true };
                 request(url, options, async (error, res, body) => {
@@ -145,7 +294,11 @@ class PeeringDb {
                             country: countries(body.data[0].country),
                           },
                         ];
-                        facility.updateOne({ fac_id: String(f.fac_id) }, { $set: { owners: [new ObjectID(r._id)], name: body.data[0].name, t: 'data_center', address, uDate: luxon.DateTime.utc() } }, (err, fu) => {
+                        facility.updateOne({ fac_id: String(f.fac_id) }, {
+                          $set: {
+                            owners: [new ObjectID(r._id)], name: body.data[0].name, t: 'data_center', address, uDate: luxon.DateTime.utc(),
+                          },
+                        }, (err, fu) => {
                           console.log('Update facility ====>', f.fac_id, ' =====> ', body.data[0].org_id, '=====>', fu.result.nModified);
                           return '';
                         });
@@ -154,7 +307,7 @@ class PeeringDb {
                         const options = { json: true };
                         request(url, options, async (error, res, body) => {
                           console.log(body);
-                          let data = {
+                          const data = {
                             uuid: '',
                             ooid: String(body.data[0].id),
                             name: String(body.data[0].name),
@@ -206,7 +359,7 @@ class PeeringDb {
     });
   }
 
-  getFacilitiesInformationById(fac_id){
+  getFacilitiesInformationById(fac_id) {
     return new Promise((resolve, reject) => {
       console.log(fac_id);
       facility().then((facility) => {
@@ -228,7 +381,7 @@ class PeeringDb {
               console.log(err);
             }
             await facs.map((f) => {
-              if (f.fac_id !== undefined && f.fac_id !== ''){
+              if (f.fac_id !== undefined && f.fac_id !== '') {
                 const url = `https://www.peeringdb.com/api/fac/${f.fac_id}`;
                 const options = { json: true };
                 request(url, options, async (error, res, body) => {
@@ -249,7 +402,11 @@ class PeeringDb {
 
                         console.log(r._id);
 
-                        facility.updateOne({ fac_id: String(f.fac_id) }, { $set: { owners: [new ObjectID(r._id)], name: body.data[0].name, t: 'data_center', address, uDate: luxon.DateTime.utc() } }, (err, fu) => {
+                        facility.updateOne({ fac_id: String(f.fac_id) }, {
+                          $set: {
+                            owners: [new ObjectID(r._id)], name: body.data[0].name, t: 'data_center', address, uDate: luxon.DateTime.utc(),
+                          },
+                        }, (err, fu) => {
                           console.log('Update facility ====>', f.fac_id, ' =====> ', body.data[0].org_id, '=====>', fu.result.nModified);
                           return '';
                         });
@@ -258,7 +415,7 @@ class PeeringDb {
                         const options = { json: true };
                         request(url, options, async (error, res, body) => {
                           console.log(body);
-                          let data = {
+                          const data = {
                             uuid: '',
                             ooid: String(body.data[0].id),
                             name: String(body.data[0].name),
@@ -297,8 +454,7 @@ class PeeringDb {
                         });
                       }
                     });
-                  }
-                  else {
+                  } else {
                     console.log(error);
                   }
                 });
