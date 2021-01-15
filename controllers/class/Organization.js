@@ -622,6 +622,131 @@ class Organization {
             },
             {
               $lookup: {
+                from: 'cables',
+                let: { idorg: '$_id' },
+                pipeline: [
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                      knownUsers: 1,
+                      terrestrial: 1,
+                    },
+                  },
+                  {
+                    $addFields: {
+                      knownUsers: { $ifNull: ['$knownUsers', []] },
+                    },
+                  },
+                  {
+                    $match: {
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$$idorg', '$knownUsers'],
+                          },
+                        },
+                        {
+                          terrestrial: true,
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'knownUsersTerrestrialN',
+              },
+            },
+            {
+              $lookup: {
+                from: 'cables',
+                let: { idorg: '$_id' },
+                pipeline: [
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                      knownUsers: 1,
+                      terrestrial: 1,
+                    },
+                  },
+                  {
+                    $addFields: {
+                      knownUsers: { $ifNull: ['$knownUsers', []] },
+                    },
+                  },
+                  {
+                    $match: {
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$$idorg', '$knownUsers'],
+                          },
+                        },
+                        {
+                          terrestrial: {$ne: true},
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'knownUsersSubseaCable',
+              },
+            },
+            {
+              $lookup: {
+                from: 'facilities',
+                let: { idorg: '$_id' },
+                pipeline: [
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                      knownUsers: 1,
+                    },
+                  },
+                  {
+                    $addFields: {
+                      knownUsers: { $ifNull: ['$knownUsers', []] },
+                    },
+                  },
+                  {
+                    $match: {
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$$idorg', '$knownUsers'],
+                          },
+                        },
+                        {
+                          terrestrial: true,
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'knownUsersFacilities',
+              },
+            },
+            {
+              $lookup: {
                 from: 'alerts',
                 let: { elemnt: { $toString: '$_id' } },
                 pipeline: [
@@ -1027,6 +1152,43 @@ class Organization {
     });
   }
 
+  associationsFacilitiesKU(id) {
+    return new Promise((resolve, reject) => {
+      try {
+        const facility = require('../../models/facility.model');
+        facility().then((associations) => {
+          associations.aggregate([
+            {
+              $project: {
+                name: 1,
+                knownUsers: 1,
+              },
+            },
+            {
+              $addFields: { knownUsers: { $ifNull: ['$knownUsers', []] } },
+            },
+            {
+              $match: {
+                owners: { $in: [new ObjectID(id), '$knownUsers'] },
+              },
+            },
+            {
+              $project: {
+                _id: '$_id',
+                label: '$name',
+              },
+            },
+          ], { allowDiskUse: true }).toArray((err, c) => {
+            if (err) reject({ m: err });
+            resolve({ m: 'Loaded', r: c });
+          });
+        }).catch((e) => { reject({ m: e }); });
+      } catch (e) {
+        reject({ m: e });
+      }
+    });
+  }
+
   permanentDelete(usr, id, code) {
     return new Promise((resolve, reject) => {
       try {
@@ -1045,6 +1207,33 @@ class Organization {
           reject({ m: 'Permissions denied' });
         }
       } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  updateKnownUserFacility(usr, idOrganization, idFacility, operation) {
+    return new Promise((resolve, reject) => {
+      try {
+        const facility = require('../../models/facility.model');
+        facility().then((facility) => {
+          if (operation === 'delete') {
+            facility.updateOne({ $and: [{ _id: new ObjectID(idFacility) }, adms(usr)] }, { $pull: { knownUsers: new ObjectID(idOrganization) } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.result.nModified !== 1) reject({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'Knowuser removed' });
+            });
+          } else if (operation === 'add') {
+            facility.updateOne({ $and: [{ _id: new ObjectID(idFacility) }, adms(usr)] }, { $push: { knownUsers: new ObjectID(idOrganization) } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.result.nModified !== 1) reject({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'Knowuser added' });
+            });
+          } else {
+            resolve({ m: 'Resolved' });
+          }
+        }).catch((e) => { reject({ m: e }); });
+      } catch (e) {
+        reject({ m: e });
+      }
     });
   }
 

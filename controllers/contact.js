@@ -10,7 +10,7 @@ module.exports = function contact(email, data) {
         message: `From: ${data.first_name} ${data.last_name} <br /><hr/> ${data.message} <br /><br /> <strong>${data.company}</strong>`,
       }, (err, html) => {
         // When we want to include the email of user we can use r.email
-        sendEmail('', `Someone has sent a message on Infrapedia/contact - ${new Date().getDate()}/${new Date().getMonth() + 1}`, html, process.env.EMAILNOTIFICATIONS);
+        sendEmail('', `Someone has sent a message on Infrapedia/contact - ${new Date().getDate()}/${new Date().getMonth() + 1}`, html, data.email);
         resolve({ m: 'The message has been sent correctly' });
       });
       // const sendTicket = require('./helpers/freshdesk');
