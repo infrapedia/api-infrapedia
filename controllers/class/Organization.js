@@ -989,11 +989,15 @@ class Organization {
               $project: {
                 name: 1,
                 owners: 1,
+                terrestrial: 1,
               },
             },
             {
               $match: {
-                owners: { $in: [new ObjectID(id), '$owners'] },
+                $and: [
+                  { owners: { $in: [new ObjectID(id), '$knownUsers'] } },
+                  { terrestrial: { $ne: true } },
+                ],
               },
             },
             {
@@ -1023,6 +1027,7 @@ class Organization {
               $project: {
                 name: 1,
                 knownUsers: 1,
+                terrestrial: 1,
               },
             },
             {
@@ -1030,7 +1035,10 @@ class Organization {
             },
             {
               $match: {
-                owners: { $in: [new ObjectID(id), '$knownUsers'] },
+                $and: [
+                  { knownUsers: { $in: [new ObjectID(id), '$knownUsers'] } },
+                  { terrestrial: { $ne: true } },
+                ],
               },
             },
             {
@@ -1060,11 +1068,15 @@ class Organization {
               $project: {
                 name: 1,
                 owners: 1,
+                terrestrial: 1,
               },
             },
             {
               $match: {
-                owners: { $in: [new ObjectID(id), '$owners'] },
+                $and: [
+                  { owners: { $in: [new ObjectID(id), '$knownUsers'] } },
+                  { terrestrial: { $eq: true } },
+                ],
               },
             },
             {
@@ -1169,7 +1181,7 @@ class Organization {
             },
             {
               $match: {
-                owners: { $in: [new ObjectID(id), '$knownUsers'] },
+                knownUsers: { $in: [new ObjectID(id), '$knownUsers'] },
               },
             },
             {

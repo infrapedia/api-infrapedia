@@ -452,6 +452,45 @@ class Cluster {
               },
               {
                 $lookup: {
+                  from: 'facilities',
+                  let: { f: '$_id' },
+                  pipeline: [
+                    {
+                      $project: {
+                        _id: 1,
+                        owners: 1,
+                        point: 1,
+                      },
+                    },
+                    {
+                      $addFields: {
+                        knownUsers: { $ifNull: ['$knownUsers', []] },
+                      },
+                    },
+                    {
+                      $match: {
+                        $expr: {
+                          $in: ['$$f', '$knownUsers'],
+                        },
+                      },
+                    },
+                    {
+                      $addFields: {
+                        ppdata: {
+                          type: 'Feature',
+                          properties: {
+                            _id: '$_id',
+                          },
+                          geometry: '$point',
+                        },
+                      },
+                    },
+                  ],
+                  as: 'facilitiesKnownUsers',
+                },
+              },
+              {
+                $lookup: {
                   from: 'ixps',
                   let: { f: '$_id' },
                   pipeline: [
@@ -501,6 +540,7 @@ class Cluster {
                 points[0].cls.map((i) => data.push(i.ppdata));
                 points[0].facilities.map((i) => data.push(i.ppdata));
                 points[0].ixps.map((i) => data.push(i.ppdata));
+                points[0].facilitiesKnownUsers.map((i) => data.push(i.ppdata));
                 // if(points[0].cls > 0) data.push(await points[0].cls.reduce((total, value) => total.concat(value.ppdata), []));
                 // if(points[0].facilities > 0) data.push(await points[0].facilities.reduce((total, value) => total.concat(value.ppdata), []));
                 // if(points[0].ixps > 0) data.push(await points[0].ixps.reduce((total, value) => total.concat(value.ppdata), []));
