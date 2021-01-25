@@ -1453,10 +1453,12 @@ class Facility {
                 break;
             }
           } else { sortBy = { slug: 1 }; }
+
           facility.aggregate([
             {
               $project: {
                 _id: 1,
+                uuid: 1,
                 name: 1,
                 slug: 1,
                 alerts: 1,
