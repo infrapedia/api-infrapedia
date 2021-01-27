@@ -338,6 +338,7 @@ class Organization {
             {
               $project: {
                 _id: 1,
+                uuid: 1,
                 name: 1,
                 slug: 1,
                 yours: 1,
@@ -402,90 +403,347 @@ class Organization {
                 _id: new ObjectID(id),
               },
             },
+            // {
+            //   $lookup: {
+            //     from: 'networks',
+            //     let: { idorg: '$_id' },
+            //     pipeline: [
+            //       {
+            //         $match: {
+            //           $and: [
+            //             {
+            //               $expr: {
+            //                 $in: ['$$idorg', '$organizations'],
+            //               },
+            //             },
+            //             {
+            //               deleted: false,
+            //             },
+            //           ],
+            //         },
+            //       },
+            //       {
+            //         $project: {
+            //           _id: 1,
+            //           name: 1,
+            //           // cls: 1,
+            //           // cables: 1,
+            //         },
+            //       },
+            //       { $sort: { name: 1 } },
+            //     ],
+            //     as: 'networks',
+            //   },
+            // },
             {
               $lookup: {
-                from: 'networks',
+                from: 'cls',
                 let: { idorg: '$_id' },
                 pipeline: [
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                      owners: 1,
+                    },
+                  },
+                  {
+                    $addFields: {
+                      owners: { $ifNull: ['$owners', []] },
+                    },
+                  },
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$$idorg', '$owners'],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'cls',
+              },
+            },
+            {
+              $lookup: {
+                from: 'ixps',
+                let: { idorg: '$_id' },
+                pipeline: [
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                      owners: 1,
+                    },
+                  },
+                  {
+                    $addFields: {
+                      owners: { $ifNull: ['$owners', []] },
+                    },
+                  },
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$$idorg', '$owners'],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'ixps',
+              },
+            },
+            {
+              $lookup: {
+                from: 'facilities',
+                let: { idorg: '$_id' },
+                pipeline: [
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                      owners: 1,
+                    },
+                  },
+                  {
+                    $addFields: {
+                      owners: { $ifNull: ['$owners', []] },
+                    },
+                  },
+                  {
+                    $match: {
+                      $expr: {
+                        $in: ['$$idorg', '$owners'],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'facilities',
+              },
+            },
+            {
+              $lookup: {
+                from: 'cables',
+                let: { idorg: '$_id' },
+                pipeline: [
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                      owners: 1,
+                      terrestrial: 1,
+                    },
+                  },
+                  {
+                    $addFields: {
+                      owners: { $ifNull: ['$owners', []] },
+                    },
+                  },
                   {
                     $match: {
                       $and: [
                         {
                           $expr: {
-                            $in: ['$$idorg', '$organizations'],
+                            $in: ['$$idorg', '$owners'],
                           },
                         },
                         {
-                          deleted: false,
+                          terrestrial: false,
                         },
                       ],
                     },
                   },
-                  // {
-                  //   $lookup: {
-                  //     from: 'cables',
-                  //     let: { cables: '$cables' },
-                  //     pipeline: [
-                  //       {
-                  //         $addFields: {
-                  //           idscables: '$$cables',
-                  //         },
-                  //       },
-                  //       {
-                  //         $match: {
-                  //           $expr: {
-                  //             $in: ['$_id', '$idscables'],
-                  //           },
-                  //         },
-                  //       },
-                  //       {
-                  //         $project: {
-                  //           _id: 1,
-                  //           name: 1,
-                  //         },
-                  //       },
-                  //     ],
-                  //     as: 'cables',
-                  //   },
-                  // },
-                  // {
-                  //   $lookup: {
-                  //     from: 'cls',
-                  //     let: { cls: '$cls' },
-                  //     pipeline: [
-                  //       {
-                  //         $addFields: {
-                  //           idscls: '$$cls',
-                  //         },
-                  //       },
-                  //       {
-                  //         $match: {
-                  //           $expr: {
-                  //             $in: ['$_id', '$idscls'],
-                  //           },
-                  //         },
-                  //       },
-                  //       {
-                  //         $project: {
-                  //           _id: 1,
-                  //           name: 1,
-                  //         },
-                  //       },
-                  //     ],
-                  //     as: 'cls',
-                  //   },
-                  // },
                   {
                     $project: {
                       _id: 1,
                       name: 1,
-                      // cls: 1,
-                      // cables: 1,
                     },
                   },
-                  { $sort: { name: 1 } },
                 ],
-                as: 'networks',
+                as: 'subsecables',
+              },
+            },
+            {
+              $lookup: {
+                from: 'cables',
+                let: { idorg: '$_id' },
+                pipeline: [
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                      owners: 1,
+                      terrestrial: 1,
+                    },
+                  },
+                  {
+                    $addFields: {
+                      owners: { $ifNull: ['$owners', []] },
+                    },
+                  },
+                  {
+                    $match: {
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$$idorg', '$owners'],
+                          },
+                        },
+                        {
+                          terrestrial: true,
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'terrestrialnetworks',
+              },
+            },
+            {
+              $lookup: {
+                from: 'cables',
+                let: { idorg: '$_id' },
+                pipeline: [
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                      knownUsers: 1,
+                      terrestrial: 1,
+                    },
+                  },
+                  {
+                    $addFields: {
+                      knownUsers: { $ifNull: ['$knownUsers', []] },
+                    },
+                  },
+                  {
+                    $match: {
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$$idorg', '$knownUsers'],
+                          },
+                        },
+                        {
+                          terrestrial: true,
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'knownUsersTerrestrialN',
+              },
+            },
+            {
+              $lookup: {
+                from: 'cables',
+                let: { idorg: '$_id' },
+                pipeline: [
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                      knownUsers: 1,
+                      terrestrial: 1,
+                    },
+                  },
+                  {
+                    $addFields: {
+                      knownUsers: { $ifNull: ['$knownUsers', []] },
+                    },
+                  },
+                  {
+                    $match: {
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$$idorg', '$knownUsers'],
+                          },
+                        },
+                        {
+                          terrestrial: {$ne: true},
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'knownUsersSubseaCable',
+              },
+            },
+            {
+              $lookup: {
+                from: 'facilities',
+                let: { idorg: '$_id' },
+                pipeline: [
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                      knownUsers: 1,
+                    },
+                  },
+                  {
+                    $addFields: {
+                      knownUsers: { $ifNull: ['$knownUsers', []] },
+                    },
+                  },
+                  {
+                    $match: {
+                      $and: [
+                        {
+                          $expr: {
+                            $in: ['$$idorg', '$knownUsers'],
+                          },
+                        },
+                        {
+                          terrestrial: true,
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 1,
+                      name: 1,
+                    },
+                  },
+                ],
+                as: 'knownUsersFacilities',
               },
             },
             {
@@ -732,11 +990,15 @@ class Organization {
               $project: {
                 name: 1,
                 owners: 1,
+                terrestrial: 1,
               },
             },
             {
               $match: {
-                owners: { $in: [new ObjectID(id), '$owners'] },
+                $and: [
+                  { owners: { $in: [new ObjectID(id), '$knownUsers'] } },
+                  { terrestrial: { $ne: true } },
+                ],
               },
             },
             {
@@ -766,6 +1028,7 @@ class Organization {
               $project: {
                 name: 1,
                 knownUsers: 1,
+                terrestrial: 1,
               },
             },
             {
@@ -773,7 +1036,10 @@ class Organization {
             },
             {
               $match: {
-                owners: { $in: [new ObjectID(id), '$knownUsers'] },
+                $and: [
+                  { knownUsers: { $in: [new ObjectID(id), '$knownUsers'] } },
+                  { terrestrial: { $ne: true } },
+                ],
               },
             },
             {
@@ -803,11 +1069,15 @@ class Organization {
               $project: {
                 name: 1,
                 owners: 1,
+                terrestrial: 1,
               },
             },
             {
               $match: {
-                owners: { $in: [new ObjectID(id), '$owners'] },
+                $and: [
+                  { owners: { $in: [new ObjectID(id), '$knownUsers'] } },
+                  { terrestrial: { $eq: true } },
+                ],
               },
             },
             {
@@ -895,11 +1165,48 @@ class Organization {
     });
   }
 
+  associationsFacilitiesKU(id) {
+    return new Promise((resolve, reject) => {
+      try {
+        const facility = require('../../models/facility.model');
+        facility().then((associations) => {
+          associations.aggregate([
+            {
+              $project: {
+                name: 1,
+                knownUsers: 1,
+              },
+            },
+            {
+              $addFields: { knownUsers: { $ifNull: ['$knownUsers', []] } },
+            },
+            {
+              $match: {
+                knownUsers: { $in: [new ObjectID(id), '$knownUsers'] },
+              },
+            },
+            {
+              $project: {
+                _id: '$_id',
+                label: '$name',
+              },
+            },
+          ], { allowDiskUse: true }).toArray((err, c) => {
+            if (err) reject({ m: err });
+            resolve({ m: 'Loaded', r: c });
+          });
+        }).catch((e) => { reject({ m: e }); });
+      } catch (e) {
+        reject({ m: e });
+      }
+    });
+  }
+
   permanentDelete(usr, id, code) {
     return new Promise((resolve, reject) => {
       try {
         if (Object.keys(adms(usr)).length === 0) {
-          if (true) { //code === process.env.securityCode
+          if (true) { // code === process.env.securityCode
             this.model().then((element) => {
               element.deleteOne({ _id: new ObjectID(id), deleted: true }, (err, result) => {
                 if (err) reject({ m: err });
@@ -913,6 +1220,33 @@ class Organization {
           reject({ m: 'Permissions denied' });
         }
       } catch (e) { reject({ m: e }); }
+    });
+  }
+
+  updateKnownUserFacility(usr, idOrganization, idFacility, operation) {
+    return new Promise((resolve, reject) => {
+      try {
+        const facility = require('../../models/facility.model');
+        facility().then((facility) => {
+          if (operation === 'delete') {
+            facility.updateOne({ $and: [{ _id: new ObjectID(idFacility) }, adms(usr)] }, { $pull: { knownUsers: new ObjectID(idOrganization) } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.result.nModified !== 1) reject({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'Knowuser removed' });
+            });
+          } else if (operation === 'add') {
+            facility.updateOne({ $and: [{ _id: new ObjectID(idFacility) }, adms(usr)] }, { $push: { knownUsers: new ObjectID(idOrganization) } }, (err, u) => {
+              if (err) reject(err);
+              else if (u.result.nModified !== 1) reject({ m: 'Not updated' });
+              else resolve({ m: 'Loaded', r: 'Knowuser added' });
+            });
+          } else {
+            resolve({ m: 'Resolved' });
+          }
+        }).catch((e) => { reject({ m: e }); });
+      } catch (e) {
+        reject({ m: e });
+      }
     });
   }
 
@@ -1048,7 +1382,8 @@ class Organization {
             resolve({ m: 'Resolved' });
           }
         }).catch((e) => { console.log(e); reject({ m: e }); });
-      } catch (e) {console.log(e);
+      } catch (e) {
+        console.log(e);
         reject({ m: e });
       }
     });
@@ -1067,14 +1402,14 @@ class Organization {
     });
   }
 
-  connectionORGFAC(){
+  connectionORGFAC() {
     return new Promise((resolve, reject) => {
-      try{
+      try {
         const pool = require('../../config/pgSQL.js');
         const elmConnection = require('../../models/ixp.model');
         this.model().then((organization) => {
           organization.aggregate([{ $project: { _id: 1, ooid: 1 } }]).toArray(async (err, os) => {
-            if(err) { reject({ m: err }); }
+            if (err) { reject({ m: err }); }
             await os.map((org) => {
               const SQLquery = `SELECT org_id, fac_id FROM public.org_fac WHERE org_id = ${org.ooid}`;
               pool.query(SQLquery, async (err, data) => {
@@ -1098,14 +1433,14 @@ class Organization {
     });
   }
 
-  connectionORGIXP(){
+  connectionORGIXP() {
     return new Promise((resolve, reject) => {
-      try{
+      try {
         const pool = require('../../config/pgSQL.js');
         const elmConnection = require('../../models/ixp.model');
         this.model().then((organization) => {
           organization.aggregate([{ $project: { _id: 1, name: 1, ooid: 1 } }]).toArray(async (err, os) => {
-            if(err) { reject({ m: err }); }
+            if (err) { reject({ m: err }); }
             await os.map((org) => {
               const SQLquery = `SELECT org_id, ix_id FROM public.org_ix WHERE org_id = ${org.ooid}`;
               pool.query(SQLquery, async (err, data) => {
@@ -1129,20 +1464,20 @@ class Organization {
     });
   }
 
-  connectionUASN(){
+  connectionUASN() {
     return new Promise((resolve, reject) => {
-      try{
+      try {
         const pool = require('../../config/pgSQL.js');
         this.model().then((organization) => {
           organization.aggregate([{ $project: { _id: 1, name: 1, ooid: 1 } }]).toArray(async (err, os) => {
-            if(err) { reject({ m: err }); }
+            if (err) { reject({ m: err }); }
             await os.map((org) => {
               const SQLquery = `SELECT org_id, asn, name FROM public.network WHERE org_id = ${org.ooid}`;
               pool.query(SQLquery, async (err, data) => {
                 if (data) {
                   await data.rows.map((getASN) => {
                     organization.findOneAndUpdate({ _id: new ObjectID(org._id) }, { $addToSet: { asn: String(getASN.asn) } }, (err, u) => {
-                      console.log(org.name, ' -------->', u.ok, '--->',getASN.asn, ' --->', new Date());
+                      console.log(org.name, ' -------->', u.ok, '--->', getASN.asn, ' --->', new Date());
                     });
                   });
                 } else {
@@ -1156,6 +1491,5 @@ class Organization {
       } catch (e) { reject({ m: e }); }
     });
   }
-
 }
 module.exports = Organization;

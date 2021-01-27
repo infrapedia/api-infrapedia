@@ -16,7 +16,6 @@ class Facility {
   add(user, data) {
     return new Promise((resolve, reject) => {
       try {
-        console.log(data.facilities);
         this.model().then(async (facility) => {
           if (data) {
             const element = {
@@ -37,6 +36,7 @@ class Facility {
               StartDate: String(data.StartDate),
               building: String(data.building),
               owners: (Array.isArray(data.owners)) ? await data.owners.map((owner) => new ObjectID(owner)) : [],
+              knownUsers: await (Array.isArray(data.knownUsers)) ? data.knownUsers.map((item) => new ObjectID(item)) : [],
               // --- New fields ---
               buildingSize: parseInt(data.buildingSize),
               grossColocationSize: parseInt(data.grossColocationSize),
@@ -113,6 +113,7 @@ class Facility {
               StartDate: String(data.StartDate),
               building: String(data.building),
               owners: (Array.isArray(data.owners)) ? await data.owners.map((owner) => new ObjectID(owner)) : [],
+              knownUsers: await (Array.isArray(data.knownUsers)) ? data.knownUsers.map((item) => new ObjectID(item)) : [],
               // --- New fields ---
               buildingSize: parseInt(data.buildingSize),
               grossColocationSize: parseInt(data.grossColocationSize),
@@ -1452,10 +1453,12 @@ class Facility {
                 break;
             }
           } else { sortBy = { slug: 1 }; }
+
           facility.aggregate([
             {
               $project: {
                 _id: 1,
+                uuid: 1,
                 name: 1,
                 slug: 1,
                 alerts: 1,

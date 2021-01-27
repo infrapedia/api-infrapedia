@@ -447,7 +447,6 @@ class Message {
               },
             },
           ]).toArray((err, r) => {
-            console.log(err);
             resolve(r);
           });
         }).catch();

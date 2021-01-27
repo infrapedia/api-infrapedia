@@ -175,6 +175,7 @@ class Cloud {
             {
               $project: {
                 _id: 1,
+                uuid: 1,
                 name: 1,
               },
             },

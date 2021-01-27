@@ -5,12 +5,12 @@ module.exports = function contact(email, data) {
   return new Promise((resolve, reject) => {
     if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
       ejs.renderFile('templates/infrapedia/email_contact.ejs', {
-        subject: 'Someone has sent a message on Infrapedia/contact',
+        subject: data.subject,
         email: data.email,
         message: `From: ${data.first_name} ${data.last_name} <br /><hr/> ${data.message} <br /><br /> <strong>${data.company}</strong>`,
       }, (err, html) => {
         // When we want to include the email of user we can use r.email
-        sendEmail('', `Someone has sent a message on Infrapedia/contact - ${new Date().getDate()}/${new Date().getMonth() + 1}`, html, process.env.EMAILNOTIFICATIONS);
+        sendEmail('', data.subject, html, data.email);
         resolve({ m: 'The message has been sent correctly' });
       });
       // const sendTicket = require('./helpers/freshdesk');

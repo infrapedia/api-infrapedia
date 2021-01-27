@@ -47,41 +47,44 @@ class PeeringDb {
           ]).toArray(async (err, r) => {
             if (err) { reject({ m: err }); } else {
               await r.map((fac) => {
-                let url = `https://maps.googleapis.com/maps/api/geocode/json?address=${fac.address[0].fullAddress}, ${fac.address[0].country}&key=${process.env.GoogleAPIKey}`;
+                console.log(`${fac.address[0].street}, ${fac.address[0].city}, ${fac.address[0].state}, ${fac.address[0].country}`);
+                let url = `https://maps.googleapis.com/maps/api/geocode/json?address=${fac.address[0].street}, ${fac.address[0].city}, ${fac.address[0].state}, ${fac.address[0].country}&key=${process.env.GoogleAPIKey}`;
                 url = new URL(url);
                 const options = { json: true };
                 request(url.href, options, async (error, res, body) => {
-                  facility.updateOne({ _id: new ObjectID(fac._id) }, {
-                    $set: {
-                      point: {
-                        type: 'Point',
-                        coordinates: [
-                          body.results[0].geometry.location.lng,
-                          body.results[0].geometry.location.lat,
-                        ],
-                      },
-                      geom: {
-                        type: 'FeatureCollection',
-                        features: [
-                          {
-                            type: 'Feature',
-                            properties: {},
-                            geometry: {
-                              type: 'Point',
-                              coordinates: [
-                                body.results[0].geometry.location.lng,
-                                body.results[0].geometry.location.lat,
-                              ],
+                  if (body.results[0] !== undefined) {
+                    facility.updateOne({ _id: new ObjectID(fac._id) }, {
+                      $set: {
+                        point: {
+                          type: 'Point',
+                          coordinates: [
+                            body.results[0].geometry.location.lng,
+                            body.results[0].geometry.location.lat,
+                          ],
+                        },
+                        geom: {
+                          type: 'FeatureCollection',
+                          features: [
+                            {
+                              type: 'Feature',
+                              properties: {},
+                              geometry: {
+                                type: 'Point',
+                                coordinates: [
+                                  body.results[0].geometry.location.lng,
+                                  body.results[0].geometry.location.lat,
+                                ],
+                              },
                             },
-                          },
-                        ],
+                          ],
+                        },
+                        googleUpdate: 1,
                       },
-                      googleUpdate: 1,
-                    },
-                  }, (err, result) => {
-                    console.log(result.ok);
-                    return 'Ready';
-                  });
+                    }, (err, result) => {
+                      console.log(result);
+                      return 'Ready';
+                    });
+                  }
                 });
               });
               resolve({ m: 'Ready' });

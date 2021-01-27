@@ -93,6 +93,11 @@ module.exports = {
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
+    router.get(`${process.env._ROUTE}/organization/facilities/ku/:id`, (req, res) => {
+      controllers.organizations.associationsFacilitiesKU(req.params.id)
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
     router.get(`${process.env._ROUTE}/organization/facilities/:id`, (req, res) => {
       controllers.organizations.associationsFacilities(req.params.id)
         .then((r) => { response.success(res, r, false); })
@@ -105,8 +110,19 @@ module.exports = {
     });
 
     //UPDATE ELEMENTS
+    router.delete(`${process.env._ROUTE}/auth/updateknownuserFacility`, (req, res) => {
+      controllers.organizations.updateKnownUserFacility(req.headers.userid, req.body.idorg, req.body.idFacility, 'delete')
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
     router.delete(`${process.env._ROUTE}/auth/updateknownuserCable`, (req, res) => {
       controllers.organizations.updateKnownUserCable(req.headers.userid, req.body.idorg, req.body.idcable, 'delete')
+        .then((r) => { response.success(res, r, false); })
+        .catch((e) => { response.err(res, e); });
+    });
+    router.post(`${process.env._ROUTE}/auth/updateknownuserFacility`, (req, res) => {
+      console.log(req.body);
+      controllers.organizations.updateKnownUserFacility(req.headers.userid, req.body.idorg, req.body.idFacility, 'add')
         .then((r) => { response.success(res, r, false); })
         .catch((e) => { response.err(res, e); });
     });
