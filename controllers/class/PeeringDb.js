@@ -405,8 +405,6 @@ class PeeringDb {
                           },
                         ];
 
-                        console.log(r._id);
-
                         facility.updateOne({ fac_id: String(f.fac_id) }, {
                           $set: {
                             owners: [new ObjectID(r._id)], name: body.data[0].name, t: 'data_center', address, uDate: luxon.DateTime.utc(),

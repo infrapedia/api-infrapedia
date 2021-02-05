@@ -27,7 +27,7 @@ class Cable {
               stream.write(data.geom);
               stream.end(async () => {
                 const geomData = await fs.readFileSync(`./temp/${nameFile}.json`, 'utf8');
-                const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
+                // const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
                 data = {
                   uuid: String(user),
                   name: String(data.name),
@@ -35,7 +35,7 @@ class Cable {
                   // cc: String(data.cc),
                   notes: '', // String(data.notes)
                   systemLength: String(data.systemLength),
-                  activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
+                  activationDateTime: (data.activationDateTime) ? luxon.DateTime.fromJSDate(new Date(data.activationDateTime)).toUTC() : luxon.DateTime.fromJSDate(new Date()).toUTC(),
                   urls: (Array.isArray(data.urls)) ? data.urls : [],
                   terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
                   capacityTBPS: String(data.capacityTBPS),
@@ -118,6 +118,7 @@ class Cable {
               // create file
               const nameFile = Math.floor(Date.now() / 1000);
               let listSegments = data.geom;
+              const activationDateTime = (data.activationDateTime !== '') ? new Date(data.activationDateTime) : '';
               data = {
                 uuid: '',
                 cableid: String(data.cableid),
@@ -125,7 +126,7 @@ class Cable {
                 slug: slugToString(data.name),
                 notes: '', // String(data.notes)
                 systemLength: String(data.systemLength),
-                activationDateTime: luxon.DateTime.fromJSDate(data.activationDateTime).toUTC(),
+                activationDateTime: (data.activationDateTime) ? luxon.DateTime.fromJSDate(new Date(data.activationDateTime)).toUTC() : luxon.DateTime.fromJSDate(new Date()).toUTC(),
                 urls: (Array.isArray(data.urls)) ? data.urls : [],
                 terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
                 capacityTBPS: String(data.capacityTBPS),
@@ -268,7 +269,7 @@ class Cable {
                 slug: slugToString(data.name),
                 // cc: String(data.cc),
                 systemLength: String(data.systemLength),
-                activationDateTime: (activationDateTime !== '') ? luxon.DateTime.fromJSDate(activationDateTime).toUTC() : '',
+                activationDateTime: (data.activationDateTime) ? luxon.DateTime.fromJSDate(new Date(data.activationDateTime)).toUTC() : luxon.DateTime.fromJSDate(new Date()).toUTC(),
                 urls: (data.urls !== '') ? data.urls : [],
                 terrestrial: (data.terrestrial === 'True' || data.terrestrial === 'true'),
                 capacityTBPS: String(data.capacityTBPS),
@@ -297,8 +298,6 @@ class Cable {
                 const facilitiesNotFounds = await (Array.isArray(data.facilities) && c.facilities !== undefined) ? c.facilities.filter((f) => !data.facilities.includes(f)) : [];
                 await facilitiesNotFounds.map((facility) => this.removeFacilityConnection(facility, id, (c.terrestrial) ? 't' : 's'));
                 await data.facilities.map((facility) => this.updateFacilityConnection(facility, id, (c.terrestrial) ? 't' : 's'));
-
-                console.log('estos son los facilities a actualziar', facilitiesNotFounds);
 
                 if (err) reject({ m: err });
                 const segments = require('../../models/cable_segments.model');
@@ -947,6 +946,8 @@ class Cable {
                 yours: 1,
                 alerts: 1,
                 deleted: 1,
+                rgDate: 1,
+                uDate: 1,
               },
             },
             {
@@ -1479,6 +1480,7 @@ class Cable {
             },
             {
               $addFields: {
+                activationDateTime: { $cond: [{ $eq: ['$activationDateTime', ''] }, '$currentDate', '$activationDateTime' ] },
                 RFS: {
                   $let: {
                     vars: {
@@ -1537,7 +1539,7 @@ class Cable {
                 deleted: 0,
                 facsElements: 0,
                 clsElements: 0,
-                clusterRelations: 0
+                clusterRelations: 0,
               },
             },
           ]).toArray((err, c) => {
