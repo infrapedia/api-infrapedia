@@ -700,10 +700,12 @@ module.exports = {
   // // },
   cls: () => {
     try {
-      console.log('Creating CLS');
       const cls = require('../models/cls.model');
       cls().then((cls) => {
         cls.aggregate([
+          {
+            $match: { deleted: { $ne: true } },
+          },
           {
             $unwind:
                {
@@ -772,6 +774,9 @@ module.exports = {
       ixps().then((ixps) => {
         ixps.aggregate([
           {
+            $match: { deleted: { $ne: true } },
+          },
+          {
             $addFields: {
               feature: {
                 _id: { $toString: '$_id' },
@@ -823,6 +828,9 @@ module.exports = {
       const facility = require('../models/facility.model');
       facility().then((facility) => {
         facility.aggregate([
+          {
+            $match: { deleted: { $ne: true } },
+          },
           {
             $addFields: {
               organizations: [],
@@ -954,7 +962,7 @@ module.exports = {
       facility().then((facility) => {
         facility.aggregate([
           {
-            $match: { $and: [{ 'point.coordinates': { $ne: [0, 0] } }, { 'point.coordinates': { $ne: [] } }] },
+            $match: { $and: [{ 'point.coordinates': { $ne: [0, 0] } }, { 'point.coordinates': { $ne: [] } }, { deleted: { $ne: true } }] },
           },
           // {
           //   $lookup: {
