@@ -9,6 +9,8 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 V.6
 | Version  | Changes |
 | ------------- | ------------- |
+|6.9.20210205|- Discard deleted items on the map|
+|6.8.8.20210205|- Show dates on the search fields|
 |6.8.7.20210124|- Update the search methods to resolve problems with the resolve request & contact with subject|
 |6.7.20210118|- Cluster organization with known users |
 |6.6.20210114|- Add knowusers tenants for facilities, add and delete, contact reply message |
