@@ -137,8 +137,8 @@ const expressConfig = function (app) {
   app.use(`${process.env._ROUTE}/elm/map/`, express.static(`${process.cwd()}/public/mapimages`));
 
   // data parser
-  app.use(bodyParser.json({ limit: '50mb', extended: true }));
-  app.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }));
+  app.use(bodyParser.json({ limit: '100mb', extended: true }));
+  app.use(bodyParser.urlencoded({ limit: '100mb', extended: true, parameterLimit: 100000 }));
   app.use(formData.parse(options));
   app.use(formData.format());
   app.use(formData.stream());
