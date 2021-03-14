@@ -9,6 +9,10 @@ If we have a problem installing the SQLite we can use sudo npm install --unsafe-
 V.6
 | Version  | Changes |
 | ------------- | ------------- |
+|7.0.0.20210313|- Wait for segments save in database, upload information until 100MB for by cables|
+
+PREVIUS VERSIONS
+```
 |6.9.20210205|- Discard deleted items on the map|
 |6.8.8.20210205|- Show dates on the search fields|
 |6.8.7.20210124|- Update the search methods to resolve problems with the resolve request & contact with subject|
@@ -21,9 +25,6 @@ V.6
 |6.2.20201221|- New functionalities to update information from peering db  | 
 |6.1.20201218|- Fix some bugs at the last commit  | 
 |6.0.20201213|- Create highlight for cable association  | 
-
-PREVIUS VERSIONS
-```
 |5.9.20201208|- Check peering id, validate empty points for cluster connections && fix bugs with bigs relations  | 
 |5.8.20201206|- Create cluster relation from Facilities to IXP and IXP to Facilities  | 
 |5.6.2.20201206|- Facility-IXP connection endpoint was updated, change the word cable for organization in organization class  | 

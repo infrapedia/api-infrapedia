@@ -87,9 +87,11 @@ class Cable {
                         }, (err, r) => {
                           ssafe += 1;
                           segmentsCounts += 1;
-                          fs.unlink(`./temp/${nameFile}.json`, (err) => {
-                            resolve({ m: 'Cable created', r: i.insertedId });
-                          });
+                          if (ssafe === listSegments.length){
+                            fs.unlink(`./temp/${nameFile}.json`, (err) => {
+                              resolve({ m: 'Cable created', r: i.insertedId });
+                            });
+                          }
                         });
                       });
                     }).catch((e) => {
@@ -102,7 +104,7 @@ class Cable {
           }).catch((e) => reject({ m: e + 1 }));
           // else { resolve('Not user found'); }
         }
-      } catch (e) { reject({ m: e + 2 }); }
+      } catch (e) { console.log(e); reject({ m: e + 2 }); }
     });
   }
 
@@ -353,9 +355,12 @@ class Cable {
                           }, (err, r) => {
                             ssafe += 1;
                             segmentsCounts += 1;
-                            fs.unlink(`./temp/${nameFile}.json`, (err) => {
-                              resolve({ m: 'Cable updated' });
-                            });
+                            if (ssafe === listSegments.length){
+                              fs.unlink(`./temp/${nameFile}.json`, (err) => {
+                                resolve({ m: 'Cable updated' });
+                              });
+                            }
+
                           });
                         });
                       }
