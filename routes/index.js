@@ -83,9 +83,9 @@ const routes = function (router, controllers) {
 
 
   // WMS ---> SERVICE
-  // const params = { mbtiles: ['./temp/cables.mbtiles', './temp/ixps.mbtiles', './temp/cls.mbtiles', './temp/facilities.mbtiles'], quiet: false, do: process.env.wms };
-  // require('./bymodules/wms').serve(router, response, params);
-  // require('./bymodules/apiService_WMS').serve(router, response, params);
+  const params = { mbtiles: ['./temp/cables.mbtiles', './temp/ixps.mbtiles', './temp/cls.mbtiles', './temp/facilities.mbtiles', './temp/subsea.mbtiles', './temp/terrestrial.mbtiles', './temp/facilitiesp.mbtiles'], quiet: false, do: process.env.wms };
+  require('./bymodules/wms').serve(router, response, params);
+  require('./bymodules/apiService_WMS').serve(router, response, params);
   // router.get(`${process.env._ROUTE}/wms/ixps`, (req, res) => { res.sendFile(`${process.cwd()}/temp/ixps.json`); });
   // router.get(`${process.env._ROUTE}/wms/cls`, (req, res) => { res.sendFile(`${process.cwd()}/temp/cls.json`); });
   // router.get(`${process.env._ROUTE}/wms/facilities`, (req, res) => { res.sendFile(`${process.cwd()}/temp/facilities.json`); });
