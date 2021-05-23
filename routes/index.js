@@ -79,7 +79,7 @@ const routes = function (router, controllers) {
   // PeeringDb
   require('./bymodules/peeringDb').callEndPoints(router, controllers, response);
   //API SERVICE
-  require('./bymodules/apiService').callEndPoints(router, controllers, response);
+  // require('./bymodules/apiService').callEndPoints(router, controllers, response);
 
 
   // WMS ---> SERVICE
