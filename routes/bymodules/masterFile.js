@@ -16,12 +16,12 @@ module.exports = {
       controllers.masterFiles.cls();
       res.status(200).json({ t: 'success', data: { m: 'The master file is in the process of creation, we will notify you when it is completely ready' } });
     });
-    router.get(`${process.env._ROUTE}/masterfile/cablesterrestrial`, (req, res) => {
-      controllers.masterFiles.cablesT();
+    router.get(`${process.env._ROUTE}/masterfile/terrestrial`, (req, res) => {
+      controllers.masterFiles.terrestrial();
       res.status(200).json({ t: 'success', data: { m: 'The master file is in the process of creation, we will notify you when it is completely ready' } });
     });
-    router.get(`${process.env._ROUTE}/masterfile/cablessubsea`, (req, res) => {
-      controllers.masterFiles.cablesS();
+    router.get(`${process.env._ROUTE}/masterfile/subsea`, (req, res) => {
+      controllers.masterFiles.subseaCables();
       res.status(200).json({ t: 'success', data: { m: 'The master file is in the process of creation, we will notify you when it is completely ready' } });
     });
     router.get(`${process.env._ROUTE}/masterfile/cables`, (req, res) => {
@@ -38,6 +38,14 @@ module.exports = {
     });
     router.get(`${process.env._ROUTE}/masterfile/createcableslayer`, (req, res) => {
       controllers.masterFiles.buildMasterFile('cables');
+      res.status(200).json({ t: 'success', data: { m: 'The master file is in the process of creation, we will notify you when it is completely ready' } });
+    });
+    router.get(`${process.env._ROUTE}/masterfile/createsubsealayer`, (req, res) => {
+      controllers.masterFiles.buildMasterFile('subsea');
+      res.status(200).json({ t: 'success', data: { m: 'The master file is in the process of creation, we will notify you when it is completely ready' } });
+    });
+    router.get(`${process.env._ROUTE}/masterfile/createterrestriallayer`, (req, res) => {
+      controllers.masterFiles.buildMasterFile('terrestrial');
       res.status(200).json({ t: 'success', data: { m: 'The master file is in the process of creation, we will notify you when it is completely ready' } });
     });
   },
