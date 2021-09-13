@@ -87,7 +87,7 @@ class Cable {
                         }, (err, r) => {
                           ssafe += 1;
                           segmentsCounts += 1;
-                          if (ssafe === listSegments.length){
+                          if (ssafe === listSegments.length) {
                             fs.unlink(`./temp/${nameFile}.json`, (err) => {
                               resolve({ m: 'Cable created', r: i.insertedId });
                             });
@@ -355,12 +355,11 @@ class Cable {
                           }, (err, r) => {
                             ssafe += 1;
                             segmentsCounts += 1;
-                            if (ssafe === listSegments.length){
+                            if (ssafe === listSegments.length) {
                               fs.unlink(`./temp/${nameFile}.json`, (err) => {
                                 resolve({ m: 'Cable updated' });
                               });
                             }
-
                           });
                         });
                       }
@@ -823,12 +822,20 @@ class Cable {
     return new Promise((resolve, reject) => {
       try {
         const reduceCoords = [];
-        for (let i = 0; i < coords.length; ++i) {
-          if(coords[i] !== undefined){
-            for (let j = 0; j < coords[i].length; ++j) { reduceCoords.push(coords[i][j]); }
+        for (let i = 0; i <= coords.length; ++i) {
+          if (i === coords.length) {
+            resolve(reduceCoords);
+          } else if (coords[i] !== undefined) {
+            for (let j = 0; j < coords[i].length; ++j) {
+              if (coords[i].length === 2){
+                reduceCoords.push(coords[i]);
+              } else {
+                reduceCoords.push(coords[i][j]);
+              }
+
+            }
           }
         }
-        resolve(reduceCoords);
       } catch (e) { reject(e); }
     });
   }
@@ -1487,7 +1494,7 @@ class Cable {
             },
             {
               $addFields: {
-                activationDateTime: { $cond: [{ $eq: ['$activationDateTime', ''] }, '$currentDate', '$activationDateTime' ] },
+                activationDateTime: { $cond: [{ $eq: ['$activationDateTime', ''] }, '$currentDate', '$activationDateTime'] },
                 RFS: {
                   $let: {
                     vars: {
@@ -1749,7 +1756,7 @@ class Cable {
           }], { allowDiskUse: true }).toArray(async (err, results) => {
             if (err) reject(err);
             else if (results.length !== []) {
-              let i = 0;
+              const i = 0;
               await results.map((element) => {
                 this.bbox(element._id).then((bbox) => redisClient.set(`cable_${element._id}`, JSON.stringify(bbox)));
               });
