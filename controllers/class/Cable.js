@@ -824,7 +824,9 @@ class Cable {
       try {
         const reduceCoords = [];
         for (let i = 0; i < coords.length; ++i) {
-          for (let j = 0; j < coords[i].length; ++j) { reduceCoords.push(coords[i][j]); }
+          if(coords[i] !== undefined){
+            for (let j = 0; j < coords[i].length; ++j) { reduceCoords.push(coords[i][j]); }
+          }
         }
         resolve(reduceCoords);
       } catch (e) { reject(e); }
@@ -1747,6 +1749,7 @@ class Cable {
           }], { allowDiskUse: true }).toArray(async (err, results) => {
             if (err) reject(err);
             else if (results.length !== []) {
+              let i = 0;
               await results.map((element) => {
                 this.bbox(element._id).then((bbox) => redisClient.set(`cable_${element._id}`, JSON.stringify(bbox)));
               });
