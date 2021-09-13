@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>validate api</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.js"></script>
+
+</head>
+<body>
+<div id="map" style="height: 500px; min-height: 500px;"></div>
+
+<script>
+  // TO MAKE THE MAP APPEAR YOU MUST
+  // ADD YOUR ACCESS TOKEN FROM
+  // https://account.mapbox.com
+  mapboxgl.accessToken = '<%= key%>';
+  if (!mapboxgl.supported()) {
+    alert('Your browser does not support Mapbox GL');
+  } else {
+    var map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/light-v10',
+      zoom: 2,
+      center: [-74.5447, 40.6892]
+    });
+
+    map.on('load', function () {
+      map.addSource('cables', {
+        type: 'vector',
+// Use any Mapbox-hosted tileset using its tileset id.
+// Learn more about where to find a tileset id:
+// https://docs.mapbox.com/help/glossary/tileset-id/
+        url: 'http://localhost:3000/cables/{z}/{x}/{y}.pbf'
+      });
+      map.addLayer({
+        id: 'cables',
+        source:  'cables',
+        'source-layer':  'cables',
+        type: 'line',
+        maxzoom: 10,
+        'paint': {
+          'line-color': '#ff69b4',
+          'line-width': 1
+        }
+      });
+    });
+  }
+</script>
+</body>
+</html>
