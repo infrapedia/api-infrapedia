@@ -82,6 +82,7 @@ module.exports = {
           let checkedFiles = 0;
           //console.log(`=================${ids.length}=================`);
           fs.createWriteStream(`./temp/cables_${ids.length}.json`);
+
           // await ids.map((id) => {
           //   secuencial += 1;
           //   cable.aggregate([
