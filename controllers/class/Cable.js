@@ -863,15 +863,12 @@ class Cable {
                 this.getBoundsCoords([].concat(...coordinates)).then((r) => {
                   let l = [r[0], (r[r.length - 1] == 0 ) ? r[r.length - 2] : r[r.length - 1] ];  
                   if(id == '61e8b51612b8ed7497b00a75'){
-                      console.log('------  HOLA  ------', (Array.isArray(l[0])) ? (Array.isArray(l[0])) ? l : [l, l] : l);
-                      console.log('-------HOLA 2-----', [l, l]);
-
-                    
+                      console.log('------  HOLA  ------', (Array.isArray(l[0])) ? l : [l, l]);
                   } else{
                       console.log('------------', (Array.isArray(l[0])) ? (Array.isArray(l[0])) ? l : [l, l]  : l);
                   }
                   resolve({ m: 'Loaded', 
-                           r: [l, l]
+                           r: (Array.isArray(l[0])) ? l : [l, l]
                           });
                            //(Array.isArray(l[0])) ? (Array.isArray(l[0])) ? l : [l, l]  : l
                 }).catch((e) => { reject({ m: e }); });
