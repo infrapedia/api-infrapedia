@@ -861,11 +861,11 @@ class Cable {
               if (c[0].geometry !== undefined) {
                 const coordinates = [c[0].geometry.coordinates, c[(c.length - 1)].geometry.coordinates];                
                 this.getBoundsCoords([].concat(...coordinates)).then((r) => {
-                  let r = [r[0], (r[r.length - 1] == 0 ) ? r[r.length - 2] : r[r.length - 1] ];  
+                  let l = [r[0], (r[r.length - 1] == 0 ) ? r[r.length - 2] : r[r.length - 1] ];  
                   if(id == '61e8b51612b8ed7497b00a75'){
-                      console.log('------  HOLA  ------', (Array.isArray(r[0])) ? (Array.isArray(r[0])) ? r : [r, r]  : r);
+                      console.log('------  HOLA  ------', (Array.isArray(r[0])) ? (Array.isArray(r[0])) ? l : [l, l]  : l);
                   } else{
-                      console.log('------------', (Array.isArray(r[0])) ? (Array.isArray(r[0])) ? r : [r, r]  : r);
+                      console.log('------------', (Array.isArray(r[0])) ? (Array.isArray(r[0])) ? l : [l, l]  : l);
                   }
                   resolve({ m: 'Loaded', 
                            r: (Array.isArray(r[0])) ? (Array.isArray(r[0])) ? r : [r, r]  : r
