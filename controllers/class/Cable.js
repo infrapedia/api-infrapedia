@@ -863,7 +863,7 @@ class Cable {
                 this.getBoundsCoords([].concat(...coordinates)).then((r) => {
 
                   let r = [r[0], (r[r.length - 1] == 0 ) ? r[r.length - 2] : r[r.length - 1] ];
-                  console.log('-------- Validating --------', (Array.isArray(r[0])) ?  (Array.isArray(r[0])) && Array.isArray(r[1]))) ? r : [r, r] : r);
+                  console.log('-------- Validating --------', r);
                   resolve({ m: 'Loaded', 
                            r: (Array.isArray(r[0])) ?  (Array.isArray(r[0])) && Array.isArray(r[1]))) ? r : [r, r] : r 
                           });
