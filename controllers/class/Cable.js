@@ -14,7 +14,6 @@ class Cable {
   constructor() {
     this.model = require('../../models/cable.model');
   }
-17901
   add(user, data) {
     return new Promise((resolve, reject) => {
       try {
