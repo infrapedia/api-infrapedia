@@ -865,7 +865,7 @@ class Cable {
                   let a = (Array.isArray(r[0])) ? r[0][0] : r[0];
                   let b = (Array.isArray(r[r.length - 1])) ? r[r.length - 1][0] : [r.length - 1];
                   if( id == '61e8b51612b8ed7497b00a75'){
-                    console.log( '-------- Validating-------', id, r[r.length - 1] )
+                    console.log( '-------- Validating-------', id, (r[r.length - 0]) ? r[r.length - 2] : r[r.length - 1] )
                   } else{
                   }
                   resolve({ m: 'Loaded', 
