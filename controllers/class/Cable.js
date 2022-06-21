@@ -869,8 +869,10 @@ class Cable {
 
                     
                   }
+                  
+                  let r = [r[0], (r[r.length - 1] == 0 ) ? r[r.length - 2] : r[r.length - 1] ];
                   resolve({ m: 'Loaded', 
-                           r: (Array.isArray(r[0])) ? [r[0], (r[r.length - 1] == 0 ) ? r[r.length - 2] : r[r.length - 1] ] : r 
+                           r: (Array.isArray(r[0])) ?  (Array.isArray(r[0])) && Array.isArray(r[1]))) ? r : [r, r] : r 
                           });
                 }).catch((e) => { reject({ m: e }); });
               }
