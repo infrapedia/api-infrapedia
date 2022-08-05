@@ -589,7 +589,7 @@ class SEO {
                         .ele('lastmod', new Date(fs.statSync('company.xml').mtime).toISOString())
                         .up();
                       xml.ele('sitemap')
-                        .ele('loc', 'https://blog.infrapedia.com/sitemap.xml').up()
+                        .ele('loc', 'https://www.infrapedia.com/blog/sitemap.xml').up()
                         .ele('lastmod', new Date().toISOString())
                         .up();
                       xml.ele('sitemap')
