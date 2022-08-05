@@ -285,7 +285,7 @@ class SEO {
             if (elements.length > 0) {
               await elements.map((el) => {
                 xml.ele('url')
-                  .ele('loc', `${process.env._SEOURL}/app/${(el.terrestrial) ? 'terrestrial-network' : 'subsea-cable'}/${el.slug}`).up()
+                  .ele('loc', `${process.env._SEOURL}/${(el.terrestrial) ? 'terrestrial-network' : 'subsea-cable'}/${el.slug}`).up()
                   .ele('lastmod', `${el.rgDate}`)
                   .up()
                   .ele('changefreq', 'monthly')
@@ -328,7 +328,7 @@ class SEO {
             if (elements.length > 0) {
               await elements.map((el) => {
                 xml.ele('url')
-                  .ele('loc', `${process.env._SEOURL}/app/${(el.terrestrial) ? 'terrestrial-network' : 'subsea-cable'}/${el.slug}`).up()
+                  .ele('loc', `${process.env._SEOURL}/${(el.terrestrial) ? 'terrestrial-network' : 'subsea-cable'}/${el.slug}`).up()
                   .ele('lastmod', `${el.rgDate}`)
                   .up()
                   .ele('changefreq', 'monthly')
@@ -370,7 +370,7 @@ class SEO {
             if (elements.length > 0) {
               await elements.map((el) => {
                 xml.ele('url')
-                  .ele('loc', `${process.env._SEOURL}/app/cls/${el.slug}`).up()
+                  .ele('loc', `${process.env._SEOURL}/cls/${el.slug}`).up()
                   .ele('lastmod', `${el.rgDate}`)
                   .up()
                   .ele('changefreq', 'monthly')
@@ -412,7 +412,7 @@ class SEO {
             if (elements.length > 0) {
               await elements.map((el) => {
                 xml.ele('url')
-                  .ele('loc', `${process.env._SEOURL}/app/facility/${el.slug}`).up()
+                  .ele('loc', `${process.env._SEOURL}/facility/${el.slug}`).up()
                   .ele('lastmod', `${el.rgDate}`)
                   .up()
                   .ele('changefreq', 'monthly')
@@ -454,7 +454,7 @@ class SEO {
             if (elements.length > 0) {
               await elements.map((el) => {
                 xml.ele('url')
-                  .ele('loc', `${process.env._SEOURL}/app/ixp/${el.slug}`).up()
+                  .ele('loc', `${process.env._SEOURL}/ixp/${el.slug}`).up()
                   .ele('lastmod', `${el.rgDate}`)
                   .up()
                   .ele('changefreq', 'monthly')
@@ -496,7 +496,7 @@ class SEO {
             if (elements.length > 0) {
               await elements.map((el) => {
                 xml.ele('url')
-                  .ele('loc', `${process.env._SEOURL}/app/group/${el.slug}`).up()
+                  .ele('loc', `${process.env._SEOURL}/group/${el.slug}`).up()
                   .ele('lastmod', `${el.rgDate}`)
                   .up()
                   .ele('changefreq', 'monthly')
@@ -543,7 +543,7 @@ class SEO {
             if (elements.length > 0) {
               await elements.map((el) => {
                 xml.ele('url')
-                  .ele('loc', `${process.env._SEOURL}/app/organization/${el.slug}`).up()
+                  .ele('loc', `${process.env._SEOURL}/organization/${el.slug}`).up()
                   .ele('lastmod', `${el.rgDate}`)
                   .up()
                   .ele('changefreq', 'monthly')
